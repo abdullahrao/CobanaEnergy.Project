@@ -236,7 +236,7 @@ namespace CobanaEnergy.Project.Controllers
 
 
                 //return JsonResponse.Ok(null, "Login successful!");
-                return JsonResponse.Ok(new { redirectUrl }, "Login successful!");
+                return JsonResponse.Ok(new { redirectUrl });
             }
             catch (Exception ex)
             {

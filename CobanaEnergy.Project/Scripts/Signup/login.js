@@ -10,7 +10,7 @@
             data: $(this).serialize(),
             success: function (response) {
                 if (response.success) {
-                    showToastSuccess(response.message);
+                    //showToastSuccess(response.message);
                     window.location.href = response.Data.redirectUrl;
                     //if (response.data && response.Data.redirectUrl) {
                     //    setTimeout(() => {
