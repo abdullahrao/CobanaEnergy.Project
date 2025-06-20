@@ -1,0 +1,471 @@
+﻿<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\EntityFramework.6.5.1\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.5.1\build\EntityFramework.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{CEB8310A-2F9C-4FF8-9A1A-9E092AEC0527}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>CobanaEnergy.Project</RootNamespace>
+    <AssemblyName>CobanaEnergy.Project</AssemblyName>
+    <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
+    <UseIISExpress>true</UseIISExpress>
+    <Use64BitIISExpress />
+    <IISExpressSSLPort>44388</IISExpressSSLPort>
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.5.1\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.5.1\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.Identity.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Identity.Core.2.2.4\lib\net45\Microsoft.AspNet.Identity.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.Identity.EntityFramework, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Identity.EntityFramework.2.2.4\lib\net45\Microsoft.AspNet.Identity.EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.Identity.Owin, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Identity.Owin.2.2.4\lib\net45\Microsoft.AspNet.Identity.Owin.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=4.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.4.1.0\lib\net472\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Owin, Version=4.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.4.2.2\lib\net45\Microsoft.Owin.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Host.SystemWeb, Version=4.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Host.SystemWeb.4.2.2\lib\net45\Microsoft.Owin.Host.SystemWeb.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security, Version=4.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Security.4.2.2\lib\net45\Microsoft.Owin.Security.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security.Cookies, Version=4.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Security.Cookies.4.2.2\lib\net45\Microsoft.Owin.Security.Cookies.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security.OAuth, Version=3.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Security.OAuth.3.0.1\lib\net45\Microsoft.Owin.Security.OAuth.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json.Bson, Version=1.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.Bson.1.0.3\lib\net45\Newtonsoft.Json.Bson.dll</HintPath>
+    </Reference>
+    <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
+      <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Buffers, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Buffers.4.6.1\lib\net462\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Memory, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Memory.4.6.3\lib\net462\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Net.Http.Formatting, Version=6.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.6.0.0\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.6.1\lib\net462\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.1.2\lib\net462\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security" />
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.4.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.6.3\lib\net462\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.3.0\lib\net45\System.Web.Helpers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http, Version=5.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.3.0\lib\net45\System.Web.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http.WebHost, Version=5.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.5.3.0\lib\net45\System.Web.Http.WebHost.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Mvc, Version=5.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.5.3.0\lib\net45\System.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Razor.3.3.0\lib\net45\System.Web.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.3.0\lib\net45\System.Web.WebPages.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.3.0\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.3.0\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Web.Infrastructure">
+      <HintPath>..\packages\Microsoft.Web.Infrastructure.2.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\Dual\CreateDual.css" />
+    <Content Include="Content\Dual\EditDual.css" />
+    <Content Include="Content\Electric\CreateElectric.css" />
+    <Content Include="Content\Electric\EditElectric.css" />
+    <Content Include="Content\Gas\CreateGas.css" />
+    <Content Include="Content\Gas\EditGas.css" />
+    <Content Include="Content\Icons\favicon.png" />
+    <Content Include="Content\PreSales\Dashboard.css" />
+    <Content Include="Content\Signup\ChangePassword.css" />
+    <Content Include="Content\Site.css" />
+    <Content Include="Content\Signup\UserCreation.css" />
+    <Content Include="Content\Supplier\EditSupplier.css" />
+    <Content Include="Content\Supplier\SupplierCreation.css" />
+    <Content Include="Content\Supplier\SupplierDashboard.css" />
+    <Content Include="Global.asax" />
+    <Content Include="Scripts\Dropdown\dropdowns.js" />
+    <Content Include="Scripts\Dual\createDual.js" />
+    <Content Include="Scripts\Dual\editDual.js" />
+    <Content Include="Scripts\Electric\createElectric.js" />
+    <Content Include="Scripts\Electric\editElectric.js" />
+    <Content Include="Scripts\Gas\createGas.js" />
+    <Content Include="Scripts\Gas\editGas.js" />
+    <Content Include="Scripts\PreSales\dashboard.js" />
+    <Content Include="Scripts\Signup\changePassword.js" />
+    <Content Include="Scripts\Signup\login.js" />
+    <Content Include="Scripts\site.js" />
+    <Content Include="Scripts\Signup\userCreation.js" />
+    <Content Include="Scripts\Supplier\editSupplier.js" />
+    <Content Include="Scripts\Supplier\supplierCreation.js" />
+    <Content Include="Scripts\Supplier\supplierDashboard.js" />
+    <Content Include="Web.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\Base\BaseController.cs" />
+    <Compile Include="Controllers\Error\ErrorController.cs" />
+    <Compile Include="Controllers\PreSales\CheckDuplicateAccountController.cs" />
+    <Compile Include="Controllers\PreSales\DualController.cs" />
+    <Compile Include="Models\Dual\EditDual\DualContractEditViewModel.cs" />
+    <Compile Include="Models\Dual\LogsHelperClass\LogEntry.cs" />
+    <Compile Include="Models\Electric\EditElectric\ElectricContractEditViewModel.cs" />
+    <Compile Include="Controllers\PreSales\ElectricController.cs" />
+    <Compile Include="Controllers\PreSales\GasController.cs" />
+    <Compile Include="Controllers\PreSales\PreSalesController.cs" />
+    <Compile Include="Controllers\PreSales\SupplierController.cs" />
+    <Compile Include="Controllers\Signup\AccountController.cs" />
+    <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Filters\ValidateJsonAntiForgeryTokenAttribute.cs" />
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202505290816030_InitialCreate.cs" />
+    <Compile Include="Migrations\202505290816030_InitialCreate.Designer.cs">
+      <DependentUpon>202505290816030_InitialCreate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202506020841318_InitialMapping.cs" />
+    <Compile Include="Migrations\202506020841318_InitialMapping.Designer.cs">
+      <DependentUpon>202506020841318_InitialMapping.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202506021347513_InitialMapping1.cs" />
+    <Compile Include="Migrations\202506021347513_InitialMapping1.Designer.cs">
+      <DependentUpon>202506021347513_InitialMapping1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202506021444435_InitialMapping2.cs" />
+    <Compile Include="Migrations\202506021444435_InitialMapping2.Designer.cs">
+      <DependentUpon>202506021444435_InitialMapping2.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202506021451041_InitialMapping3.cs" />
+    <Compile Include="Migrations\202506021451041_InitialMapping3.Designer.cs">
+      <DependentUpon>202506021451041_InitialMapping3.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202506021544119_InitialMapping4.cs" />
+    <Compile Include="Migrations\202506021544119_InitialMapping4.Designer.cs">
+      <DependentUpon>202506021544119_InitialMapping4.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202506031145589_InitialMapping5.cs" />
+    <Compile Include="Migrations\202506031145589_InitialMapping5.Designer.cs">
+      <DependentUpon>202506031145589_InitialMapping5.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202506031150022_InitialMapping6.cs" />
+    <Compile Include="Migrations\202506031150022_InitialMapping6.Designer.cs">
+      <DependentUpon>202506031150022_InitialMapping6.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202506031318130_InitialMapping7.cs" />
+    <Compile Include="Migrations\202506031318130_InitialMapping7.Designer.cs">
+      <DependentUpon>202506031318130_InitialMapping7.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202506041036354_InitialMapping8.cs" />
+    <Compile Include="Migrations\202506041036354_InitialMapping8.Designer.cs">
+      <DependentUpon>202506041036354_InitialMapping8.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202506041040325_InitialMapping9.cs" />
+    <Compile Include="Migrations\202506041040325_InitialMapping9.Designer.cs">
+      <DependentUpon>202506041040325_InitialMapping9.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202506041158372_InitialMapping10.cs" />
+    <Compile Include="Migrations\202506041158372_InitialMapping10.Designer.cs">
+      <DependentUpon>202506041158372_InitialMapping10.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202506041323578_InitialMapping11.cs" />
+    <Compile Include="Migrations\202506041323578_InitialMapping11.Designer.cs">
+      <DependentUpon>202506041323578_InitialMapping11.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202506051635506_InitialMapping12.cs" />
+    <Compile Include="Migrations\202506051635506_InitialMapping12.Designer.cs">
+      <DependentUpon>202506051635506_InitialMapping12.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202506051651206_InitialMapping13.cs" />
+    <Compile Include="Migrations\202506051651206_InitialMapping13.Designer.cs">
+      <DependentUpon>202506051651206_InitialMapping13.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202506090918042_InitialMapping14.cs" />
+    <Compile Include="Migrations\202506090918042_InitialMapping14.Designer.cs">
+      <DependentUpon>202506090918042_InitialMapping14.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202506091637563_InitialMapping15.cs" />
+    <Compile Include="Migrations\202506091637563_InitialMapping15.Designer.cs">
+      <DependentUpon>202506091637563_InitialMapping15.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202506101010029_InitialMapping16.cs" />
+    <Compile Include="Migrations\202506101010029_InitialMapping16.Designer.cs">
+      <DependentUpon>202506101010029_InitialMapping16.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202506110946578_InitialMapping17.cs" />
+    <Compile Include="Migrations\202506110946578_InitialMapping17.Designer.cs">
+      <DependentUpon>202506110946578_InitialMapping17.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202506111003168_InitialMapping18.cs" />
+    <Compile Include="Migrations\202506111003168_InitialMapping18.Designer.cs">
+      <DependentUpon>202506111003168_InitialMapping18.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202506111018535_InitialMapping19.cs" />
+    <Compile Include="Migrations\202506111018535_InitialMapping19.Designer.cs">
+      <DependentUpon>202506111018535_InitialMapping19.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202506111052548_InitialMapping20.cs" />
+    <Compile Include="Migrations\202506111052548_InitialMapping20.Designer.cs">
+      <DependentUpon>202506111052548_InitialMapping20.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Models\AccountsDBModel\CE_Accounts.cs" />
+    <Compile Include="Models\ApplicationDBContext.cs" />
+    <Compile Include="Models\ApplicationUser.cs" />
+    <Compile Include="Models\Dual\DualContractViewModel.cs" />
+    <Compile Include="Models\Electric\ElectricContractCreateViewModel.cs" />
+    <Compile Include="Models\Electric\ElectricDBModels\CE_ElectricContractLogs.cs" />
+    <Compile Include="Models\Electric\ElectricDBModels\CE_ElectricContracts.cs" />
+    <Compile Include="Models\Gas\EditGas\GasContractEditViewModel.cs" />
+    <Compile Include="Models\Gas\GasContractCreateViewModel.cs" />
+    <Compile Include="Models\Gas\GasDBModels\CE_GasContractLogs.cs" />
+    <Compile Include="Models\Gas\GasDBModels\CE_GasContracts.cs" />
+    <Compile Include="Models\Signup\RegisterUserDto.cs" />
+    <Compile Include="Models\Supplier\Active Suppliers\SupplierContractStatViewModel.cs" />
+    <Compile Include="Models\Supplier\Edit Supplier\EditSupplierViewModel.cs" />
+    <Compile Include="Models\Supplier\Supplier Dashboard\SupplierDashboardItemViewModel.cs" />
+    <Compile Include="Models\Supplier\SupplierContactViewModel.cs" />
+    <Compile Include="Models\Supplier\SupplierDBModels\CE_Supplier.cs" />
+    <Compile Include="Models\Supplier\SupplierDBModels\CE_SupplierContacts.cs" />
+    <Compile Include="Models\Supplier\SupplierDBModels\CE_SupplierProducts.cs" />
+    <Compile Include="Models\Supplier\SupplierProductViewModel.cs" />
+    <Compile Include="Models\Supplier\SupplierViewModel.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Startup.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\web.config" />
+    <None Include="packages.config" />
+    <Content Include="Views\_ViewStart.cshtml" />
+    <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Shared\_Header.cshtml" />
+    <Content Include="Views\Shared\_Footer.cshtml" />
+    <Content Include="Views\Account\Create.cshtml" />
+    <Content Include="Views\Account\ChangePassword.cshtml" />
+    <Content Include="Views\Account\Login.cshtml" />
+    <Content Include="Views\PreSales\Dashboard.cshtml" />
+    <Content Include="Views\Supplier\SupplierCreation.cshtml" />
+    <Content Include="Views\Supplier\SupplierDashboard.cshtml" />
+    <Content Include="Views\Supplier\EditSupplier.cshtml" />
+    <Content Include="Views\Electric\CreateElectric.cshtml" />
+    <Content Include="Views\Gas\CreateGas.cshtml" />
+    <Content Include="Views\Dual\CreateDual.cshtml" />
+    <Content Include="Views\Electric\ElectricEdit.cshtml" />
+    <Content Include="Views\Gas\EditGas.cshtml" />
+    <Content Include="Views\Dual\EditDual.cshtml" />
+    <Content Include="Views\Shared\NotFound.cshtml" />
+    <Content Include="Views\Shared\Error.cshtml" />
+    <None Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="App_Data\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\202505290816030_InitialCreate.resx">
+      <DependentUpon>202505290816030_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202506020841318_InitialMapping.resx">
+      <DependentUpon>202506020841318_InitialMapping.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202506021347513_InitialMapping1.resx">
+      <DependentUpon>202506021347513_InitialMapping1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202506021444435_InitialMapping2.resx">
+      <DependentUpon>202506021444435_InitialMapping2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202506021451041_InitialMapping3.resx">
+      <DependentUpon>202506021451041_InitialMapping3.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202506021544119_InitialMapping4.resx">
+      <DependentUpon>202506021544119_InitialMapping4.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202506031145589_InitialMapping5.resx">
+      <DependentUpon>202506031145589_InitialMapping5.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202506031150022_InitialMapping6.resx">
+      <DependentUpon>202506031150022_InitialMapping6.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202506031318130_InitialMapping7.resx">
+      <DependentUpon>202506031318130_InitialMapping7.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202506041036354_InitialMapping8.resx">
+      <DependentUpon>202506041036354_InitialMapping8.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202506041040325_InitialMapping9.resx">
+      <DependentUpon>202506041040325_InitialMapping9.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202506041158372_InitialMapping10.resx">
+      <DependentUpon>202506041158372_InitialMapping10.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202506041323578_InitialMapping11.resx">
+      <DependentUpon>202506041323578_InitialMapping11.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202506051635506_InitialMapping12.resx">
+      <DependentUpon>202506051635506_InitialMapping12.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202506051651206_InitialMapping13.resx">
+      <DependentUpon>202506051651206_InitialMapping13.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202506090918042_InitialMapping14.resx">
+      <DependentUpon>202506090918042_InitialMapping14.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202506091637563_InitialMapping15.resx">
+      <DependentUpon>202506091637563_InitialMapping15.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202506101010029_InitialMapping16.resx">
+      <DependentUpon>202506101010029_InitialMapping16.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202506110946578_InitialMapping17.resx">
+      <DependentUpon>202506110946578_InitialMapping17.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202506111003168_InitialMapping18.resx">
+      <DependentUpon>202506111003168_InitialMapping18.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202506111018535_InitialMapping19.resx">
+      <DependentUpon>202506111018535_InitialMapping19.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202506111052548_InitialMapping20.resx">
+      <DependentUpon>202506111052548_InitialMapping20.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Logic\Logic.csproj">
+      <Project>{adf09c11-485c-4bb1-9229-f6729b191613}</Project>
+      <Name>Logic</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>64505</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>https://localhost:44388/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\EntityFramework.6.5.1\build\EntityFramework.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.5.1\build\EntityFramework.props'))" />
+    <Error Condition="!Exists('..\packages\EntityFramework.6.5.1\build\EntityFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.5.1\build\EntityFramework.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.4.1.0\build\net472\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.4.1.0\build\net472\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.targets'))" />
+  </Target>
+  <Import Project="..\packages\EntityFramework.6.5.1\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.5.1\build\EntityFramework.targets')" />
+  <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.4.1.0\build\net472\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.targets" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.4.1.0\build\net472\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.targets')" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

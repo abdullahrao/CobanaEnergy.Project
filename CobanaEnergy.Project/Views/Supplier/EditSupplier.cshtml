@@ -1,0 +1,88 @@
+﻿@{
+    ViewBag.Title = "Edit Supplier";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@if (User.Identity.IsAuthenticated && User.IsInRole("Controls"))
+{
+    <div class="page-container">
+        <!-- changed from .supplier-dashboard-container -->
+        <h2 class="page-heading">Edit Supplier</h2>
+
+        <!-- Loader while fetching data -->
+        <div id="editSupplierLoading" class="text-center my-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <div class="mt-2">Loading supplier data...</div>
+        </div>
+
+        <!-- Form (hidden until data is loaded) -->
+        <div class="supplier-dashboard-container d-none" id="editSupplierContainer">
+            <form id="editSupplierForm" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="supplierId" />
+
+                <!-- Supplier Name -->
+                <div class="form-section text-center">
+                    <label class="supplier-name-label" for="supplierName">Supplier Name</label>
+                    <input type="text" class="form-control supplier-name-input mx-auto" id="supplierName" placeholder="Enter supplier name" required />
+
+                    <div class="form-check form-switch mt-3 d-flex justify-content-center">
+                        <input class="form-check-input" type="checkbox" id="supplierStatus" />
+                        <label class="form-check-label ms-2" for="supplierStatus">Active</label>
+                    </div>
+                </div>
+
+                <!-- Contacts -->
+                <div class="form-section">
+                    <h4>Contacts</h4>
+                    <div class="contact-header row mb-2 gx-2">
+                        <div class="col-md-2 text-center">Name</div>
+                        <div class="col-md-2 text-center">Role</div>
+                        <div class="col-md-2 text-center">Phone</div>
+                        <div class="col-md-2 text-center">Email</div>
+                        <div class="col-md-3 text-center">Notes</div>
+                        <div class="col-md-1"></div>
+                    </div>
+                    <div id="contactContainer"></div>
+                    <button type="button" class="btn btn-secondary add-contact">+ Add Contact</button>
+                </div>
+
+                <!-- Products -->
+                <div class="form-section">
+                    <h4>Products</h4>
+                    <div class="product-header row mb-2 gx-2">
+                        <div class="col-md-4 text-center">Product Name</div>
+                        <div class="col-md-2 text-center">Start Date</div>
+                        <div class="col-md-2 text-center">End Date</div>
+                        <div class="col-md-3 text-center">Commission</div>
+                        <div class="col-md-1"></div>
+                    </div>
+                    <div id="productContainer"></div>
+                    <button type="button" class="btn btn-secondary add-product">+ Add Product</button>
+                </div>
+
+                <!-- Submit -->
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary">Update Supplier</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    @section styles {
+        <link href="~/Content/Supplier/EditSupplier.css" rel="stylesheet" />
+    }
+
+    @section scripts {
+        <script src="~/Scripts/Supplier/editSupplier.js"></script>
+    }
+
+}
+else
+{
+    <div class="alert alert-danger text-center mt-5">
+        <h4>Access Denied</h4>
+        <p>You are not authorized to view this page.</p>
+    </div>
+}

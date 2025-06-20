@@ -1,0 +1,296 @@
+﻿@model CobanaEnergy.Project.Models.Dual.EditDual.DualContractEditViewModel
+
+@{
+    ViewBag.Title = "Edit Dual Contract";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+@if (User.Identity.IsAuthenticated && (User.IsInRole("Pre-sales") || User.IsInRole("Controls")))
+{
+    <div class="container-fluid px-4">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold">Edit Dual Contract</h2>
+        </div>
+
+        <div class="edit-dual-container">
+            <!-- Form Starts -->
+            <div class="form-wrapper">
+                <form id="editDualForm" method="post" novalidate>
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="eid" name="eid" value="@Model.EId" />
+
+                    <!-- Site Details -->
+                    <div class="form-section">
+                        <h4>Site Details</h4>
+                        <div class="row gx-4 gy-3 align-items-end">
+                            <div class="col-md-4"><label class="form-label required" for="department">Department</label><select id="department" class="form-select dropdown-arrow" required title="Please select Department" data-current="@Model.Department"></select></div>
+                            <div class="col-md-4"><label class="form-label required" for="agent">Agent</label><input type="text" id="agent" class="form-control" required title="Please insert Agent" value="@Model.Agent" autocomplete="off" /></div>
+                            <div class="col-md-4"><label class="form-label required" for="source">Source</label><select id="source" class="form-select dropdown-arrow" required title="Please select Source" data-current="@Model.Source"></select></div>
+                            <div class="col-md-4"><label class="form-label required" for="introducer">Introducer</label><input type="text" id="introducer" class="form-control" required title="Please insert Introducer or N/A" value="@Model.Introducer" autocomplete="off" /></div>
+                            <div class="col-md-4"><label class="form-label required" for="subIntroducer">Sub Introducer</label><input type="text" id="subIntroducer" class="form-control" required title="Please insert Sub Introducer or N/A" value="@Model.SubIntroducer" autocomplete="off" /></div>
+                            <div class="col-md-4"><label class="form-label required" for="electricSalesType">Cobana Electric Sales Type</label><select id="electricSalesType" class="form-select dropdown-arrow" required title="Please select Electric Sales Type" data-current="@Model.ElectricSalesType"></select></div>
+                            <div class="col-md-4"><label class="form-label required" for="gasSalesType">Cobana Gas Sales Type</label><select id="gasSalesType" class="form-select dropdown-arrow" required title="Please select Gas Sales Type" data-current="@Model.GasSalesType"></select></div>
+                            <div class="col-md-4"><label class="form-label required" for="electricSalesStatus">Cobana Electric Sales Type Status</label><select id="electricSalesStatus" class="form-select dropdown-arrow" required title="Please select Electric Sales Status" data-current="@Model.ElectricSalesTypeStatus"></select></div>
+                            <div class="col-md-4"><label class="form-label required" for="gasSalesStatus">Cobana Gas Sales Type Status</label><select id="gasSalesStatus" class="form-select dropdown-arrow" required title="Please select Gas Sales Status" data-current="@Model.GasSalesTypeStatus"></select></div>
+                        </div>
+                    </div>
+
+                    <!-- Supply & Product Information -->
+                    <div class="form-section">
+                        <h4>Supply & Product Information</h4>
+                        <div class="row gx-4 gy-3">
+                            <div class="col-md-4"><label class="form-label required" for="topLine">Electric Top Line</label><input type="text" id="topLine" class="form-control" required title="Top Line must be exactly 8 alphanumeric characters" pattern="^[a-zA-Z0-9]{8}$" maxlength="8" value="@Model.TopLine" autocomplete="off" /></div>
+                            <div class="col-md-4">
+                                <label class="form-label required" for="mpan">MPAN</label>
+                                <div class="position-relative">
+                                    <input type="text" id="mpan" class="form-control" required pattern="(^\d{13}$)|(^N\/A$)" maxlength="13" title="Please enter 13-digit MPAN or N/A" value="@Model.MPAN" autocomplete="off" />
+                                    <div id="mpanLoader" class="spinner-border text-primary small-loader" role="status" style="display: none;"><span class="visually-hidden">Loading...</span></div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label required" for="mprn">MPRN</label>
+                                <div class="position-relative">
+                                    <input type="text" id="mprn" class="form-control" required pattern="(^\d{6,10}$)|(^N\/A$)" maxlength="10" title="Please enter 6–10 digit MPRN or N/A" value="@Model.MPRN" autocomplete="off" />
+                                    <div id="mprnLoader" class="spinner-border text-primary small-loader" role="status" style="display: none;"><span class="visually-hidden">Loading...</span></div>
+                                </div>
+                            </div>
+                            <div class="col-md-4"><label class="form-label required" for="electricCurrentSupplier">Electric Current Supplier</label><input type="text" id="electricCurrentSupplier" class="form-control" required title="Please enter current electric supplier" value="@Model.ElectricCurrentSupplier" autocomplete="off" /></div>
+                            <div class="col-md-4"><label class="form-label required" for="gasCurrentSupplier">Gas Current Supplier</label><input type="text" id="gasCurrentSupplier" class="form-control" required title="Please enter current gas supplier" value="@Model.GasCurrentSupplier" autocomplete="off" /></div>
+                            <div class="col-md-4"><label class="form-label required" for="electricSupplier">Electric Supplier</label><select id="electricSupplier" class="form-select dropdown-arrow" required title="Select Electric Supplier" data-current="@Model.ElectricSupplierId"></select></div>
+                            <div class="col-md-4"><label class="form-label required" for="electricProduct">Electric Product</label><select id="electricProduct" class="form-select dropdown-arrow" required title="Select Electric Product" data-current="@Model.ElectricProductId"></select></div>
+                            <div class="col-md-4"><label class="form-label required" for="gasSupplier">Gas Supplier</label><select id="gasSupplier" class="form-select dropdown-arrow" required title="Select Gas Supplier" data-current="@Model.GasSupplierId"></select></div>
+                            <div class="col-md-4"><label class="form-label required" for="gasProduct">Gas Product</label><select id="gasProduct" class="form-select dropdown-arrow" required title="Select Gas Product" data-current="@Model.GasProductId"></select></div>
+                            <div class="col-md-4"><label class="form-label required" for="electricCommsType">Electric Comms Type</label><select id="electricCommsType" class="form-select dropdown-arrow" required title="Select Electric Comms Type" data-current="@Model.ElectricSupplierCommsType"></select></div>
+                            <div class="col-md-4"><label class="form-label required" for="gasCommsType">Gas Comms Type</label><select id="gasCommsType" class="form-select dropdown-arrow" required title="Select Gas Comms Type" data-current="@Model.GasSupplierCommsType"></select></div>
+                        </div>
+                    </div>
+
+                    <!-- Business Location -->
+                    <div class="form-section">
+                        <h4>Business Location</h4>
+                        <div class="row gx-4 gy-3">
+                            <div class="col-md-4"><label class="form-label required" for="businessName">Business Name</label><input type="text" id="businessName" class="form-control" required title="Insert Business Name" value="@Model.BusinessName" autocomplete="off" /></div>
+                            <div class="col-md-4"><label class="form-label required" for="customerName">Customer Name</label><input type="text" id="customerName" class="form-control" required title="Insert Customer Name" value="@Model.CustomerName" autocomplete="off" /></div>
+                            <div class="col-md-4"><label class="form-label required" for="businessDoorNumber">Business Door Number</label><input type="text" id="businessDoorNumber" class="form-control" required title="Insert Door Number" value="@Model.BusinessDoorNumber" autocomplete="off" /></div>
+                            <div class="col-md-4"><label class="form-label required" for="businessHouseName">Business House Name</label><input type="text" id="businessHouseName" class="form-control" required title="Insert House Name" value="@Model.BusinessHouseName" autocomplete="off" /></div>
+                            <div class="col-md-4"><label class="form-label required" for="businessStreet">Business Street/Road</label><input type="text" id="businessStreet" class="form-control" required title="Insert Street/Road" value="@Model.BusinessStreet" autocomplete="off" /></div>
+                            <div class="col-md-4"><label class="form-label required" for="businessTown">Business Town</label><input type="text" id="businessTown" class="form-control" required title="Insert Town" value="@Model.BusinessTown" autocomplete="off" /></div>
+                            <div class="col-md-4"><label class="form-label required" for="businessCounty">Business County</label><input type="text" id="businessCounty" class="form-control" required title="Insert County" value="@Model.BusinessCounty" autocomplete="off" /></div>
+                            <div class="col-md-4"><label class="form-label required" for="postCode">Post Code</label><input type="text" id="postCode" class="form-control" required title="Insert Postcode" value="@Model.PostCode" autocomplete="off" /></div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Information -->
+                    <div class="form-section">
+                        <h4>Contact Information</h4>
+                        <div class="row gx-4 gy-3">
+                            <div class="col-md-4"><label class="form-label required" for="phoneNumber1">Phone Number</label><input type="text" id="phoneNumber1" class="form-control" required pattern="^\d{11}$" maxlength="11" title="11 digit number required" value="@Model.PhoneNumber1" autocomplete="off" /></div>
+                            <div class="col-md-4"><label class="form-label required" for="phoneNumber2">Secondary Phone Number</label><input type="text" id="phoneNumber2" class="form-control" required pattern="^(\d{11}|N\/A)$" maxlength="11" title="Enter 11 digit or N/A" value="@Model.PhoneNumber2" autocomplete="off" /></div>
+                            <div class="col-md-4"><label class="form-label required" for="emailAddress">Email Address</label><input type="email" id="emailAddress" class="form-control" required title="Insert valid email address" value="@Model.EmailAddress" autocomplete="off" /></div>
+                        </div>
+                    </div>
+
+                    <!-- Contract Timeline -->
+                    <div class="form-section">
+                        <h4>Contract Timeline</h4>
+                        <div class="row gx-4 gy-3">
+                            <div class="col-md-4"><label class="form-label" for="inputDateElectric">Electric Input Date</label><input type="text" id="inputDateElectric" class="form-control" value="@Model.ElectricInputDate" readonly /></div>
+                            <div class="col-md-4"><label class="form-label" for="inputDateGas">Gas Input Date</label><input type="text" id="inputDateGas" class="form-control" value="@Model.GasInputDate" readonly /></div>
+                            <div class="col-md-4"><label class="form-label required" for="electricInitialStartDate">Electric Initial Start Date</label><input type="date" id="electricInitialStartDate" class="form-control" required title="Select Electric Start Date" value="@Model.ElectricInitialStartDate" /></div>
+                            <div class="col-md-4"><label class="form-label required" for="gasInitialStartDate">Gas Initial Start Date</label><input type="date" id="gasInitialStartDate" class="form-control" required title="Select Gas Start Date" value="@Model.GasInitialStartDate" /></div>
+                            <div class="col-md-4"><label class="form-label required" for="electricDuration">Electric Duration</label><input type="text" id="electricDuration" class="form-control" required maxlength="2" title="1–10 years only" value="@Model.ElectricDuration" autocomplete="off" /></div>
+                            <div class="col-md-4"><label class="form-label required" for="gasDuration">Gas Duration</label><input type="text" id="gasDuration" class="form-control" required maxlength="2" title="1–10 years only" value="@Model.GasDuration" autocomplete="off" /></div>
+                        </div>
+                    </div>
+
+                    <!-- Pricing & Usage -->
+                    <div class="form-section">
+                        <h4>Pricing & Usage</h4>
+                        <div class="row gx-4 gy-3">
+                            <div class="col-md-4"><label class="form-label required" for="electricUplift">Electric Uplift</label><input type="text" id="electricUplift" class="form-control" required title="Insert Electric Uplift" value="@Model.ElectricUplift" autocomplete="off" /></div>
+                            <div class="col-md-4"><label class="form-label required" for="gasUplift">Gas Uplift</label><input type="text" id="gasUplift" class="form-control" required title="Insert Gas Uplift" value="@Model.GasUplift" autocomplete="off" /></div>
+                            <div class="col-md-4"><label class="form-label required" for="electricInputEAC">Electric Input EAC</label><input type="text" id="electricInputEAC" class="form-control" required title="Insert Electric Input EAC" value="@Model.ElectricInputEAC" autocomplete="off" /></div>
+                            <div class="col-md-4"><label class="form-label required" for="gasInputEAC">Gas Input EAC</label><input type="text" id="gasInputEAC" class="form-control" required title="Insert Gas Input EAC" value="@Model.GasInputEAC" autocomplete="off" /></div>
+                            <div class="col-md-4"><label class="form-label required" for="dayRate">Day Rate</label><input type="text" id="dayRate" class="form-control" required title="Insert Day Rate" value="@Model.ElectricDayRate" autocomplete="off" /></div>
+                            <div class="col-md-4"><label class="form-label required" for="nightRate">Night Rate</label><input type="text" id="nightRate" class="form-control" required title="Insert Night Rate" value="@Model.ElectricNightRate" autocomplete="off" /></div>
+                            <div class="col-md-4"><label class="form-label required" for="eveWeekendRate">Evening/Weekend Rate</label><input type="text" id="eveWeekendRate" class="form-control" required title="Insert Evening/Weekend Rate" value="@Model.ElectricEveWeekendRate" autocomplete="off" /></div>
+                            <div class="col-md-4"><label class="form-label required" for="electricOtherRate">Electric Other Rate</label><input type="text" id="electricOtherRate" class="form-control" required title="Insert Electric Other Rate" value="@Model.ElectricOtherRate" autocomplete="off" /></div>
+                            <div class="col-md-4"><label class="form-label required" for="gasUnitRate">Gas Unit Rate</label><input type="text" id="gasUnitRate" class="form-control" required title="Insert Gas Unit Rate" value="@Model.GasUnitRate" autocomplete="off" /></div>
+                            <div class="col-md-4"><label class="form-label required" for="gasOtherRate">Gas Other Rate</label><input type="text" id="gasOtherRate" class="form-control" required title="Insert Gas Other Rate" value="@Model.GasOtherRate" autocomplete="off" /></div>
+                            <div class="col-md-4"><label class="form-label required" for="electricStandingCharge">Electric Standing Charge</label><input type="text" id="electricStandingCharge" class="form-control" required title="Insert Electric Standing Charge" value="@Model.ElectricStandingCharge" autocomplete="off" /></div>
+                            <div class="col-md-4"><label class="form-label required" for="gasStandingCharge">Gas Standing Charge</label><input type="text" id="gasStandingCharge" class="form-control" required title="Insert Gas Standing Charge" value="@Model.GasStandingCharge" autocomplete="off" /></div>
+                        </div>
+                    </div>
+
+                    <!-- Banking -->
+                    <div class="form-section">
+                        <h4>Banking Details</h4>
+                        <div class="row gx-4 gy-3">
+                            <div class="col-md-4"><label class="form-label required" for="sortCode">Sort Code</label><input type="text" id="sortCode" class="form-control" required pattern="^\d{6}$" maxlength="6" title="6-digit sort code" value="@Model.SortCode" autocomplete="off" /></div>
+                            <div class="col-md-4">
+                                <label class="form-label required" for="accountNumber">Account Number</label>
+                                <div class="position-relative">
+                                    <input type="text" id="accountNumber" class="form-control" required pattern="^\d{8}$" maxlength="8" title="8-digit account number" value="@Model.AccountNumber" autocomplete="off" />
+                                    <div id="accountLoader" class="spinner-border text-primary small-loader" role="status" style="display: none;"><span class="visually-hidden">Loading...</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Workflow -->
+                    <div class="form-section">
+                        <h4>Workflow & System Fields</h4>
+                        <div class="row gx-4 gy-3">
+                            <div class="col-md-4"><label class="form-label required" for="electricPreSalesStatus">Electric PreSales Status</label><select id="electricPreSalesStatus" class="form-select dropdown-arrow" required title="Select Electric PreSales Status" data-current="@Model.ElectricPreSalesStatus"></select></div>
+                            <div class="col-md-4"><label class="form-label required" for="gasPreSalesStatus">Gas PreSales Status</label><select id="gasPreSalesStatus" class="form-select dropdown-arrow" required title="Select Gas PreSales Status" data-current="@Model.GasPreSalesStatus"></select></div>
+                            <div class="col-md-4"><label class="form-label" for="emProcessor">EM Processor</label><input type="text" id="emProcessor" class="form-control" readonly /></div>
+                        </div>
+
+                        <div class="row gx-4 gy-3 mt-2">
+                            <div class="col-md-4"><div class="form-check"><input type="checkbox" id="contractChecked" class="form-check-input" @(Model.ContractChecked ? "checked" : "") /><label class="form-check-label" for="contractChecked">Contract Checked</label></div></div>
+                            <div class="col-md-4"><div class="form-check"><input type="checkbox" id="contractAudited" class="form-check-input" @(Model.ContractAudited ? "checked" : "") /><label class="form-check-label" for="contractAudited">Contract Audited</label></div></div>
+                            <div class="col-md-4"><div class="form-check"><input type="checkbox" id="terminated" class="form-check-input" @(Model.Terminated ? "checked" : "") /><label class="form-check-label" for="terminated">Terminate</label></div></div>
+                        </div>
+
+                        <div class="col-12 mt-3">
+                            <label class="form-label" for="contractNotes">Contract Notes</label>
+                            <textarea id="contractNotes" class="form-control" rows="3" title="Optional notes for the contract">@Model.ContractNotes</textarea>
+                        </div>
+                    </div>
+
+                    <div class="text-center mb-5">
+                        <button type="submit" class="btn btn-primary px-5">Update Contract</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Logs Panel -->
+            <div class="logs-wrapper">
+                <div class="logs-panel" id="dualLogsPanel">
+                    <h5 class="text-center border-bottom pb-2">Contract Logs</h5>
+                    <div id="dualLogsContainer">
+                        <span class="text-muted">Loading logs...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @section styles {
+        <link href="~/Content/Dual/EditDual.css" rel="stylesheet" />
+    }
+
+    @section scripts {
+        <script src="~/Scripts/Dropdown/dropdowns.js"></script>
+        <script src="~/Scripts/Dual/editDual.js"></script>
+        <script>
+        $(document).ready(function () {
+            const emProcessor = '@(User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Presales Team")';
+            $('#emProcessor').val(emProcessor).attr('data-default', emProcessor);
+        });
+        </script>
+    }
+
+    <!-- Duplicate MPAN Modal -->
+    <div class="modal fade" id="duplicateDualMpanModalEdit" tabindex="-1" aria-labelledby="duplicateDualMpanModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="duplicateDualMpanModalLabel">⚠ Duplicate MPAN Found</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-danger">This MPAN already exists in our system. Below are the details of existing record(s):</p>
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Agent</th>
+                                <th>Business Name</th>
+                                <th>Customer Name</th>
+                                <th>Input Date</th>
+                                <th>PreSales Status</th>
+                                <th>Duration</th>
+                            </tr>
+                        </thead>
+                        <tbody id="duplicateMpanResultsEdit">
+                            <!-- Filled dynamically -->
+                        </tbody>
+                    </table>
+                    <div class="text-end fw-bold"><span id="mpanDuplicateCountEdit"></span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Duplicate MPRN Modal -->
+    <div class="modal fade" id="duplicateDualMprnModalEdit" tabindex="-1" aria-labelledby="duplicateDualMprnModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="duplicateDualMprnModalLabel">⚠ Duplicate MPRN Found</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-danger">This MPRN already exists in our system. Below are the details of existing record(s):</p>
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Agent</th>
+                                <th>Business Name</th>
+                                <th>Customer Name</th>
+                                <th>Input Date</th>
+                                <th>PreSales Status</th>
+                                <th>Duration</th>
+                            </tr>
+                        </thead>
+                        <tbody id="duplicateMprnResultsEdit">
+                            <!-- Filled dynamically -->
+                        </tbody>
+                    </table>
+                    <div class="text-end fw-bold"><span id="mprnDuplicateCountEdit"></span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Duplicate Account Modal -->
+    <div class="modal fade" id="duplicateAccountModalDualEdit" tabindex="-1" aria-labelledby="duplicateAccountModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="duplicateAccountModalLabel">⚠ Duplicate Account Number Found</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-danger">This account number is already linked to another contract. Please review below:</p>
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Agent</th>
+                                <th>Business Name</th>
+                                <th>Customer Name</th>
+                                <th>Input Date</th>
+                                <th>PreSales Status</th>
+                                <th>Duration</th>
+                                <th>Sort Code</th>
+                                <th>Account Number</th>
+                            </tr>
+                        </thead>
+                        <tbody id="duplicateAccountResultsEdit">
+                            <!-- Filled dynamically -->
+                        </tbody>
+                    </table>
+                    <div class="text-end fw-bold"><span id="accountDuplicateCountEdit"></span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-danger text-center mt-5">
+        <h4>Access Denied</h4>
+        <p>You are not authorized to view this page.</p>
+    </div>
+}

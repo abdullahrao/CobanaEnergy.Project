@@ -1,0 +1,237 @@
+﻿$(document).ready(function () {
+
+    if (!$('#createGasForm').length) return;
+
+    const token = $('input[name="__RequestVerificationToken"]').val();
+    if (token) {
+        $.ajaxSetup({ headers: { 'RequestVerificationToken': token } });
+    }
+
+    function populateDropdown(id, values) {
+        const $select = $('#' + id);
+        $select.empty().append(`<option value="">Select ${id}</option>`);
+        values.forEach(v => $select.append(`<option value="${v}">${v}</option>`));
+    }
+
+    populateDropdown("department", DropdownOptions.department);
+    populateDropdown("source", DropdownOptions.source);
+    populateDropdown("salesType", DropdownOptions.salesType);
+    populateDropdown("salesTypeStatus", DropdownOptions.salesTypeStatus);
+    populateDropdown("supplierCommsType", DropdownOptions.supplierCommsType);
+    populateDropdown("preSalesStatus", DropdownOptions.preSalesStatus);
+
+    $.get('/Supplier/GetActiveSuppliersForDropdown', function (res) {
+        const $supplier = $('#supplierSelect');
+        $supplier.empty().append('<option value="">Select Supplier</option>');
+
+        if (res.success && res.Data.length > 0) {
+            res.Data.forEach(s => {
+                $supplier.append(`<option value="${s.Id}">${s.Name}</option>`);
+            });
+        } else {
+            $supplier.append('<option disabled>No suppliers found</option>');
+        }
+    });
+
+    $('#supplierSelect').change(function () {
+        const supplierId = $(this).val();
+        const $product = $('#productSelect');
+
+        $product.prop('disabled', true).empty().append('<option>Loading...</option>');
+
+        if (!supplierId) {
+            $product.empty().append('<option value="">Select Product</option>').prop('disabled', false);
+            return;
+        }
+
+        $.get(`/Supplier/GetProductsBySupplier?supplierId=${supplierId}`, function (res) {
+            $product.empty().append('<option value="">Select Product</option>');
+
+            if (res.success && res.Data.length > 0) {
+                res.Data.forEach(p => {
+                    $product.append(`<option value="${p.Id}">${p.ProductName}</option>`);
+                });
+            } else {
+                $product.append('<option disabled>No products found</option>');
+            }
+
+            $product.prop('disabled', false);
+        });
+    });
+
+    restoreDefaultFields();
+
+    $('#createGasForm').on('submit', function (e) {
+        e.preventDefault();
+
+        let hasInvalid = false;
+
+        $(this).find('.form-control, .form-select').each(function () {
+            const $field = $(this);
+            $field.removeClass('is-invalid');
+
+            if (!this.checkValidity()) {
+                $field.addClass('is-invalid');
+                hasInvalid = true;
+            }
+        });
+
+        if (hasInvalid) {
+            const $first = $(this).find(':invalid').first();
+            $first.focus();
+            showToastWarning("Please fill all required fields correctly.");
+            return;
+        }
+
+        const model = {
+            Department: $('#department').val(),
+            Agent: $('#agent').val(),
+            Source: $('#source').val(),
+            Introducer: $('#introducer').val(),
+            SubIntroducer: $('#subIntroducer').val(),
+            SalesType: $('#salesType').val(),
+            SalesTypeStatus: $('#salesTypeStatus').val(),
+            BusinessName: $('#businessName').val(),
+            CustomerName: $('#customerName').val(),
+            BusinessDoorNumber: $('#businessDoorNumber').val(),
+            BusinessHouseName: $('#businessHouseName').val(),
+            BusinessStreet: $('#businessStreet').val(),
+            BusinessTown: $('#businessTown').val(),
+            BusinessCounty: $('#businessCounty').val(),
+            PostCode: $('#postCode').val(),
+            PhoneNumber1: $('#phoneNumber1').val(),
+            PhoneNumber2: $('#phoneNumber2').val(),
+            EmailAddress: $('#emailAddress').val(),
+            InitialStartDate: $('#initialStartDate').val(),
+            Duration: $('#duration').val(),
+            Uplift: $('#uplift').val(),
+            InputEAC: $('#inputEAC').val(),
+            UnitRate: $('#unitRate').val(),
+            OtherRate: $('#otherRate').val(),
+            StandingCharge: $('#standingCharge').val(),
+            SortCode: $('#sortCode').val(),
+            AccountNumber: $('#accountNumber').val(),
+            MPRN: $('#mprn').val(),
+            CurrentSupplier: $('#currentSupplier').val(),
+            SupplierId: $('#supplierSelect').val(),
+            ProductId: $('#productSelect').val(),
+            SupplierCommsType: $('#supplierCommsType').val(),
+            PreSalesStatus: $('#preSalesStatus').val(),
+            EMProcessor: $('#emProcessor').val(),
+            ContractChecked: $('#contractChecked').is(':checked'),
+            ContractAudited: $('#contractAudited').is(':checked'),
+            Terminated: $('#terminated').is(':checked'),
+            ContractNotes: $('#contractNotes').val()
+        };
+
+        const $btn = $(this).find('button[type="submit"]');
+        $btn.prop('disabled', true).text('Submitting...');
+
+        $.ajax({
+            url: '/Gas/CreateGas',
+            method: 'POST',
+            data: JSON.stringify(model),
+            contentType: 'application/json',
+            success: function (res) {
+                if (res.success) {
+                    showToastSuccess("Gas contract created successfully!");
+                    $('#createGasForm')[0].reset();
+                    restoreDefaultFields();
+                    setTimeout(function () {
+                        window.location.href = res.Data.redirectUrl;
+                    }, 1000);
+                } else {
+                    showToastError(res.message);
+                }
+            },
+            error: function () {
+                showToastError("An unexpected error occurred.");
+            },
+            complete: function () {
+                $btn.prop('disabled', false).text('Create Contract');
+            }
+        });
+    });
+
+    $(document).on('input change', '.form-control, .form-select', function () {
+        if (this.checkValidity()) {
+            $(this).removeClass('is-invalid');
+        }
+    });
+
+    $('#mprn').on('input', function () {
+        const mprn = $(this).val().trim();
+
+        if (/^\d{6,10}$/.test(mprn)) {
+            $('#mprnLoader').show();
+
+            $.get(`/Gas/CheckDuplicateMprn?mprn=${mprn}`, function (res) {
+                $('#mprnLoader').hide();
+
+                if (res.success && res.Data) {
+                    const d = res.Data;
+                    $('#duplicateMprnModal tbody').html(`
+                    <tr>
+                        <td>${d.Agent}</td>
+                        <td>${d.BusinessName}</td>
+                        <td>${d.CustomerName}</td>
+                        <td>${d.InputDate}</td>
+                        <td>${d.PreSalesStatus}</td>
+                        <td>${d.Duration}</td>
+                    </tr>
+                `);
+
+                    $('#duplicateMprnModal').modal('show');
+                }
+            }).fail(function () {
+                $('#mprnLoader').hide();
+                showToastError("Error checking MPRN.");
+            });
+        }
+    });
+
+    $('#accountNumber').on('input', function () {
+        const acc = $(this).val().trim();
+
+        if (/^\d{8}$/.test(acc)) {
+            $('#accountLoader').show();
+
+            $.get(`/CheckDuplicateAccount/CheckDuplicateAccountUnified?account=${acc}`, function (res) {
+                $('#accountLoader').hide();
+                if (res.success && res.Data?.length > 0) {
+                    const tbody = $('#duplicateAccountModalGas tbody');
+                    tbody.empty();
+
+                    res.Data.forEach(r => {
+                        tbody.append(`
+                        <tr>
+                            <td>${r.Agent}</td>
+                            <td>${r.BusinessName}</td>
+                            <td>${r.CustomerName}</td>
+                            <td>${r.InputDate}</td>
+                            <td>${r.PreSalesStatus}</td>
+                            <td>${r.Duration}</td>
+                            <td>${r.SortCode}</td>
+                            <td>${r.AccountNumber}</td>
+                        </tr>
+                    `);
+                    });
+
+                    $('#duplicateAccountModalGas').modal('show');
+                }
+            }).fail(function () {
+                $('#accountLoader').hide();
+                showToastError("Error checking account number.");
+            });
+        }
+    });
+
+    function restoreDefaultFields() {
+        const today = new Date().toLocaleDateString('en-GB');
+        $('#inputDate').val(today);
+
+        const defaultProcessor = $('#emProcessor').data('default') || 'Presales Team';
+        $('#emProcessor').val(defaultProcessor);
+    }
+
+});

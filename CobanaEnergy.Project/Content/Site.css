@@ -1,0 +1,60 @@
+﻿
+/* Header brand font */
+.navbar-brand {
+    font-family: 'Raleway', sans-serif;
+}
+
+/* Global table font override for all future tables */
+table td,
+table th {
+    font-family: 'Roboto Mono', monospace;
+    font-feature-settings: 'tnum'; /* Tabular numbers for aligned digits */
+    font-size: 0.92rem;
+    vertical-align: middle;
+}
+
+
+/* ========================
+    Cobana Navbar Final
+   ======================== */
+.custom-navbar {
+    min-height: 84px;
+    font-family: 'Raleway', sans-serif;
+    font-size: 1rem;
+    border-bottom: 1px solid #444;
+}
+
+    .custom-navbar .nav-link,
+    .custom-navbar .dropdown-item {
+        font-family: 'Raleway', sans-serif;
+        font-size: 0.95rem;
+        transition: color 0.2s ease-in-out;
+    }
+
+    .custom-navbar .navbar-brand {
+        font-size: 1.4rem;
+    }
+
+    .custom-navbar .nav-link:hover,
+    .custom-navbar .dropdown-item:hover {
+        color: #ffc107 !important;
+        background-color: #f8f9fa;
+    }
+
+/* Gap between menu items */
+.navbar-nav.gap-4 > .nav-item {
+    margin-right: 12px;
+}
+
+/* Dropdown menu refinement */
+.dropdown-menu {
+    border-radius: 6px;
+    font-size: 0.92rem;
+    min-width: 200px;
+}
+
+/* Icon alignment */
+.dropdown-item i {
+    width: 18px;
+    text-align: center;
+}

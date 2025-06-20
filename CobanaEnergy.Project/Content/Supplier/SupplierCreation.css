@@ -1,0 +1,70 @@
+﻿.supplier-page-container {
+    padding: 30px 60px;
+    background-color: #f9f9f9;
+    max-width: 1100px;
+    margin: 0 auto;
+    border-radius: 10px;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
+}
+
+.page-heading {
+    font-size: 2.25rem;
+    font-weight: 700;
+    text-align: center;
+    color: #222;
+    margin-bottom: 40px;
+    font-family: 'Raleway', sans-serif;
+}
+
+.form-section {
+    margin-bottom: 2.5rem;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    border: 1px solid #e2e2e2;
+}
+
+    .form-section h4 {
+        margin-bottom: 1.25rem;
+        font-weight: 600;
+        font-size: 1.25rem;
+    }
+
+.row .form-control {
+    margin-bottom: 8px;
+}
+
+button.btn-danger.btn-sm {
+    margin-top: 5px;
+    transition: background-color 0.2s ease;
+}
+
+    button.btn-danger.btn-sm:hover {
+        background-color: #c82333;
+    }
+
+.add-contact, .add-product {
+    margin-top: 10px;
+}
+
+.supplier-name-input {
+    max-width: 400px;
+}
+
+.remove-row {
+    width: 100%;
+    padding: 6px 0;
+}
+
+.supplier-name-label {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: block;
+    text-align: center;
+}
+
+.contact-notes {
+    min-height: 38px;
+    line-height: 1.4;
+}
