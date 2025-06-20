@@ -1,5 +1,5 @@
 ﻿// site.js
-// Automatically include anti-forgery token in all ajax requests
+// Automatically include anti-forgery token in all Ajax requests
 $(document).ready(function () {
     var token = $('input[name="__RequestVerificationToken"]').val();
     if (token) {
