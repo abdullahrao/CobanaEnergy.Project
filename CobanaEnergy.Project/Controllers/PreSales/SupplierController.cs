@@ -77,7 +77,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                             SupplierId = supplier.Id,
                             ProductName = product.ProductName,
                             StartDate = product.StartDate,
-                            EndDate = product.EndDate,
+                            EndDate = "3025-06-23",// product.EndDate,
                             Commission = product.Commission
                         });
                     }
