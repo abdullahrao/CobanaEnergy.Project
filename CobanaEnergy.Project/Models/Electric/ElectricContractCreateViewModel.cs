@@ -65,7 +65,7 @@ namespace CobanaEnergy.Project.Models.Electric
         public string Duration { get; set; }
 
         [Required(ErrorMessage = "InputEAC is required")]
-        [Range(0.00, 100.00, ErrorMessage = "InputEAC must be a valid decimal between 0.00 and 100")]
+        //[Range(0.00, 100.00, ErrorMessage = "InputEAC must be a valid decimal between 0.00 and 100")]
         public decimal InputEAC { get; set; }
 
         [Required(ErrorMessage = "DayRate is required")]
@@ -85,7 +85,7 @@ namespace CobanaEnergy.Project.Models.Electric
         public decimal OtherRate { get; set; }
 
         [Required(ErrorMessage = "StandingCharge is required")]
-        [Range(0.00, 100.00, ErrorMessage = "StandingCharge must be a valid decimal between 0.00 and 100")]
+        //[Range(0.00, 100.00, ErrorMessage = "StandingCharge must be a valid decimal between 0.00 and 100")]
         public decimal StandingCharge { get; set; }
 
         [Required(ErrorMessage = "Sort Code is required.")]
