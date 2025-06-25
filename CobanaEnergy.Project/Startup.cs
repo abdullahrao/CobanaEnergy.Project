@@ -16,7 +16,9 @@ namespace CobanaEnergy.Project
             app.UseCookieAuthentication(new Microsoft.Owin.Security.Cookies.CookieAuthenticationOptions
             {
                 AuthenticationType = Microsoft.AspNet.Identity.DefaultAuthenticationTypes.ApplicationCookie,
-                LoginPath = new PathString("/Account/Login")
+                LoginPath = new PathString("/Account/Login"),
+                ExpireTimeSpan = TimeSpan.FromHours(24), 
+                SlidingExpiration = true // session will be extended if the user is active
             });
         }
     }

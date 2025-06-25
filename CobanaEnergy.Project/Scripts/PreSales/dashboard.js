@@ -41,7 +41,7 @@ function loadContractTable() {
                                 <td>${r.InputDate ?? '-'}</td>
                                 <td>${r.PreSalesStatus ?? '-'}</td>
                                 <td>
-                                      <span class="truncate-cell" title="${r.Notes || '-'}">
+                                      <span class="truncate-cell">
                                         ${(r.Notes && r.Notes.length > 50) ? r.Notes.substring(0, 50) + '…' : (r.Notes || '-')}
                                       </span>
                                </td>

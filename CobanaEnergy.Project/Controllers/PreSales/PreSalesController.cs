@@ -148,7 +148,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                             CustomerName = elec?.CustomerName ?? gas?.CustomerName ?? "-",
                             InputDate = mergedInputDate,
                             PreSalesStatus = mergedStatus,
-                            Notes = elec?.ContractNotes ?? gas?.ContractNotes ?? "-",
+                            Notes = elec?.ContractNotes ?? gas?.ContractNotes ?? "-----",
                             Type = isDual ? "Dual" : elec != null ? "Electric" : "Gas",
                             SortableDate = sortable
                         };
