@@ -5,6 +5,7 @@ using Logic.ResponseModel.Helper;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
+using Microsoft.Owin;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -22,21 +23,8 @@ namespace CobanaEnergy.Project.Controllers
     /// </summary>
     public class AccountController : BaseController
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
-
-        public AccountController()
-        {
-            var context = new ApplicationDBContext();
-            var store = new UserStore<ApplicationUser>(context);
-            _userManager = new UserManager<ApplicationUser>(store);
-
-            var roleStore = new RoleStore<IdentityRole>(context);
-            _roleManager = new RoleManager<IdentityRole>(roleStore);
-
-            _userManager.UserTokenProvider = new DataProtectorTokenProvider<ApplicationUser>(
-             new Microsoft.Owin.Security.DataProtection.DpapiDataProtectionProvider("CobanaEnergy").Create("ASP.NET Identity"));
-        }
+        private UserManager<ApplicationUser> _userManager => HttpContext.GetOwinContext().GetUserManager<UserManager<ApplicationUser>>();
+        private RoleManager<IdentityRole> _roleManager => HttpContext.GetOwinContext().Get<RoleManager<IdentityRole>>();
 
         #region user_creation
 
@@ -46,7 +34,7 @@ namespace CobanaEnergy.Project.Controllers
         {
             try
             {
-                ViewBag.Roles =await _roleManager.Roles.ToListAsync();
+                ViewBag.Roles = await _roleManager.Roles.ToListAsync();
                 return View();
             }
             catch (Exception ex)
@@ -130,7 +118,7 @@ namespace CobanaEnergy.Project.Controllers
         {
             try
             {
-                ViewBag.Users = await _userManager.Users.ToListAsync(); 
+                ViewBag.Users = await _userManager.Users.ToListAsync();
                 return View();
             }
             catch (Exception ex)
@@ -160,7 +148,10 @@ namespace CobanaEnergy.Project.Controllers
                 var result = await _userManager.ResetPasswordAsync(user.Id, token, newPassword);
 
                 if (result.Succeeded)
+                {
+                    await _userManager.UpdateSecurityStampAsync(user.Id);
                     return JsonResponse.Ok(null, "Password updated successfully!");
+                }
 
                 var error = string.Join(", ", result.Errors);
                 return JsonResponse.Fail(error);
@@ -261,6 +252,18 @@ namespace CobanaEnergy.Project.Controllers
             Response.Cache.SetNoStore();
 
             return RedirectToAction("Login", "Account");
+        }
+
+        #endregion
+
+        #region user_manager
+
+        public static UserManager<ApplicationUser> CreateUserManager(IdentityFactoryOptions<UserManager<ApplicationUser>> options, IOwinContext context)
+        {
+            var manager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(context.Get<ApplicationDBContext>()));
+            manager.UserTokenProvider = new DataProtectorTokenProvider<ApplicationUser>(
+                new Microsoft.Owin.Security.DataProtection.DpapiDataProtectionProvider("CobanaEnergy").Create("ASP.NET Identity"));
+            return manager;
         }
 
         #endregion
