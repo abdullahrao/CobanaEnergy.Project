@@ -137,7 +137,7 @@ namespace CobanaEnergy.Project.Models.Dual
         public decimal ElectricUplift { get; set; }
 
         [Required(ErrorMessage = "Electric InputEAC is required")]
-        [Range(0.00, 100.00, ErrorMessage = "Electric InputEAC must be a valid decimal between 0.00 and 100")]
+        //[Range(0.00, 100.00, ErrorMessage = "Electric InputEAC must be a valid decimal between 0.00 and 100")]
         public decimal ElectricInputEAC { get; set; }
 
         [Required(ErrorMessage = "Electric Day Rate is required")]
@@ -157,7 +157,7 @@ namespace CobanaEnergy.Project.Models.Dual
         public decimal ElectricOtherRate { get; set; }
 
         [Required(ErrorMessage = "Electric Standing Charge is required")]
-        [Range(0.00, 100.00, ErrorMessage = "Electric Standing Charge must be a valid decimal between 0.00 and 100")]
+       // [Range(0.00, 100.00, ErrorMessage = "Electric Standing Charge must be a valid decimal between 0.00 and 100")]
         public decimal ElectricStandingCharge { get; set; }
 
         [Required(ErrorMessage = "Gas Uplift is required")]
@@ -165,7 +165,7 @@ namespace CobanaEnergy.Project.Models.Dual
         public decimal GasUplift { get; set; }
 
         [Required(ErrorMessage = "Gas InputEAC is required")]
-        [Range(0.00, 100.00, ErrorMessage = "Gas InputEAC must be a valid decimal between 0.00 and 100")]
+       // [Range(0.00, 100.00, ErrorMessage = "Gas InputEAC must be a valid decimal between 0.00 and 100")]
         public decimal GasInputEAC { get; set; }
 
         [Required(ErrorMessage = "Gas Unit Rate is required")]
@@ -177,7 +177,7 @@ namespace CobanaEnergy.Project.Models.Dual
         public decimal GasOtherRate { get; set; }
 
         [Required(ErrorMessage = "Gas Standing Charge is required")]
-        [Range(0.00, 100.00, ErrorMessage = "Gas Standing Charge must be a valid decimal between 0.00 and 100")]
+        //[Range(0.00, 100.00, ErrorMessage = "Gas Standing Charge must be a valid decimal between 0.00 and 100")]
         public decimal GasStandingCharge { get; set; }
 
         [Required]
