@@ -7,13 +7,13 @@ namespace CobanaEnergy.Project.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.5.1")]
-    public sealed partial class InitialMapping3 : IMigrationMetadata
+    public sealed partial class InitialMapping : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(InitialMapping3));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(InitialMapping));
         
         string IMigrationMetadata.Id
         {
-            get { return "202506021451041_InitialMapping3"; }
+            get { return "202506260826318_InitialMapping"; }
         }
         
         string IMigrationMetadata.Source

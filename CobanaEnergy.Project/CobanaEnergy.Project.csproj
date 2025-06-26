@@ -193,6 +193,10 @@
     <Compile Include="Controllers\Error\ErrorController.cs" />
     <Compile Include="Controllers\PreSales\CheckDuplicateAccountController.cs" />
     <Compile Include="Controllers\PreSales\DualController.cs" />
+    <Compile Include="Migrations\202506260826318_InitialMapping.cs" />
+    <Compile Include="Migrations\202506260826318_InitialMapping.Designer.cs">
+      <DependentUpon>202506260826318_InitialMapping.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\Dual\EditDual\DualContractEditViewModel.cs" />
     <Compile Include="Models\Dual\LogsHelperClass\LogEntry.cs" />
     <Compile Include="Models\Electric\EditElectric\ElectricContractEditViewModel.cs" />
@@ -205,94 +209,6 @@
     <Compile Include="Filters\ValidateJsonAntiForgeryTokenAttribute.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202505290816030_InitialCreate.cs" />
-    <Compile Include="Migrations\202505290816030_InitialCreate.Designer.cs">
-      <DependentUpon>202505290816030_InitialCreate.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202506020841318_InitialMapping.cs" />
-    <Compile Include="Migrations\202506020841318_InitialMapping.Designer.cs">
-      <DependentUpon>202506020841318_InitialMapping.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202506021347513_InitialMapping1.cs" />
-    <Compile Include="Migrations\202506021347513_InitialMapping1.Designer.cs">
-      <DependentUpon>202506021347513_InitialMapping1.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202506021444435_InitialMapping2.cs" />
-    <Compile Include="Migrations\202506021444435_InitialMapping2.Designer.cs">
-      <DependentUpon>202506021444435_InitialMapping2.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202506021451041_InitialMapping3.cs" />
-    <Compile Include="Migrations\202506021451041_InitialMapping3.Designer.cs">
-      <DependentUpon>202506021451041_InitialMapping3.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202506021544119_InitialMapping4.cs" />
-    <Compile Include="Migrations\202506021544119_InitialMapping4.Designer.cs">
-      <DependentUpon>202506021544119_InitialMapping4.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202506031145589_InitialMapping5.cs" />
-    <Compile Include="Migrations\202506031145589_InitialMapping5.Designer.cs">
-      <DependentUpon>202506031145589_InitialMapping5.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202506031150022_InitialMapping6.cs" />
-    <Compile Include="Migrations\202506031150022_InitialMapping6.Designer.cs">
-      <DependentUpon>202506031150022_InitialMapping6.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202506031318130_InitialMapping7.cs" />
-    <Compile Include="Migrations\202506031318130_InitialMapping7.Designer.cs">
-      <DependentUpon>202506031318130_InitialMapping7.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202506041036354_InitialMapping8.cs" />
-    <Compile Include="Migrations\202506041036354_InitialMapping8.Designer.cs">
-      <DependentUpon>202506041036354_InitialMapping8.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202506041040325_InitialMapping9.cs" />
-    <Compile Include="Migrations\202506041040325_InitialMapping9.Designer.cs">
-      <DependentUpon>202506041040325_InitialMapping9.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202506041158372_InitialMapping10.cs" />
-    <Compile Include="Migrations\202506041158372_InitialMapping10.Designer.cs">
-      <DependentUpon>202506041158372_InitialMapping10.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202506041323578_InitialMapping11.cs" />
-    <Compile Include="Migrations\202506041323578_InitialMapping11.Designer.cs">
-      <DependentUpon>202506041323578_InitialMapping11.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202506051635506_InitialMapping12.cs" />
-    <Compile Include="Migrations\202506051635506_InitialMapping12.Designer.cs">
-      <DependentUpon>202506051635506_InitialMapping12.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202506051651206_InitialMapping13.cs" />
-    <Compile Include="Migrations\202506051651206_InitialMapping13.Designer.cs">
-      <DependentUpon>202506051651206_InitialMapping13.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202506090918042_InitialMapping14.cs" />
-    <Compile Include="Migrations\202506090918042_InitialMapping14.Designer.cs">
-      <DependentUpon>202506090918042_InitialMapping14.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202506091637563_InitialMapping15.cs" />
-    <Compile Include="Migrations\202506091637563_InitialMapping15.Designer.cs">
-      <DependentUpon>202506091637563_InitialMapping15.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202506101010029_InitialMapping16.cs" />
-    <Compile Include="Migrations\202506101010029_InitialMapping16.Designer.cs">
-      <DependentUpon>202506101010029_InitialMapping16.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202506110946578_InitialMapping17.cs" />
-    <Compile Include="Migrations\202506110946578_InitialMapping17.Designer.cs">
-      <DependentUpon>202506110946578_InitialMapping17.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202506111003168_InitialMapping18.cs" />
-    <Compile Include="Migrations\202506111003168_InitialMapping18.Designer.cs">
-      <DependentUpon>202506111003168_InitialMapping18.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202506111018535_InitialMapping19.cs" />
-    <Compile Include="Migrations\202506111018535_InitialMapping19.Designer.cs">
-      <DependentUpon>202506111018535_InitialMapping19.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202506111052548_InitialMapping20.cs" />
-    <Compile Include="Migrations\202506111052548_InitialMapping20.Designer.cs">
-      <DependentUpon>202506111052548_InitialMapping20.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountsDBModel\CE_Accounts.cs" />
@@ -353,78 +269,15 @@
     <Folder Include="App_Data\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\202505290816030_InitialCreate.resx">
-      <DependentUpon>202505290816030_InitialCreate.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202506020841318_InitialMapping.resx">
-      <DependentUpon>202506020841318_InitialMapping.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202506021347513_InitialMapping1.resx">
-      <DependentUpon>202506021347513_InitialMapping1.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202506021444435_InitialMapping2.resx">
-      <DependentUpon>202506021444435_InitialMapping2.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202506021451041_InitialMapping3.resx">
-      <DependentUpon>202506021451041_InitialMapping3.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202506021544119_InitialMapping4.resx">
-      <DependentUpon>202506021544119_InitialMapping4.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202506031145589_InitialMapping5.resx">
-      <DependentUpon>202506031145589_InitialMapping5.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202506031150022_InitialMapping6.resx">
-      <DependentUpon>202506031150022_InitialMapping6.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202506031318130_InitialMapping7.resx">
-      <DependentUpon>202506031318130_InitialMapping7.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202506041036354_InitialMapping8.resx">
-      <DependentUpon>202506041036354_InitialMapping8.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202506041040325_InitialMapping9.resx">
-      <DependentUpon>202506041040325_InitialMapping9.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202506041158372_InitialMapping10.resx">
-      <DependentUpon>202506041158372_InitialMapping10.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202506041323578_InitialMapping11.resx">
-      <DependentUpon>202506041323578_InitialMapping11.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202506051635506_InitialMapping12.resx">
-      <DependentUpon>202506051635506_InitialMapping12.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202506051651206_InitialMapping13.resx">
-      <DependentUpon>202506051651206_InitialMapping13.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202506090918042_InitialMapping14.resx">
-      <DependentUpon>202506090918042_InitialMapping14.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202506091637563_InitialMapping15.resx">
-      <DependentUpon>202506091637563_InitialMapping15.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202506101010029_InitialMapping16.resx">
-      <DependentUpon>202506101010029_InitialMapping16.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202506110946578_InitialMapping17.resx">
-      <DependentUpon>202506110946578_InitialMapping17.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202506111003168_InitialMapping18.resx">
-      <DependentUpon>202506111003168_InitialMapping18.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202506111018535_InitialMapping19.resx">
-      <DependentUpon>202506111018535_InitialMapping19.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202506111052548_InitialMapping20.resx">
-      <DependentUpon>202506111052548_InitialMapping20.cs</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Logic\Logic.csproj">
       <Project>{adf09c11-485c-4bb1-9229-f6729b191613}</Project>
       <Name>Logic</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\202506260826318_InitialMapping.resx">
+      <DependentUpon>202506260826318_InitialMapping.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
