@@ -9,7 +9,7 @@ const DropdownOptions = {
         "New Connection", "Termination Accepted", "Termination Rejected", "Termination Required",
         "Termination Sent", "N/A"
     ],
-    supplierCommsType: ["Annual", "Residual", "Duration", "N/A"],
+    supplierCommsType: ["Annual", "Residual", "Duration", "Quarterly"],
     preSalesStatus: [
         "Awaiting Audit Call", "Awaiting Details", "Awaiting LOA & CCF", "Awaiting Sign Contract",
         "Awaiting Supplier (Portal Issue)", "Contracts To Be Checked", "Duplicate Contract",
