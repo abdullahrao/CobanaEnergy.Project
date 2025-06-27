@@ -72,12 +72,12 @@
                         <div class="row gx-4 gy-3">
                             <div class="col-md-4"><label class="form-label required" for="businessName">Business Name</label><input type="text" id="businessName" class="form-control" required title="Insert Business Name" value="@Model.BusinessName" autocomplete="off" /></div>
                             <div class="col-md-4"><label class="form-label required" for="customerName">Customer Name</label><input type="text" id="customerName" class="form-control" required title="Insert Customer Name" value="@Model.CustomerName" autocomplete="off" /></div>
-                            <div class="col-md-4"><label class="form-label required" for="businessDoorNumber">Business Door Number</label><input type="text" id="businessDoorNumber" class="form-control" required title="Insert Door Number" value="@Model.BusinessDoorNumber" autocomplete="off" /></div>
-                            <div class="col-md-4"><label class="form-label required" for="businessHouseName">Business House Name</label><input type="text" id="businessHouseName" class="form-control" required title="Insert House Name" value="@Model.BusinessHouseName" autocomplete="off" /></div>
-                            <div class="col-md-4"><label class="form-label required" for="businessStreet">Business Street/Road</label><input type="text" id="businessStreet" class="form-control" required title="Insert Street/Road" value="@Model.BusinessStreet" autocomplete="off" /></div>
-                            <div class="col-md-4"><label class="form-label required" for="businessTown">Business Town</label><input type="text" id="businessTown" class="form-control" required title="Insert Town" value="@Model.BusinessTown" autocomplete="off" /></div>
-                            <div class="col-md-4"><label class="form-label required" for="businessCounty">Business County</label><input type="text" id="businessCounty" class="form-control" required title="Insert County" value="@Model.BusinessCounty" autocomplete="off" /></div>
-                            <div class="col-md-4"><label class="form-label required" for="postCode">Post Code</label><input type="text" id="postCode" class="form-control" required title="Insert Postcode" value="@Model.PostCode" autocomplete="off" /></div>
+                            <div class="col-md-4"><label class="form-label required" for="businessDoorNumber">Business Door Number</label><input type="text" id="businessDoorNumber" class="form-control" required title="Insert Business Door Number" value="@Model.BusinessDoorNumber" autocomplete="off" /></div>
+                            <div class="col-md-4"><label class="form-label" for="businessHouseName">Business House Name</label><input type="text" id="businessHouseName" class="form-control" title="Insert Business House Name" value="@Model.BusinessHouseName" autocomplete="off" /></div>
+                            <div class="col-md-4"><label class="form-label required" for="businessStreet">Business Street/Road</label><input type="text" id="businessStreet" class="form-control" required title="Insert Business Street/Road" value="@Model.BusinessStreet" autocomplete="off" /></div>
+                            <div class="col-md-4"><label class="form-label required" for="businessTown">Business Town</label><input type="text" id="businessTown" class="form-control" required title="Insert Business Town" value="@Model.BusinessTown" autocomplete="off" /></div>
+                            <div class="col-md-4"><label class="form-label" for="businessCounty">Business County</label><input type="text" id="businessCounty" class="form-control" title="Insert Business County" value="@Model.BusinessCounty" autocomplete="off" /></div>
+                            <div class="col-md-4"><label class="form-label required" for="postCode">Post Code</label><input type="text" id="postCode" class="form-control" required title="Insert Business Postcode" value="@Model.PostCode" autocomplete="off" /></div>
                         </div>
                     </div>
 
@@ -86,7 +86,7 @@
                         <h4>Contact Information</h4>
                         <div class="row gx-4 gy-3">
                             <div class="col-md-4"><label class="form-label required" for="phoneNumber1">Phone Number</label><input type="text" id="phoneNumber1" class="form-control" required pattern="^\d{11}$" maxlength="11" title="11 digit number required" value="@Model.PhoneNumber1" autocomplete="off" /></div>
-                            <div class="col-md-4"><label class="form-label required" for="phoneNumber2">Secondary Phone Number</label><input type="text" id="phoneNumber2" class="form-control" required pattern="^(\d{11}|N\/A)$" maxlength="11" title="Enter 11 digit or N/A" value="@Model.PhoneNumber2" autocomplete="off" /></div>
+                            <div class="col-md-4"><label class="form-label" for="phoneNumber2">Secondary Phone Number</label><input type="text" id="phoneNumber2" class="form-control" pattern="^(\d{11}|N\/A)$" maxlength="11" title="Enter 11 digit or N/A" value="@Model.PhoneNumber2" autocomplete="off" /></div>
                             <div class="col-md-4"><label class="form-label required" for="emailAddress">Email Address</label><input type="email" id="emailAddress" class="form-control" required title="Insert valid email address" value="@Model.EmailAddress" autocomplete="off" /></div>
                         </div>
                     </div>

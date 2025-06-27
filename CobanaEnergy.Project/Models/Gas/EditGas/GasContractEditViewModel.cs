@@ -27,13 +27,13 @@ namespace CobanaEnergy.Project.Models.Gas.EditGas
         public string CustomerName { get; set; }
         [Required]
         public string BusinessDoorNumber { get; set; }
-        [Required]
+        
         public string BusinessHouseName { get; set; }
         [Required]
         public string BusinessStreet { get; set; }
         [Required]
         public string BusinessTown { get; set; }
-        [Required]
+        
         public string BusinessCounty { get; set; }
         [Required]
         public string PostCode { get; set; }
@@ -43,8 +43,6 @@ namespace CobanaEnergy.Project.Models.Gas.EditGas
         [RegularExpression(@"^\d{11}$", ErrorMessage = "Phone number must contain only digits.")]
         public string PhoneNumber1 { get; set; }
 
-        [Required]
-        [RegularExpression(@"^\d{11}$|^N/A$", ErrorMessage = "Enter 11 digits or 'N/A'.")]
         public string PhoneNumber2 { get; set; }
 
         [Required]
