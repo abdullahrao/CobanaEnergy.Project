@@ -29,40 +29,131 @@
                             <div class="col-md-4"><label class="form-label required" for="source">Source</label><select id="source" class="form-select dropdown-arrow" required title="Please select Source" data-current="@Model.Source"></select></div>
                             <div class="col-md-4"><label class="form-label required" for="introducer">Introducer</label><input type="text" id="introducer" class="form-control" required title="Please insert Introducer or N/A" value="@Model.Introducer" autocomplete="off" /></div>
                             <div class="col-md-4"><label class="form-label required" for="subIntroducer">Sub Introducer</label><input type="text" id="subIntroducer" class="form-control" required title="Please insert Sub Introducer or N/A" value="@Model.SubIntroducer" autocomplete="off" /></div>
-                            <div class="col-md-4"><label class="form-label required" for="electricSalesType">Cobana Electric Sales Type</label><select id="electricSalesType" class="form-select dropdown-arrow" required title="Please select Electric Sales Type" data-current="@Model.ElectricSalesType"></select></div>
-                            <div class="col-md-4"><label class="form-label required" for="gasSalesType">Cobana Gas Sales Type</label><select id="gasSalesType" class="form-select dropdown-arrow" required title="Please select Gas Sales Type" data-current="@Model.GasSalesType"></select></div>
-                            <div class="col-md-4"><label class="form-label required" for="electricSalesStatus">Cobana Electric Sales Type Status</label><select id="electricSalesStatus" class="form-select dropdown-arrow" required title="Please select Electric Sales Status" data-current="@Model.ElectricSalesTypeStatus"></select></div>
-                            <div class="col-md-4"><label class="form-label required" for="gasSalesStatus">Cobana Gas Sales Type Status</label><select id="gasSalesStatus" class="form-select dropdown-arrow" required title="Please select Gas Sales Status" data-current="@Model.GasSalesTypeStatus"></select></div>
                         </div>
                     </div>
 
-                    <!-- Supply & Product Information -->
-                    <div class="form-section">
-                        <h4>Supply & Product Information</h4>
-                        <div class="row gx-4 gy-3">
-                            <div class="col-md-4"><label class="form-label required" for="topLine">Electric Top Line</label><input type="text" id="topLine" class="form-control" required title="Top Line must be exactly 8 alphanumeric characters" pattern="^[a-zA-Z0-9]{8}$" maxlength="8" value="@Model.TopLine" autocomplete="off" /></div>
-                            <div class="col-md-4">
-                                <label class="form-label required" for="mpan">MPAN</label>
-                                <div class="position-relative">
-                                    <input type="text" id="mpan" class="form-control" required pattern="(^\d{13}$)|(^N\/A$)" maxlength="13" title="Please enter 13-digit MPAN or N/A" value="@Model.MPAN" autocomplete="off" />
-                                    <div id="mpanLoader" class="spinner-border text-primary small-loader" role="status" style="display: none;"><span class="visually-hidden">Loading...</span></div>
-                                </div>
+                    <div class="form-section electric-section">
+                        <h4 class="section-header">⚡ Electric Section</h4>
+
+                        <!-- Site Details -->
+                        <div class="subsection-box">
+                            <h6 class="subsection-title">📌 Contract Details</h6>
+                            <div class="row gx-4 gy-3">
+                                <div class="col-md-4"><label class="form-label required" for="electricSalesType">Cobana Electric Sales Type</label><select id="electricSalesType" class="form-select dropdown-arrow" required title="Please select Electric Sales Type" data-current="@Model.ElectricSalesType"></select></div>
+                                <div class="col-md-4"><label class="form-label required" for="electricSalesStatus">Cobana Electric Sales Type Status</label><select id="electricSalesStatus" class="form-select dropdown-arrow" required title="Please select Electric Sales Status" data-current="@Model.ElectricSalesTypeStatus"></select></div>
                             </div>
-                            <div class="col-md-4">
-                                <label class="form-label required" for="mprn">MPRN</label>
-                                <div class="position-relative">
-                                    <input type="text" id="mprn" class="form-control" required pattern="(^\d{6,10}$)|(^N\/A$)" maxlength="10" title="Please enter 6–10 digit MPRN or N/A" value="@Model.MPRN" autocomplete="off" />
-                                    <div id="mprnLoader" class="spinner-border text-primary small-loader" role="status" style="display: none;"><span class="visually-hidden">Loading...</span></div>
+                        </div>
+
+                        <!-- Supply & Product Information -->
+                        <div class="subsection-box">
+                            <h6 class="subsection-title">📦 Supply & Product Information</h6>
+                            <div class="row gx-4 gy-3">
+                                <div class="col-md-4"><label class="form-label required" for="topLine">Electric Top Line</label><input type="text" id="topLine" class="form-control" required title="Top Line must be exactly 8 alphanumeric characters" pattern="^[a-zA-Z0-9]{8}$" maxlength="8" value="@Model.TopLine" autocomplete="off" /></div>
+                                <div class="col-md-4">
+                                    <label class="form-label required" for="mpan">MPAN</label>
+                                    <div class="position-relative">
+                                        <input type="text" id="mpan" class="form-control" required title="Please enter 13-digit MPAN or N/A" pattern="(^\d{13}$)|(^N\/A$)" maxlength="13" value="@Model.MPAN" autocomplete="off" />
+                                        <div id="mpanLoader" class="spinner-border text-primary small-loader" style="display: none;"><span class="visually-hidden">Loading...</span></div>
+                                    </div>
                                 </div>
+                                <div class="col-md-4"><label class="form-label required" for="electricCurrentSupplier">Electric Current Supplier</label><input type="text" id="electricCurrentSupplier" class="form-control" required title="Please enter current electric supplier" value="@Model.ElectricCurrentSupplier" autocomplete="off" /></div>
+                                <div class="col-md-4"><label class="form-label required" for="electricSupplier">Electric Supplier</label><select id="electricSupplier" class="form-select dropdown-arrow" required title="Select Electric Supplier" data-current="@Model.ElectricSupplierId"></select></div>
+                                <div class="col-md-4"><label class="form-label required" for="electricProduct">Electric Product</label><select id="electricProduct" class="form-select dropdown-arrow" required title="Select Electric Product" data-current="@Model.ElectricProductId"></select></div>
+                                <div class="col-md-4"><label class="form-label required" for="electricCommsType">Electric Comms Type</label><select id="electricCommsType" class="form-select dropdown-arrow" required title="Select Electric Comms Type" data-current="@Model.ElectricSupplierCommsType"></select></div>
                             </div>
-                            <div class="col-md-4"><label class="form-label required" for="electricCurrentSupplier">Electric Current Supplier</label><input type="text" id="electricCurrentSupplier" class="form-control" required title="Please enter current electric supplier" value="@Model.ElectricCurrentSupplier" autocomplete="off" /></div>
-                            <div class="col-md-4"><label class="form-label required" for="gasCurrentSupplier">Gas Current Supplier</label><input type="text" id="gasCurrentSupplier" class="form-control" required title="Please enter current gas supplier" value="@Model.GasCurrentSupplier" autocomplete="off" /></div>
-                            <div class="col-md-4"><label class="form-label required" for="electricSupplier">Electric Supplier</label><select id="electricSupplier" class="form-select dropdown-arrow" required title="Select Electric Supplier" data-current="@Model.ElectricSupplierId"></select></div>
-                            <div class="col-md-4"><label class="form-label required" for="electricProduct">Electric Product</label><select id="electricProduct" class="form-select dropdown-arrow" required title="Select Electric Product" data-current="@Model.ElectricProductId"></select></div>
-                            <div class="col-md-4"><label class="form-label required" for="gasSupplier">Gas Supplier</label><select id="gasSupplier" class="form-select dropdown-arrow" required title="Select Gas Supplier" data-current="@Model.GasSupplierId"></select></div>
-                            <div class="col-md-4"><label class="form-label required" for="gasProduct">Gas Product</label><select id="gasProduct" class="form-select dropdown-arrow" required title="Select Gas Product" data-current="@Model.GasProductId"></select></div>
-                            <div class="col-md-4"><label class="form-label required" for="electricCommsType">Electric Comms Type</label><select id="electricCommsType" class="form-select dropdown-arrow" required title="Select Electric Comms Type" data-current="@Model.ElectricSupplierCommsType"></select></div>
-                            <div class="col-md-4"><label class="form-label required" for="gasCommsType">Gas Comms Type</label><select id="gasCommsType" class="form-select dropdown-arrow" required title="Select Gas Comms Type" data-current="@Model.GasSupplierCommsType"></select></div>
+                        </div>
+
+                        <!-- Contract Timeline -->
+                        <div class="subsection-box">
+                            <h6 class="subsection-title">🗓️ Contract Timeline</h6>
+                            <div class="row gx-4 gy-3">
+                                <div class="col-md-4"><label class="form-label required" for="electricInitialStartDate">Electric Initial Start Date</label><input type="date" id="electricInitialStartDate" class="form-control" required title="Select Electric Start Date" value="@Model.ElectricInitialStartDate" /></div>
+                                <div class="col-md-4"><label class="form-label required" for="electricDuration">Electric Duration</label><input type="text" id="electricDuration" class="form-control" required maxlength="2" title="1–10 years only" value="@Model.ElectricDuration" autocomplete="off" /></div>
+                            </div>
+                        </div>
+
+                        <!-- Pricing & Usage -->
+                        <div class="subsection-box">
+                            <h6 class="subsection-title">💷 Pricing & Usage</h6>
+                            <div class="row gx-4 gy-3">
+                                <div class="col-md-4"><label class="form-label required" for="electricUplift">Electric Uplift</label><input type="text" id="electricUplift" class="form-control" required title="Insert Electric Uplift" value="@Model.ElectricUplift" autocomplete="off" /></div>
+                                <div class="col-md-4"><label class="form-label required" for="electricInputEAC">Electric Input EAC</label><input type="text" id="electricInputEAC" class="form-control" required title="Insert Electric Input EAC" value="@Model.ElectricInputEAC" autocomplete="off" /></div>
+                                <div class="col-md-4"><label class="form-label required" for="electricOtherRate">Electric Other Rate</label><input type="text" id="electricOtherRate" class="form-control" required title="Insert Electric Other Rate" value="@Model.ElectricOtherRate" autocomplete="off" /></div>
+                                <div class="col-md-4"><label class="form-label required" for="electricStandingCharge">Electric Standing Charge</label><input type="text" id="electricStandingCharge" class="form-control" required title="Insert Electric Standing Charge" value="@Model.ElectricStandingCharge" autocomplete="off" /></div>
+                                <div class="col-md-4"><label class="form-label required" for="dayRate">Day Rate</label><input type="text" id="dayRate" class="form-control" required title="Insert Day Rate" value="@Model.ElectricDayRate" autocomplete="off" /></div>
+                                <div class="col-md-4"><label class="form-label required" for="nightRate">Night Rate</label><input type="text" id="nightRate" class="form-control" required title="Insert Night Rate" value="@Model.ElectricNightRate" autocomplete="off" /></div>
+                                <div class="col-md-4"><label class="form-label required" for="eveWeekendRate">Evening/Weekend Rate</label><input type="text" id="eveWeekendRate" class="form-control" required title="Insert Evening/Weekend Rate" value="@Model.ElectricEveWeekendRate" autocomplete="off" /></div>
+                            </div>
+                        </div>
+
+                        <!-- Workflow & System Fields -->
+                        <div class="subsection-box">
+                            <h6 class="subsection-title">🛠 Sales Status</h6>
+                            <div class="row gx-4 gy-3">
+                                <div class="col-md-4"><label class="form-label required" for="electricPreSalesStatus">Electric PreSales Status</label><select id="electricPreSalesStatus" class="form-select dropdown-arrow" required title="Select Electric PreSales Status" data-current="@Model.ElectricPreSalesStatus"></select></div>
+                                <div class="col-md-4"><label class="form-label" for="inputDateElectric">Electric Input Date</label><input type="text" id="inputDateElectric" class="form-control" value="@Model.ElectricInputDate" readonly /></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section gas-section">
+                        <h4 class="section-header">🔥 Gas Section</h4>
+
+                        <!-- Site Details -->
+                        <div class="subsection-box">
+                            <h6 class="subsection-title">📌 Contract Details</h6>
+                            <div class="row gx-4 gy-3">
+                                <div class="col-md-4"><label class="form-label required" for="gasSalesType">Cobana Gas Sales Type</label><select id="gasSalesType" class="form-select dropdown-arrow" required title="Please select Gas Sales Type" data-current="@Model.GasSalesType"></select></div>
+                                <div class="col-md-4"><label class="form-label required" for="gasSalesStatus">Cobana Gas Sales Type Status</label><select id="gasSalesStatus" class="form-select dropdown-arrow" required title="Please select Gas Sales Status" data-current="@Model.GasSalesTypeStatus"></select></div>
+                            </div>
+                        </div>
+
+                        <!-- Supply & Product Information -->
+                        <div class="subsection-box">
+                            <h6 class="subsection-title">📦 Supply & Product Information</h6>
+                            <div class="row gx-4 gy-3">
+                                <div class="col-md-4">
+                                    <label class="form-label required" for="mprn">MPRN</label>
+                                    <div class="position-relative">
+                                        <input type="text" id="mprn" class="form-control" required pattern="(^\d{6,10}$)|(^N\/A$)" maxlength="10" title="Please enter 6–10 digit MPRN or N/A" value="@Model.MPRN" autocomplete="off" />
+                                        <div id="mprnLoader" class="spinner-border text-primary small-loader" role="status" style="display: none;"><span class="visually-hidden">Loading...</span></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4"><label class="form-label required" for="gasCurrentSupplier">Gas Current Supplier</label><input type="text" id="gasCurrentSupplier" class="form-control" required title="Please enter current gas supplier" value="@Model.GasCurrentSupplier" autocomplete="off" /></div>
+                                <div class="col-md-4"><label class="form-label required" for="gasSupplier">Gas Supplier</label><select id="gasSupplier" class="form-select dropdown-arrow" required title="Select Gas Supplier" data-current="@Model.GasSupplierId"></select></div>
+                                <div class="col-md-4"><label class="form-label required" for="gasProduct">Gas Product</label><select id="gasProduct" class="form-select dropdown-arrow" required title="Select Gas Product" data-current="@Model.GasProductId"></select></div>
+                                <div class="col-md-4"><label class="form-label required" for="gasCommsType">Gas Comms Type</label><select id="gasCommsType" class="form-select dropdown-arrow" required title="Select Gas Comms Type" data-current="@Model.GasSupplierCommsType"></select></div>
+                            </div>
+                        </div>
+
+                        <!-- Contract Timeline -->
+                        <div class="subsection-box">
+                            <h6 class="subsection-title">🗓️ Contract Timeline</h6>
+                            <div class="row gx-4 gy-3">
+                                <div class="col-md-4"><label class="form-label required" for="gasInitialStartDate">Gas Initial Start Date</label><input type="date" id="gasInitialStartDate" class="form-control" required title="Select Gas Start Date" value="@Model.GasInitialStartDate" /></div>
+                                <div class="col-md-4"><label class="form-label required" for="gasDuration">Gas Duration</label><input type="text" id="gasDuration" class="form-control" required maxlength="2" title="1–10 years only" value="@Model.GasDuration" autocomplete="off" /></div>
+                            </div>
+                        </div>
+
+                        <!-- Pricing & Usage -->
+                        <div class="subsection-box">
+                            <h6 class="subsection-title">💷 Pricing & Usage</h6>
+                            <div class="row gx-4 gy-3">
+                                <div class="col-md-4"><label class="form-label required" for="gasUplift">Gas Uplift</label><input type="text" id="gasUplift" class="form-control" required title="Insert Gas Uplift" value="@Model.GasUplift" autocomplete="off" /></div>
+                                <div class="col-md-4"><label class="form-label required" for="gasInputEAC">Gas Input EAC</label><input type="text" id="gasInputEAC" class="form-control" required title="Insert Gas Input EAC" value="@Model.GasInputEAC" autocomplete="off" /></div>
+                                <div class="col-md-4"><label class="form-label required" for="gasUnitRate">Gas Unit Rate</label><input type="text" id="gasUnitRate" class="form-control" required title="Insert Gas Unit Rate" value="@Model.GasUnitRate" autocomplete="off" /></div>
+                                <div class="col-md-4"><label class="form-label required" for="gasOtherRate">Gas Other Rate</label><input type="text" id="gasOtherRate" class="form-control" required title="Insert Gas Other Rate" value="@Model.GasOtherRate" autocomplete="off" /></div>
+                                <div class="col-md-4"><label class="form-label required" for="gasStandingCharge">Gas Standing Charge</label><input type="text" id="gasStandingCharge" class="form-control" required title="Insert Gas Standing Charge" value="@Model.GasStandingCharge" autocomplete="off" /></div>
+                            </div>
+                        </div>
+
+                        <!-- Workflow & System Fields -->
+                        <div class="subsection-box">
+                            <h6 class="subsection-title">🛠 Sales Status</h6>
+                            <div class="row gx-4 gy-3">
+                                <div class="col-md-4"><label class="form-label required" for="gasPreSalesStatus">Gas PreSales Status</label><select id="gasPreSalesStatus" class="form-select dropdown-arrow" required title="Select Gas PreSales Status" data-current="@Model.GasPreSalesStatus"></select></div>
+                                <div class="col-md-4"><label class="form-label" for="inputDateGas">Gas Input Date</label><input type="text" id="inputDateGas" class="form-control" value="@Model.GasInputDate" readonly /></div>
+                            </div>
                         </div>
                     </div>
 
@@ -91,38 +182,6 @@
                         </div>
                     </div>
 
-                    <!-- Contract Timeline -->
-                    <div class="form-section">
-                        <h4>Contract Timeline</h4>
-                        <div class="row gx-4 gy-3">
-                            <div class="col-md-4"><label class="form-label" for="inputDateElectric">Electric Input Date</label><input type="text" id="inputDateElectric" class="form-control" value="@Model.ElectricInputDate" readonly /></div>
-                            <div class="col-md-4"><label class="form-label" for="inputDateGas">Gas Input Date</label><input type="text" id="inputDateGas" class="form-control" value="@Model.GasInputDate" readonly /></div>
-                            <div class="col-md-4"><label class="form-label required" for="electricInitialStartDate">Electric Initial Start Date</label><input type="date" id="electricInitialStartDate" class="form-control" required title="Select Electric Start Date" value="@Model.ElectricInitialStartDate" /></div>
-                            <div class="col-md-4"><label class="form-label required" for="gasInitialStartDate">Gas Initial Start Date</label><input type="date" id="gasInitialStartDate" class="form-control" required title="Select Gas Start Date" value="@Model.GasInitialStartDate" /></div>
-                            <div class="col-md-4"><label class="form-label required" for="electricDuration">Electric Duration</label><input type="text" id="electricDuration" class="form-control" required maxlength="2" title="1–10 years only" value="@Model.ElectricDuration" autocomplete="off" /></div>
-                            <div class="col-md-4"><label class="form-label required" for="gasDuration">Gas Duration</label><input type="text" id="gasDuration" class="form-control" required maxlength="2" title="1–10 years only" value="@Model.GasDuration" autocomplete="off" /></div>
-                        </div>
-                    </div>
-
-                    <!-- Pricing & Usage -->
-                    <div class="form-section">
-                        <h4>Pricing & Usage</h4>
-                        <div class="row gx-4 gy-3">
-                            <div class="col-md-4"><label class="form-label required" for="electricUplift">Electric Uplift</label><input type="text" id="electricUplift" class="form-control" required title="Insert Electric Uplift" value="@Model.ElectricUplift" autocomplete="off" /></div>
-                            <div class="col-md-4"><label class="form-label required" for="gasUplift">Gas Uplift</label><input type="text" id="gasUplift" class="form-control" required title="Insert Gas Uplift" value="@Model.GasUplift" autocomplete="off" /></div>
-                            <div class="col-md-4"><label class="form-label required" for="electricInputEAC">Electric Input EAC</label><input type="text" id="electricInputEAC" class="form-control" required title="Insert Electric Input EAC" value="@Model.ElectricInputEAC" autocomplete="off" /></div>
-                            <div class="col-md-4"><label class="form-label required" for="gasInputEAC">Gas Input EAC</label><input type="text" id="gasInputEAC" class="form-control" required title="Insert Gas Input EAC" value="@Model.GasInputEAC" autocomplete="off" /></div>
-                            <div class="col-md-4"><label class="form-label required" for="dayRate">Day Rate</label><input type="text" id="dayRate" class="form-control" required title="Insert Day Rate" value="@Model.ElectricDayRate" autocomplete="off" /></div>
-                            <div class="col-md-4"><label class="form-label required" for="nightRate">Night Rate</label><input type="text" id="nightRate" class="form-control" required title="Insert Night Rate" value="@Model.ElectricNightRate" autocomplete="off" /></div>
-                            <div class="col-md-4"><label class="form-label required" for="eveWeekendRate">Evening/Weekend Rate</label><input type="text" id="eveWeekendRate" class="form-control" required title="Insert Evening/Weekend Rate" value="@Model.ElectricEveWeekendRate" autocomplete="off" /></div>
-                            <div class="col-md-4"><label class="form-label required" for="electricOtherRate">Electric Other Rate</label><input type="text" id="electricOtherRate" class="form-control" required title="Insert Electric Other Rate" value="@Model.ElectricOtherRate" autocomplete="off" /></div>
-                            <div class="col-md-4"><label class="form-label required" for="gasUnitRate">Gas Unit Rate</label><input type="text" id="gasUnitRate" class="form-control" required title="Insert Gas Unit Rate" value="@Model.GasUnitRate" autocomplete="off" /></div>
-                            <div class="col-md-4"><label class="form-label required" for="gasOtherRate">Gas Other Rate</label><input type="text" id="gasOtherRate" class="form-control" required title="Insert Gas Other Rate" value="@Model.GasOtherRate" autocomplete="off" /></div>
-                            <div class="col-md-4"><label class="form-label required" for="electricStandingCharge">Electric Standing Charge</label><input type="text" id="electricStandingCharge" class="form-control" required title="Insert Electric Standing Charge" value="@Model.ElectricStandingCharge" autocomplete="off" /></div>
-                            <div class="col-md-4"><label class="form-label required" for="gasStandingCharge">Gas Standing Charge</label><input type="text" id="gasStandingCharge" class="form-control" required title="Insert Gas Standing Charge" value="@Model.GasStandingCharge" autocomplete="off" /></div>
-                        </div>
-                    </div>
-
                     <!-- Banking -->
                     <div class="form-section">
                         <h4>Banking Details</h4>
@@ -142,8 +201,6 @@
                     <div class="form-section">
                         <h4>Workflow & System Fields</h4>
                         <div class="row gx-4 gy-3">
-                            <div class="col-md-4"><label class="form-label required" for="electricPreSalesStatus">Electric PreSales Status</label><select id="electricPreSalesStatus" class="form-select dropdown-arrow" required title="Select Electric PreSales Status" data-current="@Model.ElectricPreSalesStatus"></select></div>
-                            <div class="col-md-4"><label class="form-label required" for="gasPreSalesStatus">Gas PreSales Status</label><select id="gasPreSalesStatus" class="form-select dropdown-arrow" required title="Select Gas PreSales Status" data-current="@Model.GasPreSalesStatus"></select></div>
                             <div class="col-md-4"><label class="form-label" for="emProcessor">EM Processor</label><input type="text" id="emProcessor" class="form-control" readonly /></div>
                         </div>
 

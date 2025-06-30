@@ -271,3 +271,55 @@ label.form-label {
         font-size: 0.85rem;
     }
 }
+
+.electric-section, .gas-section {
+    border: 1px solid #ccc;
+    background-color: #fdfdfd;
+    padding: 25px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+}
+
+.section-header {
+    font-weight: 600;
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+}
+
+.electric-section .section-header {
+    color: #007bff;
+}
+
+.gas-section .section-header {
+    color: #fd7e14;
+}
+
+.subsection-box {
+    border: 1px solid #dee2e6;
+    padding: 20px;
+    border-radius: 6px;
+    margin-bottom: 25px;
+    background-color: #ffffff;
+}
+
+.electric-section .subsection-box {
+    border-left: 4px solid #0d6efd;
+}
+
+.gas-section .subsection-box {
+    border-left: 4px solid #fd7e14;
+}
+
+.subsection-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 15px;
+}
+
+.electric-section .subsection-title {
+    color: #0d6efd;
+}
+
+.gas-section .subsection-title {
+    color: #fd7e14;
+}
