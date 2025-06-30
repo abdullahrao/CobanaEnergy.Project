@@ -12,6 +12,7 @@ namespace CobanaEnergy.Project.Models.Supplier.Edit_Supplier
 
         [Required]
         public string Name { get; set; }
+        public string Link { get; set; }
 
         public bool Status { get; set; }
 

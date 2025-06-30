@@ -17,6 +17,8 @@ namespace CobanaEnergy.Project.Models.Supplier
         public string EndDate { get; set; }
         [Required]
         public string Commission { get; set; }
+        [Required]
+        public string SupplierCommsType { get; set; }
     }
 
 }

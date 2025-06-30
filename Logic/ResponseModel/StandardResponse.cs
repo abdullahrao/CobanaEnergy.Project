@@ -33,5 +33,16 @@ namespace CobanaEnergy.Project.Models.ResponseModel
                 Data = null
             };
         }
+
+        public static StandardResponse ErrorRedirection(string message, int statusCode = 400, object data = null)
+        {
+            return new StandardResponse
+            {
+                success = false,
+                StatusCode = statusCode,
+                message = message,
+                Data = data
+            };
+        }
     }
 }

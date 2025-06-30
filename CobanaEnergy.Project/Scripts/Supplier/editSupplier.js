@@ -2,7 +2,6 @@
     const supplierId = window.location.pathname.split("/").pop();
     const $form = $('#editSupplierForm');
 
-    // Fetch and populate existing supplier data
     function loadSupplier() {
         $.ajax({
             url: '/Supplier/GetSupplierForEdit',
@@ -11,12 +10,19 @@
             success: function (res) {
                 if (!res.success) {
                     showToastError(res.message);
+                    // return;
+
+                    setTimeout(function () {
+                        window.location.href = res.Data.redirectUrl;
+                    }, 1000);
+
                     return;
                 }
 
                 const data = res.Data;
                 $('#supplierId').val(data.Id);
                 $('#supplierName').val(data.Name);
+                $('#supplierLink').val(data.Link);
                 $('#supplierStatus').prop('checked', data.Status);
                 renderContacts(data.Contacts);
                 renderProducts(data.Products);
@@ -24,7 +30,6 @@
                     $(this).trigger('change');
                 });
 
-                // Hide loader, show form
                 $('#editSupplierLoading').hide();
                 $('#editSupplierContainer').removeClass('d-none');
             },
@@ -34,7 +39,6 @@
         });
     }
 
-    // Render contact fields
     function renderContacts(contacts) {
         const $container = $('#contactContainer');
         $container.empty();
@@ -43,7 +47,6 @@
         });
     }
 
-    // Render product fields
     function renderProducts(products) {
         const $container = $('#productContainer');
         $container.empty();
@@ -52,7 +55,6 @@
         });
     }
 
-    // Contact row HTML
     function getContactRow(contact = {}) {
         return `
     <div class="row mb-2 contact-row gx-2">
@@ -83,15 +85,23 @@
     </div>`;
     }
 
-    // Product row HTML
     function getProductRow(product = {}) {
         return `
     <div class="row mb-2 product-row gx-2">
      <input type="hidden" class="product-id" value="${product.Id || 0}">
-        <div class="col-md-4">
+        <div class="col-md-3">
             <label class="d-md-none fw-bold">Product Name</label>
             <input type="text" class="form-control product-name" placeholder="Product" value="${product.ProductName || ''}" required>
         </div>
+         <div class="col-md-2">
+        <label class="d-md-none fw-bold">Comms Type</label>
+        <select class="form-control product-comms-type" required>
+            <option value="">Select Comms Type</option>
+            ${DropdownOptions.supplierCommsType.map(type =>
+            `<option value="${type}" ${product.SupplierCommsType === type ? 'selected' : ''}>${type}</option>`
+        ).join('')}
+        </select>
+    </div>
         <div class="col-md-2">
             <label class="d-md-none fw-bold">Start Date</label>
             <input type="date" class="form-control product-start" value="${product.StartDate || ''}" required>
@@ -100,7 +110,7 @@
             <label class="d-md-none fw-bold">End Date</label>
             <input type="date" class="form-control product-end" value="${product.EndDate || ''}" required>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <label class="d-md-none fw-bold">Commission</label>
             <input type="text" class="form-control product-commission" placeholder="Commission" value="${product.Commission || ''}" required>
         </div>
@@ -110,7 +120,6 @@
     </div>`;
     }
 
-    // Add new contact/product
     $('.add-contact').click(() => $('#contactContainer').append(getContactRow()));
     $('.add-product').click(() => $('#productContainer').append(getProductRow()));
 
@@ -132,13 +141,13 @@
         /*        $(this).closest('.product-row').remove();*/
     });
 
-    // Submit form
     $form.on('submit', function (e) {
         e.preventDefault();
 
         const model = {
             Id: $('#supplierId').val(),
             Name: $('#supplierName').val(),
+            Link: $('#supplierLink').val(),
             Status: $('#supplierStatus').is(':checked'),
             Contacts: [],
             Products: []
@@ -159,6 +168,7 @@
             model.Products.push({
                 Id: parseInt($(this).find('.product-id').val()) || 0,
                 ProductName: $(this).find('.product-name').val(),
+                SupplierCommsType: $(this).find('.product-comms-type').val(),
                 StartDate: $(this).find('.product-start').val(),
                 EndDate: $(this).find('.product-end').val(),
                 Commission: $(this).find('.product-commission').val()
@@ -179,6 +189,10 @@
             success: function (res) {
                 if (res.success) {
                     showToastSuccess(res.message);
+
+                    setTimeout(function () {
+                        window.location.href = res.Data.redirectUrl;
+                    }, 1000);
                 } else {
                     showToastError(res.message);
                 }
@@ -192,10 +206,8 @@
         });
     });
 
-    // Initial load
     loadSupplier();
 
-    // Same as supplier creation: control End Date based on Start Date
     $(document).on('change', '.product-start', function () {
         const $row = $(this).closest('.product-row');
         const startDate = $(this).val();

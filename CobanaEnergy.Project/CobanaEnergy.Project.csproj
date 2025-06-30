@@ -197,6 +197,14 @@
     <Compile Include="Migrations\202506260826318_InitialMapping.Designer.cs">
       <DependentUpon>202506260826318_InitialMapping.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202506300943112_InitialMapping1.cs" />
+    <Compile Include="Migrations\202506300943112_InitialMapping1.Designer.cs">
+      <DependentUpon>202506300943112_InitialMapping1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202506301142567_InitialMapping2.cs" />
+    <Compile Include="Migrations\202506301142567_InitialMapping2.Designer.cs">
+      <DependentUpon>202506301142567_InitialMapping2.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\Dual\EditDual\DualContractEditViewModel.cs" />
     <Compile Include="Models\Dual\LogsHelperClass\LogEntry.cs" />
     <Compile Include="Models\Electric\EditElectric\ElectricContractEditViewModel.cs" />
@@ -277,6 +285,12 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\202506260826318_InitialMapping.resx">
       <DependentUpon>202506260826318_InitialMapping.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202506300943112_InitialMapping1.resx">
+      <DependentUpon>202506300943112_InitialMapping1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202506301142567_InitialMapping2.resx">
+      <DependentUpon>202506301142567_InitialMapping2.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

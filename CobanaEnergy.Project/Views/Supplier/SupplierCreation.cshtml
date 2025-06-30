@@ -11,11 +11,19 @@
 
         @using (Html.BeginForm("SupplierCreation", "Supplier", FormMethod.Post, new { id = "supplierForm", @class = "supplier-form", role = "form" }))
         {
-            @Html.AntiForgeryToken()
+            @Html.AntiForgeryToken();
 
-            <div class="form-section text-center">
-                <label for="supplierName" class="supplier-name-label">Supplier Name</label>
-                <input type="text" class="form-control mx-auto supplier-name-input" id="supplierName" name="Name" placeholder="Enter Supplier Name" required />
+            <div class="form-section supplier-meta-section">
+                <div class="row gx-4 gy-3 align-items-center">
+                    <div class="col-md-6">
+                        <label for="supplierName" class="form-label required">Supplier Name</label>
+                        <input type="text" class="form-control" id="supplierName" name="Name" placeholder="Enter Supplier Name" required autocomplete="off" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="supplierLink" class="form-label">Supplier Website Link</label>
+                        <input type="url" class="form-control" id="supplierLink" name="Link" placeholder="https://example.com" autocomplete="off" />
+                    </div>
+                </div>
             </div>
 
             <div class="form-section contacts-section">
@@ -37,6 +45,7 @@
     </div>
 
     @section scripts {
+        <script src="~/Scripts/Dropdown/dropdowns.js"></script>
         <script src="~/Scripts/Supplier/supplierCreation.js"></script>
     }
 

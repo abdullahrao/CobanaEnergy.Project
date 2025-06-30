@@ -68,3 +68,58 @@ button.btn-danger.btn-sm {
     min-height: 38px;
     line-height: 1.4;
 }
+
+.supplier-meta-section {
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 25px 30px;
+    border: 1px solid #e2e2e2;
+    margin-bottom: 30px;
+}
+
+    .supplier-meta-section .form-label {
+        font-weight: 600;
+        font-size: 1rem;
+        margin-bottom: 6px;
+    }
+
+    .supplier-meta-section .form-control {
+        font-size: 0.95rem;
+        padding: 10px 12px;
+        border-radius: 6px;
+    }
+
+.product-row .form-control,
+.product-row select {
+    margin-bottom: 6px;
+    padding: 9px 10px;
+    font-size: 0.95rem;
+    border-radius: 6px;
+}
+
+.product-row {
+    margin-bottom: 12px;
+    align-items: center;
+}
+
+.product-comms-type {
+    height: 38px;
+}
+
+.product-row > div {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.products-section {
+    padding-top: 15px;
+}
+
+    .products-section h4 {
+        margin-bottom: 16px;
+        font-weight: 600;
+    }
+
+.add-product {
+    margin-top: 10px;
+}

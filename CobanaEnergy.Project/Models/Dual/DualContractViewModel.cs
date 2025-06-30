@@ -84,8 +84,7 @@ namespace CobanaEnergy.Project.Models.Dual
 
         [Required]
         public string BusinessDoorNumber { get; set; }
-
-        [Required]
+        
         public string BusinessHouseName { get; set; }
 
         [Required]
@@ -94,7 +93,6 @@ namespace CobanaEnergy.Project.Models.Dual
         [Required]
         public string BusinessTown { get; set; }
 
-        [Required]
         public string BusinessCounty { get; set; }
 
         [Required]
@@ -106,8 +104,6 @@ namespace CobanaEnergy.Project.Models.Dual
         [RegularExpression(@"^\d{11}$", ErrorMessage = "Must be 11 digits.")]
         public string PhoneNumber1 { get; set; }
 
-        [Required]
-        [RegularExpression(@"^\d{11}$|^N/A$", ErrorMessage = "Enter 11 digits or 'N/A'.")]
         public string PhoneNumber2 { get; set; }
 
         [Required]

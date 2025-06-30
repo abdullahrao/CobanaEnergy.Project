@@ -41,7 +41,12 @@ namespace CobanaEnergy.Project.Controllers.PreSales
         public async Task<JsonResult> SupplierCreation(SupplierViewModel model)
         {
             if (!ModelState.IsValid)
-                return JsonResponse.Fail("Please correct the errors in the form.");
+            {
+                //return JsonResponse.Fail("Please correct the errors in the form.");
+                var errors = ModelState.Values.SelectMany(x => x.Errors).Select(e => e.ErrorMessage).ToList();
+                return JsonResponse.Fail(string.Join("<br>", errors));
+            }
+
 
             using (var transaction = db.Database.BeginTransaction())
             {
@@ -51,6 +56,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     {
                         Name = model.Name,
                         Status = true,
+                        Link = model.Link,
                         CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
                     };
 
@@ -78,7 +84,8 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                             ProductName = product.ProductName,
                             StartDate = product.StartDate,
                             EndDate = "3099-06-23",// product.EndDate,
-                            Commission = product.Commission
+                            Commission = product.Commission,
+                            SupplierCommsType = product.SupplierCommsType
                         });
                     }
 
@@ -130,6 +137,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                         {
                             SupplierId = s.Id,
                             SupplierName = s.Name,
+                            Link = s.Link,
                             ProductName = p.ProductName,
                             Commission = p.Commission,
                             Status = s.Status
@@ -163,7 +171,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
             try
             {
                 if (string.IsNullOrEmpty(id) || !int.TryParse(id, out int supplierId))
-                    return JsonResponse.Fail("Invalid or missing supplier ID.");
+                    return JsonResponse.FailRedirection(new { redirectUrl = Url.Action("SupplierDashboard", "Supplier") }, "Invalid or missing supplier ID.");
 
                 var supplier = await db.CE_Supplier
                     .Include(s => s.CE_SupplierContacts)
@@ -171,12 +179,13 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     .FirstOrDefaultAsync(s => s.Id == supplierId && s.Status);
 
                 if (supplier == null)
-                    return JsonResponse.Fail("Supplier not found or inactive.");
+                    return JsonResponse.FailRedirection(new { redirectUrl = Url.Action("SupplierDashboard", "Supplier") }, "Supplier not found or inactive.");
 
                 var viewModel = new EditSupplierViewModel
                 {
                     Id = supplier.Id,
                     Name = supplier.Name,
+                    Link = supplier.Link,
                     Status = supplier.Status,
                     Contacts = supplier.CE_SupplierContacts.Select(c => new SupplierContactViewModel
                     {
@@ -193,7 +202,9 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                         ProductName = p.ProductName,
                         StartDate = p.StartDate,
                         EndDate = p.EndDate,
-                        Commission = p.Commission
+                        Commission = p.Commission,
+                        SupplierCommsType = p.SupplierCommsType
+
                     }).ToList()
                 };
 
@@ -212,7 +223,11 @@ namespace CobanaEnergy.Project.Controllers.PreSales
         public async Task<JsonResult> EditSupplier(EditSupplierViewModel model)
         {
             if (!ModelState.IsValid)
-                return JsonResponse.Fail("Please correct the errors in the form.");
+            {
+                //return JsonResponse.Fail("Please correct the errors in the form.");
+                var errors = ModelState.Values.SelectMany(x => x.Errors).Select(e => e.ErrorMessage).ToList();
+                return JsonResponse.Fail(string.Join("<br>", errors));
+            }
 
             using (var transaction = db.Database.BeginTransaction())
             {
@@ -224,10 +239,12 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                         .FirstOrDefaultAsync(s => s.Id == model.Id);
 
                     if (supplier == null)
-                        return JsonResponse.Fail("Supplier not found.");
+                        return JsonResponse.FailRedirection(new { redirectUrl = Url.Action("SupplierDashboard", "Supplier") }, "Supplier not found.");
 
                     supplier.Name = model.Name;
                     supplier.Status = model.Status;
+                    supplier.Link = model.Link;
+
                     await db.SaveChangesAsync();
 
                     var submittedContactIds = model.Contacts.Where(c => c.Id > 0).Select(c => c.Id).ToList();
@@ -309,6 +326,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                                 existing.StartDate = product.StartDate;
                                 existing.EndDate = product.EndDate;
                                 existing.Commission = product.Commission;
+                                existing.SupplierCommsType = product.SupplierCommsType;
                             }
                         }
                         else
@@ -319,7 +337,8 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                                 ProductName = product.ProductName,
                                 StartDate = product.StartDate,
                                 EndDate = product.EndDate,
-                                Commission = product.Commission
+                                Commission = product.Commission,
+                                SupplierCommsType = product.SupplierCommsType
                             });
                         }
                     }
@@ -337,7 +356,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                         }, $"Supplier updated successfully. However, the following product(s) could not be deleted as they are currently in use: {names} Please referesh the page");
                     }
 
-                    return JsonResponse.Ok(new { success = true }, "Supplier updated successfully!");
+                    return JsonResponse.Ok(new { redirectUrl = Url.Action("SupplierDashboard", "Supplier") }, "Supplier updated successfully!");
                 }
                 catch (Exception ex)
                 {
@@ -402,7 +421,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     .Where(p =>
                         !string.IsNullOrWhiteSpace(p.EndDate) &&
                         DateTime.Parse(p.EndDate) > today)
-                    .Select(p => new { p.Id, ProductName = p.ProductName })
+                    .Select(p => new { p.Id, ProductName = p.ProductName, SupplierCommsType = p.SupplierCommsType })
                     .ToList();
 
                 return JsonResponse.Ok(products);
