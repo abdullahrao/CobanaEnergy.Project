@@ -19,11 +19,15 @@
         dataSrc: 'SupplierName',
         startRender: function (rows, group) {
             const supplierId = rows.data()[0].SupplierId;
+            const supplierLink = rows.data()[0].Link;
 
             return `
         <div class="d-flex justify-content-between align-items-center w-100 px-2">
-            <span class="fw-bold group-title">Supplier Name: ${group}</span>
-            <a href="/Supplier/EditSupplier/${supplierId}" class="btn-edit" title="Edit Supplier">
+            <span class="fw-bold group-title">
+            Supplier Name: ${group}
+            ${supplierLink ? `<a href="${supplierLink}" target="_blank" class="supplier-visit-link ms-2">(Visit Supplier)</a>` : ''}
+            </span>
+            <a href="/Supplier/EditSupplier/${supplierId}" class="btn-edit mt-2 mt-md-0" title="Edit Supplier">
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
                     <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10z"/>
                 </svg>

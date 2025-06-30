@@ -13,6 +13,7 @@ namespace CobanaEnergy.Project.Models.Supplier.SupplierDBModels
         public string Name { get; set; }
         public bool Status { get; set; }
         public string CreatedAt { get; set; }
+        public string Link { get; set; }
         public virtual ICollection<CE_SupplierProducts> CE_SupplierProducts { get; set; }
         public virtual ICollection<CE_SupplierContacts> CE_SupplierContacts { get; set; }
 

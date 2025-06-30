@@ -153,3 +153,16 @@ a.btn-edit {
     font-weight: 600;
     padding: 0.75rem 1rem;
 }
+
+.supplier-visit-link {
+    font-weight: normal;
+    font-size: 0.85rem;
+    color: #0d6efd;
+    text-decoration: underline;
+    margin-left: 8px;
+}
+
+    .supplier-visit-link:hover {
+        color: #0a58ca;
+        text-decoration: none;
+    }

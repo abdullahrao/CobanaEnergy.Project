@@ -68,3 +68,23 @@ button.btn-danger.btn-sm {
     min-height: 38px;
     line-height: 1.4;
 }
+
+.supplier-meta-section {
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 25px 30px;
+    border: 1px solid #e2e2e2;
+    margin-bottom: 30px;
+}
+
+    .supplier-meta-section .form-label {
+        font-weight: 600;
+        font-size: 1rem;
+        margin-bottom: 6px;
+    }
+
+    .supplier-meta-section .form-control {
+        font-size: 0.95rem;
+        padding: 10px 12px;
+        border-radius: 6px;
+    }

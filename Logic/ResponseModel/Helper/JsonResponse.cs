@@ -28,5 +28,14 @@ namespace Logic.ResponseModel.Helper
                 JsonRequestBehavior = JsonRequestBehavior.AllowGet
             };
         }
+
+        public static JsonResult FailRedirection(object data = null, string message = "Something went wrong", int code = 400)
+        {
+            return new JsonResult
+            {
+                Data = StandardResponse.ErrorRedirection(message, code,data),
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet
+            };
+        }
     }
 }

@@ -45,6 +45,7 @@
 
         const data = {
             Name: $('#supplierName').val(),
+            Link: $('#supplierLink').val(),
             Contacts: contacts,
             Products: products
         };

@@ -10,6 +10,7 @@ namespace CobanaEnergy.Project.Models.Supplier
     {
         [Required]
         public string Name { get; set; }
+        public string Link { get; set; }
         public bool Status { get; set; } = true;
         public List<SupplierContactViewModel> Contacts { get; set; } = new List<SupplierContactViewModel>();
         public List<SupplierProductViewModel> Products { get; set; } = new List<SupplierProductViewModel>();
