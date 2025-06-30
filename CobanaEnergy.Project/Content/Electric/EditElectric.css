@@ -273,3 +273,8 @@ label.form-label {
     }
 }
 
+.highlight-temp {
+    border: 2px solid #007bff !important;
+    background-color: #e9f5ff !important;
+    transition: all 0.3s ease-in-out;
+}

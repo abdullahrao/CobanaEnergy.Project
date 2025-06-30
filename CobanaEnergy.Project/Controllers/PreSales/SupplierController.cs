@@ -421,7 +421,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     .Where(p =>
                         !string.IsNullOrWhiteSpace(p.EndDate) &&
                         DateTime.Parse(p.EndDate) > today)
-                    .Select(p => new { p.Id, ProductName = p.ProductName })
+                    .Select(p => new { p.Id, ProductName = p.ProductName, SupplierCommsType = p.SupplierCommsType })
                     .ToList();
 
                 return JsonResponse.Ok(products);

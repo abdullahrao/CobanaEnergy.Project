@@ -12,6 +12,8 @@
         }
     });
 
+    $('#electricProduct, #electricCommsType, #gasProduct, #gasCommsType').prop('disabled', true);
+
     function populateDropdown(id, values) {
         const $select = $('#' + id);
         $select.empty().append(`<option value="">Select ${id}</option>`);
@@ -44,35 +46,69 @@
     });
 
     $('#electricSupplier').change(function () {
-        loadProducts($(this).val(), '#electricProduct');
+        loadProductsAndComms($(this).val(), '#electricProduct', '#electricCommsType');
     });
-
     $('#gasSupplier').change(function () {
-        loadProducts($(this).val(), '#gasProduct');
+        loadProductsAndComms($(this).val(), '#gasProduct', '#gasCommsType');
     });
 
-    function loadProducts(supplierId, productSelector) {
+    $('#electricProduct').change(function () {
+        updateCommsTypeFromProduct('#electricProduct', '#electricCommsType');
+    });
+    $('#gasProduct').change(function () {
+        updateCommsTypeFromProduct('#gasProduct', '#gasCommsType');
+    });
+
+    function loadProductsAndComms(supplierId, productSelector, commsSelector) {
         const $product = $(productSelector);
+        const $comms = $(commsSelector);
+
         $product.prop('disabled', true).empty().append('<option>Loading...</option>');
+        $comms.prop('disabled', true).empty().append('<option>Loading...</option>');
 
         if (!supplierId) {
-            $product.empty().append('<option value="">Select Product</option>').prop('disabled', false);
+            $product.empty().append('<option value="">Select Product</option>').prop('disabled', true);
+            $comms.empty().append('<option value="">Select Comms Type</option>').prop('disabled', true);
             return;
         }
 
         $.get(`/Supplier/GetProductsBySupplier?supplierId=${supplierId}`, function (res) {
             $product.empty().append('<option value="">Select Product</option>');
+            $comms.empty().append('<option value="">Select Comms Type</option>');
+
+            DropdownOptions.supplierCommsType.forEach(v => {
+                $comms.append(`<option value="${v}">${v}</option>`);
+            });
 
             if (res.success && res.Data.length > 0) {
                 res.Data.forEach(p => {
-                    $product.append(`<option value="${p.Id}">${p.ProductName}</option>`);
+                    $product.append(`<option value="${p.Id}" data-comms="${p.SupplierCommsType ?? ''}">${p.ProductName}</option>`);
                 });
             } else {
                 $product.append('<option disabled>No products found</option>');
             }
 
             $product.prop('disabled', false);
+            $comms.prop('disabled', false);
         });
+    }
+
+    function updateCommsTypeFromProduct(productSelector, commsSelector) {
+        const selectedOption = $(productSelector).find('option:selected');
+        const commsType = selectedOption.data('comms') ?? '';
+        const $comms = $(commsSelector);
+
+        $comms.empty().append('<option value="">Select Comms Type</option>');
+        DropdownOptions.supplierCommsType.forEach(v => {
+            $comms.append(`<option value="${v}">${v}</option>`);
+        });
+
+        if (commsType) {
+            $comms.val(commsType).addClass('highlight-temp');
+            setTimeout(() => {
+                $comms.removeClass('highlight-temp');
+            }, 1000);
+        }
     }
 
     function restoreDefaults() {
