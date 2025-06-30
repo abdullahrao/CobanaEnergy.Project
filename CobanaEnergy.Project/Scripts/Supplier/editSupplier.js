@@ -89,10 +89,19 @@
         return `
     <div class="row mb-2 product-row gx-2">
      <input type="hidden" class="product-id" value="${product.Id || 0}">
-        <div class="col-md-4">
+        <div class="col-md-3">
             <label class="d-md-none fw-bold">Product Name</label>
             <input type="text" class="form-control product-name" placeholder="Product" value="${product.ProductName || ''}" required>
         </div>
+         <div class="col-md-2">
+        <label class="d-md-none fw-bold">Comms Type</label>
+        <select class="form-control product-comms-type" required>
+            <option value="">Select Comms Type</option>
+            ${DropdownOptions.supplierCommsType.map(type =>
+            `<option value="${type}" ${product.SupplierCommsType === type ? 'selected' : ''}>${type}</option>`
+        ).join('')}
+        </select>
+    </div>
         <div class="col-md-2">
             <label class="d-md-none fw-bold">Start Date</label>
             <input type="date" class="form-control product-start" value="${product.StartDate || ''}" required>
@@ -101,7 +110,7 @@
             <label class="d-md-none fw-bold">End Date</label>
             <input type="date" class="form-control product-end" value="${product.EndDate || ''}" required>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <label class="d-md-none fw-bold">Commission</label>
             <input type="text" class="form-control product-commission" placeholder="Commission" value="${product.Commission || ''}" required>
         </div>
@@ -159,6 +168,7 @@
             model.Products.push({
                 Id: parseInt($(this).find('.product-id').val()) || 0,
                 ProductName: $(this).find('.product-name').val(),
+                SupplierCommsType: $(this).find('.product-comms-type').val(),
                 StartDate: $(this).find('.product-start').val(),
                 EndDate: $(this).find('.product-end').val(),
                 Commission: $(this).find('.product-commission').val()

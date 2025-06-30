@@ -41,7 +41,12 @@ namespace CobanaEnergy.Project.Controllers.PreSales
         public async Task<JsonResult> SupplierCreation(SupplierViewModel model)
         {
             if (!ModelState.IsValid)
-                return JsonResponse.Fail("Please correct the errors in the form.");
+            {
+                //return JsonResponse.Fail("Please correct the errors in the form.");
+                var errors = ModelState.Values.SelectMany(x => x.Errors).Select(e => e.ErrorMessage).ToList();
+                return JsonResponse.Fail(string.Join("<br>", errors));
+            }
+
 
             using (var transaction = db.Database.BeginTransaction())
             {
@@ -79,7 +84,8 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                             ProductName = product.ProductName,
                             StartDate = product.StartDate,
                             EndDate = "3099-06-23",// product.EndDate,
-                            Commission = product.Commission
+                            Commission = product.Commission,
+                            SupplierCommsType = product.SupplierCommsType
                         });
                     }
 
@@ -196,7 +202,9 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                         ProductName = p.ProductName,
                         StartDate = p.StartDate,
                         EndDate = p.EndDate,
-                        Commission = p.Commission
+                        Commission = p.Commission,
+                        SupplierCommsType = p.SupplierCommsType
+
                     }).ToList()
                 };
 
@@ -215,7 +223,11 @@ namespace CobanaEnergy.Project.Controllers.PreSales
         public async Task<JsonResult> EditSupplier(EditSupplierViewModel model)
         {
             if (!ModelState.IsValid)
-                return JsonResponse.Fail("Please correct the errors in the form.");
+            {
+                //return JsonResponse.Fail("Please correct the errors in the form.");
+                var errors = ModelState.Values.SelectMany(x => x.Errors).Select(e => e.ErrorMessage).ToList();
+                return JsonResponse.Fail(string.Join("<br>", errors));
+            }
 
             using (var transaction = db.Database.BeginTransaction())
             {
@@ -314,6 +326,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                                 existing.StartDate = product.StartDate;
                                 existing.EndDate = product.EndDate;
                                 existing.Commission = product.Commission;
+                                existing.SupplierCommsType = product.SupplierCommsType;
                             }
                         }
                         else
@@ -324,7 +337,8 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                                 ProductName = product.ProductName,
                                 StartDate = product.StartDate,
                                 EndDate = product.EndDate,
-                                Commission = product.Commission
+                                Commission = product.Commission,
+                                SupplierCommsType = product.SupplierCommsType
                             });
                         }
                     }

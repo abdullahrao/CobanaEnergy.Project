@@ -6,7 +6,18 @@
         if (parts.length === 2) return parts.pop().split(';').shift();
     }
 
-    // Add initial rows
+    function populateSupplierCommsDropdown() {
+        const options = DropdownOptions.supplierCommsType || [];
+
+        $('.product-comms-type').each(function () {
+            if ($(this).children('option').length <= 1) {
+                options.forEach(val => {
+                    $(this).append(`<option value="${val}">${val}</option>`);
+                });
+            }
+        });
+    }
+
     addContact();
     addProduct();
 
@@ -39,7 +50,8 @@
                 ProductName: $(this).find('.product-name').val(),
                 StartDate: $(this).find('.product-start').val(),
                 EndDate: $(this).find('.product-end').val(),
-                Commission: $(this).find('.product-commission').val()
+                Commission: $(this).find('.product-commission').val(),
+                SupplierCommsType: $(this).find('.product-comms-type').val()
             });
         });
 
@@ -102,14 +114,22 @@
 
     function addProduct() {
         const product = `
-        <div class="product-row row gx-2 mb-3">
+        <div class="product-row row gx-2 gy-2 mb-3">
             <div class="col-md-3"><input type="text" class="form-control product-name" placeholder="Product Name" required></div>
+            <div class="col-md-2">
+                <select class="form-control product-comms-type" required>
+                    <option value="" disabled selected>Select Comms</option>
+                </select>
+            </div>
             <div class="col-md-2"><input type="date" class="form-control product-start" placeholder="Start Date"  required></div>
             <div class="col-md-2"><input type="date" class="form-control product-end" placeholder="End Date" disabled required></div>
-            <div class="col-md-3"><input type="text" class="form-control product-commission" placeholder="Commission"  required></div>
+            <div class="col-md-2"><input type="text" class="form-control product-commission" placeholder="Commission"  required></div>
             <div class="col-md-1"><button type="button" class="btn btn-danger btn-sm remove-row">X</button></div>
         </div>`;
+
         $('#productContainer').append(product);
+
+        populateSupplierCommsDropdown();
     }
 
     $(document).on('click', '.remove-row', function () {

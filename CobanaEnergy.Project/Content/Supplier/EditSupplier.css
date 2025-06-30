@@ -223,14 +223,12 @@ form#editSupplierForm textarea {
     }
 }
 
-/* Align toggle cleanly and responsively */
 .supplier-meta-section .form-check {
     padding-left: 0;
     display: flex;
     align-items: center;
 }
 
-/* Ensure toggle section stays aligned and spaced */
 @media (max-width: 768px) {
     .supplier-meta-section .form-check {
         justify-content: flex-start !important;
@@ -243,4 +241,13 @@ form#editSupplierForm textarea {
     .supplier-meta-section .form-check-input {
         margin-right: 6px;
     }
+}
+
+.product-comms-type {
+    font-size: 0.92rem;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-weight: normal; 
+    font-family: 'Roboto Mono', monospace;
 }

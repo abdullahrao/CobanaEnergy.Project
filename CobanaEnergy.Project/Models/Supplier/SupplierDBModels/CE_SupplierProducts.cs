@@ -15,6 +15,7 @@ namespace CobanaEnergy.Project.Models.Supplier.SupplierDBModels
         public string StartDate { get; set; }
         public string EndDate { get; set; }
         public string Commission { get; set; }
+        public string SupplierCommsType { get; set; }
 
         [ForeignKey("SupplierId")]
         public virtual CE_Supplier CE_Supplier { get; set; }

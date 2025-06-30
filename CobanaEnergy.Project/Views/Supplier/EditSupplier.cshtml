@@ -22,12 +22,12 @@
                     <div class="row align-items-center gx-3 gy-3">
                         <div class="col-md-5">
                             <label for="supplierName" class="form-label">Supplier Name</label>
-                            <input type="text" class="form-control" id="supplierName" placeholder="Enter supplier name" required autocomplete="off"/>
+                            <input type="text" class="form-control" id="supplierName" placeholder="Enter supplier name" required autocomplete="off" />
                         </div>
 
                         <div class="col-md-5">
                             <label for="supplierLink" class="form-label">Supplier Website Link</label>
-                            <input type="url" class="form-control" id="supplierLink" placeholder="https://example.com/" autocomplete="off"/>
+                            <input type="url" class="form-control" id="supplierLink" placeholder="https://example.com/" autocomplete="off" />
                         </div>
 
                         <div class="col-md-2 d-flex align-items-center pt-3 pt-md-4 justify-content-md-end justify-content-start">
@@ -56,10 +56,11 @@
                 <div class="form-section">
                     <h4>Products</h4>
                     <div class="product-header row mb-2 gx-2">
-                        <div class="col-md-4 text-center">Product Name</div>
+                        <div class="col-md-3 text-center">Product Name</div>
+                        <div class="col-md-2 text-center">Supplier Comms Type</div>
                         <div class="col-md-2 text-center">Start Date</div>
                         <div class="col-md-2 text-center">End Date</div>
-                        <div class="col-md-3 text-center">Commission</div>
+                        <div class="col-md-2 text-center">Commission</div>
                         <div class="col-md-1"></div>
                     </div>
                     <div id="productContainer"></div>
@@ -79,6 +80,7 @@
     }
 
     @section scripts {
+        <script src="~/Scripts/Dropdown/dropdowns.js"></script>
         <script src="~/Scripts/Supplier/editSupplier.js"></script>
     }
 
