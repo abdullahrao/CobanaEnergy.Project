@@ -39,6 +39,7 @@ function loadContractTable() {
                                 <td>${r.BusinessName}</td>
                                 <td>${r.CustomerName}</td>
                                 <td>${r.InputDate ?? '-'}</td>
+                                <td style="display:none">${r.SortableDate ?? ''}</td>
                                 <td>${r.PreSalesStatus ?? '-'}</td>
                                 <td>
                                       <span class="truncate-cell">
@@ -53,7 +54,10 @@ function loadContractTable() {
             paging: true,
             searching: true,
             ordering: true,
-            order: [[6, 'desc']],
+            order: [[7, 'desc']],
+            columnDefs: [
+                { targets: 7, visible: false } 
+            ],
             info: true,
             responsive: true,
             autoWidth: false
