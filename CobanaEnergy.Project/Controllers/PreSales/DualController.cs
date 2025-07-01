@@ -659,7 +659,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     }
                 }
 
-                var sorted = finalLogs.OrderByDescending(l => l.ActionDate).ToList();
+                var sorted = finalLogs.OrderByDescending(l => DateTime.TryParse(l.ActionDate, out var dt) ? dt : DateTime.MinValue).ToList();
                 return JsonResponse.Ok(sorted);
             }
             catch (Exception ex)
