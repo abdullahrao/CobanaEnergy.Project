@@ -19,5 +19,6 @@ namespace CobanaEnergy.Project.Models.Supplier.Edit_Supplier
         public List<SupplierContactViewModel> Contacts { get; set; } = new List<SupplierContactViewModel>();
 
         public List<SupplierProductViewModel> Products { get; set; } = new List<SupplierProductViewModel>();
+        public List<SupplierUpliftViewModel> Uplifts { get; set; } = new List<SupplierUpliftViewModel>();
     }
 }

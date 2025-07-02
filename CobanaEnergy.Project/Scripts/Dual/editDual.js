@@ -1,5 +1,6 @@
 ﻿$(document).ready(function () {
     if (!$('#editDualForm').length) return;
+   // $('#electricCommsType, #gasCommsType').prop('disabled', true);
 
     const token = $('input[name="__RequestVerificationToken"]').val();
     if (token) {
@@ -54,27 +55,61 @@
     $('#gasSupplier').change(function () {
         loadProducts($(this).val(), '#gasProduct', '');
     });
+    $('#electricProduct').on('change', function () {
+        handleCommsType('#electricProduct', '#electricCommsType');
+    });
+
+    $('#gasProduct').on('change', function () {
+        handleCommsType('#gasProduct', '#gasCommsType');
+    });
 
     function loadProducts(supplierId, targetId, selectedId) {
         const $target = $(targetId);
-        $target.prop('disabled', true).empty().append('<option>Loading...</option>');
+        const $comms = (targetId === '#electricProduct') ? $('#electricCommsType') : $('#gasCommsType');
 
         if (!supplierId) {
-            $target.empty().append('<option value="">Select Product</option>').prop('disabled', false);
+            $target.empty().append('<option value="">Select Product</option>').prop('disabled', true);
+            $comms.empty().append('<option value="">Select Supplier Comms Type</option>').prop('disabled', true);
             return;
         }
+
+        $target.prop('disabled', true).empty().append('<option>Loading...</option>');
 
         $.get(`/Supplier/GetProductsBySupplier?supplierId=${supplierId}`, function (res) {
             $target.empty().append('<option value="">Select Product</option>');
             if (res.success && res.Data?.length) {
                 res.Data.forEach(p => {
-                    $target.append(`<option value="${p.Id}" ${p.Id == selectedId ? 'selected' : ''}>${p.ProductName}</option>`);
+                    const comms = p.SupplierCommsType ?? '';
+                    $target.append(`<option value="${p.Id}" data-comms="${comms}" ${p.Id == selectedId ? 'selected' : ''}>${p.ProductName}</option>`);
                 });
             } else {
                 $target.append('<option disabled>No products found</option>');
             }
             $target.prop('disabled', false);
         });
+    }
+
+    function handleCommsType(productSelector, commsSelector) {
+        const selectedOption = $(productSelector).find('option:selected');
+        const commsType = selectedOption.data('comms') ?? '';
+        const $comms = $(commsSelector);
+        const current = $comms.data('current');
+
+        $comms.empty().append('<option value="">Select Supplier Comms Type</option>');
+
+        DropdownOptions.supplierCommsType.forEach(v => {
+            const selected = commsType ? v === commsType : v === current ? 'selected' : '';
+            $comms.append(`<option value="${v}" ${selected}>${v}</option>`);
+        });
+
+        if (commsType) {
+            $comms.val(commsType).addClass('highlight-temp');
+            setTimeout(() => {
+                $comms.removeClass('highlight-temp');
+            }, 1000);
+        }
+
+        $comms.prop('disabled', false);
     }
 
     $('.form-control, .form-select').on('input change', function () {

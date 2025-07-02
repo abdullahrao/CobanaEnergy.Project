@@ -1,16 +1,12 @@
 ﻿
-/* ----------------------------
-   GLOBAL CONTAINER
------------------------------ */
+
 .supplier-dashboard-container {
     padding: 30px 60px;
     background-color: #f9f9f9;
     font-family: 'Raleway', sans-serif;
 }
 
-/* ----------------------------
-   PAGE HEADING
------------------------------ */
+
 .page-heading {
     font-size: 2rem;
     font-weight: 700;
@@ -18,9 +14,7 @@
     margin-bottom: 30px;
 }
 
-/* ----------------------------
-   FORM ELEMENTS
------------------------------ */
+
 form#editSupplierForm label {
     font-weight: 500;
     font-size: 0.95rem;
@@ -39,9 +33,7 @@ form#editSupplierForm textarea {
     border: 1px solid #ccc;
 }
 
-/* ----------------------------
-   SECTION HEADERS & BUTTONS
------------------------------ */
+
 #editSupplierForm h5 {
     font-weight: 600;
     font-size: 1.1rem;
@@ -59,9 +51,7 @@ form#editSupplierForm textarea {
     padding: 10px 24px;
 }
 
-/* ----------------------------
-   CONTACT / PRODUCT CARDS
------------------------------ */
+
 .contact-row,
 .product-row {
     padding: 16px;
@@ -71,18 +61,14 @@ form#editSupplierForm textarea {
     margin-bottom: 20px;
 }
 
-/* ----------------------------
-   TOGGLE SWITCH
------------------------------ */
+
 .form-check-input {
     width: 40px;
     height: 20px;
     cursor: pointer;
 }
 
-/* ----------------------------
-   CONTAINERIZED FORM SECTIONS
------------------------------ */
+
 .form-section {
     margin-bottom: 2.5rem;
     padding: 20px;
@@ -97,9 +83,7 @@ form#editSupplierForm textarea {
         font-size: 1.25rem;
     }
 
-/* ----------------------------
-   SUPPLIER NAME + TOGGLE
------------------------------ */
+
 .supplier-name-input {
     max-width: 400px;
 }
@@ -122,9 +106,7 @@ form#editSupplierForm textarea {
     margin-left: 10px;
 }
 
-/* ----------------------------
-   BUTTON ALIGNMENT & SIZES
------------------------------ */
+
 .add-contact,
 .add-product {
     margin-top: 10px;
@@ -147,9 +129,7 @@ form#editSupplierForm textarea {
     font-weight: 600;
 }
 
-/* ----------------------------
-   MOBILE RESPONSIVENESS
------------------------------ */
+
 @media (max-width: 768px) {
     .supplier-dashboard-container {
         padding: 20px;
@@ -190,7 +170,7 @@ form#editSupplierForm textarea {
 }
 
 .form-check-label {
-    margin-left: 14px; /* previously ms-2 (~8px) */
+    margin-left: 14px; 
 }
 
 @media (max-width: 768px) {
@@ -250,4 +230,20 @@ form#editSupplierForm textarea {
     border: 1px solid #ccc;
     font-weight: normal; 
     font-family: 'Roboto Mono', monospace;
+}
+
+#upliftContainer .form-control,
+#upliftContainer select,
+#upliftContainer input {
+    font-weight: 400 !important; 
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.92rem;
+}
+
+.uplift-row {
+    padding: 16px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    margin-bottom: 20px;
 }

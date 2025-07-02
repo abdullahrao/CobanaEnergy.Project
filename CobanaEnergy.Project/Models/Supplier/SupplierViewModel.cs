@@ -14,6 +14,7 @@ namespace CobanaEnergy.Project.Models.Supplier
         public bool Status { get; set; } = true;
         public List<SupplierContactViewModel> Contacts { get; set; } = new List<SupplierContactViewModel>();
         public List<SupplierProductViewModel> Products { get; set; } = new List<SupplierProductViewModel>();
+        public List<UpliftViewModel> Uplifts { get; set; } = new List<UpliftViewModel>();
 
     }
 

@@ -495,7 +495,6 @@ namespace CobanaEnergy.Project.Controllers.PreSales
             {
                 var logs = await db.CE_ElectricContractLogs
                     .Where(l => l.EId == eid)
-                    .OrderByDescending(l => l.ActionDate)
                     .Select(l => new
                     {
                         l.Username,
@@ -504,7 +503,17 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                         l.Message
                     }).ToListAsync();
 
-                return JsonResponse.Ok(logs);
+                var ordered = logs
+                    .OrderByDescending(l => DateTime.TryParse(l.ActionDate, out var dt) ? dt : DateTime.MinValue)
+                    .Select(l => new
+                    {
+                        l.Username,
+                        l.ActionDate,
+                        l.PreSalesStatusType,
+                        l.Message
+                    }).ToList();
+
+                return JsonResponse.Ok(ordered);
             }
             catch (Exception ex)
             {

@@ -10,12 +10,10 @@
             success: function (res) {
                 if (!res.success) {
                     showToastError(res.message);
-                    // return;
 
                     setTimeout(function () {
                         window.location.href = res.Data.redirectUrl;
                     }, 1000);
-
                     return;
                 }
 
@@ -26,6 +24,7 @@
                 $('#supplierStatus').prop('checked', data.Status);
                 renderContacts(data.Contacts);
                 renderProducts(data.Products);
+                renderUplifts(data.Uplifts);
                 $('#productContainer .product-start').each(function () {
                     $(this).trigger('change');
                 });
@@ -47,6 +46,14 @@
         });
     }
 
+    function renderUplifts(uplifts) {
+        const $container = $('#upliftContainer');
+        $container.empty();
+        uplifts.forEach(uplift => {
+            $container.append(getUpliftRow(uplift));
+        });
+    }
+
     function renderProducts(products) {
         const $container = $('#productContainer');
         $container.empty();
@@ -55,6 +62,33 @@
         });
     }
 
+    function getUpliftRow(uplift = {}) {
+        const fuelOptions = ['Electric', 'Gas'].map(ft =>
+            `<option value="${ft}" ${uplift.FuelType === ft ? 'selected' : ''}>${ft}</option>`).join('');
+
+        return `
+    <div class="uplift-row row gx-2 mb-3">
+        <input type="hidden" class="uplift-id" value="${uplift.Id || 0}">
+        <div class="col-md-2">
+            <select class="form-control uplift-fuel" required>
+                 <option value="" disabled ${!uplift.FuelType ? 'selected' : ''}>Select Fuel</option>
+                ${fuelOptions}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <input type="text" class="form-control uplift-value" placeholder="Uplift" required pattern="^[0-9]*[.]?[0-9]+$" title="Enter decimal value" value="${uplift.Uplift || ''}">
+        </div>
+        <div class="col-md-3">
+            <input type="datetime-local" class="form-control uplift-start" required value="${uplift.StartDate || ''}">
+        </div>
+        <div class="col-md-3">
+            <input type="datetime-local" class="form-control uplift-end" required value="${uplift.EndDate || ''}">
+        </div>
+        <div class="col-md-1">
+            <button type="button" class="btn btn-danger btn-sm remove-row">X</button>
+        </div>
+    </div>`;
+    }
     function getContactRow(contact = {}) {
         return `
     <div class="row mb-2 contact-row gx-2">
@@ -84,7 +118,6 @@
         </div>
     </div>`;
     }
-
     function getProductRow(product = {}) {
         return `
     <div class="row mb-2 product-row gx-2">
@@ -122,8 +155,10 @@
 
     $('.add-contact').click(() => $('#contactContainer').append(getContactRow()));
     $('.add-product').click(() => $('#productContainer').append(getProductRow()));
+    $('.add-uplift').click(() => {
+        $('#upliftContainer').append(getUpliftRow());
+    });
 
-    // Remove contact/product
     $(document).on('click', '.remove-contact', function () {
         $(this).closest('.contact-row').remove();
     });
@@ -138,7 +173,6 @@
         //}
 
         $row.remove();
-        /*        $(this).closest('.product-row').remove();*/
     });
 
     $form.on('submit', function (e) {
@@ -150,7 +184,8 @@
             Link: $('#supplierLink').val(),
             Status: $('#supplierStatus').is(':checked'),
             Contacts: [],
-            Products: []
+            Products: [],
+            Uplifts: []
         };
 
         $('#contactContainer .contact-row').each(function () {
@@ -172,6 +207,16 @@
                 StartDate: $(this).find('.product-start').val(),
                 EndDate: $(this).find('.product-end').val(),
                 Commission: $(this).find('.product-commission').val()
+            });
+        });
+
+        $('#upliftContainer .uplift-row').each(function () {
+            model.Uplifts.push({
+                Id: parseInt($(this).find('.uplift-id').val()) || 0,
+                FuelType: $(this).find('.uplift-fuel').val(),
+                Uplift: $(this).find('.uplift-value').val(),
+                StartDate: $(this).find('.uplift-start').val(),
+                EndDate: $(this).find('.uplift-end').val()
             });
         });
 
@@ -223,6 +268,56 @@
 
     $(document).on('input', '.contact-phone', function () {
         this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11);
+    });
+
+    $(document).on('change', '.uplift-start', function () {
+        const $row = $(this).closest('.uplift-row');
+        const startDate = $(this).val();
+        const $endDate = $row.find('.uplift-end');
+
+        if (startDate) {
+            $endDate.prop('disabled', false);
+            $endDate.attr('min', startDate);
+        } else {
+            $endDate.prop('disabled', true).val('').removeAttr('min');
+        }
+    });
+
+    $(document).on('click', '.remove-row', function () {
+        $(this).closest('.uplift-row').remove();
+    });
+
+    $(document).on('change', '.uplift-fuel', function () {
+        const selectedFuel = $(this).val();
+        const now = new Date();
+        const row = $(this).closest('.uplift-row');
+
+        if (!selectedFuel) return;
+
+        let hasConflict = false;
+
+        $('#upliftContainer .uplift-row').each(function () {
+            const $fuel = $(this).find('.uplift-fuel');
+            const $end = $(this).find('.uplift-end');
+            const isSameRow = $(this)[0] === row[0];
+
+            const fuel = $fuel.val();
+            const end = $end.val();
+
+            if (
+                !isSameRow &&
+                fuel === selectedFuel &&
+                (!end || new Date(end) > now)
+            ) {
+                hasConflict = true;
+                return false;
+            }
+        });
+
+        if (hasConflict) {
+            showToastWarning(`An active or incomplete ${selectedFuel} uplift already exists.`);
+            $(this).val('');
+        }
     });
 
 });
