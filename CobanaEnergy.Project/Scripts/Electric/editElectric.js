@@ -1,4 +1,4 @@
-﻿$(document).ready(function () {
+﻿$(document).ready(async function () {
 
     if (!$('#editElectricForm').length) return;
     //$('#productSelect, #supplierCommsType').prop('disabled', true); 
@@ -74,7 +74,6 @@
             $product.prop('disabled', false);
             $comms.prop('disabled', false);
 
-            // In case product matches, trigger product change
             $('#productSelect').trigger('change');
         });
     });
@@ -102,7 +101,7 @@
         $commsSelect.prop('disabled', false);
     });
 
-    $('#editElectricForm').on('submit', function (e) {
+    $('#editElectricForm').on('submit',async function (e) {
         e.preventDefault();
 
         let hasInvalid = false;
@@ -119,6 +118,14 @@
             const $first = $(this).find(':invalid').first();
             $first.focus();
             showToastWarning("Please fill all required fields.");
+            return;
+        }
+
+        const $uplift = $('#uplift');
+        const $supplier = $('#supplierSelect');
+        const isValid = await validateUpliftAgainstSupplierLimit($uplift, $supplier, 'Electric');
+        if (!isValid) {
+            $uplift.focus();
             return;
         }
 
@@ -221,7 +228,6 @@
                     $('#inputDate').val(d.InputDate);
                     $('#emProcessor').val(d.EMProcessor);
 
-                    // Update checkboxes
                     $('#contractChecked').prop('checked', d.ContractChecked);
                     $('#contractAudited').prop('checked', d.ContractAudited);
                     $('#terminated').prop('checked', d.Terminated);
@@ -317,7 +323,6 @@
         }
     });
 
-    
     $('#accountNumber').on('input', function () {
         const acc = $(this).val().trim();
 
@@ -353,6 +358,14 @@
                 showToastError("Error checking account number.");
             });
         }
+    });
+
+    $('#uplift').on('blur', async function () {
+        await validateUpliftAgainstSupplierLimit($('#uplift'), $('#supplierSelect'), 'Electric');
+    });
+
+    $('#supplierSelect').on('change', async function () {
+        await validateUpliftAgainstSupplierLimit($('#uplift'), $('#supplierSelect'), 'Electric');
     });
 
 });

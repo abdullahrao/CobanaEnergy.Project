@@ -1,4 +1,4 @@
-﻿$(document).ready(function () {
+﻿$(document).ready(async function () {
 
     if (!$('#createElectricForm').length) return;
 
@@ -8,7 +8,6 @@
     }
 
     $('#productSelect, #supplierCommsType').prop('disabled', true);
-
     function populateDropdown(id, values) {
         const $select = $('#' + id);
         $select.empty().append(`<option value="">Select ${id}</option>`);
@@ -87,14 +86,14 @@
                 $commsSelect.removeClass('highlight-temp');
             }, 1000);
         }
-        
+
     });
 
 
 
     restoreDefaultFields();
 
-    $('#createElectricForm').on('submit', function (e) {
+    $('#createElectricForm').on('submit', async function (e) {
         e.preventDefault();
 
         let hasInvalid = false;
@@ -102,10 +101,8 @@
         $(this).find('.form-control, .form-select').each(function () {
             const $field = $(this);
 
-            // Clear previous invalid class
             $field.removeClass('is-invalid');
 
-            // Apply validation
             if (!this.checkValidity()) {
                 $field.addClass('is-invalid');
                 hasInvalid = true;
@@ -118,6 +115,15 @@
             showToastWarning("Please fill all required fields correctly.");
             return;
         }
+
+        const $uplift = $('#uplift');
+        const $supplier = $('#supplierSelect');
+        const isValid = await validateUpliftAgainstSupplierLimit($uplift, $supplier, 'Electric');
+        if (!isValid) {
+            $uplift.focus();
+            return;
+        }
+
 
         const model = {
             Department: $('#department').val(),
@@ -221,7 +227,7 @@
                     </tr>
                 `);
 
-                    $('#duplicateMpanModal').modal('show'); // Make sure Bootstrap JS is loaded
+                    $('#duplicateMpanModal').modal('show');
                 }
             }).fail(function () {
                 $('#mpanLoader').hide();
@@ -274,5 +280,13 @@
         const defaultProcessor = $('#emProcessor').data('default') || 'Presales Team';
         $('#emProcessor').val(defaultProcessor);
     }
+
+    $('#uplift').on('blur', async function () {
+        await validateUpliftAgainstSupplierLimit($('#uplift'), $('#supplierSelect'), 'Electric');
+    });
+
+    $('#supplierSelect').on('change', async function () {
+        await validateUpliftAgainstSupplierLimit($('#uplift'), $('#supplierSelect'), 'Electric');
+    });
 
 });

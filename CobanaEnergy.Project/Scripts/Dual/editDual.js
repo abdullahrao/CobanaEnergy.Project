@@ -1,4 +1,4 @@
-﻿$(document).ready(function () {
+﻿$(document).ready(async function () {
     if (!$('#editDualForm').length) return;
    // $('#electricCommsType, #gasCommsType').prop('disabled', true);
 
@@ -118,7 +118,7 @@
         }
     });
 
-    $('#editDualForm').on('submit', function (e) {
+    $('#editDualForm').on('submit',async function (e) {
         e.preventDefault();
         let hasInvalid = false;
 
@@ -136,6 +136,23 @@
             return;
         }
 
+        const $electricUplift = $('#electricUplift');
+        const $electricSupplier = $('#electricSupplier');
+        const $gasUplift = $('#gasUplift');
+        const $gasSupplier = $('#gasSupplier');
+
+        const isElectricValid = await validateUpliftAgainstSupplierLimit($electricUplift, $electricSupplier, 'Electric');
+        if (!isElectricValid) {
+            $electricUplift.focus();
+            return;
+        }
+
+        const isGasValid = await validateUpliftAgainstSupplierLimit($gasUplift, $gasSupplier, 'Gas');
+        if (!isGasValid) {
+            $gasUplift.focus();
+            return;
+        }
+
         const model = getDualModel();
         const $btn = $(this).find('button[type="submit"]');
         $btn.prop('disabled', true).text('Updating...');
@@ -150,7 +167,6 @@
                     showToastSuccess("Dual contract updated successfully!");
                     const d = res.Data;
 
-                    // Reflect updated values on the form
                     $('#department').val(d.Department);
                     $('#agent').val(d.Agent);
                     $('#source').val(d.Source);
@@ -216,7 +232,7 @@
                     $('#contractNotes').val(d.ContractNotes);
 
                     $('#emProcessor').val(d.EMProcessor);
-                    // Reload logs using actual updated EId
+
                     loadLogs(d.EId);
                 }
                 else {
@@ -372,4 +388,19 @@
             }).fail(() => $('#accountLoader').hide());
         }
     });
+
+    $('#electricUplift').on('blur', async function () {
+        await validateUpliftAgainstSupplierLimit($('#electricUplift'), $('#electricSupplier'), 'Electric');
+    });
+    $('#electricSupplier').on('change', async function () {
+        await validateUpliftAgainstSupplierLimit($('#electricUplift'), $('#electricSupplier'), 'Electric');
+    });
+
+    $('#gasUplift').on('blur', async function () {
+        await validateUpliftAgainstSupplierLimit($('#gasUplift'), $('#gasSupplier'), 'Gas');
+    });
+    $('#gasSupplier').on('change', async function () {
+        await validateUpliftAgainstSupplierLimit($('#gasUplift'), $('#gasSupplier'), 'Gas');
+    });
+
 });
