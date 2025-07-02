@@ -1,4 +1,4 @@
-﻿$(document).ready(function () {
+﻿$(document).ready(async function () {
 
     if (!$('#createGasForm').length) return;
 
@@ -91,7 +91,7 @@
 
     restoreDefaultFields();
 
-    $('#createGasForm').on('submit', function (e) {
+    $('#createGasForm').on('submit', async function (e) {
         e.preventDefault();
 
         let hasInvalid = false;
@@ -110,6 +110,14 @@
             const $first = $(this).find(':invalid').first();
             $first.focus();
             showToastWarning("Please fill all required fields correctly.");
+            return;
+        }
+
+        const $uplift = $('#uplift');
+        const $supplier = $('#supplierSelect');
+        const isValid = await validateUpliftAgainstSupplierLimit($uplift, $supplier, 'Gas');
+        if (!isValid) {
+            $uplift.focus();
             return;
         }
 
@@ -263,5 +271,13 @@
         const defaultProcessor = $('#emProcessor').data('default') || 'Presales Team';
         $('#emProcessor').val(defaultProcessor);
     }
+
+    $('#uplift').on('blur', async function () {
+        await validateUpliftAgainstSupplierLimit($('#uplift'), $('#supplierSelect'), 'Gas');
+    });
+
+    $('#supplierSelect').on('change', async function () {
+        await validateUpliftAgainstSupplierLimit($('#uplift'), $('#supplierSelect'), 'Gas');
+    });
 
 });

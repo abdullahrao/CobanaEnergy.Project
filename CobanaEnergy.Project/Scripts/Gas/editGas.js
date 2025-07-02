@@ -1,4 +1,4 @@
-﻿$(document).ready(function () {
+﻿$(document).ready(async function () {
 
     if (!$('#editGasForm').length) return;
     //$('#productSelect, #supplierCommsType').prop('disabled', true); 
@@ -101,7 +101,7 @@
         $commsSelect.prop('disabled', false);
     });
 
-    $('#editGasForm').on('submit', function (e) {
+    $('#editGasForm').on('submit',async function (e) {
         e.preventDefault();
         let hasInvalid = false;
 
@@ -117,6 +117,14 @@
             const $first = $(this).find(':invalid').first();
             $first.focus();
             showToastWarning("Please fill all required fields.");
+            return;
+        }
+
+        const $uplift = $('#uplift');
+        const $supplier = $('#supplierSelect');
+        const isValid = await validateUpliftAgainstSupplierLimit($uplift, $supplier, 'Electric');
+        if (!isValid) {
+            $uplift.focus();
             return;
         }
 
@@ -319,6 +327,14 @@
                 showToastError("Error checking account number.");
             });
         }
+    });
+
+    $('#uplift').on('blur', async function () {
+        await validateUpliftAgainstSupplierLimit($('#uplift'), $('#supplierSelect'), 'Gas');
+    });
+
+    $('#supplierSelect').on('change', async function () {
+        await validateUpliftAgainstSupplierLimit($('#uplift'), $('#supplierSelect'), 'Gas');
     });
 
 });

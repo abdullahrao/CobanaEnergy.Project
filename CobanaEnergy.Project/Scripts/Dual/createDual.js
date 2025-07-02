@@ -1,4 +1,4 @@
-﻿$(document).ready(function () {
+﻿$(document).ready(async function () {
     if (!$('#createDualForm').length) return;
 
     const token = $('input[name="__RequestVerificationToken"]').val();
@@ -120,7 +120,7 @@
 
     restoreDefaults();
 
-    $('#createDualForm').on('submit', function (e) {
+    $('#createDualForm').on('submit',async function (e) {
         e.preventDefault();
 
         let hasInvalid = false;
@@ -138,6 +138,23 @@
             const $first = $(this).find(':invalid').first();
             $first.focus();
             showToastWarning("Please fill all required fields correctly.");
+            return;
+        }
+
+        const $electricUplift = $('#electricUplift');
+        const $electricSupplier = $('#electricSupplier');
+        const $gasUplift = $('#gasUplift');
+        const $gasSupplier = $('#gasSupplier');
+
+        const isElectricValid = await validateUpliftAgainstSupplierLimit($electricUplift, $electricSupplier, 'Electric');
+        if (!isElectricValid) {
+            $electricUplift.focus();
+            return;
+        }
+
+        const isGasValid = await validateUpliftAgainstSupplierLimit($gasUplift, $gasSupplier, 'Gas');
+        if (!isGasValid) {
+            $gasUplift.focus();
             return;
         }
 
@@ -297,6 +314,20 @@
                 showToastError("Error checking account number.");
             });
         }
+    });
+
+    $('#electricUplift').on('blur', async function () {
+        await validateUpliftAgainstSupplierLimit($('#electricUplift'), $('#electricSupplier'), 'Electric');
+    });
+    $('#electricSupplier').on('change', async function () {
+        await validateUpliftAgainstSupplierLimit($('#electricUplift'), $('#electricSupplier'), 'Electric');
+    });
+
+    $('#gasUplift').on('blur', async function () {
+        await validateUpliftAgainstSupplierLimit($('#gasUplift'), $('#gasSupplier'), 'Gas');
+    });
+    $('#gasSupplier').on('change', async function () {
+        await validateUpliftAgainstSupplierLimit($('#gasUplift'), $('#gasSupplier'), 'Gas');
     });
 
 });

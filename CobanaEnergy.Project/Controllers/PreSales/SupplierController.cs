@@ -555,5 +555,32 @@ namespace CobanaEnergy.Project.Controllers.PreSales
 
 
         #endregion
+
+        #region supplier_uplift
+
+        [HttpGet]
+        [Authorize]
+        public async Task<JsonResult> GetActiveUpliftForSupplier(int supplierId, string fuelType)
+        {
+            try
+            {
+                var now = DateTime.Now;
+
+                var uplift = await db.CE_SupplierUplifts
+                    .Where(u => u.SupplierId == supplierId && u.FuelType == fuelType && (u.EndDate == null || u.EndDate > now))
+                    .OrderByDescending(u => u.StartDate)
+                    .Select(u => u.Uplift)
+                    .FirstOrDefaultAsync();
+
+                return Json(new { success = true, Data = uplift }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("Failed to load active suppliers Uplifts : " + ex.Message);
+                return JsonResponse.Fail("Failed to check suppliers uplift. Please check with IT");
+            }
+        }
+
+        #endregion
     }
 }
