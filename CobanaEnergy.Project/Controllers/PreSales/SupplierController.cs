@@ -10,6 +10,7 @@ using Logic.ResponseModel.Helper;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -47,6 +48,10 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                 return JsonResponse.Fail(string.Join("<br>", errors));
             }
 
+            if (model.Uplifts.Count <= 0)
+            {
+                return JsonResponse.Fail("Please add at least one uplift for the supplier.");
+            }
 
             using (var transaction = db.Database.BeginTransaction())
             {
@@ -89,10 +94,33 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                         });
                     }
 
+                    foreach (var uplift in model.Uplifts)
+                    {
+                        bool upliftActiveConflict = await db.CE_SupplierUplifts.AnyAsync(u =>
+                            u.SupplierId == supplier.Id &&
+                            u.FuelType == uplift.FuelType &&
+                            u.EndDate > DateTime.Now);
+
+                        if (upliftActiveConflict)
+                        {
+                            transaction.Rollback();
+                            return JsonResponse.Fail($"Cannot add new {uplift.FuelType} uplift while a previous one is still active.");
+                        }
+
+                        db.CE_SupplierUplifts.Add(new CE_SupplierUplifts
+                        {
+                            SupplierId = supplier.Id,
+                            FuelType = uplift.FuelType,
+                            Uplift = uplift.Uplift,
+                            StartDate = uplift.StartDate,
+                            EndDate = DateTime.Parse("3099-06-23 23:55:00.000") // uplift.EndDate
+                        });
+                    }
+
                     await db.SaveChangesAsync();
                     transaction.Commit();
 
-                    //Logger.Log($"Supplier created successfully: {supplier.Name} by {User.Identity.Name}");
+                    //return JsonResponse.Ok("Supplier created successfully!");
                     return JsonResponse.Ok(new { redirectUrl = Url.Action("SupplierDashboard", "Supplier") }, "Supplier created successfully!");
                 }
                 catch (Exception ex)
@@ -181,6 +209,10 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                 if (supplier == null)
                     return JsonResponse.FailRedirection(new { redirectUrl = Url.Action("SupplierDashboard", "Supplier") }, "Supplier not found or inactive.");
 
+                var uplifts = await db.CE_SupplierUplifts
+                            .Where(u => u.SupplierId == supplier.Id)
+                            .ToListAsync();
+
                 var viewModel = new EditSupplierViewModel
                 {
                     Id = supplier.Id,
@@ -195,6 +227,14 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                         PhoneNumber = c.PhoneNumber,
                         Email = c.Email,
                         Notes = c.Notes
+                    }).ToList(),
+                    Uplifts = uplifts.Select(u => new SupplierUpliftViewModel
+                    {
+                        Id = u.Id,
+                        FuelType = u.FuelType,
+                        Uplift = u.Uplift,
+                        StartDate = u.StartDate.ToString("yyyy-MM-ddTHH:mm"),
+                        EndDate = u.EndDate.ToString("yyyy-MM-ddTHH:mm")
                     }).ToList(),
                     Products = supplier.CE_SupplierProducts.Select(p => new SupplierProductViewModel
                     {
@@ -227,6 +267,11 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                 //return JsonResponse.Fail("Please correct the errors in the form.");
                 var errors = ModelState.Values.SelectMany(x => x.Errors).Select(e => e.ErrorMessage).ToList();
                 return JsonResponse.Fail(string.Join("<br>", errors));
+            }
+
+            if (model.Uplifts.Count <= 0)
+            {
+                return JsonResponse.Fail("Please add at least one uplift for the supplier.");
             }
 
             using (var transaction = db.Database.BeginTransaction())
@@ -288,8 +333,8 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     var submittedProductIds = model.Products.Where(p => p.Id > 0).Select(p => p.Id).ToList();
 
                     var productIdsInUseElectric = db.CE_ElectricContracts
-                .Select(e => e.ProductId)
-                .Distinct();
+                    .Select(e => e.ProductId)
+                    .Distinct();
 
                     var productIdsInUseGas = db.CE_GasContracts
                         .Select(g => g.ProductId)
@@ -339,6 +384,80 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                                 EndDate = product.EndDate,
                                 Commission = product.Commission,
                                 SupplierCommsType = product.SupplierCommsType
+                            });
+                        }
+                    }
+
+                    await db.SaveChangesAsync();
+
+                    foreach (var uplift in model.Uplifts)
+                    {
+                        if (!DateTime.TryParseExact(uplift.StartDate, "yyyy-MM-ddTHH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out _)
+                            || !DateTime.TryParseExact(uplift.EndDate, "yyyy-MM-ddTHH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
+                        {
+                            return JsonResponse.Fail("Invalid date format found in one of the uplift entries. Please fix and try again.");
+                        }
+                    }
+
+                    var now = DateTime.Now;
+
+                    foreach (var fuelType in model.Uplifts.Select(u => u.FuelType).Distinct())
+                    {
+                        var activeInModel = model.Uplifts.Count(u =>
+                            u.FuelType == fuelType &&
+                            DateTime.TryParseExact(u.EndDate, "yyyy-MM-ddTHH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var end) &&
+                            end > now);
+
+                        if (activeInModel > 1)
+                        {
+                            return JsonResponse.Fail($"Only one active uplift is allowed for {fuelType}. Please adjust existing entries.");
+                        }
+
+                        var modelUpliftIds = model.Uplifts.Select(u => u.Id).ToList();
+
+                        var dbDuplicate = await db.CE_SupplierUplifts.AnyAsync(u =>
+                            u.SupplierId == supplier.Id &&
+                            u.FuelType == fuelType &&
+                            !modelUpliftIds.Contains(u.Id) &&
+                            (u.EndDate == null || u.EndDate > now));
+
+                        if (activeInModel == 1 && dbDuplicate)
+                        {
+                            return JsonResponse.Fail($"Only one active uplift is allowed for {fuelType}. An active uplift already exists in the database.");
+                        }
+                    }
+
+                    var submittedUpliftIds = model.Uplifts.Where(u => u.Id > 0).Select(u => u.Id).ToList();
+                    var upliftsToDelete = db.CE_SupplierUplifts
+                        .Where(u => u.SupplierId == supplier.Id && !submittedUpliftIds.Contains(u.Id))
+                        .ToList();
+                    db.CE_SupplierUplifts.RemoveRange(upliftsToDelete);
+
+                    foreach (var uplift in model.Uplifts)
+                    {
+                        DateTime.TryParseExact(uplift.StartDate, "yyyy-MM-ddTHH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var startDate);
+                        DateTime.TryParseExact(uplift.EndDate, "yyyy-MM-ddTHH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var endDate);
+
+                        if (uplift.Id > 0)
+                        {
+                            var existing = await db.CE_SupplierUplifts.FirstOrDefaultAsync(u => u.Id == uplift.Id);
+                            if (existing != null)
+                            {
+                                existing.FuelType = uplift.FuelType;
+                                existing.Uplift = uplift.Uplift;
+                                existing.StartDate = startDate;
+                                existing.EndDate = endDate;
+                            }
+                        }
+                        else
+                        {
+                            db.CE_SupplierUplifts.Add(new CE_SupplierUplifts
+                            {
+                                SupplierId = supplier.Id,
+                                FuelType = uplift.FuelType,
+                                Uplift = uplift.Uplift,
+                                StartDate = startDate,
+                                EndDate = endDate
                             });
                         }
                     }

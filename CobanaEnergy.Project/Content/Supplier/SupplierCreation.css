@@ -123,3 +123,20 @@ button.btn-danger.btn-sm {
 .add-product {
     margin-top: 10px;
 }
+
+.uplifts-section {
+    padding-top: 15px;
+}
+
+    .uplifts-section h4 {
+        margin-bottom: 16px;
+        font-weight: 600;
+    }
+
+.uplift-row .form-control,
+.uplift-row select {
+    margin-bottom: 6px;
+    padding: 9px 10px;
+    font-size: 0.95rem;
+    border-radius: 6px;
+}

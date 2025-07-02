@@ -26,6 +26,7 @@ namespace CobanaEnergy.Project.Models
         public DbSet<CE_SupplierContacts> CE_SupplierContacts { get; set; }
         public DbSet<CE_SupplierProducts> CE_SupplierProducts { get; set; }
         public DbSet<CE_ElectricContracts> CE_ElectricContracts { get; set; }
+        public DbSet<CE_SupplierUplifts> CE_SupplierUplifts { get; set; }
         public DbSet<CE_ElectricContractLogs> CE_ElectricContractLogs { get; set; }
         public DbSet<CE_GasContracts> CE_GasContracts { get; set; }
         public DbSet<CE_GasContractLogs> CE_GasContractLogs { get; set; }
