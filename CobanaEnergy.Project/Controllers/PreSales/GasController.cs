@@ -5,6 +5,8 @@ using CobanaEnergy.Project.Models.AccountsDBModel;
 using CobanaEnergy.Project.Models.Gas;
 using CobanaEnergy.Project.Models.Gas.EditGas;
 using CobanaEnergy.Project.Models.Gas.GasDBModels;
+using CobanaEnergy.Project.Models.Supplier.SupplierDBModels.snapshot_Gas;
+using CobanaEnergy.Project.Models.Supplier.SupplierSnapshots_Gas;
 using Logic;
 using Logic.ResponseModel.Helper;
 using System;
@@ -165,6 +167,81 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     }
 
                     await db.SaveChangesAsync();
+
+                    var supplierId = model.SupplierId;
+                    var supplier = await db.CE_Supplier.FirstOrDefaultAsync(s => s.Id == supplierId);
+
+                    if (supplier == null)
+                    {
+                        Logger.Log($"Supplier ID {supplierId} not found while creating snapshot.");
+                        throw new Exception("Supplier not found for snapshot.");
+                    }
+
+                    var snapshot = new CE_GasSupplierSnapshots
+                    {
+                        EId = guid,
+                        SupplierId = supplierId,
+                        SupplierName = supplier.Name,
+                        SupplierLink = supplier.Link,
+                        CE_GasSupplierProductSnapshots = new List<CE_GasSupplierProductSnapshots>(),
+                        CE_GasSupplierContactSnapshots = new List<CE_GasSupplierContactSnapshots>(),
+                        CE_GasSupplierUpliftSnapshots = new List<CE_GasSupplierUpliftSnapshots>()
+                    };
+
+                    var products = await db.CE_SupplierProducts
+                        .Where(p => p.SupplierId == supplierId)
+                        .ToListAsync();
+
+                    foreach (var p in products)
+                    {                        
+                        snapshot.CE_GasSupplierProductSnapshots.Add(new CE_GasSupplierProductSnapshots
+                        {
+                            SupplierId = supplierId,
+                            ProductId = p.Id,
+                            ProductName = p.ProductName,
+                            StartDate = DateTime.Parse(p.StartDate),
+                            EndDate = DateTime.Parse(p.EndDate),
+                            Commission = p.Commission,
+                            SupplierCommsType = p.SupplierCommsType
+                        });
+                    }
+
+                    var contacts = await db.CE_SupplierContacts
+                        .Where(c => c.SupplierId == supplierId)
+                        .ToListAsync();
+
+                    foreach (var c in contacts)
+                    {
+                        snapshot.CE_GasSupplierContactSnapshots.Add(new CE_GasSupplierContactSnapshots
+                        {
+                            SupplierId = supplierId,
+                            ContactName = c.ContactName,
+                            Role = c.Role,
+                            PhoneNumber = c.PhoneNumber,
+                            Email = c.Email,
+                            Notes = c.Notes
+                        });
+                    }
+
+                    var uplifts = await db.CE_SupplierUplifts
+                        .Where(u => u.SupplierId == supplierId && u.FuelType == "Gas")
+                        .ToListAsync();
+
+                    foreach (var u in uplifts)
+                    {
+                        snapshot.CE_GasSupplierUpliftSnapshots.Add(new CE_GasSupplierUpliftSnapshots
+                        {
+                            SupplierId = supplierId,
+                            FuelType = u.FuelType,
+                            Uplift = u.Uplift,
+                            StartDate = u.StartDate,
+                            EndDate = u.EndDate
+                        });
+                    }
+
+                    db.CE_GasSupplierSnapshots.Add(snapshot);
+                    await db.SaveChangesAsync();
+
                     transaction.Commit();
 
                     return JsonResponse.Ok(new { redirectUrl = Url.Action("Dashboard", "PreSales") }, "Gas contract created successfully!");
@@ -242,6 +319,18 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                 if (contract == null)
                     return HttpNotFound();
 
+                var snapshot = await db.CE_GasSupplierSnapshots
+                                .Include(s => s.CE_GasSupplierProductSnapshots)
+                                .Include(s => s.CE_GasSupplierContactSnapshots)
+                                .Include(s => s.CE_GasSupplierUpliftSnapshots)
+                                .FirstOrDefaultAsync(s => s.EId == contract.EId);
+
+                if (snapshot == null)
+                    return HttpNotFound();
+
+                var savedProductSnapshot = snapshot.CE_GasSupplierProductSnapshots
+                                           .FirstOrDefault(p => p.ProductId == contract.ProductId);
+
                 var model = new GasContractEditViewModel
                 {
                     EId = contract.EId,
@@ -271,8 +360,11 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     SortCode = account?.SortCode ?? "",
                     AccountNumber = account?.AccountNumber ?? "",
                     CurrentSupplier = contract.CurrentSupplier,
-                    SupplierId = contract.SupplierId,
-                    ProductId = contract.ProductId,
+
+                    SupplierId = snapshot.SupplierId,
+                    ProductId = savedProductSnapshot?.Id ?? 0,
+                    SupplierCommsType = savedProductSnapshot?.SupplierCommsType ?? contract.SupplierCommsType,
+
                     EMProcessor = contract.EMProcessor,
                     ContractChecked = contract.ContractChecked,
                     ContractAudited = contract.ContractAudited,
@@ -282,8 +374,43 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     Source = contract.Source,
                     SalesType = contract.SalesType,
                     SalesTypeStatus = contract.SalesTypeStatus,
-                    SupplierCommsType = contract.SupplierCommsType,
-                    PreSalesStatus = contract.PreSalesStatus
+                    PreSalesStatus = contract.PreSalesStatus,
+
+                    SupplierSnapshot = new GasSupplierSnapshotViewModel
+                    {
+                        Id = snapshot.Id,
+                        SupplierId = snapshot.SupplierId,
+                        EId = snapshot.EId,
+                        SupplierName = snapshot.SupplierName,
+                        Link = snapshot.SupplierLink,
+                        Products = snapshot.CE_GasSupplierProductSnapshots.Select(p => new GasSupplierProductSnapshotViewModel
+                        {
+                            Id = p.Id,
+                            ProductId = p.ProductId,
+                            ProductName = p.ProductName,
+                            SupplierCommsType = p.SupplierCommsType,
+                            StartDate = p.StartDate.ToString("dd/MM/yyyy"),
+                            EndDate = p.EndDate.ToString("dd/MM/yyyy"),
+                            Commission = p.Commission
+                        }).ToList(),
+                        Uplifts = snapshot.CE_GasSupplierUpliftSnapshots.Select(u => new GasSupplierUpliftSnapshotViewModel
+                        {
+                            Id = u.Id,
+                            Uplift = u.Uplift,
+                            FuelType = u.FuelType,
+                            StartDate = u.StartDate,
+                            EndDate = u.EndDate
+                        }).ToList(),
+                        Contacts = snapshot.CE_GasSupplierContactSnapshots.Select(c => new GasSupplierContactSnapshotViewModel
+                        {
+                            Id = c.Id,
+                            ContactName = c.ContactName,
+                            Role = c.Role,
+                            PhoneNumber = c.PhoneNumber,
+                            Email = c.Email,
+                            Notes = c.Notes
+                        }).ToList()
+                    }
                 };
 
                 return View("EditGas", model);
@@ -321,6 +448,18 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     if (contract == null)
                         return JsonResponse.Fail("Contract not found.");
 
+                    var snapshotProduct = await db.CE_GasSupplierProductSnapshots
+                                        .FirstOrDefaultAsync(p => p.Id == model.ProductId);
+
+                    if (snapshotProduct != null)
+                    {
+                        contract.ProductId = snapshotProduct.ProductId;
+                    }
+                    else
+                    {
+                        return JsonResponse.Fail("Selected product does not exist in snapshot.");
+                    }
+
                     contract.Agent = model.Agent;
                     contract.Introducer = model.Introducer;
                     contract.SubIntroducer = model.SubIntroducer;
@@ -345,7 +484,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     contract.StandingCharge = model.StandingCharge.ToString();
                     contract.CurrentSupplier = model.CurrentSupplier;
                     contract.SupplierId = model.SupplierId;
-                    contract.ProductId = model.ProductId;
+                   // contract.ProductId = model.ProductId;
                     contract.EMProcessor = model.EMProcessor;
                     contract.ContractChecked = model.ContractChecked;
                     contract.ContractAudited = model.ContractAudited;

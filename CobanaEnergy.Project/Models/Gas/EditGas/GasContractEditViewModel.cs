@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CobanaEnergy.Project.Models.Supplier.SupplierSnapshots;
+using CobanaEnergy.Project.Models.Supplier.SupplierSnapshots_Gas;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -114,5 +116,6 @@ namespace CobanaEnergy.Project.Models.Gas.EditGas
         public string SupplierCommsType { get; set; }
         [Required]
         public string PreSalesStatus { get; set; }
+        public GasSupplierSnapshotViewModel SupplierSnapshot { get; set; }
     }
 }

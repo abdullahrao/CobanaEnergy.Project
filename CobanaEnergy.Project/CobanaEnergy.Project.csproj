@@ -221,6 +221,34 @@
     <Compile Include="Migrations\202507011615341_InitialMapping6.Designer.cs">
       <DependentUpon>202507011615341_InitialMapping6.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202507022130517_InitialMapping7.cs" />
+    <Compile Include="Migrations\202507022130517_InitialMapping7.Designer.cs">
+      <DependentUpon>202507022130517_InitialMapping7.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202507022149462_InitialMapping8.cs" />
+    <Compile Include="Migrations\202507022149462_InitialMapping8.Designer.cs">
+      <DependentUpon>202507022149462_InitialMapping8.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202507022317007_InitialMapping9.cs" />
+    <Compile Include="Migrations\202507022317007_InitialMapping9.Designer.cs">
+      <DependentUpon>202507022317007_InitialMapping9.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202507030803109_InitialMapping10.cs" />
+    <Compile Include="Migrations\202507030803109_InitialMapping10.Designer.cs">
+      <DependentUpon>202507030803109_InitialMapping10.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202507031056048_InitialMapping11.cs" />
+    <Compile Include="Migrations\202507031056048_InitialMapping11.Designer.cs">
+      <DependentUpon>202507031056048_InitialMapping11.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202507031146484_InitialMapping12.cs" />
+    <Compile Include="Migrations\202507031146484_InitialMapping12.Designer.cs">
+      <DependentUpon>202507031146484_InitialMapping12.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202507031201252_InitialMapping13.cs" />
+    <Compile Include="Migrations\202507031201252_InitialMapping13.Designer.cs">
+      <DependentUpon>202507031201252_InitialMapping13.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\Dual\EditDual\DualContractEditViewModel.cs" />
     <Compile Include="Models\Dual\LogsHelperClass\LogEntry.cs" />
     <Compile Include="Models\Electric\EditElectric\ElectricContractEditViewModel.cs" />
@@ -242,6 +270,9 @@
     <Compile Include="Models\Electric\ElectricContractCreateViewModel.cs" />
     <Compile Include="Models\Electric\ElectricDBModels\CE_ElectricContractLogs.cs" />
     <Compile Include="Models\Electric\ElectricDBModels\CE_ElectricContracts.cs" />
+    <Compile Include="Models\Supplier\SupplierDBModels\snapshot Electric\CE_ElectricSupplierContactSnapshots.cs" />
+    <Compile Include="Models\Supplier\SupplierDBModels\snapshot Electric\CE_ElectricSupplierProductSnapshots.cs" />
+    <Compile Include="Models\Supplier\SupplierDBModels\snapshot Electric\CE_ElectricSupplierSnapshots.cs" />
     <Compile Include="Models\Gas\EditGas\GasContractEditViewModel.cs" />
     <Compile Include="Models\Gas\GasContractCreateViewModel.cs" />
     <Compile Include="Models\Gas\GasDBModels\CE_GasContractLogs.cs" />
@@ -256,7 +287,14 @@
     <Compile Include="Models\Supplier\SupplierDBModels\CE_SupplierContacts.cs" />
     <Compile Include="Models\Supplier\SupplierDBModels\CE_SupplierProducts.cs" />
     <Compile Include="Models\Supplier\SupplierDBModels\CE_SupplierUplifts.cs" />
+    <Compile Include="Models\Supplier\SupplierDBModels\snapshot Electric\CE_ElectricSupplierUpliftSnapshots.cs" />
+    <Compile Include="Models\Supplier\SupplierDBModels\snapshot Gas\CE_GasSupplierContactSnapshots.cs" />
+    <Compile Include="Models\Supplier\SupplierDBModels\snapshot Gas\CE_GasSupplierProductSnapshots.cs" />
+    <Compile Include="Models\Supplier\SupplierDBModels\snapshot Gas\CE_GasSupplierSnapshots.cs" />
+    <Compile Include="Models\Supplier\SupplierDBModels\snapshot Gas\CE_GasSupplierUpliftSnapshots.cs" />
     <Compile Include="Models\Supplier\SupplierProductViewModel.cs" />
+    <Compile Include="Models\Supplier\SupplierSnapshots Electric\SnapshotViewModel.cs" />
+    <Compile Include="Models\Supplier\SupplierSnapshots Gas\SnapshotViewModelGas.cs" />
     <Compile Include="Models\Supplier\SupplierViewModel.cs" />
     <Compile Include="Models\Supplier\UpliftViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -322,6 +360,27 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202507011615341_InitialMapping6.resx">
       <DependentUpon>202507011615341_InitialMapping6.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202507022130517_InitialMapping7.resx">
+      <DependentUpon>202507022130517_InitialMapping7.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202507022149462_InitialMapping8.resx">
+      <DependentUpon>202507022149462_InitialMapping8.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202507022317007_InitialMapping9.resx">
+      <DependentUpon>202507022317007_InitialMapping9.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202507030803109_InitialMapping10.resx">
+      <DependentUpon>202507030803109_InitialMapping10.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202507031056048_InitialMapping11.resx">
+      <DependentUpon>202507031056048_InitialMapping11.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202507031146484_InitialMapping12.resx">
+      <DependentUpon>202507031146484_InitialMapping12.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202507031201252_InitialMapping13.resx">
+      <DependentUpon>202507031201252_InitialMapping13.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

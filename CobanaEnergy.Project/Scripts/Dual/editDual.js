@@ -1,6 +1,6 @@
 ﻿$(document).ready(async function () {
     if (!$('#editDualForm').length) return;
-   // $('#electricCommsType, #gasCommsType').prop('disabled', true);
+    // $('#electricCommsType, #gasCommsType').prop('disabled', true);
 
     const token = $('input[name="__RequestVerificationToken"]').val();
     if (token) {
@@ -28,33 +28,15 @@
     populateDropdown("gasCommsType", DropdownOptions.supplierCommsType, $('#gasCommsType').data('current'));
     populateDropdown("gasPreSalesStatus", DropdownOptions.preSalesStatus, $('#gasPreSalesStatus').data('current'));
 
-    $.get('/Supplier/GetActiveSuppliersForDropdown', function (res) {
-        const electricCurrent = $('#electricSupplier').data('current');
-        const gasCurrent = $('#gasSupplier').data('current');
-        const $electric = $('#electricSupplier');
-        const $gas = $('#gasSupplier');
+    const electricCurrentSupplier = $('#electricSupplier').data('current');
+    const electricCurrentProduct = $('#electricProduct').data('current');
 
-        $electric.empty().append('<option value="">Select Supplier</option>');
-        $gas.empty().append('<option value="">Select Supplier</option>');
+    const gasCurrentSupplier = $('#gasSupplier').data('current');
+    const gasCurrentProduct = $('#gasProduct').data('current');
 
-        if (res.success && res.Data?.length) {
-            res.Data.forEach(s => {
-                $electric.append(`<option value="${s.Id}" ${s.Id == electricCurrent ? 'selected' : ''}>${s.Name}</option>`);
-                $gas.append(`<option value="${s.Id}" ${s.Id == gasCurrent ? 'selected' : ''}>${s.Name}</option>`);
-            });
+    handleCommsType('#electricProduct', '#electricCommsType');
+    handleCommsType('#gasProduct', '#gasCommsType');
 
-            loadProducts(electricCurrent, '#electricProduct', $('#electricProduct').data('current'));
-            loadProducts(gasCurrent, '#gasProduct', $('#gasProduct').data('current'));
-        }
-    });
-
-    $('#electricSupplier').change(function () {
-        loadProducts($(this).val(), '#electricProduct', '');
-    });
-
-    $('#gasSupplier').change(function () {
-        loadProducts($(this).val(), '#gasProduct', '');
-    });
     $('#electricProduct').on('change', function () {
         handleCommsType('#electricProduct', '#electricCommsType');
     });
@@ -63,30 +45,23 @@
         handleCommsType('#gasProduct', '#gasCommsType');
     });
 
-    function loadProducts(supplierId, targetId, selectedId) {
+    function loadSnapshotProducts(supplierId, targetId, selectedId, products) {
         const $target = $(targetId);
         const $comms = (targetId === '#electricProduct') ? $('#electricCommsType') : $('#gasCommsType');
 
-        if (!supplierId) {
-            $target.empty().append('<option value="">Select Product</option>').prop('disabled', true);
-            $comms.empty().append('<option value="">Select Supplier Comms Type</option>').prop('disabled', true);
+        if (!products || !products.length) {
+            $target.empty().append('<option value="">Select Product</option>').prop('disabled', false);
+            $comms.empty().append('<option value="">Select Supplier Comms Type</option>').prop('disabled', false);
             return;
         }
 
-        $target.prop('disabled', true).empty().append('<option>Loading...</option>');
-
-        $.get(`/Supplier/GetProductsBySupplier?supplierId=${supplierId}`, function (res) {
-            $target.empty().append('<option value="">Select Product</option>');
-            if (res.success && res.Data?.length) {
-                res.Data.forEach(p => {
-                    const comms = p.SupplierCommsType ?? '';
-                    $target.append(`<option value="${p.Id}" data-comms="${comms}" ${p.Id == selectedId ? 'selected' : ''}>${p.ProductName}</option>`);
-                });
-            } else {
-                $target.append('<option disabled>No products found</option>');
-            }
-            $target.prop('disabled', false);
+        $target.prop('disabled', false).empty().append('<option value="">Select Product</option>');
+        products.forEach(p => {
+            const comms = p.SupplierCommsType ?? '';
+            $target.append(`<option value="${p.Id}" data-comms="${comms}" ${p.Id == selectedId ? 'selected' : ''}>${p.ProductName}</option>`);
         });
+
+        handleCommsType(targetId, $comms);
     }
 
     function handleCommsType(productSelector, commsSelector) {
@@ -118,7 +93,7 @@
         }
     });
 
-    $('#editDualForm').on('submit',async function (e) {
+    $('#editDualForm').on('submit', async function (e) {
         e.preventDefault();
         let hasInvalid = false;
 
@@ -141,13 +116,13 @@
         const $gasUplift = $('#gasUplift');
         const $gasSupplier = $('#gasSupplier');
 
-        const isElectricValid = await validateUpliftAgainstSupplierLimit($electricUplift, $electricSupplier, 'Electric');
+        const isElectricValid = await validateUpliftAgainstSupplierLimitElectric($('#electricUplift'), $('#electricSupplier'), $('#eid').val());
         if (!isElectricValid) {
             $electricUplift.focus();
             return;
         }
 
-        const isGasValid = await validateUpliftAgainstSupplierLimit($gasUplift, $gasSupplier, 'Gas');
+        const isGasValid = await validateUpliftAgainstSupplierLimitGas($('#gasUplift'), $('#gasSupplier'), $('#eid').val());
         if (!isGasValid) {
             $gasUplift.focus();
             return;
@@ -213,7 +188,7 @@
                     $('#gasSalesStatus').val(d.GasSalesTypeStatus);
                     $('#gasDuration').val(d.GasDuration);
                     $('#gasUplift').val(d.GasUplift);
-                   // $('#gasInputAQ').val(d.GasInputAQ);
+                    // $('#gasInputAQ').val(d.GasInputAQ);
                     $('#gasStandingCharge').val(d.GasStandingCharge);
                     $('#gasUnitRate').val(d.GasUnitRate);
                     $('#gasSupplier').val(d.GasSupplierId);
@@ -390,17 +365,11 @@
     });
 
     $('#electricUplift').on('blur', async function () {
-        await validateUpliftAgainstSupplierLimit($('#electricUplift'), $('#electricSupplier'), 'Electric');
-    });
-    $('#electricSupplier').on('change', async function () {
-        await validateUpliftAgainstSupplierLimit($('#electricUplift'), $('#electricSupplier'), 'Electric');
+        await validateUpliftAgainstSupplierLimitElectric($('#electricUplift'), $('#electricSupplier'), $('#eid').val());
     });
 
     $('#gasUplift').on('blur', async function () {
-        await validateUpliftAgainstSupplierLimit($('#gasUplift'), $('#gasSupplier'), 'Gas');
+        await validateUpliftAgainstSupplierLimitGas($('#gasUplift'), $('#gasSupplier'), $('#eid').val());
     });
-    $('#gasSupplier').on('change', async function () {
-        await validateUpliftAgainstSupplierLimit($('#gasUplift'), $('#gasSupplier'), 'Gas');
-    });
-
+   
 });

@@ -1,8 +1,10 @@
-﻿using System;
+﻿using CobanaEnergy.Project.Models.Supplier.SupplierSnapshots;
+using CobanaEnergy.Project.Models.Supplier.SupplierSnapshots_Gas;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
-using System.ComponentModel.DataAnnotations;
 
 namespace CobanaEnergy.Project.Models.Dual.EditDual
 {
@@ -168,5 +170,7 @@ namespace CobanaEnergy.Project.Models.Dual.EditDual
         public string CreatedAt { get; set; }
         public string UpdatedAt { get; set; }
         public string Type { get; set; } = "Dual";
+        public ElectricSupplierSnapshotViewModel ElectricSupplierSnapshot { get; set; }
+        public GasSupplierSnapshotViewModel GasSupplierSnapshot { get; set; }
     }
 }

@@ -8,22 +8,6 @@
         $.ajaxSetup({ headers: { 'RequestVerificationToken': token } });
     }
 
-    $.get('/Supplier/GetActiveSuppliersForDropdown', function (res) {
-        const $supplier = $('#supplierSelect');
-        $supplier.empty().append('<option value="">Select Supplier</option>');
-
-        if (res.success && res.Data.length > 0) {
-            res.Data.forEach(s => {
-                const selected = s.Id == $supplier.data('current') ? 'selected' : '';
-                $supplier.append(`<option value="${s.Id}" ${selected}>${s.Name}</option>`);
-            });
-        } else {
-            $supplier.append('<option disabled>No suppliers found</option>');
-        }
-
-        $('#supplierSelect').trigger('change');
-    });
-
     for (const id in DropdownOptions) {
         populateDropdown(id, DropdownOptions[id]);
     }
@@ -40,46 +24,6 @@
         });
     }
 
-    $('#supplierSelect').change(function () {
-        const supplierId = $(this).val();
-        const $product = $('#productSelect');
-        const $comms = $('#supplierCommsType');
-
-        $product.prop('disabled', true).empty().append('<option>Loading...</option>');
-        $comms.prop('disabled', true).empty().append('<option>Loading...</option>');
-
-        if (!supplierId) {
-            $product.empty().append('<option value="">Select Product</option>').prop('disabled', true);
-            $comms.empty().append('<option value="">Select Supplier Comms Type</option>').prop('disabled', true);
-            return;
-        }
-
-        $.get(`/Supplier/GetProductsBySupplier?supplierId=${supplierId}`, function (res) {
-            $product.empty().append('<option value="">Select Product</option>');
-            $comms.empty().append('<option value="">Select Supplier Comms Type</option>');
-
-            DropdownOptions.supplierCommsType.forEach(v => {
-                $comms.append(`<option value="${v}">${v}</option>`);
-            });
-
-            if (res.success && res.Data.length > 0) {
-                res.Data.forEach(p => {
-                    const selected = (p.Id == $product.data('current')) ? 'selected' : '';
-                    $product.append(`<option value="${p.Id}" data-comms="${p.SupplierCommsType ?? ''}" ${selected}>${p.ProductName}</option>`);
-                });
-            } else {
-                $product.append('<option disabled>No products found</option>');
-            }
-
-            $product.prop('disabled', false);
-            $comms.prop('disabled', false);
-
-            $('#productSelect').trigger('change');
-        });
-    });
-
-    $('#supplierSelect').trigger('change');
-
     $('#productSelect').on('change', function () {
         const selectedOption = $(this).find('option:selected');
         const commsType = selectedOption.data('comms') ?? '';
@@ -87,7 +31,7 @@
 
         $commsSelect.empty().append('<option value="">Select Supplier Comms Type</option>');
         DropdownOptions.supplierCommsType.forEach(v => {
-            const selected = v === $commsSelect.data('current') || v === commsType ? 'selected' : '';
+            const selected = v === commsType ? 'selected' : '';
             $commsSelect.append(`<option value="${v}" ${selected}>${v}</option>`);
         });
 
@@ -101,7 +45,7 @@
         $commsSelect.prop('disabled', false);
     });
 
-    $('#editElectricForm').on('submit',async function (e) {
+    $('#editElectricForm').on('submit', async function (e) {
         e.preventDefault();
 
         let hasInvalid = false;
@@ -120,10 +64,10 @@
             showToastWarning("Please fill all required fields.");
             return;
         }
-
         const $uplift = $('#uplift');
         const $supplier = $('#supplierSelect');
-        const isValid = await validateUpliftAgainstSupplierLimit($uplift, $supplier, 'Electric');
+        const eid = $('#eid').val();
+        const isValid = await validateUpliftAgainstSupplierLimitElectric($uplift, $supplier, eid);
         if (!isValid) {
             $uplift.focus();
             return;
@@ -234,7 +178,7 @@
 
                     loadLogs(); // reload
                     //setTimeout(() => location.reload());
-                    
+
                 } else {
                     showToastError(res.message);
                 }
@@ -361,11 +305,13 @@
     });
 
     $('#uplift').on('blur', async function () {
-        await validateUpliftAgainstSupplierLimit($('#uplift'), $('#supplierSelect'), 'Electric');
+        const eid = $('#eid').val();
+        await validateUpliftAgainstSupplierLimitElectric($('#uplift'), $('#supplierSelect'), eid);
     });
 
     $('#supplierSelect').on('change', async function () {
-        await validateUpliftAgainstSupplierLimit($('#uplift'), $('#supplierSelect'), 'Electric');
+        const eid = $('#eid').val();
+        await validateUpliftAgainstSupplierLimitElectric($('#uplift'), $('#supplierSelect'), eid);
     });
 
 });

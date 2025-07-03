@@ -12,6 +12,10 @@
         populateDropdown(id, DropdownOptions[id]);
     }
 
+    const $supplier = $('#supplierSelect');
+    const $product = $('#productSelect');
+   // $supplier.prop('disabled', true); 
+
     function populateDropdown(id, values) {
         const $el = $('#' + id);
         if (!$el.length) return;
@@ -22,63 +26,6 @@
             $el.append(`<option value="${val}" ${selected}>${val}</option>`);
         });
     }
-
-    $.get('/Supplier/GetActiveSuppliersForDropdown', function (res) {
-        const $supplier = $('#supplierSelect');
-        $supplier.empty().append('<option value="">Select Supplier</option>');
-
-        if (res.success && res.Data.length > 0) {
-            res.Data.forEach(s => {
-                const selected = s.Id == $supplier.data('current') ? 'selected' : '';
-                $supplier.append(`<option value="${s.Id}" ${selected}>${s.Name}</option>`);
-            });
-        } else {
-            $supplier.append('<option disabled>No suppliers found</option>');
-        }
-
-        $('#supplierSelect').trigger('change');
-    });
-
-    $('#supplierSelect').change(function () {
-        const supplierId = $(this).val();
-        const $product = $('#productSelect');
-        const $comms = $('#supplierCommsType');
-
-        $product.prop('disabled', true).empty().append('<option>Loading...</option>');
-        $comms.prop('disabled', true).empty().append('<option>Loading...</option>');
-
-        if (!supplierId) {
-            $product.empty().append('<option value="">Select Product</option>').prop('disabled', true);
-            $comms.empty().append('<option value="">Select Supplier Comms Type</option>').prop('disabled', true);
-            return;
-        }
-
-        $.get(`/Supplier/GetProductsBySupplier?supplierId=${supplierId}`, function (res) {
-            $product.empty().append('<option value="">Select Product</option>');
-            $comms.empty().append('<option value="">Select Supplier Comms Type</option>');
-
-            DropdownOptions.supplierCommsType.forEach(v => {
-                $comms.append(`<option value="${v}">${v}</option>`);
-            });
-
-            if (res.success && res.Data.length > 0) {
-                res.Data.forEach(p => {
-                    const selected = (p.Id == $product.data('current')) ? 'selected' : '';
-                    $product.append(`<option value="${p.Id}" data-comms="${p.SupplierCommsType ?? ''}" ${selected}>${p.ProductName}</option>`);
-                });
-            } else {
-                $product.append('<option disabled>No products found</option>');
-            }
-
-            $product.prop('disabled', false);
-            $comms.prop('disabled', false);
-
-            // In case product matches, trigger product change
-            $('#productSelect').trigger('change');
-        });
-    });
-
-    $('#supplierSelect').trigger('change');
 
     $('#productSelect').on('change', function () {
         const selectedOption = $(this).find('option:selected');
@@ -122,7 +69,7 @@
 
         const $uplift = $('#uplift');
         const $supplier = $('#supplierSelect');
-        const isValid = await validateUpliftAgainstSupplierLimit($uplift, $supplier, 'Electric');
+        const isValid = await validateUpliftAgainstSupplierLimitGas($uplift, $supplier, 'Gas');
         if (!isValid) {
             $uplift.focus();
             return;
@@ -330,11 +277,14 @@
     });
 
     $('#uplift').on('blur', async function () {
-        await validateUpliftAgainstSupplierLimit($('#uplift'), $('#supplierSelect'), 'Gas');
+        const eid = $('#eid').val();
+        await validateUpliftAgainstSupplierLimitGas($('#uplift'), $('#supplierSelect'), eid);
     });
 
     $('#supplierSelect').on('change', async function () {
-        await validateUpliftAgainstSupplierLimit($('#uplift'), $('#supplierSelect'), 'Gas');
+        if ($(this).is(':disabled')) return; 
+        const eid = $('#eid').val();
+        await validateUpliftAgainstSupplierLimitGas($('#uplift'), $('#supplierSelect'), eid);
     });
 
 });
