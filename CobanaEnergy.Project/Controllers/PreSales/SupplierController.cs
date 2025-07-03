@@ -581,6 +581,50 @@ namespace CobanaEnergy.Project.Controllers.PreSales
             }
         }
 
+        [HttpGet]
+        [Authorize]
+        public JsonResult GetSnapshotMaxUpliftElectric(string eid)
+        {
+            var snapshot = db.CE_ElectricSupplierSnapshots
+                             .Include(s => s.CE_ElectricSupplierUpliftSnapshots)
+                             .FirstOrDefault(s => s.EId == eid);
+
+            if (snapshot == null)
+                return JsonResponse.Fail("Snapshot not found.");
+
+            var maxUplift = snapshot.CE_ElectricSupplierUpliftSnapshots
+                                    .Where(u => u.FuelType == "Electric")
+                                    .OrderByDescending(u => u.EndDate)
+                                    .FirstOrDefault();
+
+            if (maxUplift == null)
+                return JsonResponse.Ok(null);
+
+            return JsonResponse.Ok(maxUplift.Uplift);
+        }
+
+        [HttpGet]
+        [Authorize]
+        public JsonResult GetSnapshotMaxUpliftGas(string eid)
+        {
+            var snapshot = db.CE_GasSupplierSnapshots
+                             .Include(s => s.CE_GasSupplierUpliftSnapshots)
+                             .FirstOrDefault(s => s.EId == eid);
+
+            if (snapshot == null)
+                return JsonResponse.Fail("Snapshot not found.");
+
+            var maxUplift = snapshot.CE_GasSupplierUpliftSnapshots
+                                    .Where(u => u.FuelType == "Gas")
+                                    .OrderByDescending(u => u.EndDate)
+                                    .FirstOrDefault();
+
+            if (maxUplift == null)
+                return JsonResponse.Ok(null);
+
+            return JsonResponse.Ok(maxUplift.Uplift);
+        }
+
         #endregion
     }
 }

@@ -1,7 +1,10 @@
 ﻿using CobanaEnergy.Project.Models.AccountsDBModel;
 using CobanaEnergy.Project.Models.Electric.ElectricDBModels;
+using CobanaEnergy.Project.Models.Electric.ElectricDBModels.snapshot;
 using CobanaEnergy.Project.Models.Gas.GasDBModels;
 using CobanaEnergy.Project.Models.Supplier.SupplierDBModels;
+using CobanaEnergy.Project.Models.Supplier.SupplierDBModels.snapshot;
+using CobanaEnergy.Project.Models.Supplier.SupplierDBModels.snapshot_Gas;
 using Microsoft.AspNet.Identity.EntityFramework;
 using System;
 using System.Collections.Generic;
@@ -31,6 +34,15 @@ namespace CobanaEnergy.Project.Models
         public DbSet<CE_GasContracts> CE_GasContracts { get; set; }
         public DbSet<CE_GasContractLogs> CE_GasContractLogs { get; set; }
         public DbSet<CE_Accounts> CE_Accounts { get; set; }
+        public DbSet<CE_ElectricSupplierSnapshots> CE_ElectricSupplierSnapshots { get; set; }
+        public DbSet<CE_ElectricSupplierContactSnapshots> CE_ElectricSupplierContactSnapshots { get; set; }
+        public DbSet<CE_ElectricSupplierProductSnapshots> CE_ElectricSupplierProductSnapshots { get; set; }
+        public DbSet<CE_ElectricSupplierUpliftSnapshots> CE_ElectricSupplierUpliftSnapshots { get; set; }
+        public DbSet<CE_GasSupplierSnapshots> CE_GasSupplierSnapshots { get; set; }
+        public DbSet<CE_GasSupplierContactSnapshots> CE_GasSupplierContactSnapshots { get; set; }
+        public DbSet<CE_GasSupplierProductSnapshots> CE_GasSupplierProductSnapshots { get; set; }
+        public DbSet<CE_GasSupplierUpliftSnapshots> CE_GasSupplierUpliftSnapshots { get; set; }
+
 
     }
 }

@@ -57,8 +57,27 @@
                                     </div>
                                 </div>
                                 <div class="col-md-4"><label class="form-label required" for="electricCurrentSupplier">Electric Current Supplier</label><input type="text" id="electricCurrentSupplier" class="form-control" required title="Please enter current electric supplier" value="@Model.ElectricCurrentSupplier" autocomplete="off" /></div>
-                                <div class="col-md-4"><label class="form-label required" for="electricSupplier">Electric Supplier</label><select id="electricSupplier" class="form-select dropdown-arrow" required title="Select Electric Supplier" data-current="@Model.ElectricSupplierId"></select></div>
-                                <div class="col-md-4"><label class="form-label required" for="electricProduct">Electric Product</label><select id="electricProduct" class="form-select dropdown-arrow" required title="Select Electric Product" data-current="@Model.ElectricProductId"></select></div>
+                                @*<div class="col-md-4"><label class="form-label required" for="electricSupplier">Electric Supplier</label><select id="electricSupplier" class="form-select dropdown-arrow" required title="Select Electric Supplier" data-current="@Model.ElectricSupplierId"></select></div>
+                                    <div class="col-md-4"><label class="form-label required" for="electricProduct">Electric Product</label><select id="electricProduct" class="form-select dropdown-arrow" required title="Select Electric Product" data-current="@Model.ElectricProductId"></select></div>*@
+                                <div class="col-md-4">
+                                    <label class="form-label required" for="electricSupplier">Electric Supplier</label>
+                                    <select id="electricSupplier" class="form-select dropdown-arrow" required title="Select Electric Supplier" data-current="@Model.ElectricSupplierSnapshot.SupplierId" disabled>
+                                        <option value="@Model.ElectricSupplierSnapshot.SupplierId" selected>@Model.ElectricSupplierSnapshot.SupplierName</option>
+                                    </select>
+                                    <input type="hidden" name="ElectricSupplierId" value="@Model.ElectricSupplierSnapshot.SupplierId" />
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label required" for="electricProduct">Electric Product</label>
+                                    <select id="electricProduct" class="form-select dropdown-arrow" required title="Select Electric Product">
+                                        <option value="">Select Product</option>
+                                        @foreach (var product in Model.ElectricSupplierSnapshot.Products)
+                                        {
+                                            var selected = product.Id == Model.ElectricProductId ? "selected" : "";
+                                            <option value="@product.Id" data-comms="@product.SupplierCommsType" @selected>@product.ProductName</option>
+                                        }
+                                    </select>
+                                </div>
+
                                 <div class="col-md-4"><label class="form-label required" for="electricCommsType">Electric Comms Type</label><select id="electricCommsType" class="form-select dropdown-arrow" required title="Select Electric Comms Type" data-current="@Model.ElectricSupplierCommsType"></select></div>
                             </div>
                         </div>
@@ -120,8 +139,26 @@
                                     </div>
                                 </div>
                                 <div class="col-md-4"><label class="form-label required" for="gasCurrentSupplier">Gas Current Supplier</label><input type="text" id="gasCurrentSupplier" class="form-control" required title="Please enter current gas supplier" value="@Model.GasCurrentSupplier" autocomplete="off" /></div>
-                                <div class="col-md-4"><label class="form-label required" for="gasSupplier">Gas Supplier</label><select id="gasSupplier" class="form-select dropdown-arrow" required title="Select Gas Supplier" data-current="@Model.GasSupplierId"></select></div>
-                                <div class="col-md-4"><label class="form-label required" for="gasProduct">Gas Product</label><select id="gasProduct" class="form-select dropdown-arrow" required title="Select Gas Product" data-current="@Model.GasProductId"></select></div>
+                                @*<div class="col-md-4"><label class="form-label required" for="gasSupplier">Gas Supplier</label><select id="gasSupplier" class="form-select dropdown-arrow" required title="Select Gas Supplier" data-current="@Model.GasSupplierId"></select></div>
+                                    <div class="col-md-4"><label class="form-label required" for="gasProduct">Gas Product</label><select id="gasProduct" class="form-select dropdown-arrow" required title="Select Gas Product" data-current="@Model.GasProductId"></select></div>*@
+                                <div class="col-md-4">
+                                    <label class="form-label required" for="gasSupplier">Gas Supplier</label>
+                                    <select id="gasSupplier" class="form-select dropdown-arrow" required title="Select Gas Supplier"  data-current="@Model.GasSupplierSnapshot.SupplierId"  disabled>
+                                        <option value="@Model.GasSupplierSnapshot.SupplierId" selected>@Model.GasSupplierSnapshot.SupplierName</option>
+                                    </select>
+                                    <input type="hidden" name="GasSupplierId" value="@Model.GasSupplierSnapshot.SupplierId" />
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label required" for="gasProduct">Gas Product</label>
+                                    <select id="gasProduct" class="form-select dropdown-arrow" required title="Select Gas Product">
+                                        <option value="">Select Product</option>
+                                        @foreach (var product in Model.GasSupplierSnapshot.Products)
+                                        {
+                                            var selected = product.Id == Model.GasProductId ? "selected" : "";
+                                            <option value="@product.Id" data-comms="@product.SupplierCommsType" @selected>@product.ProductName</option>
+                                        }
+                                    </select>
+                                </div>
                                 <div class="col-md-4"><label class="form-label required" for="gasCommsType">Gas Comms Type</label><select id="gasCommsType" class="form-select dropdown-arrow" required title="Select Gas Comms Type" data-current="@Model.GasSupplierCommsType"></select></div>
                             </div>
                         </div>
