@@ -252,13 +252,10 @@
     <Compile Include="Migrations\202507031201252_InitialMapping13.Designer.cs">
       <DependentUpon>202507031201252_InitialMapping13.cs</DependentUpon>
     </Compile>
-<<<<<<< HEAD
-=======
     <Compile Include="Migrations\202507071544562_InitialMapping14.cs" />
     <Compile Include="Migrations\202507071544562_InitialMapping14.Designer.cs">
       <DependentUpon>202507071544562_InitialMapping14.cs</DependentUpon>
     </Compile>
->>>>>>> f5c62b3 (invoice supplier dashboard!!!!)
     <Compile Include="Models\Dual\EditDual\DualContractEditViewModel.cs" />
     <Compile Include="Models\Dual\LogsHelperClass\LogEntry.cs" />
     <Compile Include="Models\Electric\EditElectric\ElectricContractEditViewModel.cs" />
@@ -280,11 +277,8 @@
     <Compile Include="Models\Electric\ElectricContractCreateViewModel.cs" />
     <Compile Include="Models\Electric\ElectricDBModels\CE_ElectricContractLogs.cs" />
     <Compile Include="Models\Electric\ElectricDBModels\CE_ElectricContracts.cs" />
-<<<<<<< HEAD
-=======
     <Compile Include="Models\Accounts\InvoiceSupplierDashboard\DB Model\CE_InvoiceSupplierUploads.cs" />
     <Compile Include="Models\Accounts\InvoiceSupplierDashboard\InvoiceSupplierUploadViewModel.cs" />
->>>>>>> f5c62b3 (invoice supplier dashboard!!!!)
     <Compile Include="Models\Supplier\SupplierDBModels\snapshot Electric\CE_ElectricSupplierContactSnapshots.cs" />
     <Compile Include="Models\Supplier\SupplierDBModels\snapshot Electric\CE_ElectricSupplierProductSnapshots.cs" />
     <Compile Include="Models\Supplier\SupplierDBModels\snapshot Electric\CE_ElectricSupplierSnapshots.cs" />
@@ -399,12 +393,9 @@
     <EmbeddedResource Include="Migrations\202507031201252_InitialMapping13.resx">
       <DependentUpon>202507031201252_InitialMapping13.cs</DependentUpon>
     </EmbeddedResource>
-<<<<<<< HEAD
-=======
     <EmbeddedResource Include="Migrations\202507071544562_InitialMapping14.resx">
       <DependentUpon>202507071544562_InitialMapping14.cs</DependentUpon>
     </EmbeddedResource>
->>>>>>> f5c62b3 (invoice supplier dashboard!!!!)
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
