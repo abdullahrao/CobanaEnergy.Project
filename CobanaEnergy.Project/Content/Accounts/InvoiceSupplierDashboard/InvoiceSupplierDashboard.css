@@ -1,0 +1,64 @@
+﻿.elegant-popup-bg {
+    background: #fff;
+    border-radius: 1.25rem;
+    box-shadow: 0 6px 32px 0 rgba(80, 94, 128, 0.10);
+    padding: 2rem 2.5rem;
+}
+
+.roboto-mono {
+    font-family: 'Roboto Mono', monospace !important;
+    font-size: 1.10rem;
+}
+
+.file-upload-card {
+    background: #fafbfc;
+    border: 1.5px solid #e3e5ea;
+    border-radius: 0.75rem;
+    min-height: 60px;
+    align-items: center;
+}
+
+.btn-primary, .btn-secondary {
+    min-width: 110px;
+    border-radius: 0.6rem;
+    font-family: 'Raleway', sans-serif;
+    font-size: 1.07rem;
+}
+
+#fileStatus {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 1rem;
+}
+
+.select2-results__option,
+.select2-selection__rendered {
+    font-family: 'Roboto Mono', monospace !important;
+}
+
+.form-label, .fw-semibold {
+    font-family: 'Raleway', sans-serif;
+}
+
+@media (max-width: 600px) {
+    .elegant-popup-bg {
+        padding: 1rem 0.5rem;
+    }
+
+    .modal-dialog {
+        max-width: 98vw !important;
+    }
+
+    .text-end {
+        text-align: center !important;
+    }
+
+    .btn {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+}
+
+#invoiceUploadModal {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}

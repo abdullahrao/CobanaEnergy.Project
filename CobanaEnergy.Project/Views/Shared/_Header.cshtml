@@ -65,6 +65,22 @@
                     </li>
                 }
 
+                @if (User.IsInRole("Controls") || User.IsInRole("Accounts"))
+                {
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="accountsMenu" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-cog me-1"></i> Accounts
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item" href="#" id="openInvoiceSupplierDashboard">
+                                    <i class="fas fa-file-invoice-dollar me-2"></i> Invoice Supplier Dashboard
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                }
+
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle text-white fw-bold" href="#" data-bs-toggle="dropdown">
                         <i class="fas fa-user-circle me-1"></i> @User.Identity.GetUserName()

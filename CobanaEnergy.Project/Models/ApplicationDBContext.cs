@@ -2,6 +2,7 @@
 using CobanaEnergy.Project.Models.Electric.ElectricDBModels;
 using CobanaEnergy.Project.Models.Electric.ElectricDBModels.snapshot;
 using CobanaEnergy.Project.Models.Gas.GasDBModels;
+using CobanaEnergy.Project.Models.InvoiceSupplierDashboard;
 using CobanaEnergy.Project.Models.Supplier.SupplierDBModels;
 using CobanaEnergy.Project.Models.Supplier.SupplierDBModels.snapshot;
 using CobanaEnergy.Project.Models.Supplier.SupplierDBModels.snapshot_Gas;
@@ -42,6 +43,7 @@ namespace CobanaEnergy.Project.Models
         public DbSet<CE_GasSupplierContactSnapshots> CE_GasSupplierContactSnapshots { get; set; }
         public DbSet<CE_GasSupplierProductSnapshots> CE_GasSupplierProductSnapshots { get; set; }
         public DbSet<CE_GasSupplierUpliftSnapshots> CE_GasSupplierUpliftSnapshots { get; set; }
+        public DbSet<CE_InvoiceSupplierUploads> CE_InvoiceSupplierUploads { get; set; }
 
 
     }

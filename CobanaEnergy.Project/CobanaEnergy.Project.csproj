@@ -161,6 +161,7 @@
     <Content Include="Content\Gas\CreateGas.css" />
     <Content Include="Content\Gas\EditGas.css" />
     <Content Include="Content\Icons\favicon.png" />
+    <Content Include="Content\Accounts\InvoiceSupplierDashboard\InvoiceSupplierDashboard.css" />
     <Content Include="Content\PreSales\Dashboard.css" />
     <Content Include="Content\Signup\ChangePassword.css" />
     <Content Include="Content\Site.css" />
@@ -176,6 +177,7 @@
     <Content Include="Scripts\Electric\editElectric.js" />
     <Content Include="Scripts\Gas\createGas.js" />
     <Content Include="Scripts\Gas\editGas.js" />
+    <Content Include="Scripts\Accounts\InvoiceSupplierDashboard\invoiceSupplierDashboard.js" />
     <Content Include="Scripts\PreSales\dashboard.js" />
     <Content Include="Scripts\Signup\changePassword.js" />
     <Content Include="Scripts\Signup\login.js" />
@@ -189,6 +191,7 @@
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\Accounts\InvoiceSupplierDashboard\InvoiceSupplierDashboardController.cs" />
     <Compile Include="Controllers\Base\BaseController.cs" />
     <Compile Include="Controllers\Error\ErrorController.cs" />
     <Compile Include="Controllers\PreSales\CheckDuplicateAccountController.cs" />
@@ -249,6 +252,13 @@
     <Compile Include="Migrations\202507031201252_InitialMapping13.Designer.cs">
       <DependentUpon>202507031201252_InitialMapping13.cs</DependentUpon>
     </Compile>
+<<<<<<< HEAD
+=======
+    <Compile Include="Migrations\202507071544562_InitialMapping14.cs" />
+    <Compile Include="Migrations\202507071544562_InitialMapping14.Designer.cs">
+      <DependentUpon>202507071544562_InitialMapping14.cs</DependentUpon>
+    </Compile>
+>>>>>>> f5c62b3 (invoice supplier dashboard!!!!)
     <Compile Include="Models\Dual\EditDual\DualContractEditViewModel.cs" />
     <Compile Include="Models\Dual\LogsHelperClass\LogEntry.cs" />
     <Compile Include="Models\Electric\EditElectric\ElectricContractEditViewModel.cs" />
@@ -270,6 +280,11 @@
     <Compile Include="Models\Electric\ElectricContractCreateViewModel.cs" />
     <Compile Include="Models\Electric\ElectricDBModels\CE_ElectricContractLogs.cs" />
     <Compile Include="Models\Electric\ElectricDBModels\CE_ElectricContracts.cs" />
+<<<<<<< HEAD
+=======
+    <Compile Include="Models\Accounts\InvoiceSupplierDashboard\DB Model\CE_InvoiceSupplierUploads.cs" />
+    <Compile Include="Models\Accounts\InvoiceSupplierDashboard\InvoiceSupplierUploadViewModel.cs" />
+>>>>>>> f5c62b3 (invoice supplier dashboard!!!!)
     <Compile Include="Models\Supplier\SupplierDBModels\snapshot Electric\CE_ElectricSupplierContactSnapshots.cs" />
     <Compile Include="Models\Supplier\SupplierDBModels\snapshot Electric\CE_ElectricSupplierProductSnapshots.cs" />
     <Compile Include="Models\Supplier\SupplierDBModels\snapshot Electric\CE_ElectricSupplierSnapshots.cs" />
@@ -323,6 +338,8 @@
     <Content Include="Views\Dual\EditDual.cshtml" />
     <Content Include="Views\Shared\NotFound.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
+    <Content Include="Views\Accounts\InvoiceSupplierDashboard\InvoiceSupplierPopup.cshtml" />
+    <Content Include="Views\Shared\_ModalError.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -382,6 +399,12 @@
     <EmbeddedResource Include="Migrations\202507031201252_InitialMapping13.resx">
       <DependentUpon>202507031201252_InitialMapping13.cs</DependentUpon>
     </EmbeddedResource>
+<<<<<<< HEAD
+=======
+    <EmbeddedResource Include="Migrations\202507071544562_InitialMapping14.resx">
+      <DependentUpon>202507071544562_InitialMapping14.cs</DependentUpon>
+    </EmbeddedResource>
+>>>>>>> f5c62b3 (invoice supplier dashboard!!!!)
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
