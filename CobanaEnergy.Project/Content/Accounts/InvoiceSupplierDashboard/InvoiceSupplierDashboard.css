@@ -1,16 +1,16 @@
-﻿.elegant-popup-bg {
+﻿.invoice-supplier-modal .elegant-popup-bg {
     background: #fff;
     border-radius: 1.25rem;
     box-shadow: 0 6px 32px 0 rgba(80, 94, 128, 0.10);
     padding: 2rem 2.5rem;
 }
 
-.roboto-mono {
+.invoice-supplier-modal .roboto-mono {
     font-family: 'Roboto Mono', monospace !important;
     font-size: 1.10rem;
 }
 
-.file-upload-card {
+.invoice-supplier-modal .file-upload-card {
     background: #fafbfc;
     border: 1.5px solid #e3e5ea;
     border-radius: 0.75rem;
@@ -18,47 +18,49 @@
     align-items: center;
 }
 
-.btn-primary, .btn-secondary {
+.invoice-supplier-modal .btn-primary,
+.invoice-supplier-modal .btn-secondary {
     min-width: 110px;
     border-radius: 0.6rem;
     font-family: 'Raleway', sans-serif;
     font-size: 1.07rem;
 }
 
-#fileStatus {
+.invoice-supplier-modal #fileStatus {
     font-family: 'Roboto Mono', monospace;
     font-size: 1rem;
 }
 
-.select2-results__option,
-.select2-selection__rendered {
+.invoice-supplier-modal .select2-results__option,
+.invoice-supplier-modal .select2-selection__rendered {
     font-family: 'Roboto Mono', monospace !important;
 }
 
-.form-label, .fw-semibold {
+.invoice-supplier-modal .form-label,
+.invoice-supplier-modal .fw-semibold {
     font-family: 'Raleway', sans-serif;
 }
 
 @media (max-width: 600px) {
-    .elegant-popup-bg {
+    .invoice-supplier-modal .elegant-popup-bg {
         padding: 1rem 0.5rem;
     }
 
-    .modal-dialog {
+    .invoice-supplier-modal .modal-dialog {
         max-width: 98vw !important;
     }
 
-    .text-end {
+    .invoice-supplier-modal .text-end {
         text-align: center !important;
     }
 
-    .btn {
+    .invoice-supplier-modal .btn {
         width: 100%;
         margin-bottom: 8px;
     }
 }
 
-#invoiceUploadModal {
+.invoice-supplier-modal #invoiceUploadModal {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
