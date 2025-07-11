@@ -1,0 +1,65 @@
+﻿@model CobanaEnergy.Project.Models.Accounts.InvoiceSupplierDashboard.ContractEditTableViewModel
+@{
+    ViewBag.Title = "Edit Contracts Invoice Supplier";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="contract-dashboard">
+    <div class="dashboard-title">
+        Edit Contracts For Invoice's
+    </div>
+    <div class="table-container">
+        @if (Model.Contracts == null || !Model.Contracts.Any())
+        {
+            <div class="alert alert-info text-center">No contracts to edit.</div>
+        }
+        else
+        {
+            <table id="editContractsTable" class="table table-bordered table-striped w-100">
+                <thead class="table-light">
+                    <tr>
+                        <th>Action</th>
+                        <th>Business Name</th>
+                        <th>MPAN</th>
+                        <th>MPRN</th>
+                        <th>Input Date</th>
+                        <th>Start Date</th>
+                        <th>CED</th>
+                        <th>CED(COT)</th>
+                        <th>Duration</th>
+                        <th>Uplift</th>
+                        <th>Suppplier Comms Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var contract in Model.Contracts)
+                    {
+                        <tr>
+                            <td>
+                                <a href="@Url.Action("EditSingleContract", new { id = contract.EId })" class="btn btn-sm edit-btn" title="Edit">
+                                    <i class="fas fa-pencil-alt me-1"></i> Edit
+                                </a>
+                            </td>
+                            <td>@contract.BusinessName</td>
+                            <td>@contract.MPAN</td>
+                            <td>@contract.MPRN</td>
+                            <td>@(contract.InputDate)</td>
+                            <td>@(contract.StartDate)</td>
+                            <td>@contract.CED</td>
+                            <td>@contract.CED_COT</td>
+                            <td>@contract.Duration</td>
+                            <td>@contract.Uplift</td>
+                            <td>@contract.SupplierCommsType</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+@section styles {
+    <link href="~/Content/Accounts/InvoiceSupplierDashboard/EditContractsInvoiceSupplier.css" rel="stylesheet" />
+}
+@section scripts {
+    <script src="~/Scripts/Accounts/InvoiceSupplierDashboard/editContractsInvoiceSupplier.js"></script>
+}

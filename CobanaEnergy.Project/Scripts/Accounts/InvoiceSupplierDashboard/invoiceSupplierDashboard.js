@@ -1,7 +1,5 @@
 ﻿$(document).ready(function () {
-    // Use Select2 for suppliers with search and correct font
     $(document).on('shown.bs.modal', '#invoiceUploadModal', function () {
-        // Re-initialize select2 each time (for dynamic content)
         if ($('#SupplierId').data('select2')) {
             $('#SupplierId').select2('destroy');
         }
@@ -68,9 +66,8 @@
             success: function (res) {
                 $uploadBtn.prop('disabled', false).text('Upload');
                 if (res.success) {
-                    showToastSuccess(res.message);
-                    $('#invoiceUploadModal').modal('hide');
-                    window.location.href = '/InvoiceSupplierDashboard/Listing?uploadId=' + res.data.uploadId;
+                    window.location.href = res.Data.redirectUrl;
+
                 } else {
                     showToastError(res.message);
                     resetFileUI();
