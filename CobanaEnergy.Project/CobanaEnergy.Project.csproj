@@ -404,7 +404,7 @@
     <Content Include="Views\Shared\_ModalError.cshtml" />
     <Content Include="Views\Accounts\InvoiceSupplierDashboard\ContractSelectListing.cshtml" />
     <Content Include="Views\Accounts\InvoiceSupplierDashboard\EditContractsInvoiceSupplier.cshtml" />
-    <Content Include="Views\BGBContract\EditBGBContract.cshtml" />
+    <Content Include="Views\Accounts\BGBContract\EditBGBContract.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

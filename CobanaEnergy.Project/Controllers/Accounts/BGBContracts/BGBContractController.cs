@@ -12,7 +12,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
         [HttpGet]
         public ActionResult EditBGBContract(string id)
         {
-            return View();
+            return View("~/Views/Accounts/BGBContract/EditBGBContract.cshtml");
         }
     }
 }
