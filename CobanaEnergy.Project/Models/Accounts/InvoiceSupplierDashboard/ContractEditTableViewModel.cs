@@ -18,7 +18,8 @@ namespace CobanaEnergy.Project.Models.Accounts.InvoiceSupplierDashboard
         public string Duration { get; set; }
         public string Uplift { get; set; }
         public string SupplierCommsType { get; set; }       
-        public string FuelType { get; set; }    
+        public string FuelType { get; set; }
+        public string SupplierName { get; set; }
     }
 
     public class ContractEditTableViewModel

@@ -256,6 +256,7 @@
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\Accounts\BGBContracts\BGBContractController.cs" />
     <Compile Include="Controllers\Accounts\InvoiceSupplierDashboard\InvoiceSupplierDashboardController.cs" />
     <Compile Include="Controllers\Base\BaseController.cs" />
     <Compile Include="Controllers\Error\ErrorController.cs" />
@@ -403,6 +404,7 @@
     <Content Include="Views\Shared\_ModalError.cshtml" />
     <Content Include="Views\Accounts\InvoiceSupplierDashboard\ContractSelectListing.cshtml" />
     <Content Include="Views\Accounts\InvoiceSupplierDashboard\EditContractsInvoiceSupplier.cshtml" />
+    <Content Include="Views\BGBContract\EditBGBContract.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

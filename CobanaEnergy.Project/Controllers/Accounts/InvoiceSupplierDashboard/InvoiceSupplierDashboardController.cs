@@ -33,7 +33,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
         #region popup
 
         [HttpGet]
-        [Authorize(Roles = "Accounts,Admin,Controls")]
+        [Authorize(Roles = "Accounts,Controls")]
         public async Task<PartialViewResult> InvoiceSupplierPopup()
         {
             try
@@ -59,7 +59,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Accounts,Admin,Controls")]
+        [Authorize(Roles = "Accounts,Controls")]
         public async Task<JsonResult> UploadInvoiceFile(InvoiceSupplierUploadViewModel model, HttpPostedFileBase InvoiceFile)
         {
             if (model.SupplierId <= 0 || !await db.CE_Supplier.AnyAsync(s => s.Id == model.SupplierId && s.Status))
@@ -282,7 +282,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
         #region contract slect listing
 
         [HttpGet]
-        [Authorize(Roles = "Accounts,Admin,Controls")]
+        [Authorize(Roles = "Accounts,Controls")]
         public async Task<ActionResult> ContractSelectListing(int uploadId)
         {
             try
@@ -398,6 +398,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Accounts,Controls")]
         public async Task<JsonResult> ConfirmSelectionInvoiceSupplier(List<string> selectedContracts)
         {
             try
@@ -417,6 +418,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
         }
 
         [HttpGet]
+        [Authorize(Roles = "Accounts,Controls")]
         public async Task<ActionResult> EditContractsInvoiceSupplier()
         {
             try
@@ -475,10 +477,12 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                 {
                     string uplift = "N/A";
                     string supplierCommsType = "N/A";
+                    string supplierName = "N/A";
 
                     if (electricSnapshotDict.TryGetValue(x.EId, out var snapshot))
                     {
                         var snapshotId = snapshot.Id;
+                        supplierName = snapshot.SupplierName ?? "N/A";
 
                         if (electricUpliftSnapshotDict.TryGetValue(snapshotId, out var upliftSnap) && upliftSnap != null)
                             uplift = upliftSnap.Uplift ?? "N/A";
@@ -500,7 +504,8 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                         SupplierCommsType = supplierCommsType,
                         CED = "",
                         CED_COT = "",
-                        FuelType = "Electric"
+                        FuelType = "Electric",
+                        SupplierName = supplierName
                     });
                 }
 
@@ -509,10 +514,12 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                 {
                     string uplift = "N/A";
                     string supplierCommsType = "N/A";
+                    string supplierName = "N/A";
 
                     if (gasSnapshotDict.TryGetValue(x.EId, out var snapshot))
                     {
                         var snapshotId = snapshot.Id;
+                        supplierName = snapshot.SupplierName ?? "N/A";
 
                         if (gasUpliftSnapshotDict.TryGetValue(snapshotId, out var upliftSnap) && upliftSnap != null)
                             uplift = upliftSnap.Uplift ?? "N/A";
@@ -534,7 +541,8 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                         SupplierCommsType = supplierCommsType,
                         CED = "",
                         CED_COT = "",
-                        FuelType = "Gas"
+                        FuelType = "Gas",
+                        SupplierName = supplierName
                     });
                 }
 
