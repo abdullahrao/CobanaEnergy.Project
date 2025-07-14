@@ -1,0 +1,225 @@
+﻿$(document).ready(async function () {
+
+    function getEIdFromUrl() {
+        const segments = window.location.pathname.replace(/\/$/, '').split('/');
+        return segments[segments.length - 1];
+    }
+
+    const eid = getEIdFromUrl();
+    $("#eid").val(eid);
+
+    $(function () {
+        populateDropdown("department", DropdownOptions.department, $('#department').data('current'));
+        populateDropdown("salesTypeElectric", DropdownOptions.salesType, $('#salesTypeElectric').data('current'));
+        populateDropdown("salesTypeGas", DropdownOptions.salesType, $('#salesTypeGas').data('current'));
+        populateDropdown("supplierCommsTypeElectric", DropdownOptions.supplierCommsType, $('#supplierCommsTypeElectric').data('current'));
+        populateDropdown("supplierCommsTypeGas", DropdownOptions.supplierCommsType, $('#supplierCommsTypeGas').data('current'));
+        populateDropdown("contractStatus", AccountDropdownOptions.contractStatus, $('#contractStatus').data('current'));
+        populateDropdown("paymentStatus", AccountDropdownOptions.paymentStatus, $('#paymentStatus').data('current'));
+        loadEacLogs();
+    });
+
+    function populateDropdown(id, values, current) {
+        const $el = $('#' + id);
+        if (!$el.length) return;
+
+        let placeholder;
+
+        if (id.includes("supplierCommsType")) {
+            placeholder = "Select Comms Type";
+        } else if (id.includes("salesType")) {
+            placeholder = "Select Sales Type";
+        } else {
+            placeholder = "Select " + id.replace(/([A-Z])/g, ' $1').trim();
+        }
+
+        $el.empty().append(`<option value="">${placeholder}</option>`);
+        if (Array.isArray(values)) {
+            values.forEach(v => {
+                const selected = v === current ? 'selected' : '';
+                $el.append(`<option value="${v}" ${selected}>${v}</option>`);
+            });
+        }
+    }
+
+    $("#eacLogForm").on("submit", function (e) {
+        e.preventDefault();
+        const $btn = $(this).find('button[type="submit"]');
+
+        if (!validateForm($(this))) return;
+
+        const payload = getEacPayload();
+
+        $btn.prop("disabled", true).html('<i class="fas fa-spinner fa-spin me-1"></i> Saving...');
+
+        $.ajax({
+            url: '/BGBContract/SaveEacLog',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(payload),
+            success: function (res) {
+                if (res.success) {
+                    showToastSuccess("EAC Log saved successfully.");
+                    $("#eacLogForm")[0].reset();
+                    renderEacLogs(res.Data);
+                } else {
+                    showToastError(res.message || "Failed to save EAC Log.");
+                }
+            },
+            error: function (xhr) {
+                showToastError(xhr.responseJSON?.message || xhr.statusText || "Server error while saving EAC Log.");
+            },
+            complete: function () {
+                $btn.prop("disabled", false).html('Save EAC Log');
+            }
+        });
+    });
+
+    function loadEacLogs() {
+        if (!eid) return;
+        $.get(`/BGBContract/GetEacLogs?eid=${eid}`, function (res) {
+            if (!res.success || !res.Data || !res.Data.length) {
+                $("#bgbInvoiceLogsContainer").html('<span class="text-muted">No logs yet. Save EAC entries to view them here.</span>');
+                return;
+            }
+            renderEacLogs(res.Data);
+        });
+    }
+
+    function renderEacLogs(logs) {
+        const $panel = $("#bgbInvoiceLogsContainer");
+        if (!logs || !logs.length) {
+            $panel.html('<span class="text-muted">No logs yet. Save EAC entries to view them here.</span>');
+            return;
+        }
+        const html = logs.map(log => `
+        <div class="log-entry">
+            <div class="log-date">${escapeHtml(log.Timestamp)}</div>
+            <div class="log-field"><span class="log-label">Year:</span> ${escapeHtml(log.EacYear)}</div>
+            <div class="log-field"><span class="log-label">EAC Value:</span> ${escapeHtml(log.EacValue)}</div>
+            <div class="log-field"><span class="log-label">FINAL EAC:</span> ${escapeHtml(log.FinalEac)}</div>
+            <div class="log-field"><span class="log-label">Invoice No:</span> ${escapeHtml(log.InvoiceNo)}</div>
+            <div class="log-field"><span class="log-label">Invoice Date:</span> ${escapeHtml(log.InvoiceDate)}</div>
+            <div class="log-field"><span class="log-label">Payment Date:</span> ${escapeHtml(log.PaymentDate)}</div>
+            <div class="log-field"><span class="log-label">Invoice (£):</span> ${escapeHtml(log.InvoiceAmount)}</div>
+            <div class="log-field"><span class="log-label">Supplier EAC D19:</span> ${escapeHtml(log.SupplierEacD19)}</div>
+            <div class="log-field"><span class="log-label">MPAN:</span> ${escapeHtml(log.MPAN || "N/A")}</div>
+            <div class="log-field"><span class="log-label">MPRN:</span> ${escapeHtml(log.MPRN || "N/A")}</div>
+        </div>
+    `).join('');
+        $panel.html(html);
+    }
+
+    $("#exportInvoiceLogsBtn").on("click", function () {
+        $.get(`/BGBContract/GetEacLogs?eid=${eid}`, function (res) {
+            if (!res.success || !res.Data?.length) {
+                showToastWarning("No logs to export.");
+                return;
+            }
+            const exportData = res.Data;
+            const data = [
+                ["Year", "EAC Value", "FINAL EAC", "Invoice No", "Invoice Date", "Payment Date", "Invoice (£)", "Supplier EAC D19", "MPAN", "MPRN"],
+                ...exportData.map(log => [
+                    log.EacYear, log.EacValue, log.FinalEac, log.InvoiceNo, log.InvoiceDate,
+                    log.PaymentDate, log.InvoiceAmount, log.SupplierEacD19, log.MPAN || "N/A", log.MPRN || "N/A"
+                ])
+            ];
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "InvoiceLogs");
+            XLSX.writeFile(wb, "BGB_InvoiceLogs.xlsx");
+        })
+            .fail(function (xhr) {
+                showToastError("Error fetching logs for export.");
+            });
+    });
+
+    $("#invoiceDate").on("change", function () {
+        const invoiceDateStr = $(this).val();
+        if (!invoiceDateStr) return;
+
+        const paymentDate = calculatePaymentDate(invoiceDateStr);
+        if (paymentDate) {
+            $("#paymentDate").val(paymentDate);
+        }
+    });
+
+    function calculatePaymentDate(invoiceDateStr) {
+        const invoiceDate = new Date(invoiceDateStr);
+        if (isNaN(invoiceDate.getTime())) return "";
+
+        let targetDate = new Date(invoiceDate.getTime());
+        targetDate.setDate(targetDate.getDate() + 28);
+
+        const day = targetDate.getDay();
+        let diffToFriday = (5 - day + 7) % 7;
+        targetDate.setDate(targetDate.getDate() + diffToFriday);
+
+        const yyyy = targetDate.getFullYear();
+        const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
+        const dd = String(targetDate.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    }
+
+    $("#editBGBContractForm").on("submit", function (e) {
+        e.preventDefault();
+        if (!validateForm($(this))) return;
+
+        const payload = $(this).serialize();
+
+        $.ajax({
+            url: '/BGBContract/UpdateContract',
+            type: 'POST',
+            data: payload,
+            success: function (res) {
+                if (res.success) {
+                    showToastSuccess("Contract updated successfully.");
+                } else {
+                    showToastError(res.message || "Failed to update contract.");
+                }
+            },
+            error: function () {
+                showToastError("Server error while updating contract.");
+            }
+        });
+    });
+
+    function validateForm($form) {
+        let valid = true;
+        $form.find('[required]').each(function () {
+            const $field = $(this);
+            if (!$field.val().trim()) {
+                $field.addClass('is-invalid');
+                valid = false;
+            } else {
+                $field.removeClass('is-invalid');
+            }
+        });
+        if (!valid) {
+            showToastWarning("Please fill all required fields.");
+            $form.find('.is-invalid:first')[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        return valid;
+    }
+
+    function getEacPayload() {
+        return {
+            EId: $("#eid").val(),
+            EacYear: $("#eacYear").val(),
+            EacValue: $("#eacValue").val(),
+            FinalEac: $("#finalEac").val(),
+            InvoiceNo: $("#invoiceNo").val(),
+            InvoiceDate: $("#invoiceDate").val(),
+            PaymentDate: $("#paymentDate").val(),
+            InvoiceAmount: $("#invoiceAmount").val(),
+            SupplierEacD19: $("#supplierEacD19").val(),
+            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+        };
+    }
+
+    function escapeHtml(text) {
+        return $('<div>').text(text).html();
+    }
+
+});
+

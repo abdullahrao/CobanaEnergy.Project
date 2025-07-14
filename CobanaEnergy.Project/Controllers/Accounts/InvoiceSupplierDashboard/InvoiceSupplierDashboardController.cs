@@ -112,6 +112,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                     FileName = Path.GetFileName(InvoiceFile.FileName),
                     FileContent = fileBytes,
                     UploadedBy = User.Identity.Name ?? "Unknown",
+                    UploadedOn = DateTime.Now
                 };
 
                 db.CE_InvoiceSupplierUploads.Add(upload);
@@ -505,7 +506,8 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                         CED = "",
                         CED_COT = "",
                         FuelType = "Electric",
-                        SupplierName = supplierName
+                        SupplierName = supplierName,
+                        SupplierId = snapshot.SupplierId
                     });
                 }
 
@@ -542,7 +544,8 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                         CED = "",
                         CED_COT = "",
                         FuelType = "Gas",
-                        SupplierName = supplierName
+                        SupplierName = supplierName,
+                        SupplierId = snapshot.SupplierId
                     });
                 }
 

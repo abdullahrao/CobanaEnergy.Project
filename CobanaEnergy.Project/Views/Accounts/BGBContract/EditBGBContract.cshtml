@@ -1,8 +1,252 @@
-﻿
+﻿@model CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGB.EditBGBContractViewModel
 @{
-    ViewBag.Title = "EditBGBContract";
+    ViewBag.Title = "Edit BGB Contract";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>EditBGBContract</h2>
+<div class="container-fluid px-4">
+    <div class="text-center mb-4">
+        <h2 class="fw-bold">BGB Contract</h2>
+    </div>
+
+    <div class="edit-bgb-container d-flex flex-wrap gap-4">
+        <!-- Main Form Section -->
+        <div class="form-wrapper flex-grow-1">
+            <!-- Supplier EAC & Invoice -->
+            <div class="form-section mb-4">
+                <form id="eacLogForm" method="post" novalidate>
+                    @Html.AntiForgeryToken()
+                    <h4 class="section-header">Supplier EAC & Invoice Details</h4>
+                    <div class="row gx-3 gy-3">
+                        <input type="hidden" id="eid" name="eid" value="" />
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label required" for="eacYear">EAC Year</label>
+                            <select id="eacYear" class="form-select" required>
+                                <option value="">Select Year</option>
+                                <option value="1ST YEAR EAC">1ST YEAR EAC</option>
+                                <option value="2ND YEAR EAC">2ND YEAR EAC</option>
+                                <option value="3RD YEAR EAC">3RD YEAR EAC</option>
+                                <option value="4TH YEAR EAC">4TH YEAR EAC</option>
+                                <option value="5TH YEAR EAC">5TH YEAR EAC</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label required" for="eacValue">EAC Value</label>
+                            <input type="text" id="eacValue" class="form-control" required autocomplete="off" />
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label required" for="finalEac">FINAL EAC</label>
+                            <input type="text" id="finalEac" class="form-control" required autocomplete="off" />
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label required" for="invoiceNo">Invoice No</label>
+                            <input type="text" id="invoiceNo" class="form-control" name="InvoiceNo"
+                                   value="@Model.InvoiceNo" required autocomplete="off" />
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label required" for="invoiceDate">Invoice Date</label>
+                            <input type="date" id="invoiceDate" class="form-control" name="InvoiceDate"
+                                   value="@Model.InvoiceDate" required autocomplete="off" />
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label required" for="paymentDate">Payment Date</label>
+                            <input type="date" id="paymentDate" class="form-control" value="@Model.PaymentDate" required autocomplete="off" />
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label required" for="invoiceAmount">Invoice (£)</label>
+                            <input type="text" id="invoiceAmount" class="form-control" required autocomplete="off" />
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label required" for="supplierEacD19">Supplier EAC D19</label>
+                            <input type="text" id="supplierEacD19" class="form-control" required autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <button type="submit" class="btn btn-success px-4">Save EAC Log</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Contract & Presales -->
+            <form id="editBGBContractForm" method="post" novalidate>
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="eid" name="eid" value="@*@Model.EId*@" />
+                <div class="form-section">
+                    <h4 class="section-header">Contract & Presales Details</h4>
+                    <div class="row gx-3 gy-3">
+                        <!-- Common Fields -->
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label required" for="department">Department</label>
+                            <select id="department" class="form-select" required data-current="@Model.Department"></select>
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label required" for="businessName">Business Name</label>
+                            <input type="text" id="businessName" class="form-control" required value="@Model.BusinessName" autocomplete="off" />
+                        </div>
+                    </div>
+
+                    @if (Model.HasElectricDetails)
+                    {
+                        <!-- Electric Section -->
+                        <div class="sub-section mt-4">
+                            <h5 class="sub-section-header">Electric Details</h5>
+                            <div class="row gx-3 gy-3">
+                                <div class="col-md-6 col-lg-4">
+                                    <label class="form-label" for="salesTypeElectric">Sales Type Electric</label>
+                                    <select id="salesTypeElectric" class="form-select" data-current="@Model.SalesTypeElectric"></select>
+                                </div>
+                                <div class="col-md-6 col-lg-4">
+                                    <label class="form-label" for="mpan">MPAN</label>
+                                    <input type="text" id="mpan" class="form-control" value="@Model.MPAN" autocomplete="off" />
+                                </div>
+                                <div class="col-md-6 col-lg-4">
+                                    <label class="form-label" for="upliftElectric">Uplift Electric</label>
+                                    <input type="text" id="upliftElectric" class="form-control" value="" autocomplete="off" />
+                                </div>
+                                <div class="col-md-6 col-lg-4">
+                                    <label class="form-label" for="durationElectric">Duration Electric</label>
+                                    <input type="text" id="durationElectric" class="form-control" value="@Model.DurationElectric" autocomplete="off" />
+                                </div>
+                                <div class="col-md-6 col-lg-4">
+                                    <label class="form-label" for="productElectric">Product Electric</label>
+                                    <input type="text" id="productElectric" class="form-control" value="" autocomplete="off" />
+                                </div>
+                                <div class="col-md-6 col-lg-4">
+                                    <label class="form-label" for="supplierCommsTypeElectric">Supplier Comms Type Electric</label>
+                                    <select id="supplierCommsTypeElectric" class="form-select" data-current=""></select>
+                                </div>
+                                <div class="col-md-6 col-lg-4">
+                                    <label class="form-label" for="inputDateElectric">Input Date Electric</label>
+                                    <input type="date" id="inputDateElectric" class="form-control" value="@Model.InputDateElectric" />
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    @if (Model.HasGasDetails)
+                    {
+                        <!-- Gas Section -->
+                        <div class="sub-section mt-4">
+                            <h5 class="sub-section-header">Gas Details</h5>
+                            <div class="row gx-3 gy-3">
+                                <div class="col-md-6 col-lg-4">
+                                    <label class="form-label" for="salesTypeGas">Sales Type Gas</label>
+                                    <select id="salesTypeGas" class="form-select" data-current="@Model.SalesTypeGas"></select>
+                                </div>
+                                <div class="col-md-6 col-lg-4">
+                                    <label class="form-label" for="mprn">MPRN</label>
+                                    <input type="text" id="mprn" class="form-control" value="@Model.MPRN" autocomplete="off" />
+                                </div>
+                                <div class="col-md-6 col-lg-4">
+                                    <label class="form-label" for="upliftGas">Uplift Gas</label>
+                                    <input type="text" id="upliftGas" class="form-control" value="" autocomplete="off" />
+                                </div>
+                                <div class="col-md-6 col-lg-4">
+                                    <label class="form-label" for="durationGas">Duration Gas</label>
+                                    <input type="text" id="durationGas" class="form-control" value="@Model.DurationGas" autocomplete="off" />
+                                </div>
+                                <div class="col-md-6 col-lg-4">
+                                    <label class="form-label" for="productGas">Product Gas</label>
+                                    <input type="text" id="productGas" class="form-control" value="" autocomplete="off" />
+                                </div>
+                                <div class="col-md-6 col-lg-4">
+                                    <label class="form-label" for="supplierCommsTypeGas">Supplier Comms Type Gas</label>
+                                    <select id="supplierCommsTypeGas" class="form-select" data-current=""></select>
+                                </div>
+                                <div class="col-md-6 col-lg-4">
+                                    <label class="form-label" for="inputDateGas">Input Date Gas</label>
+                                    <input type="date" id="inputDateGas" class="form-control" value="@Model.InputDateGas" />
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    <!-- Contract Notes -->
+                    <div class="mt-4">
+                        <label class="form-label" for="contractNotes">Contract Notes</label>
+                        <textarea id="contractNotes" class="form-control" rows="3">@Model.ContractNotes</textarea>
+                    </div>
+                </div>
+
+                <!-- Commission & Reconciliation -->
+                <div class="form-section">
+                    <h4 class="section-header">Commission & Reconciliation</h4>
+                    <div class="row gx-3 gy-3">
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label required" for="otherAmount">Other (£)</label>
+                            <input type="text" id="otherAmount" class="form-control" required value="" autocomplete="off" />
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label required" for="startDate">Start Date</label>
+                            <input type="date" id="startDate" class="form-control" required value="" />
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label required" for="ced">CED</label>
+                            <input type="date" id="ced" class="form-control" required value="" />
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label" for="cedCOT">CED (COT)</label>
+                            <input type="date" id="cedCOT" class="form-control" value="" />
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label" for="cotLostConsumption">COT/Lost Consumption</label>
+                            <input type="text" id="cotLostConsumption" class="form-control" value="" autocomplete="off" />
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label" for="cobanaDueCommission">Cobana Due Commission</label>
+                            <input type="text" id="cobanaDueCommission" class="form-control" value="" autocomplete="off" />
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label" for="cobanaFinalReconciliation">Cobana Final Reconciliation</label>
+                            <input type="text" id="cobanaFinalReconciliation" class="form-control" value="" autocomplete="off" />
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label required" for="contractStatus">Contract Status</label>
+                            <select id="contractStatus" class="form-select" required data-current=""></select>
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label required" for="paymentStatus">Payment Status</label>
+                            <select id="paymentStatus" class="form-select" required data-current=""></select>
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label" for="commissionFollowUpDate">Commission Follow-up Date</label>
+                            <input type="date" id="commissionFollowUpDate" class="form-control" value="" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label" for="supplierCobanaInvoiceNotes">Supplier Cobana Invoice Notes</label>
+                            <textarea id="supplierCobanaInvoiceNotes" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mb-4">
+                    <button type="submit" class="btn btn-primary px-5">Update Contract</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Logs Panel -->
+        <div class="logs-wrapper">
+            <div class="logs-panel">
+                <div class="logs-header d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="mb-0">Invoice Logs</h5>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="exportInvoiceLogsBtn">
+                        <i class="fas fa-file-excel me-1"></i> Export to Excel
+                    </button>
+                </div>
+                <div id="bgbInvoiceLogsContainer" class="mt-2">
+                    <span class="text-muted">No logs yet. Save EAC entries to view them here.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section styles {
+    <link href="~/Content/Accounts/BGBContracts/EditBGBContract.css" rel="stylesheet" />
+}
+
+@section scripts {
+    <script src="~/Scripts/Dropdown/dropdowns.js"></script>
+    <script src="~/Scripts/Accounts/BGBContracts/editBGBContract.js"></script>
+}
 

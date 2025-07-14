@@ -215,6 +215,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\Accounts\BGBContracts\EditBGBContract.css" />
     <Content Include="Content\Accounts\InvoiceSupplierDashboard\ContractSelectListing.css" />
     <Content Include="Content\Accounts\InvoiceSupplierDashboard\EditContractsInvoiceSupplier.css" />
     <Content Include="Content\Dual\CreateDual.css" />
@@ -233,6 +234,7 @@
     <Content Include="Content\Supplier\SupplierCreation.css" />
     <Content Include="Content\Supplier\SupplierDashboard.css" />
     <Content Include="Global.asax" />
+    <Content Include="Scripts\Accounts\BGBContracts\editBGBContract.js" />
     <Content Include="Scripts\Accounts\InvoiceSupplierDashboard\contractSelectListing.js" />
     <Content Include="Scripts\Accounts\InvoiceSupplierDashboard\editContractsInvoiceSupplier.js" />
     <Content Include="Scripts\Dropdown\dropdowns.js" />
@@ -322,8 +324,23 @@
     <Compile Include="Migrations\202507071544562_InitialMapping14.Designer.cs">
       <DependentUpon>202507071544562_InitialMapping14.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202507141009065_InitialMapping15.cs" />
+    <Compile Include="Migrations\202507141009065_InitialMapping15.Designer.cs">
+      <DependentUpon>202507141009065_InitialMapping15.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202507141024151_InitialMapping16.cs" />
+    <Compile Include="Migrations\202507141024151_InitialMapping16.Designer.cs">
+      <DependentUpon>202507141024151_InitialMapping16.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202507141427329_InitialMapping17.cs" />
+    <Compile Include="Migrations\202507141427329_InitialMapping17.Designer.cs">
+      <DependentUpon>202507141427329_InitialMapping17.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\Accounts\InvoiceSupplierDashboard\ContractEditTableViewModel.cs" />
     <Compile Include="Models\Accounts\InvoiceSupplierDashboard\ContractSelectRowViewModel.cs" />
+    <Compile Include="Models\Accounts\SuppliersModels\BGB\BGBEacLogViewModel.cs" />
+    <Compile Include="Models\Accounts\SuppliersModels\BGB\DBModel\CE_BGBEacLog.cs" />
+    <Compile Include="Models\Accounts\SuppliersModels\BGB\EditBGBContractViewModel.cs" />
     <Compile Include="Models\Dual\EditDual\DualContractEditViewModel.cs" />
     <Compile Include="Models\Dual\LogsHelperClass\LogEntry.cs" />
     <Compile Include="Models\Electric\EditElectric\ElectricContractEditViewModel.cs" />
@@ -466,6 +483,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202507071544562_InitialMapping14.resx">
       <DependentUpon>202507071544562_InitialMapping14.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202507141009065_InitialMapping15.resx">
+      <DependentUpon>202507141009065_InitialMapping15.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202507141024151_InitialMapping16.resx">
+      <DependentUpon>202507141024151_InitialMapping16.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202507141427329_InitialMapping17.resx">
+      <DependentUpon>202507141427329_InitialMapping17.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

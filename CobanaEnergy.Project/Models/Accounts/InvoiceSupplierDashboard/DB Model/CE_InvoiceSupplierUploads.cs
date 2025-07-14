@@ -26,6 +26,7 @@ namespace CobanaEnergy.Project.Models.InvoiceSupplierDashboard
         [Required]
         [StringLength(250)]
         public string UploadedBy { get; set; }
+        public DateTime UploadedOn { get; set; }
 
 
         public virtual Supplier.SupplierDBModels.CE_Supplier Supplier { get; set; }
