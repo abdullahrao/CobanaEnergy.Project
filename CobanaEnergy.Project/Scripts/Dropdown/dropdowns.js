@@ -20,3 +20,60 @@ const DropdownOptions = {
         "Overturned Contract", "Ready to Submit", "Rejected Contract", "Submitted"
     ]
 };
+
+const AccountDropdownOptions = {
+    contractStatus: [
+        "Pending",
+        "Processing_Present Month",
+        "Processing_Future Months",
+        "Objection",
+        "Objection Closed",
+        "Reapplied - Awaiting Confirmation",
+        "New Lives",
+        "Live",
+        "Renewal Window",
+        "Renewal Window - Ag Lost",
+        "Renewed",
+        "Contract Ended - Ag Lost",
+        "Contract Ended - Not Renewed",
+        "Contract Ended - Renewed",
+        "Possible Loss",
+        "Lost",
+        "Credit Failed",
+        "Rejected",
+        "To Be Resolved - Internally",
+        "Waiting Agent Response",
+        "Waiting Supplier Response",
+        "Dead - No Action Required",
+        "Dead - Credit Failed",
+        "Dead - Valid Contract in Place",
+        "Dead - Duplicate Submission",
+        "Dead - Due to Objections"
+    ],
+    paymentStatus: [
+        "Advanced Payment",
+        "Awaiting 1st Reconciliation",
+        "Awaiting 2nd Initial",
+        "Awaiting 2nd Reconciliation",
+        "Awaiting 3rd Initial",
+        "Awaiting 3rd Reconciliation",
+        "Awaiting D19",
+        "Awaiting Final Reconciliation",
+        "Awaiting Invoice",
+        "Awaiting Monthly Payment",
+        "Clawback - COT Reconciliation",
+        "Clawback - D19 Reconciliation",
+        "Clawback - Duplicate Payments",
+        "Clawback - Final Reconciliation",
+        "Clawback - Never Live",
+        "Commission Hold - Unpaid Bill",
+        "Commission Hold - Unpaid Bill Clawback",
+        "Contract Pending",
+        "Discrepancies",
+        "In Dispute",
+        "Lost Confirmation",
+        "Never Live - Resolved",
+        "Resolve",
+        "Reverse Clawback"
+    ]
+};
