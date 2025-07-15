@@ -70,18 +70,18 @@
             <!-- Contract & Presales -->
             <form id="editBGBContractForm" method="post" novalidate>
                 @Html.AntiForgeryToken()
-                <input type="hidden" id="eid" name="eid" value="@*@Model.EId*@" />
+                <input type="hidden" id="eid" name="eid" value="@Model.Id" />
                 <div class="form-section">
                     <h4 class="section-header">Contract & Presales Details</h4>
                     <div class="row gx-3 gy-3">
                         <!-- Common Fields -->
                         <div class="col-md-6 col-lg-4">
                             <label class="form-label required" for="department">Department</label>
-                            <select id="department" class="form-select" required data-current="@Model.Department"></select>
+                            <select id="department" class="form-select" required data-current="@Model.Department" disabled></select>
                         </div>
                         <div class="col-md-6 col-lg-4">
                             <label class="form-label required" for="businessName">Business Name</label>
-                            <input type="text" id="businessName" class="form-control" required value="@Model.BusinessName" autocomplete="off" />
+                            <input type="text" id="businessName" class="form-control" required value="@Model.BusinessName" autocomplete="off" disabled />
                         </div>
                     </div>
 
@@ -92,32 +92,38 @@
                             <h5 class="sub-section-header">Electric Details</h5>
                             <div class="row gx-3 gy-3">
                                 <div class="col-md-6 col-lg-4">
-                                    <label class="form-label" for="salesTypeElectric">Sales Type Electric</label>
-                                    <select id="salesTypeElectric" class="form-select" data-current="@Model.SalesTypeElectric"></select>
+                                    <label class="form-label" for="salesTypeElectric">Sales Type</label>
+                                    <select id="salesTypeElectric" class="form-select" data-current="@Model.SalesTypeElectric" disabled></select>
                                 </div>
                                 <div class="col-md-6 col-lg-4">
                                     <label class="form-label" for="mpan">MPAN</label>
-                                    <input type="text" id="mpan" class="form-control" value="@Model.MPAN" autocomplete="off" />
+                                    <input type="text" id="mpan" class="form-control" value="@Model.MPAN" autocomplete="off" disabled />
                                 </div>
                                 <div class="col-md-6 col-lg-4">
-                                    <label class="form-label" for="upliftElectric">Uplift Electric</label>
-                                    <input type="text" id="upliftElectric" class="form-control" value="" autocomplete="off" />
+                                    <label class="form-label" for="upliftElectric">Uplift</label>
+                                    <input type="text" id="upliftElectric" class="form-control" value="@Model.UpliftElectric" autocomplete="off" />
                                 </div>
                                 <div class="col-md-6 col-lg-4">
-                                    <label class="form-label" for="durationElectric">Duration Electric</label>
-                                    <input type="text" id="durationElectric" class="form-control" value="@Model.DurationElectric" autocomplete="off" />
+                                    <label class="form-label" for="durationElectric">Duration</label>
+                                    <input type="text" id="durationElectric" class="form-control" value="@Model.DurationElectric" autocomplete="off" disabled />
                                 </div>
                                 <div class="col-md-6 col-lg-4">
-                                    <label class="form-label" for="productElectric">Product Electric</label>
-                                    <input type="text" id="productElectric" class="form-control" value="" autocomplete="off" />
+                                    <label class="form-label" for="productElectric">Product</label>
+                                    <select id="productElectric" class="form-select" disabled>
+                                        <option value="">Select Product</option>
+                                        @foreach (var item in Model.ProductElectricList)
+                                        {
+                                            <option value="@item.Value" @(item.Value == Model.SelectedProductElectric?.ToString() ? "selected" : "")>@item.Text</option>
+                                        }
+                                    </select>
                                 </div>
                                 <div class="col-md-6 col-lg-4">
-                                    <label class="form-label" for="supplierCommsTypeElectric">Supplier Comms Type Electric</label>
-                                    <select id="supplierCommsTypeElectric" class="form-select" data-current=""></select>
+                                    <label class="form-label" for="supplierCommsTypeElectric">Supplier Comms Type</label>
+                                    <select id="supplierCommsTypeElectric" class="form-select" data-current="@Model.SupplierCommsTypeElectric"></select>
                                 </div>
                                 <div class="col-md-6 col-lg-4">
-                                    <label class="form-label" for="inputDateElectric">Input Date Electric</label>
-                                    <input type="date" id="inputDateElectric" class="form-control" value="@Model.InputDateElectric" />
+                                    <label class="form-label" for="inputDateElectric">Input Date</label>
+                                    <input type="date" id="inputDateElectric" class="form-control" value="@Model.InputDateElectric" disabled />
                                 </div>
                             </div>
                         </div>
@@ -130,32 +136,38 @@
                             <h5 class="sub-section-header">Gas Details</h5>
                             <div class="row gx-3 gy-3">
                                 <div class="col-md-6 col-lg-4">
-                                    <label class="form-label" for="salesTypeGas">Sales Type Gas</label>
-                                    <select id="salesTypeGas" class="form-select" data-current="@Model.SalesTypeGas"></select>
+                                    <label class="form-label" for="salesTypeGas">Sales Type</label>
+                                    <select id="salesTypeGas" class="form-select" data-current="@Model.SalesTypeGas" disabled></select>
                                 </div>
                                 <div class="col-md-6 col-lg-4">
                                     <label class="form-label" for="mprn">MPRN</label>
-                                    <input type="text" id="mprn" class="form-control" value="@Model.MPRN" autocomplete="off" />
+                                    <input type="text" id="mprn" class="form-control" value="@Model.MPRN" autocomplete="off" disabled />
                                 </div>
                                 <div class="col-md-6 col-lg-4">
-                                    <label class="form-label" for="upliftGas">Uplift Gas</label>
-                                    <input type="text" id="upliftGas" class="form-control" value="" autocomplete="off" />
+                                    <label class="form-label" for="upliftGas">Uplift</label>
+                                    <input type="text" id="upliftGas" class="form-control" value="@Model.UpliftGas" autocomplete="off" />
                                 </div>
                                 <div class="col-md-6 col-lg-4">
-                                    <label class="form-label" for="durationGas">Duration Gas</label>
-                                    <input type="text" id="durationGas" class="form-control" value="@Model.DurationGas" autocomplete="off" />
+                                    <label class="form-label" for="durationGas">Duration</label>
+                                    <input type="text" id="durationGas" class="form-control" value="@Model.DurationGas" autocomplete="off" disabled />
                                 </div>
                                 <div class="col-md-6 col-lg-4">
-                                    <label class="form-label" for="productGas">Product Gas</label>
-                                    <input type="text" id="productGas" class="form-control" value="" autocomplete="off" />
+                                    <label class="form-label" for="productGas">Product</label>
+                                    <select id="productGas" class="form-select" disabled>
+                                        <option value="">Select Product</option>
+                                        @foreach (var item in Model.ProductGasList)
+                                        {
+                                            <option value="@item.Value" @(item.Value == Model.SelectedProductGas?.ToString() ? "selected" : "")>@item.Text</option>
+                                        }
+                                    </select>
                                 </div>
                                 <div class="col-md-6 col-lg-4">
-                                    <label class="form-label" for="supplierCommsTypeGas">Supplier Comms Type Gas</label>
-                                    <select id="supplierCommsTypeGas" class="form-select" data-current=""></select>
+                                    <label class="form-label" for="supplierCommsTypeGas">Supplier Comms Type</label>
+                                    <select id="supplierCommsTypeGas" class="form-select" data-current="@Model.SupplierCommsTypeGas"></select>
                                 </div>
                                 <div class="col-md-6 col-lg-4">
-                                    <label class="form-label" for="inputDateGas">Input Date Gas</label>
-                                    <input type="date" id="inputDateGas" class="form-control" value="@Model.InputDateGas" />
+                                    <label class="form-label" for="inputDateGas">Input Date</label>
+                                    <input type="date" id="inputDateGas" class="form-control" value="@Model.InputDateGas" disabled />
                                 </div>
                             </div>
                         </div>
@@ -168,55 +180,55 @@
                 </div>
 
                 <!-- Commission & Reconciliation -->
-                <div class="form-section">
-                    <h4 class="section-header">Commission & Reconciliation</h4>
-                    <div class="row gx-3 gy-3">
-                        <div class="col-md-6 col-lg-4">
-                            <label class="form-label required" for="otherAmount">Other (£)</label>
-                            <input type="text" id="otherAmount" class="form-control" required value="" autocomplete="off" />
+                @*<div class="form-section">
+                        <h4 class="section-header">Commission & Reconciliation</h4>
+                        <div class="row gx-3 gy-3">
+                            <div class="col-md-6 col-lg-4">
+                                <label class="form-label required" for="otherAmount">Other (£)</label>
+                                <input type="text" id="otherAmount" class="form-control" required value="" autocomplete="off" />
+                            </div>
+                            <div class="col-md-6 col-lg-4">
+                                <label class="form-label required" for="startDate">Start Date</label>
+                                <input type="date" id="startDate" class="form-control" value="@Model.InitialStartDate" required />
+                            </div>
+                            <div class="col-md-6 col-lg-4">
+                                <label class="form-label required" for="ced">CED</label>
+                                <input type="date" id="ced" class="form-control" required value="@Model.CED" />
+                            </div>
+                            <div class="col-md-6 col-lg-4">
+                                <label class="form-label" for="cedCOT">CED (COT)</label>
+                                <input type="date" id="cedCOT" class="form-control" value="" />
+                            </div>
+                            <div class="col-md-6 col-lg-4">
+                                <label class="form-label" for="cotLostConsumption">COT/Lost Consumption</label>
+                                <input type="text" id="cotLostConsumption" class="form-control" value="" autocomplete="off" />
+                            </div>
+                            <div class="col-md-6 col-lg-4">
+                                <label class="form-label" for="cobanaDueCommission">Cobana Due Commission</label>
+                                <input type="text" id="cobanaDueCommission" class="form-control" value="" autocomplete="off" />
+                            </div>
+                            <div class="col-md-6 col-lg-4">
+                                <label class="form-label" for="cobanaFinalReconciliation">Cobana Final Reconciliation</label>
+                                <input type="text" id="cobanaFinalReconciliation" class="form-control" value="" autocomplete="off" />
+                            </div>
+                            <div class="col-md-6 col-lg-4">
+                                <label class="form-label required" for="contractStatus">Contract Status</label>
+                                <select id="contractStatus" class="form-select" required data-current=""></select>
+                            </div>
+                            <div class="col-md-6 col-lg-4">
+                                <label class="form-label required" for="paymentStatus">Payment Status</label>
+                                <select id="paymentStatus" class="form-select" required data-current=""></select>
+                            </div>
+                            <div class="col-md-6 col-lg-4">
+                                <label class="form-label" for="commissionFollowUpDate">Commission Follow-up Date</label>
+                                <input type="date" id="commissionFollowUpDate" class="form-control" value="" />
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label" for="supplierCobanaInvoiceNotes">Supplier Cobana Invoice Notes</label>
+                                <textarea id="supplierCobanaInvoiceNotes" class="form-control" rows="3"></textarea>
+                            </div>
                         </div>
-                        <div class="col-md-6 col-lg-4">
-                            <label class="form-label required" for="startDate">Start Date</label>
-                            <input type="date" id="startDate" class="form-control" required value="" />
-                        </div>
-                        <div class="col-md-6 col-lg-4">
-                            <label class="form-label required" for="ced">CED</label>
-                            <input type="date" id="ced" class="form-control" required value="" />
-                        </div>
-                        <div class="col-md-6 col-lg-4">
-                            <label class="form-label" for="cedCOT">CED (COT)</label>
-                            <input type="date" id="cedCOT" class="form-control" value="" />
-                        </div>
-                        <div class="col-md-6 col-lg-4">
-                            <label class="form-label" for="cotLostConsumption">COT/Lost Consumption</label>
-                            <input type="text" id="cotLostConsumption" class="form-control" value="" autocomplete="off" />
-                        </div>
-                        <div class="col-md-6 col-lg-4">
-                            <label class="form-label" for="cobanaDueCommission">Cobana Due Commission</label>
-                            <input type="text" id="cobanaDueCommission" class="form-control" value="" autocomplete="off" />
-                        </div>
-                        <div class="col-md-6 col-lg-4">
-                            <label class="form-label" for="cobanaFinalReconciliation">Cobana Final Reconciliation</label>
-                            <input type="text" id="cobanaFinalReconciliation" class="form-control" value="" autocomplete="off" />
-                        </div>
-                        <div class="col-md-6 col-lg-4">
-                            <label class="form-label required" for="contractStatus">Contract Status</label>
-                            <select id="contractStatus" class="form-select" required data-current=""></select>
-                        </div>
-                        <div class="col-md-6 col-lg-4">
-                            <label class="form-label required" for="paymentStatus">Payment Status</label>
-                            <select id="paymentStatus" class="form-select" required data-current=""></select>
-                        </div>
-                        <div class="col-md-6 col-lg-4">
-                            <label class="form-label" for="commissionFollowUpDate">Commission Follow-up Date</label>
-                            <input type="date" id="commissionFollowUpDate" class="form-control" value="" />
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label" for="supplierCobanaInvoiceNotes">Supplier Cobana Invoice Notes</label>
-                            <textarea id="supplierCobanaInvoiceNotes" class="form-control" rows="3"></textarea>
-                        </div>
-                    </div>
-                </div>
+                    </div>*@
 
                 <div class="text-center mb-4">
                     <button type="submit" class="btn btn-primary px-5">Update Contract</button>

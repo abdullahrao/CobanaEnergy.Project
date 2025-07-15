@@ -11,6 +11,7 @@ using System.Data.Entity;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -26,13 +27,16 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
         }
 
         [HttpGet]
-        public ActionResult EditBGBContract(string id, string supplierId)
+        public async Task<ActionResult> EditBGBContract(string id, string supplierId, string type)
         {
             try
             {
                 if (string.IsNullOrWhiteSpace(id) || !Guid.TryParse(id, out _) ||
-                    string.IsNullOrWhiteSpace(supplierId) || !int.TryParse(supplierId, out _))
-                    return HttpNotFound("Invalid ID or SupplierId.");
+                    string.IsNullOrWhiteSpace(supplierId) || !int.TryParse(supplierId, out _) ||
+                    string.IsNullOrWhiteSpace(type))
+                {
+                    return HttpNotFound("Invalid ID, SupplierId, or Type.");
+                }
 
                 var model = new EditBGBContractViewModel
                 {
@@ -40,61 +44,149 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
                     SupplierId = supplierId
                 };
 
-                // Fetch Electric Contract
-                var electricContract = _db.CE_ElectricContracts.FirstOrDefault(e => e.EId == id);
-                if (electricContract != null)
+                if (Regex.IsMatch(type, @"^\d{13}$")) // ---- Electric Section ----
                 {
+                    var electricContract = await _db.CE_ElectricContracts
+                        .FirstOrDefaultAsync(e => e.EId == id && e.MPAN == type);
+
+                    if (electricContract == null)
+                        return HttpNotFound("Electric contract not found.");
+
                     model.Department = electricContract.Department;
                     model.BusinessName = electricContract.BusinessName;
                     model.SalesTypeElectric = electricContract.SalesType;
                     model.MPAN = electricContract.MPAN;
                     model.DurationElectric = electricContract.Duration;
+                    model.UpliftElectric = electricContract.Uplift?.ToString();
+                    model.ContractNotes = electricContract.ContractNotes;
+                    model.HasElectricDetails = true;
+
                     if (!string.IsNullOrWhiteSpace(electricContract.InputDate) &&
-                         DateTime.TryParse(electricContract.InputDate, out DateTime parsedInputDate))
+                        DateTime.TryParse(electricContract.InputDate, out DateTime parsedInputDate))
                     {
                         model.InputDateElectric = parsedInputDate.ToString("yyyy-MM-dd");
                     }
-                    else
-                    {
-                        model.InputDateElectric = null;
-                    }
-                    model.ContractNotes = electricContract.ContractNotes;
-                }
-                else
-                {
-                    model.HasElectricDetails = false;
-                }
 
-                // Fetch Gas Contract
-                var gasContract = _db.CE_GasContracts.FirstOrDefault(g => g.EId == id);
-                if (gasContract != null)
+                    var snapshot = await _db.CE_ElectricSupplierSnapshots
+                        .FirstOrDefaultAsync(s => s.EId == id && s.SupplierId == electricContract.SupplierId);
+
+                    if (snapshot != null)
+                    {
+                        long snapshotId = snapshot.Id;
+
+                        var productSnapshots = await _db.CE_ElectricSupplierProductSnapshots
+                            .Where(p => p.SnapshotId == snapshotId && p.SupplierId == snapshot.SupplierId)
+                            .ToListAsync();
+
+                        model.ProductElectricList = productSnapshots
+                            .Select(p => new SelectListItem
+                            {
+                                Value = p.ProductId.ToString(),
+                                Text = p.ProductName
+                            })
+                            .ToList();
+
+                        var matchedProduct = productSnapshots
+                            .FirstOrDefault(p => p.ProductId == electricContract.ProductId);
+                        if (matchedProduct != null)
+                        {
+                            model.SelectedProductElectric = matchedProduct.ProductId;
+                            model.SupplierCommsTypeElectric = matchedProduct.SupplierCommsType;
+                            model.CommissionElectric = matchedProduct.Commission?.ToString();
+                        }
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(electricContract.InitialStartDate) &&
+                        DateTime.TryParse(electricContract.InitialStartDate, out DateTime parsedStartDate))
+                    {
+                        model.InitialStartDate = parsedStartDate.ToString("yyyy-MM-dd");
+
+                        if (!string.IsNullOrWhiteSpace(electricContract.Duration) &&
+                            int.TryParse(electricContract.Duration, out int durationYears))
+                        {
+                            var cedDate = parsedStartDate.AddYears(durationYears).AddDays(-1);
+                            model.CED = cedDate.ToString("yyyy-MM-dd");
+                        }
+                    }
+                }
+                else if (Regex.IsMatch(type, @"^\d{6,10}$")) // ---- Gas Section ----
                 {
+                    var gasContract = await _db.CE_GasContracts
+                        .FirstOrDefaultAsync(g => g.EId == id && g.MPRN == type);
+
+                    if (gasContract == null)
+                        return HttpNotFound("Gas contract not found.");
+
+                    model.Department = gasContract.Department;
+                    model.BusinessName = gasContract.BusinessName;
                     model.SalesTypeGas = gasContract.SalesType;
                     model.MPRN = gasContract.MPRN;
                     model.DurationGas = gasContract.Duration;
+                    model.UpliftGas = gasContract.Uplift?.ToString();
+                    model.ContractNotes = gasContract.ContractNotes;
+                    model.HasGasDetails = true;
+
                     if (!string.IsNullOrWhiteSpace(gasContract.InputDate) &&
                         DateTime.TryParse(gasContract.InputDate, out DateTime parsedInputDate))
                     {
                         model.InputDateGas = parsedInputDate.ToString("yyyy-MM-dd");
                     }
-                    else
+
+                    var snapshot = await _db.CE_GasSupplierSnapshots
+                        .FirstOrDefaultAsync(s => s.EId == id && s.SupplierId == gasContract.SupplierId);
+
+                    if (snapshot != null)
                     {
-                        model.InputDateGas = null;
+                        long snapshotId = snapshot.Id;
+
+                        var productSnapshots = await _db.CE_GasSupplierProductSnapshots
+                            .Where(p => p.SnapshotId == snapshotId && p.SupplierId == snapshot.SupplierId)
+                            .ToListAsync();
+
+                        model.ProductGasList = productSnapshots
+                            .Select(p => new SelectListItem
+                            {
+                                Value = p.ProductId.ToString(),
+                                Text = p.ProductName
+                            })
+                            .ToList();
+
+                        var matchedProduct = productSnapshots
+                            .FirstOrDefault(p => p.ProductId == gasContract.ProductId);
+                        if (matchedProduct != null)
+                        {
+                            model.SelectedProductGas = matchedProduct.ProductId;
+                            model.SupplierCommsTypeGas = matchedProduct.SupplierCommsType;
+                            model.CommissionGas = matchedProduct.Commission?.ToString();
+                        }
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(gasContract.InitialStartDate) &&
+                        DateTime.TryParse(gasContract.InitialStartDate, out DateTime parsedStartDate))
+                    {
+                        model.InitialStartDate = parsedStartDate.ToString("yyyy-MM-dd");
+
+                        if (!string.IsNullOrWhiteSpace(gasContract.Duration) &&
+                            int.TryParse(gasContract.Duration, out int durationYears))
+                        {
+                            var cedDate = parsedStartDate.AddYears(durationYears).AddDays(-1);
+                            model.CED = cedDate.ToString("yyyy-MM-dd");
+                        }
                     }
                 }
                 else
                 {
-                    model.HasGasDetails = false;
+                    return HttpNotFound("Unknown contract type.");
                 }
 
                 if (int.TryParse(supplierId, out int supId))
                 {
-                    var latestUpload = _db.CE_InvoiceSupplierUploads
+                    var latestUpload = await _db.CE_InvoiceSupplierUploads
                         .Where(x => x.SupplierId == supId)
                         .OrderByDescending(x => x.UploadedOn)
                         .ThenByDescending(x => x.Id)
                         .Select(x => new { x.FileName, x.UploadedOn })
-                        .FirstOrDefault();
+                        .FirstOrDefaultAsync();
 
                     if (latestUpload != null && !string.IsNullOrWhiteSpace(latestUpload.FileName))
                     {
@@ -118,10 +210,97 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
             }
             catch (Exception ex)
             {
-                Logger.Log("EditBGBContract failed for id=" + id + ", supplierId=" + supplierId + ": " + ex);
+                Logger.Log($"EditBGBContract failed for id={id}, supplierId={supplierId}, type={type}: {ex}");
                 return RedirectToAction("NotFound", "Error");
             }
         }
+
+
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        public async Task<JsonResult> UpdateContract(UpdateContractViewModel model)
+        {
+            if (model == null || string.IsNullOrWhiteSpace(model.EId))
+                return JsonResponse.Fail("Invalid data submitted.");
+
+            using (var transaction = _db.Database.BeginTransaction())
+            {
+                try
+                {
+                    var electricContract = await _db.CE_ElectricContracts
+                        .FirstOrDefaultAsync(c => c.EId == model.EId);
+
+                    var gasContract = await _db.CE_GasContracts
+                        .FirstOrDefaultAsync(c => c.EId == model.EId);
+
+                    // ----- Electric -----
+                    if (electricContract != null)
+                    {
+                        if (model.HasElectricDetails)
+                        {
+                            electricContract.Uplift = model.UpliftElectric;
+                            electricContract.SupplierCommsType = model.SupplierCommsTypeElectric;
+
+                            var electricSnapshot = await _db.CE_ElectricSupplierSnapshots
+                                .FirstOrDefaultAsync(s => s.EId == model.EId && s.SupplierId == electricContract.SupplierId);
+
+                            if (electricSnapshot != null)
+                            {
+                                var productSnapshot = await _db.CE_ElectricSupplierProductSnapshots
+                                    .FirstOrDefaultAsync(p => p.SnapshotId == electricSnapshot.Id
+                                                           && p.ProductId == electricContract.ProductId);
+                                if (productSnapshot != null)
+                                {
+                                    productSnapshot.SupplierCommsType = model.SupplierCommsTypeElectric;
+                                }
+                            }
+                        }
+
+                        electricContract.ContractNotes = model.ContractNotes;
+                    }
+
+                    // ----- Gas -----
+                    if (gasContract != null)
+                    {
+                        if (model.HasGasDetails)
+                        {
+                            gasContract.Uplift = model.UpliftGas;
+                            gasContract.SupplierCommsType = model.SupplierCommsTypeGas;
+
+                            var gasSnapshot = await _db.CE_GasSupplierSnapshots
+                                .FirstOrDefaultAsync(s => s.EId == model.EId && s.SupplierId == gasContract.SupplierId);
+
+                            if (gasSnapshot != null)
+                            {
+                                var productSnapshot = await _db.CE_GasSupplierProductSnapshots
+                                    .FirstOrDefaultAsync(p => p.SnapshotId == gasSnapshot.Id
+                                                           && p.ProductId == gasContract.ProductId);
+                                if (productSnapshot != null)
+                                {
+                                    productSnapshot.SupplierCommsType = model.SupplierCommsTypeGas;
+                                }
+                            }
+                        }
+
+                        gasContract.ContractNotes = model.ContractNotes;
+                    }
+
+                    await _db.SaveChangesAsync();
+                    transaction.Commit();
+
+                    return JsonResponse.Ok(null, "Contract updated successfully.");
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    Logger.Log("UpdateContract failed: " + ex);
+                    return JsonResponse.Fail("An error occurred while updating the contract.");
+                }
+            }
+        }
+
+
+        #region Invoice_Logs
 
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
@@ -211,7 +390,6 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
                 if (string.IsNullOrWhiteSpace(eid))
                     return JsonResponse.Fail("Invalid EId.");
 
-                // Get all logs for this EId
                 var logs = await _db.CE_BGBEacLogs
                     .Where(x => x.EId == eid)
                     .OrderByDescending(x => x.CreatedAt)
@@ -252,6 +430,9 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
             }
         }
 
+        #endregion
+
+        #region Helper Methods
         private string CalculatePaymentDate(string invoiceDateStr)
         {
             if (DateTime.TryParseExact(invoiceDateStr, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime invoiceDate))
@@ -266,5 +447,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
             }
             return null;
         }
+
+        #endregion
     }
 }
