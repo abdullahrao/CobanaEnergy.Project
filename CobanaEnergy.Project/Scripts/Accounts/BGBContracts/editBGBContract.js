@@ -133,7 +133,7 @@
                 showToastError("Error fetching logs for export.");
             });
     });
-
+    //Calculate Payment date on change
     $("#invoiceDate").on("change", function () {
         const invoiceDateStr = $(this).val();
         if (!invoiceDateStr) return;
@@ -161,28 +161,105 @@
         return `${yyyy}-${mm}-${dd}`;
     }
 
-    $("#editBGBContractForm").on("submit", function (e) {
+    $("#editBGBContractForm").on("submit", async function (e) {
         e.preventDefault();
-        if (!validateForm($(this))) return;
+        const $btn = $(this).find('button[type="submit"]');
+        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i> Updating...');
 
-        const payload = $(this).serialize();
+        const eid = $('#eid').val();
 
-        $.ajax({
-            url: '/BGBContract/UpdateContract',
-            type: 'POST',
-            data: payload,
-            success: function (res) {
-                if (res.success) {
-                    showToastSuccess("Contract updated successfully.");
-                } else {
-                    showToastError(res.message || "Failed to update contract.");
+        try {
+            // Validate Uplifts
+            if ($('#upliftElectric').length) {
+                const $upliftElectric = $('#upliftElectric');
+                const isValidElectric = await window.validateUpliftAgainstSupplierLimitElectric(
+                    $upliftElectric, "N/A", eid
+                );
+                if (!isValidElectric) {
+                    $upliftElectric.focus();
+                    $btn.prop('disabled', false).html('Update Contract');
+                    return;
                 }
-            },
-            error: function () {
-                showToastError("Server error while updating contract.");
             }
-        });
+
+            if ($('#upliftGas').length) {
+                const $upliftGas = $('#upliftGas');
+                const isValidGas = await window.validateUpliftAgainstSupplierLimitGas(
+                    $upliftGas, "N/A", eid
+                );
+                if (!isValidGas) {
+                    $upliftGas.focus();
+                    $btn.prop('disabled', false).html('Update Contract');
+                    return;
+                }
+            }
+
+            if (!validateForm($(this))) {
+                $btn.prop('disabled', false).html('Update Contract');
+                return;
+            }
+
+            const token = $('input[name="__RequestVerificationToken"]').val();
+
+            const payload = {
+                EId: $('#eid').val(),
+                HasElectricDetails: $('#upliftElectric').length > 0,
+                HasGasDetails: $('#upliftGas').length > 0,
+                UpliftElectric: $('#upliftElectric').val(),
+                UpliftGas: $('#upliftGas').val(),
+                SupplierCommsTypeElectric: $('#supplierCommsTypeElectric').val(),
+                SupplierCommsTypeGas: $('#supplierCommsTypeGas').val(),
+                ContractNotes: $('#contractNotes').val()
+            };
+
+            $.ajax({
+                url: '/BGBContract/UpdateContract',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(payload),
+                success: function (res) {
+                    if (res.success) {
+                        showToastSuccess("Contract updated successfully.");
+                    } else {
+                        showToastError(res.message || "Failed to update contract.");
+                    }
+                },
+                error: function () {
+                    showToastError("Server error while updating contract.");
+                },
+                complete: function () {
+                    $btn.prop('disabled', false).html('Update Contract');
+                }
+            });
+        } catch (err) {
+            showToastError("Unexpected error during validation.");
+            $btn.prop('disabled', false).html('Update Contract');
+        }
     });
+
+    //CED
+    function calculateCED() {
+        const startDateStr = $("#startDate").val();
+        const durationStr = $("#durationElectric").val() || $("#durationGas").val();
+        if (!startDateStr || !durationStr) return;
+
+        const startDate = new Date(startDateStr);
+        const duration = parseInt(durationStr, 10);
+        if (isNaN(startDate.getTime()) || isNaN(duration)) return;
+
+        const cedDate = new Date(startDate);
+        cedDate.setFullYear(cedDate.getFullYear() + duration);
+        cedDate.setDate(cedDate.getDate() - 1);
+
+        const yyyy = cedDate.getFullYear();
+        const mm = String(cedDate.getMonth() + 1).padStart(2, '0');
+        const dd = String(cedDate.getDate()).padStart(2, '0');
+
+        $("#ced").val(`${yyyy}-${mm}-${dd}`);
+    }
+
+    // Run on change of Start Date or Duration
+    $("#startDate, #durationElectric, #durationGas").on("change keyup", calculateCED);
 
     function validateForm($form) {
         let valid = true;
@@ -220,6 +297,17 @@
     function escapeHtml(text) {
         return $('<div>').text(text).html();
     }
+
+    $('#upliftElectric').on('blur', async function () {
+        await validateUpliftAgainstSupplierLimitElectric($('#upliftElectric'), "N/A", $('#eid').val());
+    });
+    $('#upliftGas').on('blur', async function () {
+        await window.validateUpliftAgainstSupplierLimitGas(
+            $('#upliftGas'),
+            "N/A",
+            $('#eid').val()
+        );
+    });
 
 });
 

@@ -341,6 +341,7 @@
     <Compile Include="Models\Accounts\SuppliersModels\BGB\BGBEacLogViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\BGB\DBModel\CE_BGBEacLog.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\BGB\EditBGBContractViewModel.cs" />
+    <Compile Include="Models\Accounts\SuppliersModels\BGB\UpdateContractViewModel.cs" />
     <Compile Include="Models\Dual\EditDual\DualContractEditViewModel.cs" />
     <Compile Include="Models\Dual\LogsHelperClass\LogEntry.cs" />
     <Compile Include="Models\Electric\EditElectric\ElectricContractEditViewModel.cs" />
