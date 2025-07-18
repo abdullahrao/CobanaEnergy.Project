@@ -77,7 +77,7 @@
 
     function loadEacLogs() {
         if (!eid) return;
-        $.get(`/BGBContract/GetEacLogs?eid=${eid}`, function (res) {
+        $.get(`/BGBContract/GetEacLogs?eid=${eid}&contractType=${$("#contractType").val()}`, function (res) {
             if (!res.success || !res.Data || !res.Data.length) {
                 $("#bgbInvoiceLogsContainer").html('<span class="text-muted">No logs yet. Save EAC entries to view them here.</span>');
                 return;
@@ -111,7 +111,7 @@
     }
 
     $("#exportInvoiceLogsBtn").on("click", function () {
-        $.get(`/BGBContract/GetEacLogs?eid=${eid}`, function (res) {
+        $.get(`/BGBContract/GetEacLogs?eid=${eid}&contractType=${$("#contractType").val()}`, function (res) {
             if (!res.success || !res.Data?.length) {
                 showToastWarning("No logs to export.");
                 return;
@@ -208,8 +208,21 @@
                 UpliftElectric: $('#upliftElectric').val(),
                 UpliftGas: $('#upliftGas').val(),
                 SupplierCommsTypeElectric: $('#supplierCommsTypeElectric').val(),
+                CommissionElectric: $('#CommissionElectric').val(),
                 SupplierCommsTypeGas: $('#supplierCommsTypeGas').val(),
-                ContractNotes: $('#contractNotes').val()
+                CommissionGas: $('#CommissionGas').val(),
+                ContractNotes: $('#contractNotes').val(),
+                contractStatus: $('#contractStatus').val(),
+                paymentStatus: $('#paymentStatus').val(),
+                OtherAmount: $('#otherAmount').val(),
+                StartDate: $('#startDate').val(),
+                Ced: $('#ced').val(),
+                CedCOT: $('#cedCOT').val(),
+                CotLostConsumption: $('#cotLostConsumption').val(),
+                CobanaDueCommission: $('#cobanaDueCommission').val(),
+                CobanaFinalReconciliation: $('#cobanaFinalReconciliation').val(),
+                CommissionFollowUpDate: $('#commissionFollowUpDate').val(),
+                SupplierCobanaInvoiceNotes: $('#supplierCobanaInvoiceNotes').val()
             };
 
             $.ajax({
@@ -220,6 +233,9 @@
                 success: function (res) {
                     if (res.success) {
                         showToastSuccess("Contract updated successfully.");
+                        setTimeout(function () {
+                            window.location.reload();
+                        }, 1000);
                     } else {
                         showToastError(res.message || "Failed to update contract.");
                     }
@@ -278,10 +294,22 @@
         }
         return valid;
     }
+    //https://localhost:44388/BGBContract/EditBGBContract/5356355D-541C-4124-BD8F-1C30864A700C?supplierId=29&type=1231231231231
+    function getContractTypeFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        const type = params.get('type');
+        if (/^\d{13}$/.test(type)) return "Electric";
+        if (/^\d{6,10}$/.test(type)) return "Gas";
+        return "Unknown";
+    }
+
+    const contractType = getContractTypeFromUrl();
+    $("#contractType").val(contractType);
 
     function getEacPayload() {
         return {
             EId: $("#eid").val(),
+            ContractType: $("#contractType").val(),
             EacYear: $("#eacYear").val(),
             EacValue: $("#eacValue").val(),
             FinalEac: $("#finalEac").val(),

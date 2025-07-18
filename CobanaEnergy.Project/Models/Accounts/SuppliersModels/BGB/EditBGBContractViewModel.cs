@@ -50,5 +50,24 @@ namespace CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGB
 
         public string InitialStartDate { get; set; }
         public string CED { get; set; }
+
+        public string OtherAmount { get; set; }
+        public string CedCOT { get; set; }
+        public string CotLostConsumption { get; set; }
+        public string CobanaDueCommission { get; set; }
+        public string CobanaFinalReconciliation { get; set; }
+        public string CommissionFollowUpDate { get; set; }
+        public string SupplierCobanaInvoiceNotes { get; set; }
+
+        // Metrics
+        public string ContractDurationDays { get; set; }
+        public string LiveDays { get; set; }
+        public string PercentLiveDays { get; set; }
+        public string TotalCommissionForecast { get; set; }
+        public string InitialCommissionForecast { get; set; }
+        public string COTLostReconciliation { get; set; }
+        public string TotalAverageEAC { get; set; }
+        public string PaymentStatus { get; set; }
+        public string ContractStatus { get; set; }
     }
 }

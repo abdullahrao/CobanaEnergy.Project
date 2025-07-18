@@ -336,9 +336,37 @@
     <Compile Include="Migrations\202507141427329_InitialMapping17.Designer.cs">
       <DependentUpon>202507141427329_InitialMapping17.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202507161057386_InitialMapping18.cs" />
+    <Compile Include="Migrations\202507161057386_InitialMapping18.Designer.cs">
+      <DependentUpon>202507161057386_InitialMapping18.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202507161107034_InitialMapping19.cs" />
+    <Compile Include="Migrations\202507161107034_InitialMapping19.Designer.cs">
+      <DependentUpon>202507161107034_InitialMapping19.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202507161202164_InitialMapping20.cs" />
+    <Compile Include="Migrations\202507161202164_InitialMapping20.Designer.cs">
+      <DependentUpon>202507161202164_InitialMapping20.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202507161417504_InitialMapping21.cs" />
+    <Compile Include="Migrations\202507161417504_InitialMapping21.Designer.cs">
+      <DependentUpon>202507161417504_InitialMapping21.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202507171318522_InitialMapping22.cs" />
+    <Compile Include="Migrations\202507171318522_InitialMapping22.Designer.cs">
+      <DependentUpon>202507171318522_InitialMapping22.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202507171444076_InitialMapping23.cs" />
+    <Compile Include="Migrations\202507171444076_InitialMapping23.Designer.cs">
+      <DependentUpon>202507171444076_InitialMapping23.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Accounts\DBModel\CE_ContractStatus.cs" />
     <Compile Include="Models\Accounts\InvoiceSupplierDashboard\ContractEditTableViewModel.cs" />
     <Compile Include="Models\Accounts\InvoiceSupplierDashboard\ContractSelectRowViewModel.cs" />
+    <Compile Include="Models\Accounts\InvoiceSupplierDashboard\ContractStatusHelper.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\BGB\BGBEacLogViewModel.cs" />
+    <Compile Include="Models\Accounts\SuppliersModels\BGB\DBModel\CE_BGBCommissionAndReconciliation.cs" />
+    <Compile Include="Models\Accounts\SuppliersModels\BGB\DBModel\CE_BGBCommissionMetrics.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\BGB\DBModel\CE_BGBEacLog.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\BGB\EditBGBContractViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\BGB\UpdateContractViewModel.cs" />
@@ -493,6 +521,24 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202507141427329_InitialMapping17.resx">
       <DependentUpon>202507141427329_InitialMapping17.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202507161057386_InitialMapping18.resx">
+      <DependentUpon>202507161057386_InitialMapping18.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202507161107034_InitialMapping19.resx">
+      <DependentUpon>202507161107034_InitialMapping19.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202507161202164_InitialMapping20.resx">
+      <DependentUpon>202507161202164_InitialMapping20.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202507161417504_InitialMapping21.resx">
+      <DependentUpon>202507161417504_InitialMapping21.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202507171318522_InitialMapping22.resx">
+      <DependentUpon>202507171318522_InitialMapping22.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202507171444076_InitialMapping23.resx">
+      <DependentUpon>202507171444076_InitialMapping23.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

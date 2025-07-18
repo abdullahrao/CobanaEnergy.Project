@@ -280,7 +280,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
 
         #endregion
 
-        #region contract slect listing
+        #region Contract Select Listing
 
         [HttpGet]
         [Authorize(Roles = "Accounts,Controls")]
@@ -305,32 +305,72 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                     {
                         meterNumbers = await BGBSupplier(memStream, extension);
                     }
-                    // Add more suppliers here!
                     else
                     {
                         return JsonResponse.Fail("Processing for this supplier is not yet supported. Please contact support.");
                     }
                 }
 
-                var mpans = meterNumbers.Where(x => x.All(char.IsDigit) && x.Length == 13).ToList();
-                var mprns = meterNumbers.Where(x => x.All(char.IsDigit) && x.Length >= 6 && x.Length <= 10).ToList();
+                var mpans = meterNumbers
+                    .Where(x => x.All(char.IsDigit) && x.Length == 13)
+                    .ToList();
 
-                var electricContractsRaw = await (from ec in db.CE_ElectricContracts
-                                                  where mpans.Contains(ec.MPAN)
-                                                  join s in db.CE_Supplier on ec.SupplierId equals s.Id into s1
-                                                  from s in s1.DefaultIfEmpty()
-                                                  select new
-                                                  {
-                                                      EId = ec.EId,
-                                                      SupplierName = s != null ? s.Name : "",
-                                                      MPAN = ec.MPAN,
-                                                      InputDate = ec.InputDate,
-                                                      BusinessName = ec.BusinessName,
-                                                      InputEAC = ec.InputEAC,
-                                                      Duration = ec.Duration
-                                                  }).ToListAsync();
+                var mprns = meterNumbers
+                    .Where(x => x.All(char.IsDigit) && x.Length >= 6 && x.Length <= 10)
+                    .ToList();
 
-                var electricContracts = electricContractsRaw.Select(x => new ContractSelectRowViewModel
+                var excludedKeys = ContractStatusHelper.ExcludedKeys;
+
+                var electricContractsRaw = await db.CE_ElectricContracts
+                    .Where(ec => mpans.Contains(ec.MPAN))
+                    .GroupJoin(
+                        db.CE_Supplier,
+                        ec => ec.SupplierId,
+                        s => s.Id,
+                        (ec, supplierGroup) => new { ec, Supplier = supplierGroup.FirstOrDefault() }
+                    )
+                    .GroupJoin(
+                        db.CE_ContractStatuses.Where(cs => cs.Type == "Electric"),
+                        combined => combined.ec.EId,
+                        cs => cs.EId,
+                        (combined, statusGroup) => new { combined, Status = statusGroup.FirstOrDefault() }
+                    )
+                    .GroupJoin(
+                            db.CE_BGBCommissionAndReconciliation
+                                .Where(cr => cr.contractType == "Electric"),
+                            combined => combined.combined.ec.EId,
+                            cr => cr.EId,
+                            (combined, reconciliationGroup) => new
+                            {
+                                combined.combined.ec,
+                                combined.combined.Supplier,
+                                combined.Status,
+                                Reconciliation = reconciliationGroup.FirstOrDefault()
+                            }
+                        )
+                    .ToListAsync();
+
+                var filteredElectricContracts = electricContractsRaw
+                    .Where(x =>
+                        x.Status == null ||
+                        !excludedKeys.Contains($"{x.Status.ContractStatus ?? ""}|{x.Status.PaymentStatus ?? ""}")
+                    )
+                    .Select(x => new
+                    {
+                        x.ec.EId,
+                        SupplierName = x.Supplier?.Name ?? "",
+                        x.ec.MPAN,
+                        x.ec.InputDate,
+                        x.ec.BusinessName,
+                        x.ec.InputEAC,
+                        x.ec.Duration,
+                        ContractStatus = x.Status?.ContractStatus ?? "N/A",
+                        PaymentStatus = x.Status?.PaymentStatus ?? "N/A",
+                        CED = x.Reconciliation?.CED ?? "N/A"
+                    })
+                    .ToList();
+
+                var electricContracts = filteredElectricContracts.Select(x => new ContractSelectRowViewModel
                 {
                     EId = x.EId,
                     SupplierName = x.SupplierName,
@@ -340,27 +380,62 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                     BusinessName = x.BusinessName,
                     InputEAC = x.InputEAC,
                     Duration = x.Duration,
-                    ContractStatus = "",
-                    PaymentStatus = "",
-                    CED = ""
+                    ContractStatus = x.ContractStatus,
+                    PaymentStatus = x.PaymentStatus,
+                    CED = x.CED
                 }).ToList();
 
-                var gasContractsRaw = await (from gc in db.CE_GasContracts
-                                             where mprns.Contains(gc.MPRN)
-                                             join s in db.CE_Supplier on gc.SupplierId equals s.Id into s2
-                                             from s in s2.DefaultIfEmpty()
-                                             select new
-                                             {
-                                                 EId = gc.EId,
-                                                 SupplierName = s != null ? s.Name : "",
-                                                 MPRN = gc.MPRN,
-                                                 InputDate = gc.InputDate,
-                                                 BusinessName = gc.BusinessName,
-                                                 InputEAC = gc.InputEAC,
-                                                 Duration = gc.Duration
-                                             }).ToListAsync();
+                var gasContractsRaw = await db.CE_GasContracts
+                                    .Where(gc => mprns.Contains(gc.MPRN))
+                                    .GroupJoin(
+                                        db.CE_Supplier,
+                                        gc => gc.SupplierId,
+                                        s => s.Id,
+                                        (gc, supplierGroup) => new { gc, Supplier = supplierGroup.FirstOrDefault() }
+                                    )
+                                    .GroupJoin(
+                                        db.CE_ContractStatuses.Where(cs => cs.Type == "Gas"),
+                                        combined => combined.gc.EId,
+                                        cs => cs.EId,
+                                        (combined, statusGroup) => new { combined.gc, combined.Supplier, Status = statusGroup.FirstOrDefault() }
+                                    )
+                                    .GroupJoin(
+                                        db.CE_BGBCommissionAndReconciliation
+                                            .Where(cr => cr.contractType == "Gas"),
+                                        combined => combined.gc.EId,
+                                        cr => cr.EId,
+                                        (combined, reconciliationGroup) => new
+                                        {
+                                            gc = combined.gc,
+                                            Supplier = combined.Supplier,
+                                            Status = combined.Status,
+                                            Reconciliation = reconciliationGroup.FirstOrDefault()
+                                        }
+                                    )
+                                    .ToListAsync();
 
-                var gasContracts = gasContractsRaw.Select(x => new ContractSelectRowViewModel
+
+                var filteredGasContracts = gasContractsRaw
+                    .Where(x =>
+                        x.Status == null ||
+                        !excludedKeys.Contains($"{x.Status.ContractStatus ?? ""}|{x.Status.PaymentStatus ?? ""}")
+                    )
+                    .Select(x => new
+                    {
+                        x.gc.EId,
+                        SupplierName = x.Supplier?.Name ?? "",
+                        x.gc.MPRN,
+                        x.gc.InputDate,
+                        x.gc.BusinessName,
+                        x.gc.InputEAC,
+                        x.gc.Duration,
+                        ContractStatus = x.Status?.ContractStatus ?? "N/A",
+                        PaymentStatus = x.Status?.PaymentStatus ?? "N/A",
+                        CED = x.Reconciliation?.CED ?? "N/A"
+                    })
+                    .ToList();
+
+                var gasContracts = filteredGasContracts.Select(x => new ContractSelectRowViewModel
                 {
                     EId = x.EId,
                     SupplierName = x.SupplierName,
@@ -370,9 +445,9 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                     BusinessName = x.BusinessName,
                     InputEAC = x.InputEAC,
                     Duration = x.Duration,
-                    ContractStatus = "",
-                    PaymentStatus = "",
-                    CED = ""
+                    ContractStatus = x.ContractStatus,
+                    PaymentStatus = x.PaymentStatus,
+                    CED = x.CED
                 }).ToList();
 
                 var allContracts = electricContracts.Concat(gasContracts).ToList();
@@ -428,16 +503,82 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                 if (selectedIds == null || !selectedIds.Any())
                     return RedirectToAction("NotFound", "Error");
 
-                // Fetch contracts
-                var electricContracts = await db.CE_ElectricContracts
-                    .Where(x => selectedIds.Contains(x.EId))
+                TempData.Keep("SelectedContractIds");
+
+                var excludedKeys = ContractStatusHelper.ExcludedKeys;
+
+                var electricContractsRaw = await db.CE_ElectricContracts
+                    .Where(ec => selectedIds.Contains(ec.EId))
+                    .GroupJoin(
+                        db.CE_ContractStatuses.Where(cs => cs.Type == "Electric"),
+                        ec => ec.EId,
+                        cs => cs.EId,
+                        (ec, statusGroup) => new { ec, Status = statusGroup.FirstOrDefault() }
+                    )
+                    .GroupJoin(
+                        db.CE_BGBCommissionAndReconciliation
+                            .Where(cr => cr.contractType == "Electric"),
+                        combined => combined.ec.EId,
+                        cr => cr.EId,
+                        (combined, reconciliationGroup) => new
+                        {
+                            combined.ec,
+                            combined.Status,
+                            Reconciliation = reconciliationGroup.FirstOrDefault()
+                        }
+                    )
                     .ToListAsync();
 
-                var gasContracts = await db.CE_GasContracts
-                    .Where(x => selectedIds.Contains(x.EId))
+                var electricContracts = electricContractsRaw
+                    .Where(x =>
+                        x.Status == null ||
+                        !excludedKeys.Contains($"{x.Status.ContractStatus ?? ""}|{x.Status.PaymentStatus ?? ""}")
+                    )
+                    .Select(x => new
+                    {
+                        x.ec,
+                        x.Status,
+                        CED = x.Reconciliation?.CED ?? "N/A",
+                        CED_COT = x.Reconciliation?.CED_COT ?? "N/A"
+                    })
+                    .ToList();
+
+                var gasContractsRaw = await db.CE_GasContracts
+                    .Where(gc => selectedIds.Contains(gc.EId))
+                    .GroupJoin(
+                        db.CE_ContractStatuses.Where(cs => cs.Type == "Gas"),
+                        gc => gc.EId,
+                        cs => cs.EId,
+                        (gc, statusGroup) => new { gc, Status = statusGroup.FirstOrDefault() }
+                    )
+                    .GroupJoin(
+                        db.CE_BGBCommissionAndReconciliation
+                            .Where(cr => cr.contractType == "Gas"),
+                        combined => combined.gc.EId,
+                        cr => cr.EId,
+                        (combined, reconciliationGroup) => new
+                        {
+                            combined.gc,
+                            combined.Status,
+                            Reconciliation = reconciliationGroup.FirstOrDefault()
+                        }
+                    )
                     .ToListAsync();
 
-                // Get snapshot entries by EId
+                var gasContracts = gasContractsRaw
+                    .Where(x =>
+                        x.Status == null ||
+                        !excludedKeys.Contains($"{x.Status.ContractStatus ?? ""}|{x.Status.PaymentStatus ?? ""}")
+                    )
+                    .Select(x => new
+                    {
+                        x.gc,
+                        x.Status,
+                        CED = x.Reconciliation?.CED ?? "N/A",
+                        CED_COT = x.Reconciliation?.CED_COT ?? "N/A"
+                    })
+                    .ToList();
+
                 var electricSnapshots = await db.CE_ElectricSupplierSnapshots
                     .Where(x => selectedIds.Contains(x.EId))
                     .ToListAsync();
@@ -450,7 +591,6 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                 var gasSnapshotDict = gasSnapshots.ToDictionary(x => x.EId, x => x);
                 var gasSnapshotIds = gasSnapshots.Select(x => x.Id).ToList();
 
-                // Fetch relevant product & uplift snapshots (only for these snapshot IDs)
                 var electricProductSnapshotDict = await db.CE_ElectricSupplierProductSnapshots
                     .Where(x => electricSnapshotIds.Contains(x.SnapshotId))
                     .GroupBy(x => x.SnapshotId)
@@ -473,14 +613,13 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
 
                 var contracts = new List<ContractEditRowViewModel>();
 
-                // Electric contracts
                 foreach (var x in electricContracts)
                 {
                     string uplift = "N/A";
                     string supplierCommsType = "N/A";
                     string supplierName = "N/A";
 
-                    if (electricSnapshotDict.TryGetValue(x.EId, out var snapshot))
+                    if (electricSnapshotDict.TryGetValue(x.ec.EId, out var snapshot))
                     {
                         var snapshotId = snapshot.Id;
                         supplierName = snapshot.SupplierName ?? "N/A";
@@ -494,31 +633,30 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
 
                     contracts.Add(new ContractEditRowViewModel
                     {
-                        EId = x.EId,
-                        MPAN = x.MPAN,
+                        EId = x.ec.EId,
+                        MPAN = x.ec.MPAN,
                         MPRN = null,
-                        InputDate = x.InputDate,
-                        BusinessName = x.BusinessName,
-                        StartDate = x.InitialStartDate,
-                        Duration = x.Duration,
+                        InputDate = x.ec.InputDate,
+                        BusinessName = x.ec.BusinessName,
+                        StartDate = x.ec.InitialStartDate,
+                        Duration = x.ec.Duration,
                         Uplift = uplift,
                         SupplierCommsType = supplierCommsType,
-                        CED = "",
-                        CED_COT = "",
+                        CED = x.CED,
+                        CED_COT = x.CED_COT,
                         FuelType = "Electric",
                         SupplierName = supplierName,
-                        SupplierId = snapshot.SupplierId
+                        SupplierId = snapshot?.SupplierId ?? 0
                     });
                 }
 
-                // Gas contracts
                 foreach (var x in gasContracts)
                 {
                     string uplift = "N/A";
                     string supplierCommsType = "N/A";
                     string supplierName = "N/A";
 
-                    if (gasSnapshotDict.TryGetValue(x.EId, out var snapshot))
+                    if (gasSnapshotDict.TryGetValue(x.gc.EId, out var snapshot))
                     {
                         var snapshotId = snapshot.Id;
                         supplierName = snapshot.SupplierName ?? "N/A";
@@ -532,20 +670,20 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
 
                     contracts.Add(new ContractEditRowViewModel
                     {
-                        EId = x.EId,
+                        EId = x.gc.EId,
                         MPAN = null,
-                        MPRN = x.MPRN,
-                        InputDate = x.InputDate,
-                        BusinessName = x.BusinessName,
-                        StartDate = x.InitialStartDate,
-                        Duration = x.Duration,
+                        MPRN = x.gc.MPRN,
+                        InputDate = x.gc.InputDate,
+                        BusinessName = x.gc.BusinessName,
+                        StartDate = x.gc.InitialStartDate,
+                        Duration = x.gc.Duration,
                         Uplift = uplift,
                         SupplierCommsType = supplierCommsType,
-                        CED = "",
-                        CED_COT = "",
+                        CED = x.CED,
+                        CED_COT = x.CED_COT,
                         FuelType = "Gas",
                         SupplierName = supplierName,
-                        SupplierId = snapshot.SupplierId
+                        SupplierId = snapshot?.SupplierId ?? 0
                     });
                 }
 
@@ -562,6 +700,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                 return RedirectToAction("NotFound", "Error");
             }
         }
+
 
         #endregion
 
