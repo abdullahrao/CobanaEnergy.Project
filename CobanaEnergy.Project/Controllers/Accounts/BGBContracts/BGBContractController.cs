@@ -27,6 +27,8 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
             _db = new ApplicationDBContext();
         }
 
+        #region BGBContract 
+
         [HttpGet]
         [Authorize(Roles = "Accounts,Controls")]
         public async Task<ActionResult> EditBGBContract(string id, string supplierId, string type)
@@ -220,7 +222,6 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
                 return RedirectToAction("NotFound", "Error");
             }
         }
-
         private async Task ReconciliationAndCommsssionMetrics(string id, EditBGBContractViewModel model, string contractType)
         {
             var reconciliation = await _db.CE_BGBCommissionAndReconciliation
@@ -628,6 +629,8 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
                 throw;
             }
         }
+
+        #endregion
 
         #region Invoice_Logs
 
