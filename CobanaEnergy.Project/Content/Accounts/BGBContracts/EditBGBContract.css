@@ -22,7 +22,7 @@ body, h2, h4, h5, .form-label, .section-header {
 }
 
 .logs-wrapper {
-    width: 400px;
+    flex: 1 1 400px;
     min-width: 320px;
     max-width: 100%;
 }
@@ -161,6 +161,16 @@ textarea.form-control {
 
 /* Responsive */
 @media (max-width: 1200px) {
+    .edit-bgb-container {
+        flex-direction: column;
+    }
+
+    .logs-wrapper {
+        width: 100%;
+    }
+}
+
+@media (max-width: 1440px) {
     .edit-bgb-container {
         flex-direction: column;
     }

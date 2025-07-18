@@ -19,6 +19,7 @@
                     <h4 class="section-header">Supplier EAC & Invoice Details</h4>
                     <div class="row gx-3 gy-3">
                         <input type="hidden" id="eid" name="eid" value="" />
+                        <input type="hidden" id="contractType" name="contractType" value="" />
                         <div class="col-md-6 col-lg-4">
                             <label class="form-label required" for="eacYear">EAC Year</label>
                             <select id="eacYear" class="form-select" required>
@@ -100,8 +101,8 @@
                                     <input type="text" id="mpan" class="form-control" value="@Model.MPAN" autocomplete="off" disabled />
                                 </div>
                                 <div class="col-md-6 col-lg-4">
-                                    <label class="form-label" for="upliftElectric">Uplift</label>
-                                    <input type="text" id="upliftElectric" class="form-control" value="@Model.UpliftElectric" autocomplete="off" />
+                                    <label class="form-label required" for="upliftElectric">Uplift</label>
+                                    <input type="text" id="upliftElectric" class="form-control" required value="@Model.UpliftElectric" autocomplete="off" />
                                 </div>
                                 <div class="col-md-6 col-lg-4">
                                     <label class="form-label" for="durationElectric">Duration</label>
@@ -118,9 +119,10 @@
                                     </select>
                                 </div>
                                 <div class="col-md-6 col-lg-4">
-                                    <label class="form-label" for="supplierCommsTypeElectric">Supplier Comms Type</label>
-                                    <select id="supplierCommsTypeElectric" class="form-select" data-current="@Model.SupplierCommsTypeElectric"></select>
+                                    <label class="form-label required" for="supplierCommsTypeElectric">Supplier Comms Type</label>
+                                    <select id="supplierCommsTypeElectric" required class="form-select" data-current="@Model.SupplierCommsTypeElectric"></select>
                                 </div>
+                                <input type="hidden" id="CommissionElectric" name="CommissionElectric" value="@Model.CommissionElectric" />
                                 <div class="col-md-6 col-lg-4">
                                     <label class="form-label" for="inputDateElectric">Input Date</label>
                                     <input type="date" id="inputDateElectric" class="form-control" value="@Model.InputDateElectric" disabled />
@@ -144,8 +146,8 @@
                                     <input type="text" id="mprn" class="form-control" value="@Model.MPRN" autocomplete="off" disabled />
                                 </div>
                                 <div class="col-md-6 col-lg-4">
-                                    <label class="form-label" for="upliftGas">Uplift</label>
-                                    <input type="text" id="upliftGas" class="form-control" value="@Model.UpliftGas" autocomplete="off" />
+                                    <label class="form-label required" for="upliftGas">Uplift</label>
+                                    <input type="text" id="upliftGas" class="form-control" required value="@Model.UpliftGas" autocomplete="off" />
                                 </div>
                                 <div class="col-md-6 col-lg-4">
                                     <label class="form-label" for="durationGas">Duration</label>
@@ -165,6 +167,7 @@
                                     <label class="form-label" for="supplierCommsTypeGas">Supplier Comms Type</label>
                                     <select id="supplierCommsTypeGas" class="form-select" data-current="@Model.SupplierCommsTypeGas"></select>
                                 </div>
+                                <input type="hidden" id="CommissionGas" name="CommissionGas" value="@Model.CommissionGas" />
                                 <div class="col-md-6 col-lg-4">
                                     <label class="form-label" for="inputDateGas">Input Date</label>
                                     <input type="date" id="inputDateGas" class="form-control" value="@Model.InputDateGas" disabled />
@@ -180,55 +183,55 @@
                 </div>
 
                 <!-- Commission & Reconciliation -->
-                @*<div class="form-section">
-                        <h4 class="section-header">Commission & Reconciliation</h4>
-                        <div class="row gx-3 gy-3">
-                            <div class="col-md-6 col-lg-4">
-                                <label class="form-label required" for="otherAmount">Other (£)</label>
-                                <input type="text" id="otherAmount" class="form-control" required value="" autocomplete="off" />
-                            </div>
-                            <div class="col-md-6 col-lg-4">
-                                <label class="form-label required" for="startDate">Start Date</label>
-                                <input type="date" id="startDate" class="form-control" value="@Model.InitialStartDate" required />
-                            </div>
-                            <div class="col-md-6 col-lg-4">
-                                <label class="form-label required" for="ced">CED</label>
-                                <input type="date" id="ced" class="form-control" required value="@Model.CED" />
-                            </div>
-                            <div class="col-md-6 col-lg-4">
-                                <label class="form-label" for="cedCOT">CED (COT)</label>
-                                <input type="date" id="cedCOT" class="form-control" value="" />
-                            </div>
-                            <div class="col-md-6 col-lg-4">
-                                <label class="form-label" for="cotLostConsumption">COT/Lost Consumption</label>
-                                <input type="text" id="cotLostConsumption" class="form-control" value="" autocomplete="off" />
-                            </div>
-                            <div class="col-md-6 col-lg-4">
-                                <label class="form-label" for="cobanaDueCommission">Cobana Due Commission</label>
-                                <input type="text" id="cobanaDueCommission" class="form-control" value="" autocomplete="off" />
-                            </div>
-                            <div class="col-md-6 col-lg-4">
-                                <label class="form-label" for="cobanaFinalReconciliation">Cobana Final Reconciliation</label>
-                                <input type="text" id="cobanaFinalReconciliation" class="form-control" value="" autocomplete="off" />
-                            </div>
-                            <div class="col-md-6 col-lg-4">
-                                <label class="form-label required" for="contractStatus">Contract Status</label>
-                                <select id="contractStatus" class="form-select" required data-current=""></select>
-                            </div>
-                            <div class="col-md-6 col-lg-4">
-                                <label class="form-label required" for="paymentStatus">Payment Status</label>
-                                <select id="paymentStatus" class="form-select" required data-current=""></select>
-                            </div>
-                            <div class="col-md-6 col-lg-4">
-                                <label class="form-label" for="commissionFollowUpDate">Commission Follow-up Date</label>
-                                <input type="date" id="commissionFollowUpDate" class="form-control" value="" />
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label" for="supplierCobanaInvoiceNotes">Supplier Cobana Invoice Notes</label>
-                                <textarea id="supplierCobanaInvoiceNotes" class="form-control" rows="3"></textarea>
-                            </div>
+                <div class="form-section">
+                    <h4 class="section-header">Commission & Reconciliation</h4>
+                    <div class="row gx-3 gy-3">
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label" for="otherAmount">Other (£)</label>
+                            <input type="text" id="otherAmount" class="form-control" value="@Model.OtherAmount" autocomplete="off" />
                         </div>
-                    </div>*@
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label required" for="startDate">Start Date</label>
+                            <input type="date" id="startDate" class="form-control" value="@Model.InitialStartDate" required />
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label required" for="ced">CED</label>
+                            <input type="date" id="ced" class="form-control" required value="@Model.CED" />
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label" for="cedCOT">CED (COT)</label>
+                            <input type="date" id="cedCOT" class="form-control" value="@Model.CedCOT" />
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label" for="cotLostConsumption">COT/Lost Consumption</label>
+                            <input type="text" id="cotLostConsumption" class="form-control" value="@Model.CotLostConsumption" autocomplete="off" />
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label" for="cobanaDueCommission">Cobana Due Commission</label>
+                            <input type="text" id="cobanaDueCommission" class="form-control" value="@Model.CobanaDueCommission" autocomplete="off" />
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label" for="cobanaFinalReconciliation">Cobana Final Reconciliation</label>
+                            <input type="text" id="cobanaFinalReconciliation" class="form-control" value="@Model.CobanaFinalReconciliation" autocomplete="off" />
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label required" for="contractStatus">Contract Status</label>
+                            <select id="contractStatus" class="form-select" required data-current="@Model.ContractStatus"></select>
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label required" for="paymentStatus">Payment Status</label>
+                            <select id="paymentStatus" class="form-select" required data-current="@Model.PaymentStatus"></select>
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label required" for="commissionFollowUpDate">Commission Follow-up Date</label>
+                            <input type="date" id="commissionFollowUpDate" required class="form-control" value="@Model.CommissionFollowUpDate" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label" for="supplierCobanaInvoiceNotes">Supplier Cobana Invoice Notes</label>
+                            <textarea id="supplierCobanaInvoiceNotes" class="form-control" rows="3">@Model.SupplierCobanaInvoiceNotes</textarea>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="text-center mb-4">
                     <button type="submit" class="btn btn-primary px-5">Update Contract</button>
