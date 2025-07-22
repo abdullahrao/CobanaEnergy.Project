@@ -224,7 +224,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
         }
         private async Task ReconciliationAndCommsssionMetrics(string id, EditBGBContractViewModel model, string contractType)
         {
-            var reconciliation = await _db.CE_BGBCommissionAndReconciliation
+            var reconciliation = await _db.CE_CommissionAndReconciliation
                 .AsNoTracking()
                 .Where(r => r.EId == id)
                 .ToListAsync();
@@ -240,7 +240,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
             model.CommissionFollowUpDate = rec.CommissionFollowUpDate;
             model.SupplierCobanaInvoiceNotes = rec.SupplierCobanaInvoiceNotes;
 
-            var metrics = await _db.CE_BGBCommissionMetrics
+            var metrics = await _db.CE_CommissionMetrics
                 .AsNoTracking()
                 .Where(m => m.ReconciliationId == rec.Id)
                 .ToListAsync();
@@ -442,7 +442,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
                 decimal year5 = GetLatestEacValue(eacLogs, "5TH YEAR EAC");
 
                 // ----- CE_BGBCommissionAndReconciliation -----
-                var reconciliation = await _db.CE_BGBCommissionAndReconciliation
+                var reconciliation = await _db.CE_CommissionAndReconciliation
                     .FirstOrDefaultAsync(r => r.EId == model.EId && r.contractType == contractType);
 
                 if (reconciliation != null)
@@ -457,7 +457,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
                 }
                 else
                 {
-                    reconciliation = new CE_BGBCommissionAndReconciliation
+                    reconciliation = new CE_CommissionAndReconciliation
                     {
                         EId = model.EId,
                         OtherAmount = model.OtherAmount,
@@ -470,12 +470,12 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
                         contractType = contractType,
                     };
 
-                    _db.CE_BGBCommissionAndReconciliation.Add(reconciliation);
+                    _db.CE_CommissionAndReconciliation.Add(reconciliation);
                     await _db.SaveChangesAsync();
                 }
 
                 // ----- CE_BGBCommissionMetrics -----
-                var metrics = await _db.CE_BGBCommissionMetrics
+                var metrics = await _db.CE_CommissionMetrics
                     .FirstOrDefaultAsync(m => m.ReconciliationId == reconciliation.Id && m.contractType == contractType);
 
                 string contractDurationDays = "";
@@ -609,7 +609,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
                 }
                 else
                 {
-                    _db.CE_BGBCommissionMetrics.Add(new CE_BGBCommissionMetrics
+                    _db.CE_CommissionMetrics.Add(new CE_CommissionMetrics
                     {
                         ReconciliationId = reconciliation.Id,
                         ContractDurationDays = contractDurationDays,

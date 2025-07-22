@@ -336,7 +336,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                         (combined, statusGroup) => new { combined, Status = statusGroup.FirstOrDefault() }
                     )
                     .GroupJoin(
-                            db.CE_BGBCommissionAndReconciliation
+                            db.CE_CommissionAndReconciliation
                                 .Where(cr => cr.contractType == "Electric"),
                             combined => combined.combined.ec.EId,
                             cr => cr.EId,
@@ -400,7 +400,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                                         (combined, statusGroup) => new { combined.gc, combined.Supplier, Status = statusGroup.FirstOrDefault() }
                                     )
                                     .GroupJoin(
-                                        db.CE_BGBCommissionAndReconciliation
+                                        db.CE_CommissionAndReconciliation
                                             .Where(cr => cr.contractType == "Gas"),
                                         combined => combined.gc.EId,
                                         cr => cr.EId,
@@ -516,7 +516,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                         (ec, statusGroup) => new { ec, Status = statusGroup.FirstOrDefault() }
                     )
                     .GroupJoin(
-                        db.CE_BGBCommissionAndReconciliation
+                        db.CE_CommissionAndReconciliation
                             .Where(cr => cr.contractType == "Electric"),
                         combined => combined.ec.EId,
                         cr => cr.EId,
@@ -552,7 +552,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                         (gc, statusGroup) => new { gc, Status = statusGroup.FirstOrDefault() }
                     )
                     .GroupJoin(
-                        db.CE_BGBCommissionAndReconciliation
+                        db.CE_CommissionAndReconciliation
                             .Where(cr => cr.contractType == "Gas"),
                         combined => combined.gc.EId,
                         cr => cr.EId,
