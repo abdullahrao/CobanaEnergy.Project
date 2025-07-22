@@ -215,6 +215,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\Accounts\AwaitingPaymentsDashboard\AwaitingPaymentsDashboard.css" />
     <Content Include="Content\Accounts\BGBContracts\EditBGBContract.css" />
     <Content Include="Content\Accounts\InvoiceSupplierDashboard\ContractSelectListing.css" />
     <Content Include="Content\Accounts\InvoiceSupplierDashboard\EditContractsInvoiceSupplier.css" />
@@ -234,6 +235,7 @@
     <Content Include="Content\Supplier\SupplierCreation.css" />
     <Content Include="Content\Supplier\SupplierDashboard.css" />
     <Content Include="Global.asax" />
+    <Content Include="Scripts\Accounts\AwaitingPaymentsDashboard\awaitingPaymentsDashboard.js" />
     <Content Include="Scripts\Accounts\BGBContracts\editBGBContract.js" />
     <Content Include="Scripts\Accounts\InvoiceSupplierDashboard\contractSelectListing.js" />
     <Content Include="Scripts\Accounts\InvoiceSupplierDashboard\editContractsInvoiceSupplier.js" />
@@ -258,6 +260,7 @@
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\Accounts\AwaitingPaymentsDashboard\AwaitingPaymentsDashboardController.cs" />
     <Compile Include="Controllers\Accounts\BGBContracts\BGBContractController.cs" />
     <Compile Include="Controllers\Accounts\InvoiceSupplierDashboard\InvoiceSupplierDashboardController.cs" />
     <Compile Include="Controllers\Base\BaseController.cs" />
@@ -360,6 +363,11 @@
     <Compile Include="Migrations\202507171444076_InitialMapping23.Designer.cs">
       <DependentUpon>202507171444076_InitialMapping23.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202507211513135_InitialMapping24.cs" />
+    <Compile Include="Migrations\202507211513135_InitialMapping24.Designer.cs">
+      <DependentUpon>202507211513135_InitialMapping24.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Accounts\AwaitingPaymentsDashboard\AwaitingPaymentsDashboard.cs" />
     <Compile Include="Models\Accounts\DBModel\CE_ContractStatus.cs" />
     <Compile Include="Models\Accounts\InvoiceSupplierDashboard\ContractEditTableViewModel.cs" />
     <Compile Include="Models\Accounts\InvoiceSupplierDashboard\ContractSelectRowViewModel.cs" />
@@ -451,6 +459,7 @@
     <Content Include="Views\Accounts\InvoiceSupplierDashboard\ContractSelectListing.cshtml" />
     <Content Include="Views\Accounts\InvoiceSupplierDashboard\EditContractsInvoiceSupplier.cshtml" />
     <Content Include="Views\Accounts\BGBContract\EditBGBContract.cshtml" />
+    <Content Include="Views\Accounts\AwaitingPaymentsDashboard\AwaitingPaymentsDashboard.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -539,6 +548,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202507171444076_InitialMapping23.resx">
       <DependentUpon>202507171444076_InitialMapping23.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202507211513135_InitialMapping24.resx">
+      <DependentUpon>202507211513135_InitialMapping24.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

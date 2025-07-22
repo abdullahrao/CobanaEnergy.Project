@@ -7,8 +7,8 @@ using System.Web;
 
 namespace CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGB.DBModel
 {
-    [Table("CE_BGBCommissionMetrics")]
-    public class CE_BGBCommissionMetrics
+    [Table("CE_CommissionMetrics")]
+    public class CE_CommissionMetrics
     {
         [Key]
         public long Id { get; set; }
@@ -29,6 +29,6 @@ namespace CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGB.DBModel
 
         // Navigation property
         [ForeignKey("ReconciliationId")]
-        public virtual CE_BGBCommissionAndReconciliation Reconciliation { get; set; }
+        public virtual CE_CommissionAndReconciliation Reconciliation { get; set; }
     }
 }
