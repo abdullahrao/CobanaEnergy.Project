@@ -1,5 +1,4 @@
 ﻿$(document).ready(function () {
-    // Initialize DataTable without DataTable's built-in button UI
     var table = $('#awaitingPaymentsTable').DataTable({
         responsive: true,
         paging: true,
@@ -7,13 +6,12 @@
         searching: true,
         order: [],
         autoWidth: false,
-        dom: 'lfrtip', // No 'B' here, no built-in buttons injected
+        dom: 'lfrtip', 
         columnDefs: [
             { orderable: false, targets: 0 }
         ]
     });
 
-    // Pre-configure DataTable Excel button (but don’t inject into DOM)
     var excelButton = new $.fn.dataTable.Buttons(table, {
         buttons: [
             {
@@ -25,15 +23,14 @@
                     return 'AwaitingPayments_' + today.toISOString().split('T')[0];
                 },
                 exportOptions: {
-                    columns: ':visible:not(:first-child)' // Skip checkbox column
+                    columns: ':visible:not(:first-child)' 
                 }
             }
         ]
     });
-    // Add buttons API but do not inject to DOM
+
     table.buttons(excelButton, false);
 
-    // Hook external button click to trigger DataTable Excel export
     $('#exportExcelBtn').on('click', function () {
         table.button('.buttons-excel').trigger();
     });
