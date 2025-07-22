@@ -161,4 +161,28 @@ $(document).ready(async function () {
         });
     });
 
+    //nav
+    $(document).ready(function () {
+        $(document).on('click', '.dropdown-submenu > a', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            var $parentDropdown = $(this).closest('.dropdown-menu');
+            var $submenu = $(this).next('.dropdown-menu');
+
+            $parentDropdown.find('.dropdown-submenu .dropdown-menu').not($submenu).removeClass('show').hide();
+            $submenu.toggleClass('show').toggle();
+        });
+
+        $('.dropdown-submenu').on('mouseenter', function () {
+            $(this).children('.dropdown-menu').addClass('show').stop(true, true).fadeIn(150);
+        }).on('mouseleave', function () {
+            $(this).children('.dropdown-menu').removeClass('show').stop(true, true).fadeOut(150);
+        });
+        $(document).on('click', '.dropdown-submenu .dropdown-item', function (e) {
+            e.stopPropagation();
+        });
+    });
+
+
 });
