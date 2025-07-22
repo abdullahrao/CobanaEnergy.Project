@@ -1,22 +1,15 @@
 ﻿
-/* Header brand font */
-.navbar-brand {
-    font-family: 'Raleway', sans-serif;
-}
-
-/* Global table font override for all future tables */
 table td,
 table th {
     font-family: 'Roboto Mono', monospace;
-    font-feature-settings: 'tnum'; /* Tabular numbers for aligned digits */
+    font-feature-settings: 'tnum'; 
     font-size: 0.92rem;
     vertical-align: middle;
 }
 
-
 /* ========================
-    Cobana Navbar Final
-   ======================== */
+   Cobana Navbar Final
+======================== */
 .custom-navbar {
     min-height: 84px;
     font-family: 'Raleway', sans-serif;
@@ -24,37 +17,81 @@ table th {
     border-bottom: 1px solid #444;
 }
 
-    .custom-navbar .nav-link,
-    .custom-navbar .dropdown-item {
-        font-family: 'Raleway', sans-serif;
-        font-size: 0.95rem;
-        transition: color 0.2s ease-in-out;
-    }
-
     .custom-navbar .navbar-brand {
         font-size: 1.4rem;
     }
 
-    .custom-navbar .nav-link:hover,
-    .custom-navbar .dropdown-item:hover {
-        color: #ffc107 !important;
-        background-color: #f8f9fa;
+    .custom-navbar .nav-link,
+    .custom-navbar .dropdown-item {
+        font-family: 'Raleway', sans-serif;
+        font-size: 0.95rem;
+        transition: color 0.2s ease, background-color 0.2s ease;
     }
 
-/* Gap between menu items */
-.navbar-nav.gap-4 > .nav-item {
-    margin-right: 12px;
-}
+        .custom-navbar .nav-link:hover,
+        .custom-navbar .dropdown-item:hover {
+            color: #ffc107 !important;
+            background-color: #f8f9fa;
+        }
 
-/* Dropdown menu refinement */
 .dropdown-menu {
     border-radius: 6px;
-    font-size: 0.92rem;
-    min-width: 200px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+    min-width: 220px;
 }
 
-/* Icon alignment */
 .dropdown-item i {
     width: 18px;
     text-align: center;
 }
+
+/* =========================
+   Elegant Nested Dropdown
+========================= */
+.dropdown-submenu {
+    position: relative;
+}
+
+    .dropdown-submenu > .dropdown-menu {
+        top: 0;
+        left: 100%;
+        margin-top: -0.125rem;
+        margin-left: 0.15rem;
+        border-radius: 8px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        display: none;
+    }
+
+    .dropdown-submenu.show > .dropdown-menu {
+        display: block;
+    }
+
+    .dropdown-submenu > a {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 500;
+        color: #212529;
+    }
+
+        .dropdown-submenu > a::after {
+            content: "";
+            border: solid #6c757d;
+            border-width: 0 2px 2px 0;
+            display: inline-block;
+            padding: 3px;
+            margin-left: 8px;
+            transform: rotate(-45deg);
+            transition: transform 0.3s ease, border-color 0.2s ease;
+        }
+
+    .dropdown-submenu.show > a,
+    .dropdown-submenu:hover > a {
+        color: #ffc107;
+    }
+
+        .dropdown-submenu.show > a::after,
+        .dropdown-submenu:hover > a::after {
+            transform: rotate(45deg);
+            border-color: #ffc107;
+        }

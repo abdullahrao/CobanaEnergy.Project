@@ -3,7 +3,7 @@
 <header class="navbar navbar-expand-lg navbar-dark bg-dark px-4 py-3 custom-navbar">
     <a class="navbar-brand fw-bold text-warning" href="/">Cobana Energy</a>
 
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
 
@@ -11,82 +11,94 @@
     {
         <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
             <ul class="navbar-nav align-items-center gap-4">
+
+                <!-- Pre-Sales -->
                 @if (User.IsInRole("Pre-sales") || User.IsInRole("Controls"))
                 {
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="preSalesMenu" data-bs-toggle="dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="preSalesMenu" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="fas fa-briefcase me-1"></i> Pre-Sales
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="/PreSales/Dashboard"><i class="fas fa-chart-line me-2"></i>Dashboard</a></li>
-                            <li><a class="dropdown-item" href="/Electric/CreateElectric"><i class="fas fa-bolt me-2"></i>Electric Contract</a></li>
-                            <li><a class="dropdown-item" href="/Gas/CreateGas"><i class="fas fa-fire me-2"></i>Gas Contract</a></li>
-                            <li><a class="dropdown-item" href="/Dual/CreateDual"><i class="fas fa-plug me-2"></i>Dual Contract</a></li>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="preSalesMenu">
+                            <li><a class="dropdown-item" href="/PreSales/Dashboard"><i class="fas fa-chart-line me-2"></i> Dashboard</a></li>
+                            <li><a class="dropdown-item" href="/Electric/CreateElectric"><i class="fas fa-bolt me-2"></i> Electric Contract</a></li>
+                            <li><a class="dropdown-item" href="/Gas/CreateGas"><i class="fas fa-fire me-2"></i> Gas Contract</a></li>
+                            <li><a class="dropdown-item" href="/Dual/CreateDual"><i class="fas fa-plug me-2"></i> Dual Contract</a></li>
                         </ul>
                     </li>
                 }
 
-                @if (User.IsInRole("Controls"))
-                {
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="adminMenu" data-bs-toggle="dropdown">
-                            <i class="fas fa-sliders-h me-1"></i> Controls
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <a class="dropdown-item" href="/Account/Create">
-                                    <i class="fas fa-user-plus me-2"></i> Create New User
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="/Account/ChangePassword">
-                                    <i class="fas fa-key me-2"></i> Change User Password
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="supplierMenu" data-bs-toggle="dropdown">
-                            <i class="fas fa-industry me-1"></i> Supplier
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <a class="dropdown-item" href="/Supplier/SupplierCreation">
-                                    <i class="fas fa-plus-circle me-2"></i> Create Supplier
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="/Supplier/SupplierDashboard">
-                                    <i class="fas fa-table me-2"></i> Supplier Dashboard
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                }
-
+                <!-- Accounts -->
                 @if (User.IsInRole("Controls") || User.IsInRole("Accounts"))
                 {
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="accountsMenu" data-bs-toggle="dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="accountsMenu" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="fas fa-user-cog me-1"></i> Accounts
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountsMenu">
                             <li>
                                 <a class="dropdown-item" href="#" id="openInvoiceSupplierDashboard">
-                                    <i class="fas fa-file-invoice-dollar me-2"></i> Invoice Supplier Dashboard
+                                    <i class="fas fa-file-invoice-dollar me-2"></i> Invoice Dashboard
                                 </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li class="dropdown-submenu">
+                                <a class="dropdown-item dropdown-toggle" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fas fa-layer-group me-2"></i> Acct. Dashboards
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" href="@Url.Action("Index", "AwaitingPaymentsDashboard")">
+                                            <i class="fas fa-clock me-2"></i> Awaiting Payments
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            <li><hr class="dropdown-divider"></li>
+
+                            <li class="dropdown-submenu">
+                                <a class="dropdown-item dropdown-toggle" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fas fa-boxes-stacked me-2"></i> Supplier
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" href="@Url.Action("SupplierCreation", "Supplier")">
+                                            <i class="fas fa-circle-plus me-2"></i> Create Supplier
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="@Url.Action("SupplierDashboard", "Supplier")">
+                                            <i class="fas fa-th-large me-2"></i> Supplier Dashboard
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
                         </ul>
                     </li>
                 }
 
+                <!-- Controls -->
+                @if (User.IsInRole("Controls"))
+                {
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="adminMenu" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-sliders-h me-1"></i> Controls
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminMenu">
+                            <li><a class="dropdown-item" href="@Url.Action("Create", "Account")"><i class="fas fa-user-plus me-2"></i> Create New User</a></li>
+                            <li><a class="dropdown-item" href="@Url.Action("ChangePassword", "Account")"><i class="fas fa-key me-2"></i> Change Password</a></li>
+                        </ul>
+                    </li>
+                }
+
+                <!-- User -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle text-white fw-bold" href="#" data-bs-toggle="dropdown">
+                    <a class="nav-link dropdown-toggle text-white fw-bold" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="fas fa-user-circle me-1"></i> @User.Identity.GetUserName()
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> Profile</a></li>
                         <li>
                             <form id="logoutForm" action="/Account/Logout" method="post" class="d-inline">
                                 @Html.AntiForgeryToken()
