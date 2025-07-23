@@ -221,6 +221,7 @@
     <Content Include="Content\Accounts\InvoiceSupplierDashboard\ContractSelectListing.css" />
     <Content Include="Content\Accounts\InvoiceSupplierDashboard\EditContractsInvoiceSupplier.css" />
     <Content Include="Content\Accounts\ReconciliationsDashboard\ReconciliationsDashboard.css" />
+    <Content Include="Content\Accounts\ResolveContractsDashboard\ResolveContractsDashboard.css" />
     <Content Include="Content\Dual\CreateDual.css" />
     <Content Include="Content\Dual\EditDual.css" />
     <Content Include="Content\Electric\CreateElectric.css" />
@@ -243,6 +244,7 @@
     <Content Include="Scripts\Accounts\InvoiceSupplierDashboard\contractSelectListing.js" />
     <Content Include="Scripts\Accounts\InvoiceSupplierDashboard\editContractsInvoiceSupplier.js" />
     <Content Include="Scripts\Accounts\ReconciliationsDashboard\reconciliationsDashboard.js" />
+    <Content Include="Scripts\Accounts\ResolveContractsDashboard\resolveContractsDashboard.js" />
     <Content Include="Scripts\Dropdown\dropdowns.js" />
     <Content Include="Scripts\Dual\createDual.js" />
     <Content Include="Scripts\Dual\editDual.js" />
@@ -269,6 +271,7 @@
     <Compile Include="Controllers\Accounts\ClawbacksDashboard\ClawbacksDashboardController.cs" />
     <Compile Include="Controllers\Accounts\InvoiceSupplierDashboard\InvoiceSupplierDashboardController.cs" />
     <Compile Include="Controllers\Accounts\ReconciliationsDashboard\ReconciliationsDashboardController.cs" />
+    <Compile Include="Controllers\Accounts\ResolveContractsDashboard\ResolveContractsDashboardController.cs" />
     <Compile Include="Controllers\Base\BaseController.cs" />
     <Compile Include="Controllers\Error\ErrorController.cs" />
     <Compile Include="Controllers\PreSales\CheckDuplicateAccountController.cs" />
@@ -380,6 +383,7 @@
     <Compile Include="Models\Accounts\InvoiceSupplierDashboard\ContractSelectRowViewModel.cs" />
     <Compile Include="Models\Accounts\InvoiceSupplierDashboard\ContractStatusHelper.cs" />
     <Compile Include="Models\Accounts\ReconciliationsDashboard\ReconciliationsRowViewModel.cs" />
+    <Compile Include="Models\Accounts\ResolveContractsDashboard\ResolveContractsDashboardViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\BGB\BGBEacLogViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\BGB\DBModel\CE_BGBCommissionAndReconciliation.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\BGB\DBModel\CE_BGBCommissionMetrics.cs" />
@@ -470,6 +474,7 @@
     <Content Include="Views\Accounts\AwaitingPaymentsDashboard\AwaitingPaymentsDashboard.cshtml" />
     <Content Include="Views\Accounts\ReconciliationsDashboard\ReconciliationsDashboard.cshtml" />
     <Content Include="Views\Accounts\ClawbacksDashboard\ClawbacksDashboard.cshtml" />
+    <Content Include="Views\Accounts\ResolveContractsDashboard\ResolveContractsDashboard.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
