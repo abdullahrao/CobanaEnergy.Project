@@ -238,6 +238,7 @@
     <Content Include="Content\Supplier\EditSupplier.css" />
     <Content Include="Content\Supplier\SupplierCreation.css" />
     <Content Include="Content\Supplier\SupplierDashboard.css" />
+    <Content Include="Content\test rao css.css" />
     <Content Include="Global.asax" />
     <Content Include="Scripts\Accounts\AwaitingPaymentsDashboard\awaitingPaymentsDashboard.js" />
     <Content Include="Scripts\Accounts\BGBContracts\editBGBContract.js" />
