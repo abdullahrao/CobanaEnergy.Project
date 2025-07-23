@@ -430,7 +430,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
                 decimal.TryParse(commission, out decimal supplierCommsVal);
 
                 // Fetch all EAC logs
-                var eacLogs = await _db.CE_BGBEacLogs
+                var eacLogs = await _db.CE_EacLogs
                     .Where(l => l.EId == model.EId && l.ContractType == contractType)
                     .OrderByDescending(l => l.CreatedAt)
                     .ToListAsync();
@@ -646,7 +646,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
                     if (!ModelState.IsValid)
                         return Json(JsonResponse.Fail("Please fill all required fields correctly."));
 
-                    var log = new CE_BGBEacLogs
+                    var log = new CE_EacLogs
                     {
                         EId = model.EId,
                         ContractType = model.ContractType,
@@ -661,10 +661,10 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
                         CreatedAt = DateTime.Now
                     };
 
-                    _db.CE_BGBEacLogs.Add(log);
+                    _db.CE_EacLogs.Add(log);
                     await _db.SaveChangesAsync();
 
-                    var logs = await _db.CE_BGBEacLogs
+                    var logs = await _db.CE_EacLogs
                         .Where(x => x.EId == model.EId && x.ContractType == model.ContractType)
                         .OrderByDescending(x => x.CreatedAt)
                         .Select(x => new
@@ -735,7 +735,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
                 if (string.IsNullOrWhiteSpace(eid))
                     return JsonResponse.Fail("Invalid EId.");
 
-                var logs = await _db.CE_BGBEacLogs
+                var logs = await _db.CE_EacLogs
                     .Where(x => x.EId == eid && x.ContractType == contractType)
                     .OrderByDescending(x => x.CreatedAt)
                     .ToListAsync();
@@ -801,7 +801,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
         }
 
         // Get latest EAC value for a specific year
-        private decimal GetLatestEacValue(List<CE_BGBEacLogs> logs, string year)
+        private decimal GetLatestEacValue(List<CE_EacLogs> logs, string year)
         {
             try
             {

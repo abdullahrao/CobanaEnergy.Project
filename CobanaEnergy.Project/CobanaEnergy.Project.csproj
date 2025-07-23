@@ -220,6 +220,7 @@
     <Content Include="Content\Accounts\ClawbacksDashboard\ClawbacksDashboard.css" />
     <Content Include="Content\Accounts\InvoiceSupplierDashboard\ContractSelectListing.css" />
     <Content Include="Content\Accounts\InvoiceSupplierDashboard\EditContractsInvoiceSupplier.css" />
+    <Content Include="Content\Accounts\ProblematicsDashboard\ProblematicsDashboard.css" />
     <Content Include="Content\Accounts\ReconciliationsDashboard\ReconciliationsDashboard.css" />
     <Content Include="Content\Accounts\ResolveContractsDashboard\ResolveContractsDashboard.css" />
     <Content Include="Content\Dual\CreateDual.css" />
@@ -243,6 +244,7 @@
     <Content Include="Scripts\Accounts\ClawbacksDashboard\clawbacksDashboard.js" />
     <Content Include="Scripts\Accounts\InvoiceSupplierDashboard\contractSelectListing.js" />
     <Content Include="Scripts\Accounts\InvoiceSupplierDashboard\editContractsInvoiceSupplier.js" />
+    <Content Include="Scripts\Accounts\ProblematicsDashboard\problematicsDashboard.js" />
     <Content Include="Scripts\Accounts\ReconciliationsDashboard\reconciliationsDashboard.js" />
     <Content Include="Scripts\Accounts\ResolveContractsDashboard\resolveContractsDashboard.js" />
     <Content Include="Scripts\Dropdown\dropdowns.js" />
@@ -270,6 +272,7 @@
     <Compile Include="Controllers\Accounts\BGBContracts\BGBContractController.cs" />
     <Compile Include="Controllers\Accounts\ClawbacksDashboard\ClawbacksDashboardController.cs" />
     <Compile Include="Controllers\Accounts\InvoiceSupplierDashboard\InvoiceSupplierDashboardController.cs" />
+    <Compile Include="Controllers\Accounts\ProblematicsDashboard\ProblematicsDashboardController.cs" />
     <Compile Include="Controllers\Accounts\ReconciliationsDashboard\ReconciliationsDashboardController.cs" />
     <Compile Include="Controllers\Accounts\ResolveContractsDashboard\ResolveContractsDashboardController.cs" />
     <Compile Include="Controllers\Base\BaseController.cs" />
@@ -376,12 +379,17 @@
     <Compile Include="Migrations\202507211513135_InitialMapping24.Designer.cs">
       <DependentUpon>202507211513135_InitialMapping24.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202507231048477_InitialMapping25.cs" />
+    <Compile Include="Migrations\202507231048477_InitialMapping25.Designer.cs">
+      <DependentUpon>202507231048477_InitialMapping25.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\Accounts\AwaitingPaymentsDashboard\AwaitingPaymentsDashboard.cs" />
     <Compile Include="Models\Accounts\ClawbacksDashboard\ClawbacksDashboardViewModel.cs" />
     <Compile Include="Models\Accounts\DBModel\CE_ContractStatus.cs" />
     <Compile Include="Models\Accounts\InvoiceSupplierDashboard\ContractEditTableViewModel.cs" />
     <Compile Include="Models\Accounts\InvoiceSupplierDashboard\ContractSelectRowViewModel.cs" />
     <Compile Include="Models\Accounts\InvoiceSupplierDashboard\ContractStatusHelper.cs" />
+    <Compile Include="Models\Accounts\ProblematicsDashboard\ProblematicsDashboardViewModel.cs" />
     <Compile Include="Models\Accounts\ReconciliationsDashboard\ReconciliationsRowViewModel.cs" />
     <Compile Include="Models\Accounts\ResolveContractsDashboard\ResolveContractsDashboardViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\BGB\BGBEacLogViewModel.cs" />
@@ -475,6 +483,7 @@
     <Content Include="Views\Accounts\ReconciliationsDashboard\ReconciliationsDashboard.cshtml" />
     <Content Include="Views\Accounts\ClawbacksDashboard\ClawbacksDashboard.cshtml" />
     <Content Include="Views\Accounts\ResolveContractsDashboard\ResolveContractsDashboard.cshtml" />
+    <Content Include="Views\Accounts\ProblematicsDashboard\ProblematicsDashboard.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -566,6 +575,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202507211513135_InitialMapping24.resx">
       <DependentUpon>202507211513135_InitialMapping24.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202507231048477_InitialMapping25.resx">
+      <DependentUpon>202507231048477_InitialMapping25.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

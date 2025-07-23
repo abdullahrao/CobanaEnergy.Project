@@ -6,8 +6,8 @@ using System.Web;
 
 namespace CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGB.DBModel
 {
-    [Table("CE_BGBEacLogs")]
-    public class CE_BGBEacLogs
+    [Table("CE_EacLogs")]
+    public class CE_EacLogs
     {
         public long Id { get; set; }
         public string EId { get; set; }
