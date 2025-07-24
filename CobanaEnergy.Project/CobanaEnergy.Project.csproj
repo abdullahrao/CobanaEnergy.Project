@@ -217,6 +217,7 @@
   <ItemGroup>
     <Content Include="Content\Accounts\AwaitingPaymentsDashboard\AwaitingPaymentsDashboard.css" />
     <Content Include="Content\Accounts\BGBContracts\EditBGBContract.css" />
+    <Content Include="Content\Accounts\CalendarDashboard\CalendarDashboard.css" />
     <Content Include="Content\Accounts\ClawbacksDashboard\ClawbacksDashboard.css" />
     <Content Include="Content\Accounts\InvoiceSupplierDashboard\ContractSelectListing.css" />
     <Content Include="Content\Accounts\InvoiceSupplierDashboard\EditContractsInvoiceSupplier.css" />
@@ -241,6 +242,7 @@
     <Content Include="Global.asax" />
     <Content Include="Scripts\Accounts\AwaitingPaymentsDashboard\awaitingPaymentsDashboard.js" />
     <Content Include="Scripts\Accounts\BGBContracts\editBGBContract.js" />
+    <Content Include="Scripts\Accounts\CalendarDashboard\calendarDashboard.js" />
     <Content Include="Scripts\Accounts\ClawbacksDashboard\clawbacksDashboard.js" />
     <Content Include="Scripts\Accounts\InvoiceSupplierDashboard\contractSelectListing.js" />
     <Content Include="Scripts\Accounts\InvoiceSupplierDashboard\editContractsInvoiceSupplier.js" />
@@ -270,6 +272,7 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\Accounts\AwaitingPaymentsDashboard\AwaitingPaymentsDashboardController.cs" />
     <Compile Include="Controllers\Accounts\BGBContracts\BGBContractController.cs" />
+    <Compile Include="Controllers\Accounts\CalendarDashboard\CalendarDashboardController.cs" />
     <Compile Include="Controllers\Accounts\ClawbacksDashboard\ClawbacksDashboardController.cs" />
     <Compile Include="Controllers\Accounts\InvoiceSupplierDashboard\InvoiceSupplierDashboardController.cs" />
     <Compile Include="Controllers\Accounts\ProblematicsDashboard\ProblematicsDashboardController.cs" />
@@ -384,6 +387,7 @@
       <DependentUpon>202507231048477_InitialMapping25.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\Accounts\AwaitingPaymentsDashboard\AwaitingPaymentsDashboard.cs" />
+    <Compile Include="Models\Accounts\CalendarDashboard\CalendarDashboardViewModel.cs" />
     <Compile Include="Models\Accounts\ClawbacksDashboard\ClawbacksDashboardViewModel.cs" />
     <Compile Include="Models\Accounts\DBModel\CE_ContractStatus.cs" />
     <Compile Include="Models\Accounts\InvoiceSupplierDashboard\ContractEditTableViewModel.cs" />
@@ -484,6 +488,7 @@
     <Content Include="Views\Accounts\ClawbacksDashboard\ClawbacksDashboard.cshtml" />
     <Content Include="Views\Accounts\ResolveContractsDashboard\ResolveContractsDashboard.cshtml" />
     <Content Include="Views\Accounts\ProblematicsDashboard\ProblematicsDashboard.cshtml" />
+    <Content Include="Views\Accounts\CalendarDashboard\CalendarDashboard.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
