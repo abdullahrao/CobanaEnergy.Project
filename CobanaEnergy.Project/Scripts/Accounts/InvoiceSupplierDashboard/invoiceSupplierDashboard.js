@@ -1,14 +1,16 @@
 ﻿$(document).ready(function () {
     $(document).on('shown.bs.modal', '#invoiceUploadModal', function () {
-        if ($('#SupplierId').data('select2')) {
-            $('#SupplierId').select2('destroy');
-        }
-        $('#SupplierId').select2({
-            dropdownParent: $('#invoiceUploadModal'),
-            width: '100%',
-            placeholder: "Select Supplier",
-            allowClear: true
-        });
+        setTimeout(function () {
+            if ($('#SupplierId').data('select2')) {
+                $('#SupplierId').select2('destroy');
+            }
+            $('#SupplierId').select2({
+                dropdownParent: $('#invoiceUploadModal'),
+                width: '100%',
+                placeholder: "Select Supplier",
+                allowClear: true
+            });
+        }, 10);
     });
 
     $(document).on('click', '#browseFileBtn', function () {
