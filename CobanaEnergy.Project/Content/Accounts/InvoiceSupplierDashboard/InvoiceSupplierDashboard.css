@@ -120,3 +120,38 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
+
+.invoice-supplier-modal.modal.fade .modal-dialog {
+    transform: translateY(-12px);
+    opacity: 0;
+    transition: transform 0.25s ease-out, opacity 0.25s ease-out;
+}
+
+.invoice-supplier-modal.modal.fade.show .modal-dialog {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.invoice-supplier-modal .modal-body {
+    opacity: 1 !important;
+    transition: none !important;
+}
+.invoice-supplier-modal .modal-dialog {
+    will-change: transform, opacity;
+}
+
+.invoice-supplier-modal .modal-content {
+    animation: fadeInUp 0.2s ease-out both;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

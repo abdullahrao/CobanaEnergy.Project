@@ -8,6 +8,15 @@ table th {
 }
 
 /* ========================
+   popup- Invoice Supplier Dashboard
+======================== */
+.modal.fade.invoice-supplier-modal .modal-dialog {
+    transform: none !important;
+    opacity: 1 !important;
+    transition: none !important;
+}
+
+/* ========================
    Cobana Navbar Final
 ======================== */
 .custom-navbar {
