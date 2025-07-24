@@ -12,7 +12,14 @@
         <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
             <ul class="navbar-nav align-items-center gap-4">
 
-                <!-- Pre-Sales -->
+                <!-- Calendar-->
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Index", "CalendarDashboard")" id="CalendarMenu" title="Calendar Dashboard">
+                        <i class="fas fa-calendar-alt me-1"></i> Calendar
+                    </a>
+                </li>
+
+                <!-- Pre-Sales & Controls-->
                 @if (User.IsInRole("Pre-sales") || User.IsInRole("Controls"))
                 {
                     <li class="nav-item dropdown">
@@ -20,15 +27,15 @@
                             <i class="fas fa-briefcase me-1"></i> Pre-Sales
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="preSalesMenu">
-                            <li><a class="dropdown-item" href="/PreSales/Dashboard"><i class="fas fa-chart-line me-2"></i> Dashboard</a></li>
-                            <li><a class="dropdown-item" href="/Electric/CreateElectric"><i class="fas fa-bolt me-2"></i> Electric Contract</a></li>
-                            <li><a class="dropdown-item" href="/Gas/CreateGas"><i class="fas fa-fire me-2"></i> Gas Contract</a></li>
-                            <li><a class="dropdown-item" href="/Dual/CreateDual"><i class="fas fa-plug me-2"></i> Dual Contract</a></li>
+                            <li><a class="dropdown-item" href="@Url.Action("Dashboard", "PreSales")"><i class="fas fa-chart-line me-2"></i> Dashboard</a></li>
+                            <li><a class="dropdown-item" href="@Url.Action("CreateElectric", "Electric")"><i class="fas fa-bolt me-2"></i> Electric Contract</a></li>
+                            <li><a class="dropdown-item" href="@Url.Action("CreateGas", "Gas")"><i class="fas fa-fire me-2"></i> Gas Contract</a></li>
+                            <li><a class="dropdown-item" href="@Url.Action("CreateDual", "Dual")"><i class="fas fa-plug me-2"></i> Dual Contract</a></li>
                         </ul>
                     </li>
                 }
 
-                <!-- Accounts -->
+                <!-- Accounts & Controls -->
                 @if (User.IsInRole("Controls") || User.IsInRole("Accounts"))
                 {
                     <li class="nav-item dropdown">
