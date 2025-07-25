@@ -20,9 +20,9 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
     {
 
         private readonly ApplicationDBContext db;
-        public AwaitingPaymentsDashboardController()
+        public AwaitingPaymentsDashboardController(ApplicationDBContext _db)
         {
-            db = new ApplicationDBContext();
+            db = _db;
         }
 
         [HttpGet]
@@ -77,7 +77,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
                                     dt.Date >= start && dt.Date <= end)
                         .ToList();
                 }
-                else if(startDate.HasValue && !endDate.HasValue)
+                else if (startDate.HasValue && !endDate.HasValue)
                 {
                     return JsonResponse.Fail("Please select both dates!");
                 }

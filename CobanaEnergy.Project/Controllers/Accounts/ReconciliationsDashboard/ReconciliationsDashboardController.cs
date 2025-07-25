@@ -31,9 +31,9 @@ namespace CobanaEnergy.Project.Controllers.Accounts.ReconciliationsDashboard
             "Awaiting Final Reconciliation"
         };
 
-        public ReconciliationsDashboardController()
+        public ReconciliationsDashboardController(ApplicationDBContext _db)
         {
-            db = new ApplicationDBContext();
+            db = _db;
         }
 
         [HttpGet]

@@ -28,9 +28,9 @@ namespace CobanaEnergy.Project.Controllers.Accounts.ProblematicsDashboard
             "Lost Confirmation"
         };
 
-        public ProblematicsDashboardController()
+        public ProblematicsDashboardController(ApplicationDBContext _db)
         {
-            db = new ApplicationDBContext();
+            db = _db;
         }
 
         [HttpGet]

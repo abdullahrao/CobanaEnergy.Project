@@ -24,9 +24,9 @@ namespace CobanaEnergy.Project.Controllers.Accounts.ResolveContractsDashboard
             "Never Live - Resolved"
         };
 
-        public ResolveContractsDashboardController()
+        public ResolveContractsDashboardController(ApplicationDBContext _db)
         {
-            db = new ApplicationDBContext();
+            db = _db;
         }
 
         [HttpGet]

@@ -14,14 +14,14 @@ using System.Web.Mvc;
 
 namespace CobanaEnergy.Project.Controllers.Accounts.CalendarDashboard
 {
-    //[Authorize(Roles = "Accounts,Controls")]
+    [Authorize(Roles = "Accounts,Controls,Admin,Management,Post-sales,Pre-sales")]
     public class CalendarDashboardController : BaseController
     {
         private readonly ApplicationDBContext db;
 
-        public CalendarDashboardController()
+        public CalendarDashboardController(ApplicationDBContext _db)
         {
-            db = new ApplicationDBContext();
+            db = _db;
         }
 
         [HttpGet]

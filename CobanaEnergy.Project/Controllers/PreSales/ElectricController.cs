@@ -23,9 +23,9 @@ namespace CobanaEnergy.Project.Controllers.PreSales
     public class ElectricController : BaseController
     {
         private readonly ApplicationDBContext db;
-        public ElectricController()
+        public ElectricController(ApplicationDBContext _db)
         {
-            db = new ApplicationDBContext();
+            db = _db;
         }
 
         #region create_electric

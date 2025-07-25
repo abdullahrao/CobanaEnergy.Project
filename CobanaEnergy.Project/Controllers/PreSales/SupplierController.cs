@@ -22,9 +22,9 @@ namespace CobanaEnergy.Project.Controllers.PreSales
     {
         private readonly ApplicationDBContext db;
 
-        public SupplierController()
+        public SupplierController(ApplicationDBContext _db)
         {
-            db = new ApplicationDBContext();
+            db = _db;
         }
 
         #region supplier_creation

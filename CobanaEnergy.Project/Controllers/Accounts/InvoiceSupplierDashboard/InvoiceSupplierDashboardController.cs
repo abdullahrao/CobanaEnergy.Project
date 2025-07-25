@@ -25,9 +25,9 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
     {
         private readonly ApplicationDBContext db;
 
-        public InvoiceSupplierDashboardController()
+        public InvoiceSupplierDashboardController(ApplicationDBContext _db)
         {
-            db = new ApplicationDBContext();
+            db = _db;
         }
 
         #region popup
