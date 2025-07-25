@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,7 +12,8 @@ namespace Logic
     {
         private static readonly string LogDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "LOGS");
 
-        public static void Log(string message)
+        public static void Log(string message, [CallerFilePath] string file = "",
+            [CallerMemberName] string member = "", [CallerLineNumber] int line = 0)
         {
             try
             {
@@ -27,6 +29,7 @@ namespace Logic
                 logEntry.AppendLine("----- LOG ENTRY -----");
                 logEntry.AppendLine($"Time: {DateTime.Now:HH:mm:ss}");
                 logEntry.AppendLine($"Message: {message}");
+                logEntry.AppendLine($"Location: {Path.GetFileName(file)} -> {member}() [Line {line}]");
                 logEntry.AppendLine();
 
                 File.AppendAllText(fullPath, logEntry.ToString());

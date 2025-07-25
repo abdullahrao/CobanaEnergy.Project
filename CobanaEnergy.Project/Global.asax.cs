@@ -1,4 +1,5 @@
 ﻿using CobanaEnergy.Project.Controllers.Error;
+using CobanaEnergy.Project.Filters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,9 @@ namespace CobanaEnergy.Project
             AreaRegistration.RegisterAllAreas();
             GlobalConfiguration.Configure(WebApiConfig.Register);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
+
+            //DI
+            AutofacConfig.RegisterDependencies();
         }
 
         protected void Application_Error()

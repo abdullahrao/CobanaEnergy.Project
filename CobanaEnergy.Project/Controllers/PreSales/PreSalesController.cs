@@ -16,9 +16,9 @@ namespace CobanaEnergy.Project.Controllers.PreSales
     public class PreSalesController : BaseController
     {
         private readonly ApplicationDBContext db;
-        public PreSalesController()
+        public PreSalesController(ApplicationDBContext _db)
         {
-            db = new ApplicationDBContext();
+            db = _db;
         }
 
         #region contract_listing

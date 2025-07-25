@@ -29,9 +29,9 @@ namespace CobanaEnergy.Project.Controllers.PreSales
     public class DualController : BaseController
     {
         private readonly ApplicationDBContext _db;
-        public DualController()
+        public DualController(ApplicationDBContext db)
         {
-            _db = new ApplicationDBContext();
+            _db = db;
         }
 
         #region Dual_Contract

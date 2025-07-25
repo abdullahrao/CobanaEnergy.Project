@@ -15,9 +15,9 @@ namespace CobanaEnergy.Project.Controllers.PreSales
     public class CheckDuplicateAccountController : BaseController
     {
         private readonly ApplicationDBContext db;
-        public CheckDuplicateAccountController()
+        public CheckDuplicateAccountController(ApplicationDBContext _db)
         {
-            db = new ApplicationDBContext();
+            db = _db;
         }
 
         [HttpGet]

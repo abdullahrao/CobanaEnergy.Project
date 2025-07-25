@@ -23,9 +23,9 @@ namespace CobanaEnergy.Project.Controllers.PreSales
     {
         private readonly ApplicationDBContext db;
 
-        public GasController()
+        public GasController(ApplicationDBContext _db)
         {
-            db = new ApplicationDBContext();
+            db = _db;
         }
 
         #region create_gas

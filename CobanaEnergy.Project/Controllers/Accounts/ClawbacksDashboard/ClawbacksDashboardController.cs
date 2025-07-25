@@ -28,9 +28,9 @@ namespace CobanaEnergy.Project.Controllers.Accounts.ClawbacksDashboard
             "Reverse Clawback"
         };
 
-        public ClawbacksDashboardController()
+        public ClawbacksDashboardController(ApplicationDBContext _db)
         {
-            db = new ApplicationDBContext();
+            db = _db;
         }
 
         [HttpGet]

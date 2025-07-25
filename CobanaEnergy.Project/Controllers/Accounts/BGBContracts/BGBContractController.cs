@@ -22,9 +22,9 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
     public class BGBContractController : BaseController
     {
         private readonly ApplicationDBContext _db;
-        public BGBContractController()
+        public BGBContractController(ApplicationDBContext db)
         {
-            _db = new ApplicationDBContext();
+            _db = db;
         }
 
         #region BGBContract 
