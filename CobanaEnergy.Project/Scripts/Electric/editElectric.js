@@ -42,7 +42,7 @@
             }, 1000);
         }
 
-        $commsSelect.prop('disabled', false);
+        $commsSelect.prop('disabled', true);
     });
 
     $('#editElectricForm').on('submit', async function (e) {

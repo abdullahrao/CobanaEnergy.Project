@@ -45,7 +45,7 @@
             }, 1000);
         }
 
-        $commsSelect.prop('disabled', false);
+        $commsSelect.prop('disabled', true);
     });
 
     $('#editGasForm').on('submit',async function (e) {
