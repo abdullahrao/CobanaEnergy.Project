@@ -84,7 +84,7 @@
             }, 1000);
         }
 
-        $comms.prop('disabled', false);
+        $comms.prop('disabled', true);
     }
 
     $('.form-control, .form-select').on('input change', function () {

@@ -396,6 +396,14 @@
     <Compile Include="Migrations\202507231048477_InitialMapping25.Designer.cs">
       <DependentUpon>202507231048477_InitialMapping25.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202507281352068_InitialMapping26.cs" />
+    <Compile Include="Migrations\202507281352068_InitialMapping26.Designer.cs">
+      <DependentUpon>202507281352068_InitialMapping26.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202507281354107_InitialMapping27.cs" />
+    <Compile Include="Migrations\202507281354107_InitialMapping27.Designer.cs">
+      <DependentUpon>202507281354107_InitialMapping27.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\Accounts\AwaitingPaymentsDashboard\AwaitingPaymentsDashboard.cs" />
     <Compile Include="Models\Accounts\CalendarDashboard\CalendarDashboardViewModel.cs" />
     <Compile Include="Models\Accounts\ClawbacksDashboard\ClawbacksDashboardViewModel.cs" />
@@ -593,6 +601,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202507231048477_InitialMapping25.resx">
       <DependentUpon>202507231048477_InitialMapping25.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202507281352068_InitialMapping26.resx">
+      <DependentUpon>202507281352068_InitialMapping26.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202507281354107_InitialMapping27.resx">
+      <DependentUpon>202507281354107_InitialMapping27.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

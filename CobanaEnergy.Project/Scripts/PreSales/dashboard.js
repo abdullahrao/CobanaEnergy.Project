@@ -32,7 +32,7 @@ function loadContractTable() {
 
             const row = `
                             <tr>
-                                <td><a href="/${controler}?eid=${r.EId}" class="btn btn-sm edit-btn" title="Edit"><i class="fas fa-pencil-alt me-1"></i> Edit</a></td>
+                                <td><a href="/${controler}?eid=${r.EId}" class="btn btn-sm edit-btn" target="_blank" title="Edit"><i class="fas fa-pencil-alt me-1"></i> Edit</a></td>
                                 <td>${r.Agent}</td>
                                 <td>${r.MPAN || '-'}</td>
                                 <td>${r.MPRN || '-'}</td>
