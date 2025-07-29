@@ -14,7 +14,7 @@
 
     const $supplier = $('#supplierSelect');
     const $product = $('#productSelect');
-   // $supplier.prop('disabled', true); 
+    // $supplier.prop('disabled', true); 
 
     function populateDropdown(id, values) {
         const $el = $('#' + id);
@@ -48,7 +48,7 @@
         $commsSelect.prop('disabled', true);
     });
 
-    $('#editGasForm').on('submit',async function (e) {
+    $('#editGasForm').on('submit', async function (e) {
         e.preventDefault();
         let hasInvalid = false;
 
@@ -64,14 +64,6 @@
             const $first = $(this).find(':invalid').first();
             $first.focus();
             showToastWarning("Please fill all required fields.");
-            return;
-        }
-
-        const $uplift = $('#uplift');
-        const $supplier = $('#supplierSelect');
-        const isValid = await validateUpliftAgainstSupplierLimitGas($uplift, $supplier, 'Gas');
-        if (!isValid) {
-            $uplift.focus();
             return;
         }
 
@@ -119,6 +111,16 @@
 
         const $btn = $(this).find('button[type="submit"]');
         $btn.prop('disabled', true).text('Updating...');
+
+        const $uplift = $('#uplift');
+        const $supplier = $('#supplierSelect');
+        const eid = $('#eid').val();
+        const isValid = await validateUpliftAgainstSupplierLimitGas($uplift, $supplier, eid);
+        if (!isValid) {
+            $uplift.focus();
+            $btn.prop('disabled', false).text('Update Contract');
+            return;
+        }
 
         $.ajax({
             url: '/Gas/EditGas',
@@ -282,7 +284,7 @@
     });
 
     $('#supplierSelect').on('change', async function () {
-        if ($(this).is(':disabled')) return; 
+        if ($(this).is(':disabled')) return;
         const eid = $('#eid').val();
         await validateUpliftAgainstSupplierLimitGas($('#uplift'), $('#supplierSelect'), eid);
     });

@@ -111,26 +111,27 @@
             return;
         }
 
+        const model = getDualModel();
+
+        const $btn = $(this).find('button[type="submit"]');
+        $btn.prop('disabled', true).text('Updating...');
+
         const $electricUplift = $('#electricUplift');
-        const $electricSupplier = $('#electricSupplier');
         const $gasUplift = $('#gasUplift');
-        const $gasSupplier = $('#gasSupplier');
 
         const isElectricValid = await validateUpliftAgainstSupplierLimitElectric($('#electricUplift'), $('#electricSupplier'), $('#eid').val());
         if (!isElectricValid) {
             $electricUplift.focus();
+            $btn.prop('disabled', false).text('Update Dual Contract');
             return;
         }
 
         const isGasValid = await validateUpliftAgainstSupplierLimitGas($('#gasUplift'), $('#gasSupplier'), $('#eid').val());
         if (!isGasValid) {
             $gasUplift.focus();
+            $btn.prop('disabled', false).text('Update Dual Contract');
             return;
         }
-
-        const model = getDualModel();
-        const $btn = $(this).find('button[type="submit"]');
-        $btn.prop('disabled', true).text('Updating...');
 
         $.ajax({
             url: '/Dual/EditDual',
@@ -371,5 +372,5 @@
     $('#gasUplift').on('blur', async function () {
         await validateUpliftAgainstSupplierLimitGas($('#gasUplift'), $('#gasSupplier'), $('#eid').val());
     });
-   
+
 });

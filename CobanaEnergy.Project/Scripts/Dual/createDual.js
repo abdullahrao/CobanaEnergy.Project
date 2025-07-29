@@ -89,7 +89,7 @@
             }
 
             $product.prop('disabled', false);
-            $comms.prop('disabled', false);
+            $comms.prop('disabled', true);
         });
     }
 
@@ -109,6 +109,7 @@
                 $comms.removeClass('highlight-temp');
             }, 1000);
         }
+        $comms.prop('disabled', true);
     }
 
     function restoreDefaults() {
@@ -120,7 +121,7 @@
 
     restoreDefaults();
 
-    $('#createDualForm').on('submit',async function (e) {
+    $('#createDualForm').on('submit', async function (e) {
         e.preventDefault();
 
         let hasInvalid = false;
@@ -138,23 +139,6 @@
             const $first = $(this).find(':invalid').first();
             $first.focus();
             showToastWarning("Please fill all required fields correctly.");
-            return;
-        }
-
-        const $electricUplift = $('#electricUplift');
-        const $electricSupplier = $('#electricSupplier');
-        const $gasUplift = $('#gasUplift');
-        const $gasSupplier = $('#gasSupplier');
-
-        const isElectricValid = await validateUpliftAgainstSupplierLimit($electricUplift, $electricSupplier, 'Electric');
-        if (!isElectricValid) {
-            $electricUplift.focus();
-            return;
-        }
-
-        const isGasValid = await validateUpliftAgainstSupplierLimit($gasUplift, $gasSupplier, 'Gas');
-        if (!isGasValid) {
-            $gasUplift.focus();
             return;
         }
 
@@ -226,6 +210,25 @@
 
         const $btn = $(this).find('button[type="submit"]');
         $btn.prop('disabled', true).text('Submitting...');
+
+        const $electricUplift = $('#electricUplift');
+        const $electricSupplier = $('#electricSupplier');
+        const $gasUplift = $('#gasUplift');
+        const $gasSupplier = $('#gasSupplier');
+
+        const isElectricValid = await validateUpliftAgainstSupplierLimit($electricUplift, $electricSupplier, 'Electric');
+        if (!isElectricValid) {
+            $electricUplift.focus();
+            $btn.prop('disabled', false).text('Create Dual Contract');
+            return;
+        }
+
+        const isGasValid = await validateUpliftAgainstSupplierLimit($gasUplift, $gasSupplier, 'Gas');
+        if (!isGasValid) {
+            $gasUplift.focus();
+            $btn.prop('disabled', false).text('Create Dual Contract');
+            return;
+        }
 
         $.ajax({
             url: '/Dual/CreateDual',
