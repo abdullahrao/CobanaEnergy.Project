@@ -46,13 +46,19 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 </head>
 <body class="d-flex flex-column min-vh-100">
-    @Html.Partial("_Header")
+    @if (ViewBag.HideLayoutElements != true)
+    {
+        @Html.Partial("_Header")
+    }
 
     <main class="container py-4">
         @RenderBody()
     </main>
 
-    @Html.Partial("_Footer")
+    @if (ViewBag.HideLayoutElements != true)
+    {
+        @Html.Partial("_Footer")
+    }
     <!-- Global Toast Notification Container -->
     <div class="position-fixed top-0 end-0 p-3" style="z-index: 1055">
         <div id="globalToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">

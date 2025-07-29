@@ -1,13 +1,13 @@
-﻿.change-password-container {
+﻿.create-user-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: calc(100vh - 12rem); 
+    min-height: calc(100vh - 12rem);
     padding: 1rem;
     background-color: #f8f9fa;
 }
 
-    .change-password-container .form-container {
+    .create-user-container .form-container {
         width: 100%;
         max-width: 500px;
         padding: 25px;
@@ -16,7 +16,7 @@
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     }
 
-    .change-password-container h2.form-heading {
+    .create-user-container h2.form-heading {
         font-family: 'Raleway', sans-serif;
         font-size: 1.8rem;
         font-weight: 700;
@@ -25,13 +25,13 @@
         margin-bottom: 1.5rem;
     }
 
-    .change-password-container .form-group {
+    .create-user-container .form-group {
         margin-bottom: 1.5rem;
         display: flex;
         flex-direction: column;
     }
 
-    .change-password-container input.form-control {
+    .create-user-container input.form-control {
         width: 100%;
         padding: 0.6rem 0.75rem;
         font-size: 1rem;
@@ -41,7 +41,11 @@
         background-color: #fff;
     }
 
-    .change-password-container button[type="submit"] {
+    .create-user-container select[multiple] option {
+        padding: 4px 10px;
+    }
+
+    .create-user-container button[type="submit"] {
         display: block;
         margin: 20px auto 0 auto;
         padding: 0.6rem 1.5rem;
@@ -55,13 +59,13 @@
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
     }
 
-        .change-password-container button[type="submit"]:hover {
+        .create-user-container button[type="submit"]:hover {
             background-color: #0056b3;
         }
 
-    .change-password-container .select2-container--default .select2-selection--single {
+    .create-user-container .select2-container--default .select2-selection--single {
         appearance: none;
-        background-image: none !important;
+        background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='10'%20height='6'%3E%3Cpath%20fill='%23333'%20d='M0%200l5%206%205-6z'/%3E%3C/svg%3E");
         background-repeat: no-repeat;
         background-position: right 0.75rem center;
         background-size: 10px 6px;
@@ -75,7 +79,7 @@
         align-items: center;
     }
 
-    .change-password-container .select2-container--default .select2-selection--multiple {
+    .create-user-container .select2-container--default .select2-selection--multiple {
         width: 100%;
         font-size: 1rem;
         font-family: 'Roboto Mono', monospace;
@@ -91,7 +95,7 @@
         gap: 0.25rem;
     }
 
-        .change-password-container .select2-container--default .select2-selection--multiple::after {
+        .create-user-container .select2-container--default .select2-selection--multiple::after {
             content: "";
             position: absolute;
             top: 50%;
@@ -105,7 +109,7 @@
             pointer-events: none;
         }
 
-    .change-password-container .select2-selection__choice {
+    .create-user-container .select2-selection__choice {
         background-color: #007bff;
         color: #000 !important;
         border-radius: 20px;
@@ -118,13 +122,13 @@
         text-overflow: ellipsis;
     }
 
-    .change-password-container .select2-container--default .select2-selection--multiple .select2-search__field {
+    .create-user-container .select2-container--default .select2-selection--multiple .select2-search__field {
         height: 30px;
         margin: 0;
         font-family: 'Roboto Mono', monospace;
     }
 
-    .change-password-container .select2-dropdown {
+    .create-user-container .select2-dropdown {
         width: 100% !important;
         max-width: 100% !important;
         box-sizing: border-box;
@@ -132,11 +136,11 @@
         font-size: 0.95rem;
     }
 
-    .change-password-container .select2-results__options {
+    .create-user-container .select2-results__options {
         max-height: 300px !important;
         overflow-y: auto;
     }
 
-    .change-password-container .select2-selection--multiple::-webkit-scrollbar {
+    .create-user-container .select2-selection--multiple::-webkit-scrollbar {
         height: 6px;
     }
