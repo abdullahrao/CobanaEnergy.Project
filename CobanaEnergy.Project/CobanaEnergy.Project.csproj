@@ -243,8 +243,9 @@
     <Content Include="Content\Accounts\InvoiceSupplierDashboard\InvoiceSupplierDashboard.css" />
     <Content Include="Content\PreSales\Dashboard.css" />
     <Content Include="Content\Signup\ChangePassword.css" />
+    <Content Include="Content\Signup\CreateUser.css" />
     <Content Include="Content\Site.css" />
-    <Content Include="Content\Signup\UserCreation.css" />
+    <Content Include="Content\Signup\Login.css" />
     <Content Include="Content\Supplier\EditSupplier.css" />
     <Content Include="Content\Supplier\SupplierCreation.css" />
     <Content Include="Content\Supplier\SupplierDashboard.css" />

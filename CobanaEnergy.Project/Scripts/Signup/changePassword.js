@@ -2,9 +2,9 @@
 
     $('#userDropdown').select2({
         placeholder: "Select User",
-        allowClear: true,
         width: '100%',
-        dropdownAutoWidth: true
+        dropdownAutoWidth: true,
+        dropdownParent: $('.form-container')
     });
 
 

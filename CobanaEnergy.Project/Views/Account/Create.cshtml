@@ -1,5 +1,4 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "Create User";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -9,25 +8,49 @@
     <div class="create-user-container">
         <div class="form-container">
             <h2 class="form-heading">Create New User</h2>
+
             @using (Html.BeginForm("Create", "Account", FormMethod.Post, new { id = "createUserForm", @class = "form-horizontal", role = "form" }))
             {
                 @Html.AntiForgeryToken()
 
                 <div class="form-group">
-                    @Html.TextBox("Username", null, new { @class = "form-control", placeholder = "Enter Username", required = "required", pattern = "^[A-Za-z]{3,}$", title = "Only alphabets allowed (min 3 letters)", autocomplete = "off" })
-
+                    @Html.TextBox("Username", null, new
+                    {
+                        @class = "form-control",
+                        placeholder = "Enter Username",
+                        required = "required",
+                        pattern = "^[A-Za-z]{3,}$",
+                        title = "Only alphabets allowed (min 3 letters)",
+                        autocomplete = "off"
+                    })
                 </div>
 
                 <div class="form-group">
-                    @Html.Password("Password", null, new { @class = "form-control", placeholder = "Enter Password", required = "required" })
+                    @Html.Password("Password", null, new
+                    {
+                        @class = "form-control",
+                        placeholder = "Enter Password",
+                        required = "required"
+                    })
                 </div>
 
                 <div class="form-group">
-                    @Html.Password("ConfirmPassword", null, new { @class = "form-control", placeholder = "Confirm Password", required = "required" })
+                    @Html.Password("ConfirmPassword", null, new
+                    {
+                        @class = "form-control",
+                        placeholder = "Confirm Password",
+                        required = "required"
+                    })
                 </div>
 
                 <div class="form-group">
-                    @Html.DropDownList("roles", new SelectList(ViewBag.Roles, "Name", "Name"), new { @class = "form-control", multiple = "multiple", title = "Select roles", required = "required" })
+                    @Html.DropDownList("roles", new SelectList(ViewBag.Roles, "Name", "Name"), new
+                    {
+                        @class = "form-control",
+                        multiple = "multiple",
+                        title = "Select roles",
+                        required = "required"
+                    })
                 </div>
 
                 <button type="submit" class="btn btn-primary mt-2">Create User</button>
@@ -36,29 +59,28 @@
     </div>
 
     @section scripts {
-
         @if (TempData["ToastMessage"] != null)
         {
             <script>
-            $(function () {
-                var message = "@TempData["ToastMessage"]";
-                var type = "@TempData["ToastType"]";
+                $(function () {
+                    const message = "@TempData["ToastMessage"]";
+                    const type = "@TempData["ToastType"]";
 
-                if (type === "success") {
-                    showToastSuccess(message);
-                } else if (type === "error") {
-                    showToastError(message);
-                }
-            });
+                    if (type === "success") {
+                        showToastSuccess(message);
+                    } else if (type === "error") {
+                        showToastError(message);
+                    }
+                });
             </script>
         }
+
         <script src="~/Scripts/Signup/userCreation.js"></script>
     }
 
     @section styles {
-        <link href="~/Content/Signup/UserCreation.css" rel="stylesheet" />
+        <link href="~/Content/Signup/CreateUser.css" rel="stylesheet" />
     }
-
 }
 else
 {

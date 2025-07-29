@@ -1,11 +1,10 @@
-﻿
-
-@{
+﻿@{
     ViewBag.Title = "Login";
+    ViewBag.HideLayoutElements = true;
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="create-user-container">
+<div class="login-container">
     <div class="form-container">
         <h2 class="form-heading">Cobana Portal</h2>
         @using (Html.BeginForm("Login", "Account", FormMethod.Post, new { id = "loginForm", role = "form" }))
@@ -29,5 +28,5 @@
     <script src="~/Scripts/Signup/login.js"></script>
 }
 @section styles {
-    <link href="~/Content/Signup/UserCreation.css" rel="stylesheet" />
+    <link href="~/Content/Signup/Login.css" rel="stylesheet" />
 }
