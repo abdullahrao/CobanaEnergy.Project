@@ -66,7 +66,7 @@
             }
 
             $product.prop('disabled', false);
-            $comms.prop('disabled', false);
+            $comms.prop('disabled', true);
         });
     });
 
@@ -86,7 +86,7 @@
                 $commsSelect.removeClass('highlight-temp');
             }, 1000);
         }
-
+        $commsSelect.prop('disabled', true);
     });
 
 
@@ -115,15 +115,6 @@
             showToastWarning("Please fill all required fields correctly.");
             return;
         }
-
-        const $uplift = $('#uplift');
-        const $supplier = $('#supplierSelect');
-        const isValid = await validateUpliftAgainstSupplierLimit($uplift, $supplier, 'Electric');
-        if (!isValid) {
-            $uplift.focus();
-            return;
-        }
-
 
         const model = {
             Department: $('#department').val(),
@@ -172,6 +163,15 @@
 
         const $btn = $(this).find('button[type="submit"]');
         $btn.prop('disabled', true).text('Submitting...');
+
+        const $uplift = $('#uplift');
+        const $supplier = $('#supplierSelect');
+        const isValid = await validateUpliftAgainstSupplierLimit($uplift, $supplier, 'Electric');
+        if (!isValid) {
+            $uplift.focus();
+            $btn.prop('disabled', false).text('Create Contract');
+            return;
+        }
 
         $.ajax({
             url: '/Electric/CreateElectric',

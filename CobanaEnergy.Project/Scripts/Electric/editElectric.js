@@ -64,14 +64,6 @@
             showToastWarning("Please fill all required fields.");
             return;
         }
-        const $uplift = $('#uplift');
-        const $supplier = $('#supplierSelect');
-        const eid = $('#eid').val();
-        const isValid = await validateUpliftAgainstSupplierLimitElectric($uplift, $supplier, eid);
-        if (!isValid) {
-            $uplift.focus();
-            return;
-        }
 
         const model = {
             EId: $('#eid').val(),
@@ -120,6 +112,16 @@
 
         const $btn = $(this).find('button[type="submit"]');
         $btn.prop('disabled', true).text('Updating...');
+
+        const $uplift = $('#uplift');
+        const $supplier = $('#supplierSelect');
+        const eid = $('#eid').val();
+        const isValid = await validateUpliftAgainstSupplierLimitElectric($uplift, $supplier, eid);
+        if (!isValid) {
+            $uplift.focus();
+            $btn.prop('disabled', false).text('Update Contract');
+            return;
+        }
 
         $.ajax({
             url: '/Electric/ElectricEdit',

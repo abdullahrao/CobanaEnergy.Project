@@ -66,7 +66,7 @@
             }
 
             $product.prop('disabled', false);
-            $comms.prop('disabled', false);
+            $comms.prop('disabled', true);
         });
     });
 
@@ -86,7 +86,7 @@
                 $commsSelect.removeClass('highlight-temp');
             }, 1000);
         }
-
+        $commsSelect.prop('disabled', true);
     });
 
     restoreDefaultFields();
@@ -110,14 +110,6 @@
             const $first = $(this).find(':invalid').first();
             $first.focus();
             showToastWarning("Please fill all required fields correctly.");
-            return;
-        }
-
-        const $uplift = $('#uplift');
-        const $supplier = $('#supplierSelect');
-        const isValid = await validateUpliftAgainstSupplierLimit($uplift, $supplier, 'Gas');
-        if (!isValid) {
-            $uplift.focus();
             return;
         }
 
@@ -164,6 +156,15 @@
 
         const $btn = $(this).find('button[type="submit"]');
         $btn.prop('disabled', true).text('Submitting...');
+
+        const $uplift = $('#uplift');
+        const $supplier = $('#supplierSelect');
+        const isValid = await validateUpliftAgainstSupplierLimit($uplift, $supplier, 'Gas');
+        if (!isValid) {
+            $uplift.focus();
+            $btn.prop('disabled', false).text('Create Gas Contract');
+            return;
+        }
 
         $.ajax({
             url: '/Gas/CreateGas',
