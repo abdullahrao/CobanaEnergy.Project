@@ -12,6 +12,12 @@ namespace CobanaEnergy.Project.Models.Accounts.MainCampaign.DBModel
     [Table("CE_Campaign")]
     public class CE_Campaign
     {
+        public CE_Campaign()
+        {
+            this.CE_CampaignNotifications = new List<CE_CampaignNotification>();
+            this.CE_UserNotificationStatuses = new List<CE_UserNotificationStatus>();
+        }
+
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
@@ -48,5 +54,8 @@ namespace CobanaEnergy.Project.Models.Accounts.MainCampaign.DBModel
         // Navigation property
         [ForeignKey("SupplierId")]
         public virtual CE_Supplier Supplier { get; set; }
+
+        public virtual ICollection<CE_CampaignNotification> CE_CampaignNotifications { get; set; }
+        public virtual ICollection<CE_UserNotificationStatus> CE_UserNotificationStatuses { get; set; }
     }
 }

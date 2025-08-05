@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNet.Identity.EntityFramework;
+﻿using CobanaEnergy.Project.Models.Accounts.MainCampaign.DBModel;
+using Microsoft.AspNet.Identity.EntityFramework;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -11,7 +12,13 @@ namespace CobanaEnergy.Project.Models
 {
     public class ApplicationUser : IdentityUser
     {
+        public ApplicationUser()
+        {
+                this.CE_UserNotificationStatuses = new HashSet<CE_UserNotificationStatus>();
+        }
         // Optional: Extend user profile
         // public string FullName { get; set; }
+
+        public virtual ICollection<CE_UserNotificationStatus> CE_UserNotificationStatuses { get; set; }
     }
 }

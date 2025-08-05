@@ -102,8 +102,8 @@
                     $('#contractsCount').text(res.Data.Count || "0");
                     $('#totalBonus').text(res.Data.TotalBonus || "0");
                     $('#targetAchieved').text(
-                        res.Data.TargetAchieved === false ? "False" :
-                            res.Data.TargetAchieved === true ? "True" :
+                        res.Data.TargetAchieved === false ? "No" :
+                            res.Data.TargetAchieved === true ? "Yes" :
                                 "N/A"
                     );
                 } else {
