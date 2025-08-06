@@ -341,6 +341,10 @@
     <Compile Include="Migrations\202506260826318_InitialMapping.Designer.cs">
       <DependentUpon>202506260826318_InitialMapping.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202508061059005_Rao_InitialMapping.cs" />
+    <Compile Include="Migrations\202508061059005_Rao_InitialMapping.Designer.cs">
+      <DependentUpon>202508061059005_Rao_InitialMapping.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\Accounts\AwaitingPaymentsDashboard\AwaitingPaymentsDashboard.cs" />
     <Compile Include="Models\Accounts\CalendarDashboard\CalendarDashboardViewModel.cs" />
     <Compile Include="Models\Accounts\ClawbacksDashboard\ClawbacksDashboardViewModel.cs" />
@@ -478,6 +482,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\202506260826318_InitialMapping.resx">
       <DependentUpon>202506260826318_InitialMapping.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202508061059005_Rao_InitialMapping.resx">
+      <DependentUpon>202508061059005_Rao_InitialMapping.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
