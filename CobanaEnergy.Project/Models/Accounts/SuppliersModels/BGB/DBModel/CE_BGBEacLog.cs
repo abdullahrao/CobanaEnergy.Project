@@ -18,7 +18,6 @@ namespace CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGB.DBModel
         public string InvoiceDate { get; set; }
         public string PaymentDate { get; set; }
         public string InvoiceAmount { get; set; }
-        public string SupplierEacD19 { get; set; }
         public string ContractType { get; set; }
         public DateTime CreatedAt { get; set; }
     }

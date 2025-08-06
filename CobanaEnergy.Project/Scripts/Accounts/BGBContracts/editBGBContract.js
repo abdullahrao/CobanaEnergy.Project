@@ -102,7 +102,6 @@
             <div class="log-field"><span class="log-label">Invoice Date:</span> ${escapeHtml(log.InvoiceDate)}</div>
             <div class="log-field"><span class="log-label">Payment Date:</span> ${escapeHtml(log.PaymentDate)}</div>
             <div class="log-field"><span class="log-label">Invoice (£):</span> ${escapeHtml(log.InvoiceAmount)}</div>
-            <div class="log-field"><span class="log-label">Supplier EAC D19:</span> ${escapeHtml(log.SupplierEacD19)}</div>
             <div class="log-field"><span class="log-label">MPAN:</span> ${escapeHtml(log.MPAN || "N/A")}</div>
             <div class="log-field"><span class="log-label">MPRN:</span> ${escapeHtml(log.MPRN || "N/A")}</div>
         </div>
@@ -121,7 +120,7 @@
                 ["Year", "EAC Value", "FINAL EAC", "Invoice No", "Invoice Date", "Payment Date", "Invoice (£)", "Supplier EAC D19", "MPAN", "MPRN"],
                 ...exportData.map(log => [
                     log.EacYear, log.EacValue, log.FinalEac, log.InvoiceNo, log.InvoiceDate,
-                    log.PaymentDate, log.InvoiceAmount, log.SupplierEacD19, log.MPAN || "N/A", log.MPRN || "N/A"
+                    log.PaymentDate, log.InvoiceAmount, log.MPAN || "N/A", log.MPRN || "N/A"
                 ])
             ];
             const ws = XLSX.utils.aoa_to_sheet(data);
@@ -317,7 +316,6 @@
             InvoiceDate: $("#invoiceDate").val(),
             PaymentDate: $("#paymentDate").val(),
             InvoiceAmount: $("#invoiceAmount").val(),
-            SupplierEacD19: $("#supplierEacD19").val(),
             __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
         };
     }
@@ -336,6 +334,32 @@
             $('#eid').val()
         );
     });
+
+    $('#eacYear').on('change', function () {
+        const selected = $(this).val();
+        if (selected === 'Final EAC') {
+            const eId = getEIdFromUrl();
+            const contractType = getContractTypeFromUrl();
+            const eacValue = $("#eacValue").val();
+
+            $.ajax({
+                url: '/BGBContract/CalculateFinalEacAverage',
+                type: 'POST',
+                data: { eId, contractType, eacValue },
+                success: function (res) {
+                    if (res.success) {
+                        $('#finalEac').val(res.Data);
+                    } else {
+                        showToastError(res.message || "Calculation failed");
+                    }
+                },
+                error: function () {
+                    showToastError('Something went wrong calculating Final EAC');
+                }
+            });
+        }
+    });
+
 
 });
 

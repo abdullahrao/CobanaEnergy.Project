@@ -29,6 +29,10 @@
                                 <option value="3RD YEAR EAC">3RD YEAR EAC</option>
                                 <option value="4TH YEAR EAC">4TH YEAR EAC</option>
                                 <option value="5TH YEAR EAC">5TH YEAR EAC</option>
+                                <option disabled>────────────</option>
+                                <option value="SUPPLIER EAC D19">SUPPLIER EAC D19</option>
+                                <option disabled>────────────</option>
+                                <option value="Final EAC">Final Eac</option>
                             </select>
                         </div>
                         <div class="col-md-6 col-lg-4">
@@ -56,10 +60,6 @@
                         <div class="col-md-6 col-lg-4">
                             <label class="form-label required" for="invoiceAmount">Invoice (£)</label>
                             <input type="text" id="invoiceAmount" class="form-control" required autocomplete="off" />
-                        </div>
-                        <div class="col-md-6 col-lg-4">
-                            <label class="form-label required" for="supplierEacD19">Supplier EAC D19</label>
-                            <input type="text" id="supplierEacD19" class="form-control" required autocomplete="off" />
                         </div>
                     </div>
                     <div class="text-center mt-3">
@@ -223,8 +223,8 @@
                             <select id="paymentStatus" class="form-select" required data-current="@Model.PaymentStatus"></select>
                         </div>
                         <div class="col-md-6 col-lg-4">
-                            <label class="form-label required" for="commissionFollowUpDate">Commission Follow-up Date</label>
-                            <input type="date" id="commissionFollowUpDate" required class="form-control" value="@Model.CommissionFollowUpDate" />
+                            <label class="form-label" for="commissionFollowUpDate">Commission Follow-up Date</label>
+                            <input type="date" id="commissionFollowUpDate" class="form-control" value="@Model.CommissionFollowUpDate" />
                         </div>
                         <div class="col-12">
                             <label class="form-label" for="supplierCobanaInvoiceNotes">Supplier Cobana Invoice Notes</label>
@@ -237,17 +237,84 @@
                     <button type="submit" class="btn btn-primary px-5">Update Contract</button>
                 </div>
             </form>
-            <div class="text-end">
-                <label>ContractDurationDays: @Model.ContractDurationDays</label><br />
-                <label>LiveDays: @Model.LiveDays</label><br />
-                <label>PercentLiveDays: @Model.PercentLiveDays</label><br />
-                <label>TotalCommissionForecast: @Model.TotalCommissionForecast</label><br />
-                <label>InitialCommissionForecast: @Model.InitialCommissionForecast</label><br />
-                <label>COTLostReconciliation: @Model.COTLostReconciliation</label><br />
-                <label>TotalAverageEAC: @Model.TotalAverageEAC</label><br />
+            <div class="form-section">
+                <div class="collapsible-section">
+                    <div class="collapsible-header" data-bs-toggle="collapse" data-bs-target="#commissionMetricsBody" aria-expanded="false" role="button">
+                        <h4 class="section-header mb-0">Commission Metrics</h4>
+                        <i class="toggle-icon bi bi-chevron-down ms-auto"></i>
+                    </div>
+                    <div class="collapse" id="commissionMetricsBody">
+                        <div class="row gx-3 gy-3 metrics-plaintext-display mt-3">
+                            <div class="col-md-6 col-lg-4">
+                                <label class="form-label">Contract Duration Days</label>
+                                <div class="readonly-value">@Model.ContractDurationDays</div>
+                            </div>
+                            <div class="col-md-6 col-lg-4">
+                                <label class="form-label">Live Days</label>
+                                <div class="readonly-value">@Model.LiveDays</div>
+                            </div>
+                            <div class="col-md-6 col-lg-4">
+                                <label class="form-label">Percent Live Days</label>
+                                <div class="readonly-value">@Model.PercentLiveDays</div>
+                            </div>
+                            <div class="col-md-6 col-lg-4">
+                                <label class="form-label">Total Commission Forecast</label>
+                                <div class="readonly-value">@Model.TotalCommissionForecast</div>
+                            </div>
+                            <div class="col-md-6 col-lg-4">
+                                <label class="form-label">Initial Commission Forecast</label>
+                                <div class="readonly-value">@Model.InitialCommissionForecast</div>
+                            </div>
+                            <div class="col-md-6 col-lg-4">
+                                <label class="form-label">COT/Lost Reconciliation</label>
+                                <div class="readonly-value">@Model.COTLostReconciliation</div>
+                            </div>
+                            <div class="col-md-6 col-lg-4">
+                                <label class="form-label">Total Average EAC</label>
+                                <div class="readonly-value">@Model.TotalAverageEAC</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            
-            
+
+            <div class="form-section">
+                <div class="collapsible-section">
+                    <div class="collapsible-header" data-bs-toggle="collapse" data-bs-target="#paymentLogsBody" aria-expanded="false" role="button">
+                        <h4 class="section-header mb-0">Payment & Notes Logs</h4>
+                        <i class="toggle-icon bi bi-chevron-down ms-auto"></i>
+                    </div>
+                    <div class="collapse" id="paymentLogsBody">
+                        <div class="row gx-3 gy-3 mt-3">
+                            <div class="col-12">
+                                <table class="table table-striped table-sm table-bordered payment-logs-table w-100">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Payment Status</th>
+                                            <th>Invoice Notes</th>
+                                            <th>Username</th>
+                                            <th>Date</th>
+                                            <th>Time</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var log in Model.PaymentNoteLogs)
+                                        {
+                                            <tr>
+                                                <td>@log.PaymentStatus</td>
+                                                <td>@log.CobanaInvoiceNotes</td>
+                                                <td>@log.Username</td>
+                                                <td>@log.CreatedAt.ToString("dd-MM-yyyy")</td>
+                                                <td>@log.CreatedAt.ToString("HH:mm:ss")</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Logs Panel -->

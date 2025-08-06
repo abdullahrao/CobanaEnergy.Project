@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGB.DBModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -69,5 +70,6 @@ namespace CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGB
         public string TotalAverageEAC { get; set; }
         public string PaymentStatus { get; set; }
         public string ContractStatus { get; set; }
+        public List<CE_PaymentAndNoteLogs> PaymentNoteLogs { get; set; }
     }
 }

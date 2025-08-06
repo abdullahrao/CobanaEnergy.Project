@@ -26,7 +26,5 @@ namespace CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGB
         public string InvoiceAmount { get; set; }
         [Required]
         public string ContractType { get; set; }
-        [Required]
-        public decimal SupplierEacD19 { get; set; }
     }
 }
