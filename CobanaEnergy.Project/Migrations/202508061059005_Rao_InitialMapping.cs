@@ -3,7 +3,7 @@
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class InitialMapping26 : DbMigration
+    public partial class Rao_InitialMapping : DbMigration
     {
         public override void Up()
         {
