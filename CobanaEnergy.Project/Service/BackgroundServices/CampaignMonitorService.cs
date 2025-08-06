@@ -79,7 +79,7 @@ namespace CobanaEnergy.Project.Service.BackgroundServices
                         {
                             CampaignId = campaign.Id,
                             NotifiedAt = DateTime.Now,
-                            Message = $"🎯 Sale target achieved for campaign: {campaign.CampaignName}"
+                            Message = $"🎯 Sale target achieved for campaign: {campaign.CampaignName}. 🎉🌟💯🥳"
                         };
                         _db.CE_CampaignNotifications.Add(existingNotification);
                         await _db.SaveChangesAsync();
