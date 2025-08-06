@@ -6,7 +6,7 @@
         searching: true,
         order: [],
         autoWidth: false,
-        dom: 'lfrtip', 
+        dom: 'lfrtip',
         columnDefs: [
             { orderable: false, targets: 0 }
         ]
@@ -23,7 +23,7 @@
                     return 'AwaitingPayments_' + today.toISOString().split('T')[0];
                 },
                 exportOptions: {
-                    columns: ':visible:not(:first-child)' 
+                    columns: ':visible:not(:first-child)'
                 }
             }
         ]
@@ -98,6 +98,12 @@
                 table.clear();
 
                 if (res.success) {
+                    if (res.Data == null || res.Data.length === 0) {
+                        showToastError("No contracts found.");
+                        table.clear().draw();
+                        $('#awaitingInvoiceCount').text("0");
+                        return;
+                    }
                     res.Data.Contracts.forEach(contract => {
                         table.row.add([
                             `<input type="checkbox" name="selectedContracts" value="${contract.EId}" />`,

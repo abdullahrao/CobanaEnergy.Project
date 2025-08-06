@@ -91,6 +91,12 @@
             success: function (res) {
                 table.clear();
                 if (res.success) {
+                    if (res.Data == null || res.Data.Contracts.length === 0) {
+                        showToastError("No contracts found.");
+                        table.clear().draw();
+                        $('#awaitingInvoiceCount').text("0");
+                        return;
+                    }
                     res.Data.Contracts.forEach(contract => {
                         table.row.add([
                             `<input type="checkbox" name="selectedContracts" value="${contract.EId}" />`,
