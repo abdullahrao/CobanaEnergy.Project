@@ -50,5 +50,6 @@ namespace CobanaEnergy.Project.Models
         public DbSet<CE_ContractStatuses> CE_ContractStatuses { get; set; }
         public DbSet<CE_CommissionAndReconciliation> CE_CommissionAndReconciliation { get; set; }
         public DbSet<CE_CommissionMetrics> CE_CommissionMetrics { get; set; }
+        public DbSet<CE_PaymentAndNoteLogs> CE_PaymentAndNoteLogs { get; set; }
     }
 }

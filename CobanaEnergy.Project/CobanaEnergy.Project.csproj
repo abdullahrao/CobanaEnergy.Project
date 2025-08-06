@@ -405,6 +405,22 @@
     <Compile Include="Migrations\202507281354107_InitialMapping27.Designer.cs">
       <DependentUpon>202507281354107_InitialMapping27.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202508050916440_InitialMapping28.cs" />
+    <Compile Include="Migrations\202508050916440_InitialMapping28.Designer.cs">
+      <DependentUpon>202508050916440_InitialMapping28.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202508060801163_InitialMapping29.cs" />
+    <Compile Include="Migrations\202508060801163_InitialMapping29.Designer.cs">
+      <DependentUpon>202508060801163_InitialMapping29.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202508060806345_InitialMapping30.cs" />
+    <Compile Include="Migrations\202508060806345_InitialMapping30.Designer.cs">
+      <DependentUpon>202508060806345_InitialMapping30.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202508060820233_InitialMapping31.cs" />
+    <Compile Include="Migrations\202508060820233_InitialMapping31.Designer.cs">
+      <DependentUpon>202508060820233_InitialMapping31.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\Accounts\AwaitingPaymentsDashboard\AwaitingPaymentsDashboard.cs" />
     <Compile Include="Models\Accounts\CalendarDashboard\CalendarDashboardViewModel.cs" />
     <Compile Include="Models\Accounts\ClawbacksDashboard\ClawbacksDashboardViewModel.cs" />
@@ -419,6 +435,7 @@
     <Compile Include="Models\Accounts\SuppliersModels\BGB\DBModel\CE_BGBCommissionAndReconciliation.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\BGB\DBModel\CE_BGBCommissionMetrics.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\BGB\DBModel\CE_BGBEacLog.cs" />
+    <Compile Include="Models\Accounts\SuppliersModels\BGB\DBModel\CE_PaymentAndNoteLog.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\BGB\EditBGBContractViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\BGB\UpdateContractViewModel.cs" />
     <Compile Include="Models\Dual\EditDual\DualContractEditViewModel.cs" />
@@ -608,6 +625,18 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202507281354107_InitialMapping27.resx">
       <DependentUpon>202507281354107_InitialMapping27.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202508050916440_InitialMapping28.resx">
+      <DependentUpon>202508050916440_InitialMapping28.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202508060801163_InitialMapping29.resx">
+      <DependentUpon>202508060801163_InitialMapping29.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202508060806345_InitialMapping30.resx">
+      <DependentUpon>202508060806345_InitialMapping30.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202508060820233_InitialMapping31.resx">
+      <DependentUpon>202508060820233_InitialMapping31.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
