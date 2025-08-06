@@ -1,14 +1,13 @@
-﻿using CobanaEnergy.Project.Controllers.Error;
+﻿using Autofac;
+using CobanaEnergy.Project.Controllers.Error;
 using CobanaEnergy.Project.Filters;
+using CobanaEnergy.Project.Service.BackgroundServices;
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Threading;
 using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Routing;
-using System.Web.Security;
-using System.Web.SessionState;
 
 namespace CobanaEnergy.Project
 {
@@ -23,6 +22,9 @@ namespace CobanaEnergy.Project
 
             //DI
             AutofacConfig.RegisterDependencies();
+
+            // Start background service
+            CampaignMonitorRunner.Start();
         }
 
         protected void Application_Error()

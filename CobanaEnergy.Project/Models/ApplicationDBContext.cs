@@ -1,4 +1,5 @@
 ﻿using CobanaEnergy.Project.Models.Accounts;
+using CobanaEnergy.Project.Models.Accounts.MainCampaign.DBModel;
 using CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGB.DBModel;
 using CobanaEnergy.Project.Models.AccountsDBModel;
 using CobanaEnergy.Project.Models.Electric.ElectricDBModels;
@@ -51,5 +52,8 @@ namespace CobanaEnergy.Project.Models
         public DbSet<CE_CommissionAndReconciliation> CE_CommissionAndReconciliation { get; set; }
         public DbSet<CE_CommissionMetrics> CE_CommissionMetrics { get; set; }
         public DbSet<CE_PaymentAndNoteLogs> CE_PaymentAndNoteLogs { get; set; }
+        public DbSet<CE_Campaign> CE_Campaigns { get; set; }
+        public DbSet<CE_CampaignNotification> CE_CampaignNotifications { get; set; }
+        public DbSet<CE_UserNotificationStatus> CE_UserNotificationStatus { get; set; }
     }
 }

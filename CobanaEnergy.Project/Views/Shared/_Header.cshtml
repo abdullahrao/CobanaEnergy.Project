@@ -13,11 +13,26 @@
             <ul class="navbar-nav align-items-center gap-4">
 
                 <!-- Calendar-->
-                <li class="nav-item">
-                    <a class="nav-link" href="@Url.Action("Index", "CalendarDashboard")" id="CalendarMenu" title="Calendar Dashboard">
-                        <i class="fas fa-calendar-alt me-1"></i> Calendar
+               
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="generalMenu" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-folder me-1"></i> General
                     </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="generalMenu">
+                        <li>
+                            <a class="dropdown-item" href="@Url.Action("Index", "CalendarDashboard")" title="Calendar Dashboard">
+                                <i class="fas fa-calendar-alt me-1"></i> Calendar
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="@Url.Action("Index", "Campaign")" title="Campaign Dashboard">
+                                <i class="fas fa-bullhorn me-1"></i> Campaign Dashboard
+                            </a>
+                        </li>
+                    </ul>
                 </li>
+
 
                 <!-- Pre-Sales & Controls-->
                 @if (User.IsInRole("Pre-sales") || User.IsInRole("Controls"))
@@ -113,6 +128,7 @@
                             <i class="fas fa-sliders-h me-1"></i> Controls
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminMenu">
+                            <li><a class="dropdown-item" href="@Url.Action("Create", "Campaign")"><i class="fas fa-bullhorn me-2"></i> Create Campaign</a></li>
                             <li><a class="dropdown-item" href="@Url.Action("Create", "Account")"><i class="fas fa-user-plus me-2"></i> Create New User</a></li>
                             <li><a class="dropdown-item" href="@Url.Action("ChangePassword", "Account")"><i class="fas fa-key me-2"></i> Change Password</a></li>
                         </ul>

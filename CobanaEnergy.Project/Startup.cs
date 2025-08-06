@@ -1,8 +1,10 @@
 ﻿using CobanaEnergy.Project.Controllers;
 using CobanaEnergy.Project.Models;
+using CobanaEnergy.Project.Service.UserService;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
+using Microsoft.AspNet.SignalR;
 using Microsoft.Owin;
 using Microsoft.Owin.Security.Cookies;
 using Owin;
@@ -42,6 +44,11 @@ namespace CobanaEnergy.Project
                     regenerateIdentity: (manager, user) => manager.CreateIdentityAsync(user, DefaultAuthenticationTypes.ApplicationCookie))
                 }
             });
+
+            // SignalR mapping - must be last
+            GlobalHost.DependencyResolver.Register(typeof(IUserIdProvider), () => new CustomUserIdProvider());
+            app.MapSignalR();
+
         }
     }
 }

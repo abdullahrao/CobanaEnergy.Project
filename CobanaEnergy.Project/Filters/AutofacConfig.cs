@@ -1,6 +1,9 @@
 ﻿using Autofac;
 using Autofac.Integration.Mvc;
 using CobanaEnergy.Project.Models;
+using CobanaEnergy.Project.Service.BackgroundServices;
+using Microsoft.AspNet.SignalR;
+using Microsoft.AspNet.SignalR.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +15,7 @@ namespace CobanaEnergy.Project.Filters
 {
     public static class AutofacConfig
     {
+        public static IContainer Container { get; private set; }
         public static void RegisterDependencies()
         {
             var builder = new ContainerBuilder();
@@ -19,11 +23,21 @@ namespace CobanaEnergy.Project.Filters
 
             builder.RegisterType<ApplicationDBContext>()
                    .AsSelf()
-                   .InstancePerRequest();
+                   .InstancePerLifetimeScope();
 
-            var container = builder.Build();
+            // ✅ Register SignalR IConnectionManager
+            builder.Register(c => GlobalHost.ConnectionManager)
+                   .As<IConnectionManager>()
+                   .SingleInstance();
 
-            DependencyResolver.SetResolver(new AutofacDependencyResolver(container));
+            builder.RegisterType<CampaignMonitorService>()
+               .AsSelf()
+               .InstancePerLifetimeScope();
+
+            Container = builder.Build();
+
+            DependencyResolver.SetResolver(new AutofacDependencyResolver(Container));
+
         }
     }
 }
