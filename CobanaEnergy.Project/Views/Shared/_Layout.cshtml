@@ -89,36 +89,6 @@
 
     <script>
 
-        $(function () {
-            // Create a proxy to the hub
-            var campaignHub = $.connection.notificationHub;
-            // Define the client-side function that gets called from server
-            campaignHub.client.receiveCampaignNotification = function (message) {
-                showNotificationToast(message, 'text-bg-info')
-            };
-
-            // Start the connection
-            $.connection.hub.start().done(function () {
-                console.log("SignalR connected.");
-            }).fail(function (error) {
-                console.log("SignalR error: ", error);
-            });
-        });
-
-        function showNotificationToast(message, typeClass) {
-            const toastElement = document.getElementById('notificationToast');
-            // Reset classes and message
-            toastElement.className = 'toast align-items-center border-0 ' + typeClass;
-            toastElement.querySelector('.toast-body').innerHTML = message;
-
-            // Initialize toast with NO auto-hide
-            const toast = bootstrap.Toast.getOrCreateInstance(toastElement, {
-                autohide: false
-            });
-
-            toast.show();
-        }
-
         function showToast(message, typeClass) {
             const toast = $('#globalToast');
             toast.removeClass().addClass('toast align-items-center border-0 ' + typeClass);
@@ -158,6 +128,9 @@
             showToast(msg, 'text-bg-info');
         }
     </script>
+
     @RenderSection("scripts", required: false)
+    <script src="~/Scripts/SignalR/signalr-notification.js"></script>
+
 </body>
 </html>

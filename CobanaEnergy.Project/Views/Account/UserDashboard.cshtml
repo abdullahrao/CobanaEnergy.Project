@@ -1,0 +1,50 @@
+﻿@model CobanaEnergy.Project.Models.Accounts.UserDashboard.UserDashboardViewModel
+
+
+@{
+    ViewBag.Title = "UserDashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+
+<div class="user-dashboard">
+    <div class="dashboard-title">
+        User Dashboard
+    </div>
+
+    <div class="table-container">
+        <form id="userForm" autocomplete="off">
+            @Html.AntiForgeryToken()
+
+            <table id="userTable" class="table table-bordered table-striped w-100">
+                <thead class="table-light">
+                    <tr>
+                        <th class="no-sort"><input type="checkbox" id="checkAll" /></th>
+                        <th>User Name</th>
+                        <th>Roles</th>
+                        <th>Status</th>
+                        <th>Online Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Populated dynamically via AJAX -->
+                </tbody>
+            </table>
+            <div class="save-btn-wrapper text-end mt-3">
+                <button type="button" class="btn btn-primary px-4" id="saveBtn" disabled>
+                    Save <i class="fas fa-save ms-2"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section styles {
+    <link href="~/Content/Signup/userDashboard.css" rel="stylesheet" />
+}
+@section scripts {
+    <script src="~/Scripts/Signup/userDashboard.js"></script>
+}
+

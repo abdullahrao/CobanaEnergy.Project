@@ -1,6 +1,12 @@
 ﻿using CobanaEnergy.Project.Controllers.Base;
+using CobanaEnergy.Project.Filters;
 using CobanaEnergy.Project.Models;
+using CobanaEnergy.Project.Models.Accounts.AwaitingPaymentsDashboard;
+using CobanaEnergy.Project.Models.Accounts.MainCampaign;
+using CobanaEnergy.Project.Models.Accounts.UserDashboard;
 using CobanaEnergy.Project.Models.Signup;
+using CobanaEnergy.Project.Service.UserService;
+using Logic;
 using Logic.ResponseModel.Helper;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
@@ -81,7 +87,7 @@ namespace CobanaEnergy.Project.Controllers
                     return JsonResponse.Fail("Username must be at least 3 letters and contain only English alphabets.");
                 }
 
-                var user = new ApplicationUser { UserName = dto.Username, Email = $"{dto.Username}_{Guid.NewGuid()}@noemail.cobana" };
+                var user = new ApplicationUser { UserName = dto.Username, Email = $"{dto.Username}_{Guid.NewGuid()}@noemail.cobana", HasTimeRestriction = dto.HasTimeRestriction, Enabled = true };
 
                 var result = await _userManager.CreateAsync(user, dto.Password);
 
@@ -201,6 +207,26 @@ namespace CobanaEnergy.Project.Controllers
                 if (user == null || user.UserName != username)
                     return JsonResponse.Fail("Invalid username or password.");
 
+                #region [Time Restriction]
+                if (!user.Enabled)
+                {
+                    return JsonResponse.Fail("🚫 Your account has been deactivated. Please contact the administrator for assistance.");
+                }
+                #endregion
+
+                #region [Time Restriction]
+                if (user.HasTimeRestriction)
+                {
+                    var now = DateTime.Now.TimeOfDay;
+                    if (now < TimeSpan.FromHours(8.5) || now > TimeSpan.FromHours(18.5))
+                    {
+                        return JsonResponse.Fail("You can only log in between 8:30 AM and 6:30 PM.");
+                    }
+                }
+                #endregion
+
+
+
                 var identity = await _userManager.CreateIdentityAsync(user, DefaultAuthenticationTypes.ApplicationCookie);
                 var authManager = HttpContext.GetOwinContext().Authentication;
                 authManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
@@ -267,5 +293,73 @@ namespace CobanaEnergy.Project.Controllers
         }
 
         #endregion
+
+
+        #region [campaign dashboard]
+
+        [HttpGet]
+        public ActionResult Index()
+        {
+            return View("~/Views/Account/UserDashboard.cshtml", new UserDashboardViewModel());
+        }
+
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        public async Task<JsonResult> GetUserList()
+        {
+            try
+            {
+                var users = await _userManager.Users.ToListAsync();
+                var result = users.Select(u => new UserDashboardViewModel
+                {
+                    UserName = u.UserName,
+                    UserId = u.Id,
+                    Roles = _userManager.GetRoles(u.Id).ToList(),
+                    Enabled = u.Enabled,
+                    OnlineStatus = ConnectedUserStore.IsUserConnected(u.Id) ? "Online" : "Offline"
+                }).ToList();
+                return JsonResponse.Ok(result);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("GetUserList: " + ex);
+                return JsonResponse.Fail("Error fetching user data.");
+            }
+        }
+
+
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        public async Task<JsonResult> UpdateUsers(List<UserUpdateModel> users)
+        {
+            try
+            {
+                if (users == null || !users.Any())
+                    return JsonResponse.Fail("No users selected.");
+
+                var ids = users.Select(u => u.UserId).ToList();
+                foreach (var userId in ids)
+                {
+                    var user = await _userManager.FindByIdAsync(userId);
+                    if (user != null)
+                    {
+                        user.Enabled = !user.Enabled;
+                        await _userManager.UpdateAsync(user);
+                    }
+                }
+
+                return JsonResponse.Ok(message: "Users updated.");
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("UpdateUsers: " + ex);
+                return JsonResponse.Fail("Error updating Users.");
+            }
+        }
+
+
+
+        #endregion
+
     }
 }

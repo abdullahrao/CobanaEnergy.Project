@@ -266,6 +266,7 @@
     <Content Include="Content\Accounts\ProblematicsDashboard\ProblematicsDashboard.css" />
     <Content Include="Content\Accounts\ReconciliationsDashboard\ReconciliationsDashboard.css" />
     <Content Include="Content\Accounts\ResolveContractsDashboard\ResolveContractsDashboard.css" />
+    <Content Include="Content\Signup\userDashboard.css" />
     <Content Include="Content\Dual\CreateDual.css" />
     <Content Include="Content\Dual\EditDual.css" />
     <Content Include="Content\Electric\CreateElectric.css" />
@@ -316,6 +317,8 @@
     <Content Include="Scripts\SignalR\jquery.signalR-2.4.3.js" />
     <Content Include="Scripts\SignalR\jquery.signalR-2.4.3.min.js" />
     <Content Include="Scripts\PreSales\dashboard.js" />
+    <Content Include="Scripts\SignalR\signalr-notification.js" />
+    <Content Include="Scripts\Signup\userDashboard.js" />
     <Content Include="Scripts\Signup\changePassword.js" />
     <Content Include="Scripts\Signup\login.js" />
     <Content Include="Scripts\site.js" />
@@ -354,6 +357,14 @@
     <Compile Include="Migrations\202508061207452_Campaign_86c4btzgh_InitialMapping.Designer.cs">
       <DependentUpon>202508061207452_Campaign_86c4btzgh_InitialMapping.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202508061414066_Usermodification_86c4u6hnr_InitialMapping.cs" />
+    <Compile Include="Migrations\202508061414066_Usermodification_86c4u6hnr_InitialMapping.Designer.cs">
+      <DependentUpon>202508061414066_Usermodification_86c4u6hnr_InitialMapping.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202508070857331_Userlisting_86c4u6dx0_InitialMapping.cs" />
+    <Compile Include="Migrations\202508070857331_Userlisting_86c4u6dx0_InitialMapping.Designer.cs">
+      <DependentUpon>202508070857331_Userlisting_86c4u6dx0_InitialMapping.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\Accounts\AwaitingPaymentsDashboard\AwaitingPaymentsDashboard.cs" />
     <Compile Include="Models\Accounts\CalendarDashboard\CalendarDashboardViewModel.cs" />
     <Compile Include="Models\Accounts\ClawbacksDashboard\ClawbacksDashboardViewModel.cs" />
@@ -378,6 +389,8 @@
     <Compile Include="Models\Accounts\SuppliersModels\BGB\DBModel\CE_PaymentAndNoteLog.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\BGB\EditBGBContractViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\BGB\UpdateContractViewModel.cs" />
+    <Compile Include="Models\Accounts\UserDashboard\UserDashboardViewModel.cs" />
+    <Compile Include="Models\Accounts\UserDashboard\UserUpdateModel.cs" />
     <Compile Include="Models\Dual\EditDual\DualContractEditViewModel.cs" />
     <Compile Include="Models\Dual\LogsHelperClass\LogEntry.cs" />
     <Compile Include="Models\Electric\EditElectric\ElectricContractEditViewModel.cs" />
@@ -431,6 +444,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Service\BackgroundServices\CampaignMonitorRunner.cs" />
     <Compile Include="Service\BackgroundServices\CampaignMonitorService.cs" />
+    <Compile Include="Service\BackgroundServices\UserSessionMonitorRunner.cs" />
+    <Compile Include="Service\BackgroundServices\UserSessionMonitorService.cs" />
     <Compile Include="Service\NotificationHub\NotificationHub.cs" />
     <Compile Include="Service\UserService\ConnectedUserStore.cs" />
     <Compile Include="Service\UserService\CustomUserIdProvider.cs" />
@@ -472,6 +487,7 @@
     <Content Include="Views\Accounts\CalendarDashboard\CalendarDashboard.cshtml" />
     <Content Include="Views\Accounts\CampaignDashboard\Create.cshtml" />
     <Content Include="Views\Accounts\CampaignDashboard\CampaignDashboard.cshtml" />
+    <Content Include="Views\Account\UserDashboard.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -497,6 +513,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202508061207452_Campaign_86c4btzgh_InitialMapping.resx">
       <DependentUpon>202508061207452_Campaign_86c4btzgh_InitialMapping.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202508061414066_Usermodification_86c4u6hnr_InitialMapping.resx">
+      <DependentUpon>202508061414066_Usermodification_86c4u6hnr_InitialMapping.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202508070857331_Userlisting_86c4u6dx0_InitialMapping.resx">
+      <DependentUpon>202508070857331_Userlisting_86c4u6dx0_InitialMapping.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

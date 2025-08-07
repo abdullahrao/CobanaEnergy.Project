@@ -17,8 +17,8 @@ namespace CobanaEnergy.Project.Models
                 this.CE_UserNotificationStatuses = new HashSet<CE_UserNotificationStatus>();
         }
         // Optional: Extend user profile
-        // public string FullName { get; set; }
-
+        public bool HasTimeRestriction { get; set; }
+        public bool Enabled { get; set; }
         public virtual ICollection<CE_UserNotificationStatus> CE_UserNotificationStatuses { get; set; }
     }
 }
