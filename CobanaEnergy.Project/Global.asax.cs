@@ -25,6 +25,7 @@ namespace CobanaEnergy.Project
 
             // Start background service
             CampaignMonitorRunner.Start();
+            UserSessionMonitorRunner.Start();
         }
 
         protected void Application_Error()

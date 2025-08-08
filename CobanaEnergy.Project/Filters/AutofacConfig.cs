@@ -34,6 +34,10 @@ namespace CobanaEnergy.Project.Filters
                .AsSelf()
                .InstancePerLifetimeScope();
 
+            builder.RegisterType<UserSessionMonitorService>()
+               .AsSelf()
+               .InstancePerLifetimeScope();
+
             Container = builder.Build();
 
             DependencyResolver.SetResolver(new AutofacDependencyResolver(Container));

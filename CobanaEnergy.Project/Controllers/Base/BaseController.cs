@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CobanaEnergy.Project.Models;
+using Microsoft.AspNet.Identity;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -14,7 +16,6 @@ namespace CobanaEnergy.Project.Controllers.Base
             Response.Cache.SetCacheability(HttpCacheability.NoCache);
             Response.Cache.SetExpires(DateTime.UtcNow.AddDays(-1));
             Response.Cache.SetNoStore();
-
             base.OnActionExecuting(filterContext);
         }
     }

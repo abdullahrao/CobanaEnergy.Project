@@ -83,7 +83,6 @@ namespace CobanaEnergy.Project.Service.BackgroundServices
                         };
                         _db.CE_CampaignNotifications.Add(existingNotification);
                         await _db.SaveChangesAsync();
-                        //await _hubContext.Clients.All.SendAsync("ReceiveCampaignNotification", existingNotification.Message);
                     }
                     // Broadcast only to users who haven't seen it
                     var connectedUsers = ConnectedUserStore.Users; 

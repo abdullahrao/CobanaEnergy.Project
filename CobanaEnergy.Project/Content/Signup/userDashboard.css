@@ -1,4 +1,4 @@
-﻿.campaign-dashboard {
+﻿.user-dashboard {
     padding: 40px 20px 20px 20px;
     background-color: #f9f9f9;
     font-family: 'Raleway', sans-serif;
@@ -8,7 +8,7 @@
     max-width: none;
 }
 
-    .campaign-dashboard .dashboard-title {
+    .user-dashboard .dashboard-title {
         font-size: 2rem;
         font-weight: 700;
         margin-bottom: 32px;
@@ -17,7 +17,7 @@
         font-family: 'Raleway', sans-serif;
     }
 
-    .campaign-dashboard .filters {
+    .user-dashboard .filters {
         background: #fff;
         border-radius: 14px;
         box-shadow: 0 4px 28px rgba(80, 94, 128, 0.11);
@@ -25,13 +25,13 @@
         margin-bottom: 24px;
     }
 
-        .campaign-dashboard .filters .form-label {
+        .user-dashboard .filters .form-label {
             font-size: 1rem;
             font-family: 'Raleway', sans-serif;
             margin-bottom: 6px;
         }
 
-    .campaign-dashboard .table-container {
+    .user-dashboard .table-container {
         overflow-x: auto;
         background: #fff;
         border-radius: 14px;
@@ -61,7 +61,7 @@
     }
 
 @media (max-width: 600px) {
-    .campaign-dashboard {
+    .user-dashboard {
         padding: 16px 2px;
     }
 
