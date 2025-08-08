@@ -97,7 +97,7 @@
             <div class="log-date">${escapeHtml(log.Timestamp)}</div>
             <div class="log-field"><span class="log-label">Year:</span> ${escapeHtml(log.EacYear)}</div>
             <div class="log-field"><span class="log-label">EAC Value:</span> ${escapeHtml(log.EacValue)}</div>
-            <div class="log-field"><span class="log-label">FINAL EAC:</span> ${escapeHtml(log.FinalEac)}</div>
+            <div class="log-field"><span class="log-label">Supplier AVG. EAC:</span> ${escapeHtml(log.FinalEac)}</div>
             <div class="log-field"><span class="log-label">Invoice No:</span> ${escapeHtml(log.InvoiceNo)}</div>
             <div class="log-field"><span class="log-label">Invoice Date:</span> ${escapeHtml(log.InvoiceDate)}</div>
             <div class="log-field"><span class="log-label">Payment Date:</span> ${escapeHtml(log.PaymentDate)}</div>
@@ -117,7 +117,7 @@
             }
             const exportData = res.Data;
             const data = [
-                ["Year", "EAC Value", "FINAL EAC", "Invoice No", "Invoice Date", "Payment Date", "Invoice (£)", "Supplier EAC D19", "MPAN", "MPRN"],
+                ["Year", "EAC Value", "Supplier AVG. EAC", "Invoice No", "Invoice Date", "Payment Date", "Invoice (£)", "Supplier EAC D19", "MPAN", "MPRN"],
                 ...exportData.map(log => [
                     log.EacYear, log.EacValue, log.FinalEac, log.InvoiceNo, log.InvoiceDate,
                     log.PaymentDate, log.InvoiceAmount, log.MPAN || "N/A", log.MPRN || "N/A"
