@@ -383,6 +383,7 @@
     <Compile Include="Models\Accounts\ReconciliationsDashboard\ReconciliationsRowViewModel.cs" />
     <Compile Include="Models\Accounts\ResolveContractsDashboard\ResolveContractsDashboardViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\BGB\BGBEacLogViewModel.cs" />
+    <Compile Include="Models\Accounts\SuppliersModels\BGB\EacDataViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\BGB\DBModel\CE_BGBCommissionAndReconciliation.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\BGB\DBModel\CE_BGBCommissionMetrics.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\BGB\DBModel\CE_BGBEacLog.cs" />
@@ -446,6 +447,7 @@
     <Compile Include="Service\BackgroundServices\CampaignMonitorService.cs" />
     <Compile Include="Service\BackgroundServices\UserSessionMonitorRunner.cs" />
     <Compile Include="Service\BackgroundServices\UserSessionMonitorService.cs" />
+    <Compile Include="Service\ExtensionService\StringExtensions.cs" />
     <Compile Include="Service\NotificationHub\NotificationHub.cs" />
     <Compile Include="Service\UserService\ConnectedUserStore.cs" />
     <Compile Include="Service\UserService\CustomUserIdProvider.cs" />

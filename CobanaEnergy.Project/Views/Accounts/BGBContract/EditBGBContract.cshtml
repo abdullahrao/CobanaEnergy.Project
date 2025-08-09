@@ -1,4 +1,6 @@
 ﻿@model CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGB.EditBGBContractViewModel
+@using CobanaEnergy.Project.Service.ExtensionService;
+
 @{
     ViewBag.Title = "Edit BGB Contract";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -21,18 +23,19 @@
                         <input type="hidden" id="eid" name="eid" value="" />
                         <input type="hidden" id="contractType" name="contractType" value="" />
                         <div class="col-md-6 col-lg-4">
-                            <label class="form-label required" for="eacYear">EAC Year</label>
+                            <label class="form-label required" for="eacYear">Supplier EAC</label>
                             <select id="eacYear" class="form-select" required>
                                 <option value="">Select Year</option>
-                                <option value="1ST YEAR EAC">1ST YEAR EAC</option>
-                                <option value="2ND YEAR EAC">2ND YEAR EAC</option>
-                                <option value="3RD YEAR EAC">3RD YEAR EAC</option>
-                                <option value="4TH YEAR EAC">4TH YEAR EAC</option>
-                                <option value="5TH YEAR EAC">5TH YEAR EAC</option>
-                                <option disabled>────────────</option>
-                                <option value="SUPPLIER EAC D19">SUPPLIER EAC D19</option>
-                                <option disabled>────────────</option>
-                                <option value="Final EAC">Final Eac</option>
+                                <option value="1ST YEAR EAC-INITIAL">1ST YEAR EAC-INITIAL</option>
+                                <option value="1ST YEAR EAC-FINAL">1ST YEAR EAC-FINAL</option>
+                                <option value="2ND YEAR EAC-INITIAL">2ND YEAR EAC-INITIAL</option>
+                                <option value="2ND YEAR EAC-FINAL">2ND YEAR EAC-FINAL</option>
+                                <option value="3RD YEAR EAC-INITIAL">3RD YEAR EAC-INITIAL</option>
+                                <option value="3RD YEAR EAC-FINAL">3RD YEAR EAC-FINAL</option>
+                                <option value="4TH YEAR EAC-INITIAL">4TH YEAR EAC-INITIAL</option>
+                                <option value="4TH YEAR EAC-FINAL">4TH YEAR EAC-FINAL</option>
+                                <option value="5TH YEAR EAC-INITIAL">5TH YEAR EAC-INITIAL</option>
+                                <option value="5TH YEAR EAC-FINAL">5TH YEAR EAC-FINAL</option>
                             </select>
                         </div>
                         <div class="col-md-6 col-lg-4">
@@ -202,17 +205,17 @@
                             <label class="form-label" for="cedCOT">CED (COT)</label>
                             <input type="date" id="cedCOT" class="form-control" value="@Model.CedCOT" />
                         </div>
-                        <div class="col-md-6 col-lg-4">
+                        <div class="col-md-6 col-lg-4" id="cotLostConsumptionWrapper">
                             <label class="form-label" for="cotLostConsumption">COT/Lost Consumption</label>
                             <input type="text" id="cotLostConsumption" class="form-control" value="@Model.CotLostConsumption" autocomplete="off" />
                         </div>
                         <div class="col-md-6 col-lg-4">
                             <label class="form-label" for="cobanaDueCommission">Cobana Due Commission</label>
-                            <input type="text" id="cobanaDueCommission" class="form-control" value="@Model.CobanaDueCommission" autocomplete="off" />
+                            <input type="text" id="cobanaDueCommission" class="form-control" value="@Model.CobanaDueCommission.ToTwoDecimal()" autocomplete="off" />
                         </div>
                         <div class="col-md-6 col-lg-4">
                             <label class="form-label" for="cobanaFinalReconciliation">Cobana Final Reconciliation</label>
-                            <input type="text" id="cobanaFinalReconciliation" class="form-control" value="@Model.CobanaFinalReconciliation" autocomplete="off" />
+                            <input type="text" id="cobanaFinalReconciliation" class="form-control" value="@Model.CobanaFinalReconciliation.ToTwoDecimal()" autocomplete="off" />
                         </div>
                         <div class="col-md-6 col-lg-4">
                             <label class="form-label required" for="contractStatus">Contract Status</label>
@@ -247,7 +250,7 @@
                         <div class="row gx-3 gy-3 metrics-plaintext-display mt-3">
                             <div class="col-md-6 col-lg-4">
                                 <label class="form-label">Contract Duration Days</label>
-                                <div class="readonly-value">@Model.ContractDurationDays</div>
+                                <div class="readonly-value">@Model.ContractDurationDays.ToTwoDecimal()</div>
                             </div>
                             <div class="col-md-6 col-lg-4">
                                 <label class="form-label">Live Days</label>
@@ -259,11 +262,11 @@
                             </div>
                             <div class="col-md-6 col-lg-4">
                                 <label class="form-label">Total Commission Forecast</label>
-                                <div class="readonly-value">@Model.TotalCommissionForecast</div>
+                                <div class="readonly-value">@Model.TotalCommissionForecast.ToTwoDecimal()</div>
                             </div>
                             <div class="col-md-6 col-lg-4">
                                 <label class="form-label">Initial Commission Forecast</label>
-                                <div class="readonly-value">@Model.InitialCommissionForecast</div>
+                                <div class="readonly-value">@Model.InitialCommissionForecast.ToTwoDecimal()</div>
                             </div>
                             <div class="col-md-6 col-lg-4">
                                 <label class="form-label">COT/Lost Reconciliation</label>
@@ -271,7 +274,7 @@
                             </div>
                             <div class="col-md-6 col-lg-4">
                                 <label class="form-label">Total Average EAC</label>
-                                <div class="readonly-value">@Model.TotalAverageEAC</div>
+                                <div class="readonly-value">@Model.TotalAverageEAC.ToTwoDecimal()</div>
                             </div>
                         </div>
                     </div>
