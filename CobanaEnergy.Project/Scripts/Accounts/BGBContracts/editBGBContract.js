@@ -92,12 +92,16 @@
             $panel.html('<span class="text-muted">No logs yet. Save EAC entries to view them here.</span>');
             return;
         }
+
+        // Set Final Eac Value 
+        $('#finalEac').val(logs?.[0]?.FinalEac ?? 0)
+
         const html = logs.map(log => `
         <div class="log-entry">
             <div class="log-date">${escapeHtml(log.Timestamp)}</div>
             <div class="log-field"><span class="log-label">Year:</span> ${escapeHtml(log.EacYear)}</div>
             <div class="log-field"><span class="log-label">EAC Value:</span> ${escapeHtml(log.EacValue)}</div>
-            <div class="log-field"><span class="log-label">Supplier AVG. EAC:</span> ${escapeHtml(log.FinalEac)}</div>
+            <div class="log-field"><span class="log-label">Supplier AVG. EAC:</span> ${Number(log.FinalEac).toFixed(2)}</div>
             <div class="log-field"><span class="log-label">Invoice No:</span> ${escapeHtml(log.InvoiceNo)}</div>
             <div class="log-field"><span class="log-label">Invoice Date:</span> ${escapeHtml(log.InvoiceDate)}</div>
             <div class="log-field"><span class="log-label">Payment Date:</span> ${escapeHtml(log.PaymentDate)}</div>
@@ -335,30 +339,20 @@
         );
     });
 
-    $('#eacYear').on('change', function () {
-        const selected = $(this).val();
-        if (selected === 'Final EAC') {
-            const eId = getEIdFromUrl();
-            const contractType = getContractTypeFromUrl();
-            const eacValue = $("#eacValue").val();
 
-            $.ajax({
-                url: '/BGBContract/CalculateFinalEacAverage',
-                type: 'POST',
-                data: { eId, contractType, eacValue },
-                success: function (res) {
-                    if (res.success) {
-                        $('#finalEac').val(res.Data);
-                    } else {
-                        showToastError(res.message || "Calculation failed");
-                    }
-                },
-                error: function () {
-                    showToastError('Something went wrong calculating Final EAC');
-                }
-            });
+    function toggleCotLostConsumption() {
+        if ($.trim($("#cedCOT").val()) !== "") {
+            $("#cotLostConsumptionWrapper").show();
+        } else {
+            $("#cotLostConsumptionWrapper").hide();
         }
-    });
+    }
+
+    // Run on page load
+    toggleCotLostConsumption();
+
+    // Run when user changes the date
+    $("#cedCOT").on("change", toggleCotLostConsumption);
 
 
 });
