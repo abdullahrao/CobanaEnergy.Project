@@ -92,6 +92,10 @@
             $panel.html('<span class="text-muted">No logs yet. Save EAC entries to view them here.</span>');
             return;
         }
+
+        // Set Final Eac Value 
+        $('#finalEac').val(logs?.[0]?.FinalEac ?? 0)
+
         const html = logs.map(log => `
         <div class="log-entry">
             <div class="log-date">${escapeHtml(log.Timestamp)}</div>
