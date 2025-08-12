@@ -501,7 +501,7 @@
     <Content Include="Views\Account\UserDashboard.cshtml" />
     <Content Include="Views\Account\UpdateUser.cshtml" />
     <Content Include="Views\Account\UserProfileDashboard.cshtml" />
-    <Content Include="Views\Account\Profile.cshtml" />
+    <Content Include="Views\Account\UserProfile.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
