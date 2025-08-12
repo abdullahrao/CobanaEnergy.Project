@@ -19,6 +19,14 @@ namespace CobanaEnergy.Project.Models
         // Optional: Extend user profile
         public bool HasTimeRestriction { get; set; }
         public bool Enabled { get; set; }
+        
+        // Profile fields
+        [MaxLength(50)]
+        public string JobTitle { get; set; }
+        
+        [MaxLength(10)]
+        public string ExtensionNumber { get; set; }
+        
         public virtual ICollection<CE_UserNotificationStatus> CE_UserNotificationStatuses { get; set; }
     }
 }
