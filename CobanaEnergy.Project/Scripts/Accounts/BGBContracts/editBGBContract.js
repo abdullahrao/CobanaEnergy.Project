@@ -61,6 +61,8 @@
                 if (res.success) {
                     showToastSuccess("EAC Log saved successfully.");
                     $("#eacLogForm")[0].reset();
+                    // Set Final Eac Value 
+                    $('#finalEac').val(res.Data?.[0]?.FinalEac ?? 0)
                     renderEacLogs(res.Data);
                 } else {
                     showToastError(res.message || "Failed to save EAC Log.");
@@ -92,9 +94,6 @@
             $panel.html('<span class="text-muted">No logs yet. Save EAC entries to view them here.</span>');
             return;
         }
-
-        // Set Final Eac Value 
-        $('#finalEac').val(logs?.[0]?.FinalEac ?? 0)
 
         const html = logs.map(log => `
         <div class="log-entry">
