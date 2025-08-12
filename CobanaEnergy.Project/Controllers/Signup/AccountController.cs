@@ -3,7 +3,6 @@ using CobanaEnergy.Project.Filters;
 using CobanaEnergy.Project.Models;
 using CobanaEnergy.Project.Models.Accounts.AwaitingPaymentsDashboard;
 using CobanaEnergy.Project.Models.Accounts.MainCampaign;
-using CobanaEnergy.Project.Models.Accounts.UserDashboard;
 using CobanaEnergy.Project.Models.Signup;
 using CobanaEnergy.Project.Service.UserService;
 using Logic;
@@ -295,7 +294,7 @@ namespace CobanaEnergy.Project.Controllers
         #endregion
 
 
-        #region [campaign dashboard]
+        #region [user dashboard]
 
         [HttpGet]
         public ActionResult Index()
@@ -358,6 +357,229 @@ namespace CobanaEnergy.Project.Controllers
         }
 
 
+
+        #endregion
+
+        #region UserProfile
+
+        [HttpGet]
+        [Authorize]
+        public async Task<ActionResult> UserProfile()
+        {
+            try
+            {
+                var userId = User.Identity.GetUserId();
+                var user = await _userManager.FindByIdAsync(userId);
+                
+                if (user == null)
+                {
+                    TempData["ToastMessage"] = "User not found.";
+                    TempData["ToastType"] = "error";
+                    return RedirectToAction("Login", "Account");
+                }
+
+                var model = new UserProfileViewModel
+                {
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    JobTitle = user.JobTitle,
+                    ExtensionNumber = user.ExtensionNumber
+                };
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                TempData["ToastMessage"] = $"Failed to load profile: {ex.Message}";
+                TempData["ToastType"] = "error";
+                Logic.Logger.Log($"Profile page rendering failed!! {ex.Message}");
+                return RedirectToAction("Index", "Home");
+            }
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<JsonResult> UpdateProfile(UserProfileViewModel model)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState
+                                 .Where(x => x.Value.Errors.Count > 0)
+                                 .SelectMany(kvp => kvp.Value.Errors)
+                                 .Select(e => e.ErrorMessage)
+                                 .ToList();
+
+                    string combinedError = string.Join("<br>", errors);
+                    return JsonResponse.Fail(combinedError);
+                }
+
+                var userId = User.Identity.GetUserId();
+                var user = await _userManager.FindByIdAsync(userId);
+
+                if (user == null)
+                {
+                    return JsonResponse.Fail("User not found.");
+                }
+
+                // Update user properties
+                user.Email = model.Email;
+                user.JobTitle = model.JobTitle;
+                user.ExtensionNumber = model.ExtensionNumber;
+
+                var result = await _userManager.UpdateAsync(user);
+
+                if (result.Succeeded)
+                {
+                    return JsonResponse.Ok(new { redirectUrl = Url.Action("Profile", "Account") }, "Profile updated successfully!");
+                }
+
+                var errorMessages = string.Join(", ", result.Errors);
+                return JsonResponse.Fail(errorMessages);
+            }
+            catch (Exception ex)
+            {
+                Logic.Logger.Log($"Profile update failed!! {ex.Message}");
+                return JsonResponse.Fail($"An error occurred: {ex.Message}");
+            }
+        }
+
+        #endregion
+
+        #region UserProfileDashboard
+
+        [HttpGet]
+        [Authorize(Roles = "Controls")]
+        public async Task<ActionResult> UserProfileDashboard()
+        {
+            try
+            {
+                var users = await _userManager.Users.ToListAsync();
+                var userList = users.Select(u => new UserProfileItemViewModel
+                {
+                    UserId = u.Id,
+                    UserName = u.UserName,
+                    JobTitle = u.JobTitle ?? "-",
+                    ExtensionNumber = u.ExtensionNumber ?? "-",
+                    Enabled = u.Enabled,
+                    OnlineStatus = ConnectedUserStore.IsUserConnected(u.Id) ? "Online" : "Offline"
+                }).ToList();
+
+                var model = new UserProfileDashboardViewModel
+                {
+                    Users = userList,
+                    TotalUsers = userList.Count,
+                    ActiveUsers = userList.Count(u => u.Enabled),
+                    OnlineUsers = userList.Count(u => u.OnlineStatus == "Online"),
+                    CompleteProfiles = userList.Count(u => u.JobTitle != "-" || u.ExtensionNumber != "-")
+                };
+
+                return View("~/Views/Account/UserProfileDashboard.cshtml", model);
+            }
+            catch (Exception ex)
+            {
+                TempData["ToastMessage"] = $"Failed to load user profile dashboard: {ex.Message}";
+                TempData["ToastType"] = "error";
+                Logic.Logger.Log($"UserProfileDashboard failed: {ex.Message}");
+                return RedirectToAction("Index", "Home");
+            }
+        }
+
+        #endregion
+
+        #region UserUpdate
+
+        [HttpGet]
+        [Authorize(Roles = "Controls")]
+        public async Task<ActionResult> UpdateUser(string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                TempData["ToastMessage"] = "User ID is required.";
+                TempData["ToastType"] = "error";
+                return RedirectToAction("UserProfileDashboard", "Account");
+            }
+
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId);
+                
+                if (user == null)
+                {
+                    TempData["ToastMessage"] = "User not found.";
+                    TempData["ToastType"] = "error";
+                    return RedirectToAction("UserProfileDashboard", "Account");
+                }
+
+                var model = new UserUpdateViewModel
+                {
+                    UserId = user.Id,
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    JobTitle = user.JobTitle,
+                    ExtensionNumber = user.ExtensionNumber
+                };
+
+                return View("~/Views/Account/UpdateUser.cshtml", model);
+            }
+            catch (Exception ex)
+            {
+                TempData["ToastMessage"] = $"Failed to load user: {ex.Message}";
+                TempData["ToastType"] = "error";
+                Logic.Logger.Log($"UpdateUser GET failed!! {ex.Message}");
+                return RedirectToAction("UserProfileDashboard", "Account");
+            }
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Controls")]
+        [ValidateAntiForgeryToken]
+        public async Task<JsonResult> UpdateUser(UserUpdateViewModel model)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState
+                                 .Where(x => x.Value.Errors.Count > 0)
+                                 .SelectMany(kvp => kvp.Value.Errors)
+                                 .Select(e => e.ErrorMessage)
+                                 .ToList();
+
+                    string combinedError = string.Join("<br>", errors);
+                    return JsonResponse.Fail(combinedError);
+                }
+
+                var user = await _userManager.FindByIdAsync(model.UserId);
+
+                if (user == null)
+                {
+                    return JsonResponse.Fail("User not found.");
+                }
+
+                // Update user properties
+                user.Email = model.Email;
+                user.JobTitle = model.JobTitle;
+                user.ExtensionNumber = model.ExtensionNumber;
+
+                var result = await _userManager.UpdateAsync(user);
+
+                if (result.Succeeded)
+                {
+                    return JsonResponse.Ok(new { redirectUrl = Url.Action("UserProfileDashboard", "Account") }, "User updated successfully!");
+                }
+
+                var errorMessages = string.Join(", ", result.Errors);
+                return JsonResponse.Fail(errorMessages);
+            }
+            catch (Exception ex)
+            {
+                Logic.Logger.Log($"User update failed!! {ex.Message}");
+                return JsonResponse.Fail($"An error occurred: {ex.Message}");
+            }
+        }
 
         #endregion
 
