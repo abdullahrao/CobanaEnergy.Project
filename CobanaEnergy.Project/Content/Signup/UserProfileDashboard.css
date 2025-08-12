@@ -1,0 +1,46 @@
+/* User Profile Dashboard specific styles */
+
+.dashboard-wrapper {
+    display: block;
+}
+
+.left-panel {
+    width: 100%;
+}
+
+/* Center align table headers and body columns */
+#userProfileTable th,
+#userProfileTable td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* Edit button styling */
+.edit-btn {
+    background-color: #6b737a;
+    border-color: #6b737a;
+    color: white;
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border-radius: 4px;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.edit-btn:hover {
+    background-color: #545b61;
+    border-color: #545b61;
+    color: white;
+}
+
+.edit-btn:focus {
+    box-shadow: 0 0 0 0.2rem rgba(107, 115, 122, 0.25);
+}
+
+
+/* Responsive adjustments */
+@media (min-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
