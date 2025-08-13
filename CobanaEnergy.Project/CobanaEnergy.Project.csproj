@@ -257,6 +257,7 @@
   <ItemGroup>
     <Content Include="Content\Accounts\AwaitingPaymentsDashboard\AwaitingPaymentsDashboard.css" />
     <Content Include="Content\Accounts\BGBContracts\EditBGBContract.css" />
+    <Content Include="Content\Accounts\BGLiteContracts\EditBGLiteContract.css" />
     <Content Include="Content\Accounts\CalendarDashboard\CalendarDashboard.css" />
     <Content Include="Content\Accounts\CampaignDashboard\campaignCreate.css" />
     <Content Include="Content\Accounts\CampaignDashboard\campaignDashboard.css" />
@@ -287,6 +288,7 @@
     <Content Include="migration-command.txt" />
     <Content Include="Scripts\Accounts\AwaitingPaymentsDashboard\awaitingPaymentsDashboard.js" />
     <Content Include="Scripts\Accounts\BGBContracts\editBGBContract.js" />
+    <Content Include="Scripts\Accounts\BGLiteContracts\editBGLiteContract.js" />
     <Content Include="Scripts\Accounts\CalendarDashboard\calendarDashboard.js" />
     <Content Include="Scripts\Accounts\CampaignDashboard\campaignCreation.js" />
     <Content Include="Scripts\Accounts\CampaignDashboard\campaignDashboard.js" />
@@ -333,6 +335,7 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\Accounts\AwaitingPaymentsDashboard\AwaitingPaymentsDashboardController.cs" />
     <Compile Include="Controllers\Accounts\BGBContracts\BGBContractController.cs" />
+    <Compile Include="Controllers\Accounts\BGLiteContracts\BGLiteContractController.cs" />
     <Compile Include="Controllers\Accounts\CalendarDashboard\CalendarDashboardController.cs" />
     <Compile Include="Controllers\Accounts\CampaignDashboard\CampaignController.cs" />
     <Compile Include="Controllers\Accounts\ClawbacksDashboard\ClawbacksDashboardController.cs" />
@@ -390,6 +393,8 @@
     <Compile Include="Models\Accounts\SuppliersModels\BGB\DBModel\CE_PaymentAndNoteLog.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\BGB\EditBGBContractViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\BGB\UpdateContractViewModel.cs" />
+    <Compile Include="Models\Accounts\SuppliersModels\BGLite\BGLiteEacLogViewModel.cs" />
+    <Compile Include="Models\Accounts\SuppliersModels\BGLite\EditBGLiteContractViewModel.cs" />
     <Compile Include="Models\Accounts\UserDashboard\UserDashboardViewModel.cs" />
     <Compile Include="Models\Accounts\UserDashboard\UserUpdateModel.cs" />
     <Compile Include="Models\Dual\EditDual\DualContractEditViewModel.cs" />
@@ -490,6 +495,7 @@
     <Content Include="Views\Accounts\CampaignDashboard\Create.cshtml" />
     <Content Include="Views\Accounts\CampaignDashboard\CampaignDashboard.cshtml" />
     <Content Include="Views\Account\UserDashboard.cshtml" />
+    <Content Include="Views\Accounts\BGLiteContract\EditBGLiteContract.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
