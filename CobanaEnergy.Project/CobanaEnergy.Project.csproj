@@ -403,8 +403,6 @@
     <Compile Include="Models\Accounts\SuppliersModels\BGB\UpdateContractViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\BGLite\BGLiteEacLogViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\BGLite\EditBGLiteContractViewModel.cs" />
-    <Compile Include="Models\Accounts\UserDashboard\UserDashboardViewModel.cs" />
-    <Compile Include="Models\Accounts\UserDashboard\UserUpdateModel.cs" />
     <Compile Include="Models\Dual\EditDual\DualContractEditViewModel.cs" />
     <Compile Include="Models\Dual\LogsHelperClass\LogEntry.cs" />
     <Compile Include="Models\Electric\EditElectric\ElectricContractEditViewModel.cs" />

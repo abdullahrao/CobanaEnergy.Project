@@ -108,3 +108,9 @@ table th {
     right: 20px;
     z-index: 1055;
 }
+
+
+.dropdown-menu-end .user-management-submenu > .dropdown-menu {
+    left: auto !important;
+    right: 100% !important;
+}
