@@ -97,6 +97,10 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                     {
                         meterNumbers = await BGBSupplier(memStream, extension);
                     }
+                    else if(supplier.Name?.Trim().ToLowerInvariant() == "bg lite")
+                    {
+                        meterNumbers = await BGLiteSupplier(memStream, extension);
+                    }
                     else
                     {
                         return JsonResponse.Fail("Processing for this supplier is not yet supported. Please contact support.");
@@ -264,6 +268,137 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
         }
 
 
+
+        #endregion
+
+        #region [BG Lite Supplier]
+
+        public async Task<List<string>> BGLiteSupplier(Stream fileStream, string extension)
+        {
+            try
+            {
+                var uniqueMeterNumbers = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                fileStream.Position = 0;
+                int maxScanRows = 120;
+
+                if (extension == ".xlsx" || extension == ".xls")
+                {
+                    ISheet sheet;
+                    if (extension == ".xlsx")
+                    {
+                        var workbook = new XSSFWorkbook(fileStream);
+                        sheet = GetBackingDataSheet(workbook);
+                    }
+                    else
+                    {
+                        var workbook = new HSSFWorkbook(fileStream);
+                        sheet = GetBackingDataSheet(workbook);
+                    }
+
+                    int headerRowIdx = -1;
+                    int meterColIdx = -1;
+
+                    for (int rowIdx = sheet.FirstRowNum; rowIdx <= sheet.LastRowNum && rowIdx < maxScanRows; rowIdx++)
+                    {
+                        var row = sheet.GetRow(rowIdx);
+                        if (row == null) continue;
+
+                        for (int cellIdx = 0; cellIdx < row.LastCellNum; cellIdx++)
+                        {
+                            var cellVal = row.GetCell(cellIdx)?.ToString();
+                            if (!string.IsNullOrWhiteSpace(cellVal))
+                            {
+                                string normalized = cellVal
+                                    .Replace("\u00A0", " ")
+                                    .Replace("\u200B", "")
+                                    .Replace(" ", "")
+                                    .Trim()
+                                    .ToLowerInvariant();
+
+                                //System.Diagnostics.Debug.WriteLine($"Row {rowIdx} Cell {cellIdx}: '{normalized}'");
+
+                                if (BGBMeterHeaders.Contains(normalized))
+                                {
+                                    headerRowIdx = rowIdx;
+                                    meterColIdx = cellIdx;
+                                    break;
+                                }
+                            }
+                        }
+                        if (meterColIdx != -1) break;
+                    }
+
+                    if (headerRowIdx == -1 || meterColIdx == -1)
+                        return uniqueMeterNumbers.ToList();
+
+                    for (int rowIdx = headerRowIdx + 1; rowIdx <= sheet.LastRowNum; rowIdx++)
+                    {
+                        var row = sheet.GetRow(rowIdx);
+                        if (row == null) continue;
+                        var val = row.GetCell(meterColIdx)?.ToString()?.Trim();
+                        if (!string.IsNullOrWhiteSpace(val))
+                            uniqueMeterNumbers.Add(val);
+                    }
+                }
+                else if (extension == ".csv")
+                {
+                    fileStream.Position = 0;
+                    using (var reader = new StreamReader(fileStream))
+                    using (var csv = new CsvReader(reader, new CsvHelper.Configuration.CsvConfiguration(CultureInfo.InvariantCulture)
+                    {
+                        IgnoreBlankLines = true,
+                        BadDataFound = null,
+                        MissingFieldFound = null
+                    }))
+                    {
+                        int meterColIdx = -1;
+                        string[] header = null;
+                        int rowNum = 0;
+                        while (csv.Read())
+                        {
+                            rowNum++;
+                            if (!csv.Context.Parser.Record.All(f => string.IsNullOrWhiteSpace(f)))
+                            {
+                                header = csv.Context.Parser.Record;
+                                for (int i = 0; i < header.Length; i++)
+                                {
+                                    var h = header[i]
+                                        ?.Replace("\u00A0", " ")
+                                        .Replace("\u200B", "")
+                                        .Replace(" ", "")
+                                        .Trim()
+                                        .ToLowerInvariant();
+                                    if (BGBMeterHeaders.Contains(h))
+                                    {
+                                        meterColIdx = i;
+                                        break;
+                                    }
+                                }
+                                break;
+                            }
+                            if (rowNum > maxScanRows) break;
+                        }
+                        if (meterColIdx == -1)
+                            return uniqueMeterNumbers.ToList();
+
+                        while (csv.Read())
+                        {
+                            var val = csv.GetField(meterColIdx)?.Trim();
+                            if (!string.IsNullOrWhiteSpace(val))
+                                uniqueMeterNumbers.Add(val);
+                        }
+                    }
+                }
+                return uniqueMeterNumbers.ToList();
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("BGLiteSupplier: " + ex);
+                return new List<string>();
+            }
+
+        }
+
         #endregion
 
         #region Helper Methods
@@ -304,6 +439,10 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                     if (supplier.Name?.Trim().ToLowerInvariant() == "british gas business")
                     {
                         meterNumbers = await BGBSupplier(memStream, extension);
+                    }
+                    else if (supplier.Name?.Trim().ToLowerInvariant() == "bg lite")
+                    {
+                        meterNumbers = await BGLiteSupplier(memStream, extension);
                     }
                     else
                     {
