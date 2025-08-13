@@ -279,6 +279,7 @@
     <Content Include="Content\PreSales\Dashboard.css" />
     <Content Include="Content\Signup\ChangePassword.css" />
     <Content Include="Content\Signup\CreateUser.css" />
+    <Content Include="Content\Signup\UserProfileDashboard.css" />
     <Content Include="Content\Site.css" />
     <Content Include="Content\Signup\Login.css" />
     <Content Include="Content\Supplier\EditSupplier.css" />
@@ -323,6 +324,9 @@
     <Content Include="Scripts\Signup\userDashboard.js" />
     <Content Include="Scripts\Signup\changePassword.js" />
     <Content Include="Scripts\Signup\login.js" />
+    <Content Include="Scripts\Signup\userProfile.js" />
+    <Content Include="Scripts\Signup\userProfileDashboard.js" />
+    <Content Include="Scripts\Signup\userUpdate.js" />
     <Content Include="Scripts\site.js" />
     <Content Include="Scripts\Signup\userCreation.js" />
     <Content Include="Scripts\Supplier\editSupplier.js" />
@@ -367,6 +371,10 @@
     <Compile Include="Migrations\202508070857331_Userlisting_86c4u6dx0_InitialMapping.cs" />
     <Compile Include="Migrations\202508070857331_Userlisting_86c4u6dx0_InitialMapping.Designer.cs">
       <DependentUpon>202508070857331_Userlisting_86c4u6dx0_InitialMapping.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202508111402486_AddUserProfileFields.cs" />
+    <Compile Include="Migrations\202508111402486_AddUserProfileFields.Designer.cs">
+      <DependentUpon>202508111402486_AddUserProfileFields.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\Accounts\AwaitingPaymentsDashboard\AwaitingPaymentsDashboard.cs" />
     <Compile Include="Models\Accounts\CalendarDashboard\CalendarDashboardViewModel.cs" />
@@ -420,6 +428,11 @@
     <Compile Include="Models\Electric\ElectricDBModels\CE_ElectricContracts.cs" />
     <Compile Include="Models\Accounts\InvoiceSupplierDashboard\DB Model\CE_InvoiceSupplierUploads.cs" />
     <Compile Include="Models\Accounts\InvoiceSupplierDashboard\InvoiceSupplierUploadViewModel.cs" />
+    <Compile Include="Models\Signup\UserDashboardViewModel.cs" />
+    <Compile Include="Models\Signup\UserProfileDashboardViewModel.cs" />
+    <Compile Include="Models\Signup\UserProfileViewModel.cs" />
+    <Compile Include="Models\Signup\UserUpdateModel.cs" />
+    <Compile Include="Models\Signup\UserUpdateViewModel.cs" />
     <Compile Include="Models\Supplier\SupplierDBModels\snapshot Electric\CE_ElectricSupplierContactSnapshots.cs" />
     <Compile Include="Models\Supplier\SupplierDBModels\snapshot Electric\CE_ElectricSupplierProductSnapshots.cs" />
     <Compile Include="Models\Supplier\SupplierDBModels\snapshot Electric\CE_ElectricSupplierSnapshots.cs" />
@@ -495,6 +508,9 @@
     <Content Include="Views\Accounts\CampaignDashboard\Create.cshtml" />
     <Content Include="Views\Accounts\CampaignDashboard\CampaignDashboard.cshtml" />
     <Content Include="Views\Account\UserDashboard.cshtml" />
+    <Content Include="Views\Account\UpdateUser.cshtml" />
+    <Content Include="Views\Account\UserProfileDashboard.cshtml" />
+    <Content Include="Views\Account\UserProfile.cshtml" />
     <Content Include="Views\Accounts\BGLiteContract\EditBGLiteContract.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -527,6 +543,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202508070857331_Userlisting_86c4u6dx0_InitialMapping.resx">
       <DependentUpon>202508070857331_Userlisting_86c4u6dx0_InitialMapping.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202508111402486_AddUserProfileFields.resx">
+      <DependentUpon>202508111402486_AddUserProfileFields.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
