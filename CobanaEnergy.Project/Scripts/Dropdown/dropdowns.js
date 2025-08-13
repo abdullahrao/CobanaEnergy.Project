@@ -1,6 +1,6 @@
 ﻿
 const DropdownOptions = {
-    department: ["Call Centers", "Direct Sales", "Field Sales", "In House Sales"],
+    department: ["In House", "Brokers", "Introductors"],
     source: ["Data", "Introducer", "Self-Gen", "Cobana RNW"],
     salesType: ["Renewal", "Acquisition", "COT"],
     salesTypeStatus: [
