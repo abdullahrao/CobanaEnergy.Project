@@ -14,7 +14,7 @@ using System.Web.Mvc;
 
 namespace CobanaEnergy.Project.Controllers.Accounts.CalendarDashboard
 {
-    [Authorize(Roles = "Accounts,Controls,Admin,Management,Post-sales,Pre-sales")]
+    [Authorize(Roles = "Accounts,Controls")]
     public class CalendarDashboardController : BaseController
     {
         private readonly ApplicationDBContext db;

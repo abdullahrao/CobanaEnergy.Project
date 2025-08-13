@@ -13,18 +13,21 @@
             <ul class="navbar-nav align-items-center gap-4">
 
                 <!-- Calendar-->
-               
+
 
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="generalMenu" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="fas fa-folder me-1"></i> General
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="generalMenu">
-                        <li>
-                            <a class="dropdown-item" href="@Url.Action("Index", "CalendarDashboard")" title="Calendar Dashboard">
-                                <i class="fas fa-calendar-alt me-1"></i> Calendar
-                            </a>
-                        </li>
+                        @if (User.IsInRole("Controls"))
+                        {
+                            <li>
+                                <a class="dropdown-item" href="@Url.Action("Index", "CalendarDashboard")" title="Calendar Dashboard">
+                                    <i class="fas fa-calendar-alt me-1"></i> Calendar
+                                </a>
+                            </li>
+                        }
                         <li>
                             <a class="dropdown-item" href="@Url.Action("Index", "Campaign")" title="Campaign Dashboard">
                                 <i class="fas fa-bullhorn me-1"></i> Campaign Dashboard
