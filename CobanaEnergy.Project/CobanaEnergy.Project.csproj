@@ -510,6 +510,7 @@
     <Content Include="Views\Account\UserProfileDashboard.cshtml" />
     <Content Include="Views\Account\UserProfile.cshtml" />
     <Content Include="Views\Accounts\BGLiteContract\EditBGLiteContract.cshtml" />
+    <Content Include="Views\Accounts\AwaitingPaymentsDashboard\EditAwaitingPayment.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

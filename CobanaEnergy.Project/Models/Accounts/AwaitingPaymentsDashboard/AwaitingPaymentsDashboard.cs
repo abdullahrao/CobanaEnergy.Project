@@ -20,16 +20,26 @@ namespace CobanaEnergy.Project.Models.Accounts.AwaitingPaymentsDashboard
         public string MPAN { get; set; }
         public string MPRN { get; set; }
         public string InputEAC { get; set; }
-        public string InputDate { get; set; } 
+        public string InputDate { get; set; }
         public string StartDate { get; set; }
         public string Duration { get; set; }
+        public string  ContractType { get; set; } 
         public string PaymentStatus { get; set; }
-        public string InitialCommissionForecast { get; set; } = "N/A"; 
+        public string InitialCommissionForecast { get; set; } = "N/A";
+        public string SupplierCobanaInvoiceNotes { get; set; } = "N/A";
     }
     public class ContractUpdateModel
     {
         public string EId { get; set; }
         public string MPAN { get; set; }
         public string MPRN { get; set; }
+    }
+
+
+    public class EditAwaitingPaymentsViewModel
+    {
+        public string EId { get; set; }
+        public string ContractType { get; set; }
+        public string SupplierCobanaInvoiceNotes { get; set; } = "N/A";
     }
 }

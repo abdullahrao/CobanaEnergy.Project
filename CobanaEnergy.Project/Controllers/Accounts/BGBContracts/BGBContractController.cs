@@ -916,7 +916,8 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
         private decimal CalculateAverageEac(List<decimal> yearDataList, int duration)
         {
             var total = yearDataList.Sum(data => data);
-            return duration > 0 ? total / duration : 0;
+            var average = duration > 0 ? total / duration : 0;
+            return Math.Truncate(average * 100) / 100;
         }
 
 
