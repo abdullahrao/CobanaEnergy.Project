@@ -1,8 +1,11 @@
-﻿using CobanaEnergy.Project.Controllers.Base;
+﻿using CobanaEnergy.Project.Common;
+using CobanaEnergy.Project.Controllers.Base;
 using CobanaEnergy.Project.Filters;
 using CobanaEnergy.Project.Models;
 using CobanaEnergy.Project.Models.Accounts.AwaitingPaymentsDashboard;
 using CobanaEnergy.Project.Models.Accounts.InvoiceSupplierDashboard;
+using CobanaEnergy.Project.Models.Accounts.SuppliersModels;
+using CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGB;
 using CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGB.DBModel;
 using CobanaEnergy.Project.Models.InvoiceSupplierDashboard;
 using Logic;
@@ -97,7 +100,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
                          Reconciliation = db.CE_CommissionAndReconciliation
                              .FirstOrDefault(r => r.EId == e.EId && r.contractType == "Electric")
                      })
-                    .Where(x => x.Status != null && ShouldShowOnAwaitingPaymentsDashboard(x.Status.PaymentStatus,x.Status.ModifyDate.ToString(), x.Reconciliation?.CED))
+                    .Where(x => x.Status != null && ShouldShowOnAwaitingPaymentsDashboard(x.Status.PaymentStatus, x.Status.ModifyDate.ToString(), x.Reconciliation?.CED))
                     .ToList();
 
 
@@ -227,7 +230,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
 
 
         [HttpGet]
-        public async Task<PartialViewResult> EditAwaitingPaymentPopup(string eid, string contractType)
+        public async Task<PartialViewResult> EditAwaitingPaymentPopup(string eid, string contractType, string paymentStatus)
         {
             try
             {
@@ -238,10 +241,12 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
                 {
                     ContractType = result.contractType,
                     EId = result.EId,
-                    SupplierCobanaInvoiceNotes = result.SupplierCobanaInvoiceNotes
+                    SupplierCobanaInvoiceNotes = result.SupplierCobanaInvoiceNotes,
+                    PaymentStatus = paymentStatus
+
                 };
 
-                return PartialView("~/Views/Accounts/AwaitingPaymentsDashboard/EditAwaitingPayment.cshtml", model);
+                return PartialView("~/Views/Accounts/Common/EditCobanaInvoiceNotes.cshtml", model);
             }
             catch (Exception ex)
             {
@@ -256,16 +261,36 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
         {
             try
             {
+
                 var result = await db.CE_CommissionAndReconciliation.Where(x => x.EId == model.EId && x.contractType == model.ContractType).FirstOrDefaultAsync();
                 if (result == null)
                     return JsonResponse.Fail(message: " Supplier Cobana Invoice Notes updated.");
                 result.SupplierCobanaInvoiceNotes = model.SupplierCobanaInvoiceNotes;
+
+                #region [INSERT PAYMENT LOGS]
+                
+                var notesModel = new PaymentAndNotesLogsViewModel
+                {
+                    CobanaInvoiceNotes = model.SupplierCobanaInvoiceNotes,
+                    PaymentStatus = model.PaymentStatus,
+                    EId = model.EId,
+                    ContractType = model.ContractType,
+                    Dashboard = "AwaitingDashboardPayment",
+                    Username = User?.Identity?.Name ?? "Unknown User"
+                };
+                PaymentLogsHelper.InsertPaymentAndNotesLogs(db, notesModel);
+
+                
+                #endregion
+
                 await db.SaveChangesAsync();
                 return JsonResponse.Ok(message: " Supplier Cobana Invoice Notes updated.");
             }
             catch (Exception ex)
             {
-                Logger.Log("EditAwaitingPaymentPopup: " + ex);
+                Logger.Log("EditAwaitingPaymentUpdate: " + ex);
+
+
                 return JsonResponse.Fail("Error updating Supplier Cobana Invoice Notes.");
             }
         }

@@ -40,6 +40,7 @@ namespace CobanaEnergy.Project.Models.Accounts.AwaitingPaymentsDashboard
     {
         public string EId { get; set; }
         public string ContractType { get; set; }
+        public string PaymentStatus { get; set; }
         public string SupplierCobanaInvoiceNotes { get; set; } = "N/A";
     }
 }
