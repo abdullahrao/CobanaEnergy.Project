@@ -1,0 +1,213 @@
+/* Sector Dashboard specific styles */
+
+.sector-dashboard {
+    padding: 40px 20px 20px 20px;
+    background-color: #f9f9f9;
+    font-family: 'Raleway', sans-serif;
+    min-height: 92vh;
+    width: 99vw;
+    margin-left: calc(-49vw + 49%);
+    max-width: none;
+}
+
+.sector-dashboard .dashboard-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 32px;
+    text-align: center;
+    letter-spacing: 0.5px;
+    font-family: 'Raleway', sans-serif;
+}
+
+.sector-dashboard .filters {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 4px 28px rgba(80, 94, 128, 0.11);
+    padding: 16px 20px;
+    margin-bottom: 24px;
+}
+
+.sector-dashboard .filters .form-label {
+    font-size: 1rem;
+    font-family: 'Raleway', sans-serif;
+    margin-bottom: 6px;
+}
+
+.sector-dashboard .filters .form-select {
+    min-width: 200px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 8px 12px;
+}
+
+.sector-dashboard .filters .form-select:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.sector-dashboard .table-container {
+    overflow-x: auto;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 4px 28px 0 rgba(80,94,128,0.11);
+    padding: 24px 20px 20px 20px;
+}
+
+#sectorTable {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.94rem;
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    margin-bottom: 0;
+}
+
+#sectorTable th,
+#sectorTable td {
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+    padding: 12px 14px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 1rem;
+}
+
+#sectorTable thead th {
+    font-family: 'Raleway', sans-serif;
+    font-size: 1.03rem;
+    font-weight: 700;
+    background: #fafbfc;
+    color: #232949;
+    border-bottom: 2px solid #ececec;
+}
+
+#sectorTable tbody tr {
+    transition: background 0.15s;
+}
+
+#sectorTable tbody tr:hover {
+    background: #f4f6fc;
+}
+
+/* Edit Button Styling */
+.edit-btn {
+    min-width: 130px;
+    border-radius: 0.65rem;
+    font-family: 'Raleway', sans-serif;
+    font-size: 1.08rem;
+    font-weight: 600;
+    background: #6aa1f9;
+    border: none;
+    transition: background 0.15s;
+    color: white;
+    padding: 8px 16px;
+}
+
+.edit-btn:hover {
+    background: #5a8ee8;
+    color: white;
+}
+
+.edit-btn:focus {
+    box-shadow: 0 0 0 0.2rem rgba(106, 161, 249, 0.25);
+}
+
+/* Status Badge Styling */
+.badge.bg-success {
+    background-color: #28a745 !important;
+    color: white !important;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.badge.bg-danger {
+    background-color: #dc3545 !important;
+    color: white !important;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .sector-dashboard {
+        padding: 20px 15px 15px 15px;
+    }
+    
+    .sector-dashboard .dashboard-title {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+    }
+    
+    .sector-dashboard .filters {
+        padding: 15px;
+    }
+    
+    .sector-dashboard .filters .form-select {
+        min-width: 150px;
+    }
+    
+    .sector-dashboard .table-container {
+        padding: 15px;
+    }
+    
+    #sectorTable th,
+    #sectorTable td {
+        padding: 8px 6px;
+        font-size: 0.9rem;
+    }
+    
+    .edit-btn {
+        padding: 4px 8px;
+        font-size: 0.8rem;
+    }
+}
+
+/* DataTables Styling */
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_length {
+    margin-bottom: 20px !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    border-radius: 0.65rem !important;
+    font-family: 'Raleway', sans-serif !important;
+    font-weight: 600 !important;
+    border: none !important;
+    background: #6aa1f9 !important;
+    color: white !important;
+    margin: 0 2px !important;
+    padding: 8px 12px !important;
+    transition: background 0.15s !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: #5a8ee8 !important;
+    color: white !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: #4a7dd8 !important;
+    color: white !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+    background: #b9d1f6 !important;
+    color: #6c757d !important;
+    cursor: not-allowed !important;
+}
+
+.dataTables_wrapper .dataTables_length select,
+.dataTables_wrapper .dataTables_filter input {
+    border-radius: 0.65rem !important;
+    border: 1px solid #ced4da !important;
+    padding: 6px 12px !important;
+    font-family: 'Raleway', sans-serif !important;
+}
+
+.dataTables_wrapper .dataTables_length select:focus,
+.dataTables_wrapper .dataTables_filter input:focus {
+    border-color: #80bdff !important;
+    box-shadow: 0 0 0 0.2rem rgba(106, 161, 249, 0.25) !important;
+}

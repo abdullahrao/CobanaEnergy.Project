@@ -285,6 +285,9 @@
     <Content Include="Content\Supplier\EditSupplier.css" />
     <Content Include="Content\Supplier\SupplierCreation.css" />
     <Content Include="Content\Supplier\SupplierDashboard.css" />
+    <Content Include="Content\Sector\SectorDashboard.css" />
+    <Content Include="Content\Sector\CreateSector.css" />
+    <Content Include="Content\Sector\EditSector.css" />
     <Content Include="Global.asax" />
     <Content Include="migration-command.txt" />
     <Content Include="Scripts\Accounts\AwaitingPaymentsDashboard\awaitingPaymentsDashboard.js" />
@@ -332,6 +335,10 @@
     <Content Include="Scripts\Supplier\editSupplier.js" />
     <Content Include="Scripts\Supplier\supplierCreation.js" />
     <Content Include="Scripts\Supplier\supplierDashboard.js" />
+    <Content Include="Scripts\Sector\sectorDashboard.js" />
+    <Content Include="Scripts\Sector\sectorFormManager.js" />
+    <Content Include="Scripts\Sector\createSector.js" />
+    <Content Include="Scripts\Sector\editSector.js" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -410,6 +417,7 @@
     <Compile Include="Controllers\PreSales\GasController.cs" />
     <Compile Include="Controllers\PreSales\PreSalesController.cs" />
     <Compile Include="Controllers\PreSales\SupplierController.cs" />
+    <Compile Include="Controllers\Sector\SectorController.cs" />
     <Compile Include="Controllers\Signup\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Filters\ValidateJsonAntiForgeryTokenAttribute.cs" />
@@ -431,6 +439,28 @@
     <Compile Include="Models\Signup\UserProfileViewModel.cs" />
     <Compile Include="Models\Signup\UserUpdateModel.cs" />
     <Compile Include="Models\Signup\UserUpdateViewModel.cs" />
+    <Compile Include="Models\Sector\SectorDashboardViewModel.cs" />
+    <Compile Include="Models\Sector\CreateSectorViewModel.cs" />
+    <Compile Include="Models\Sector\EditSectorViewModel.cs" />
+    <!-- Common Sector View Models -->
+    <Compile Include="Models\Sector\Common\BankDetailsViewModel.cs" />
+    <Compile Include="Models\Sector\Common\CompanyTaxInfoViewModel.cs" />
+    <!-- Commission Sector View Models -->
+    <Compile Include="Models\Sector\Commissions\BrokerageCommissionAndPaymentViewModel.cs" />
+    <Compile Include="Models\Sector\Commissions\CloserCommissionAndPaymentViewModel.cs" />
+    <Compile Include="Models\Sector\Commissions\IntroducerCommissionAndPaymentViewModel.cs" />
+    <Compile Include="Models\Sector\Commissions\ReferralPartnerCommissionAndPaymentViewModel.cs" />
+    <Compile Include="Models\Sector\Commissions\LeadGeneratorCommissionAndPaymentViewModel.cs" />
+    <!-- Brokerage Sector View Models -->
+    <Compile Include="Models\Sector\Brokerage\BrokerageStaffViewModel.cs" />
+    <Compile Include="Models\Sector\Brokerage\SubBrokerageViewModel.cs" />
+    <Compile Include="Models\Sector\Brokerage\SubBrokerageCommissionAndPaymentViewModel.cs" />
+    <!-- Referral Partner Sector View Models -->
+    <Compile Include="Models\Sector\ReferralPartner\SubReferralViewModel.cs" />
+    <Compile Include="Models\Sector\ReferralPartner\SubReferralCommissionAndPaymentViewModel.cs" />
+    <!-- Introducer Sector View Models -->
+    <Compile Include="Models\Sector\Introducer\SubIntroducerViewModel.cs" />
+    <Compile Include="Models\Sector\Introducer\SubIntroducerCommissionAndPaymentViewModel.cs" />
     <Compile Include="Models\Supplier\SupplierDBModels\snapshot Electric\CE_ElectricSupplierContactSnapshots.cs" />
     <Compile Include="Models\Supplier\SupplierDBModels\snapshot Electric\CE_ElectricSupplierProductSnapshots.cs" />
     <Compile Include="Models\Supplier\SupplierDBModels\snapshot Electric\CE_ElectricSupplierSnapshots.cs" />
@@ -509,6 +539,9 @@
     <Content Include="Views\Account\UpdateUser.cshtml" />
     <Content Include="Views\Account\UserProfileDashboard.cshtml" />
     <Content Include="Views\Account\UserProfile.cshtml" />
+    <Content Include="Views\Sector\Dashboard.cshtml" />
+    <Content Include="Views\Sector\Create.cshtml" />
+    <Content Include="Views\Sector\Edit.cshtml" />
     <Content Include="Views\Accounts\BGLiteContract\EditBGLiteContract.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>

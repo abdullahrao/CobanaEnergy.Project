@@ -1,0 +1,210 @@
+@model CobanaEnergy.Project.Models.Sector.EditSectorViewModel
+@{
+    ViewBag.Title = "Edit Sector";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@if (User.Identity.IsAuthenticated && User.IsInRole("Controls"))
+{
+    <div class="edit-sector-container">
+        <div class="form-container">
+            <h2 class="form-heading">Edit Sector</h2>
+
+            @using (Html.BeginForm("Edit", "Sector", FormMethod.Post, new { id = "editSectorForm", @class = "form-horizontal", role = "form" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.Hidden("SectorId", Model.SectorId)
+
+                <!-- Sector Type Selection -->
+                <div class="form-section">
+                    <h4>Sector Type</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Sector Type</label>
+                                <select name="SectorType" id="sectorType" class="form-control" required>
+                                    <option value="">Select Sector Type</option>
+                                    <option value="Brokerage" @(Model.SectorType == "Brokerage" ? "selected" : "")>Brokerage</option>
+                                    <option value="Closer" @(Model.SectorType == "Closer" ? "selected" : "")>Closer</option>
+                                    <option value="Leads Generator" @(Model.SectorType == "Leads Generator" ? "selected" : "")>Leads Generator</option>
+                                    <option value="Referral Partner" @(Model.SectorType == "Referral Partner" ? "selected" : "")>Referral Partner</option>
+                                    <option value="Introducer" @(Model.SectorType == "Introducer" ? "selected" : "")>Introducer</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sector Details -->
+                <div class="form-section">
+                    <h4>Sector Details</h4>
+                    <div class="row">
+                                                 <div class="col-md-6">
+                             <div class="form-group">
+                                 <input type="text" name="Name" value="@Model.Name" class="form-control" placeholder="Sector Name *" required />
+                             </div>
+                         </div>
+                         <div class="col-md-6">
+                             <div class="form-group">
+                                 <input type="text" name="OfgemID" value="@Model.OfgemID" class="form-control" placeholder="Ofgem ID" />
+                             </div>
+                         </div>
+                    </div>
+                                         <div class="row">
+                         <div class="col-md-6">
+                             <div class="form-group">
+                                 <input type="date" name="StartDate" value="@Model.StartDate" class="form-control" />
+                             </div>
+                         </div>
+                         <div class="col-md-6">
+                             <div class="form-group">
+                                 <input type="date" name="EndDate" value="@Model.EndDate" class="form-control" />
+                             </div>
+                         </div>
+                     </div>
+                                         <div class="row">
+                         <div class="col-md-6">
+                             <div class="form-group">
+                                 <input type="text" name="Mobile" value="@Model.Mobile" class="form-control" placeholder="Mobile Number" />
+                             </div>
+                         </div>
+                         <div class="col-md-6">
+                             <div class="form-group">
+                                 <input type="text" name="Email" value="@Model.Email" class="form-control" placeholder="Email Address" />
+                             </div>
+                         </div>
+                     </div>
+                                         <div class="row">
+                         <div class="col-md-6">
+                             <div class="form-group">
+                                 <input type="text" name="Address" value="@Model.Address" class="form-control" placeholder="Address" />
+                             </div>
+                         </div>
+                         <div class="col-md-6">
+                             <div class="form-group">
+                                 <input type="text" name="Postcode" value="@Model.Postcode" class="form-control" placeholder="Postcode" />
+                             </div>
+                         </div>
+                     </div>
+                                         <div class="row">
+                         <div class="col-md-12">
+                             <div class="form-group">
+                                 <textarea name="Notes" class="form-control" placeholder="Notes" rows="3">@Model.Notes</textarea>
+                             </div>
+                         </div>
+                     </div>
+                                         <div class="row">
+                         <div class="col-md-6">
+                             <div class="form-group">
+                                 <select name="Active" class="form-control">
+                                     <option value="true" @(Model.Active ? "selected" : "")>Active</option>
+                                     <option value="false" @(Model.Active ? "" : "selected")>Inactive</option>
+                                 </select>
+                             </div>
+                         </div>
+                     </div>
+                </div>
+
+                                 <!-- Bank Details -->
+                 <div class="form-section bank-details-section">
+                     <h4>Bank Details</h4>
+                     <div class="row">
+                         <div class="col-md-6">
+                             <div class="form-group">
+                                 <input type="text" name="BankDetails.BankName" value="@Model.BankDetails.BankName" class="form-control" placeholder="Bank Name" />
+                             </div>
+                         </div>
+                         <div class="col-md-6">
+                             <div class="form-group">
+                                 <input type="text" name="BankDetails.AccountNumber" value="@Model.BankDetails.AccountNumber" class="form-control" placeholder="Account Number" />
+                             </div>
+                         </div>
+                     </div>
+                     <div class="row">
+                         <div class="col-md-6">
+                             <div class="form-group">
+                                 <input type="text" name="BankDetails.SortCode" value="@Model.BankDetails.SortCode" class="form-control" placeholder="Sort Code" />
+                             </div>
+                         </div>
+                         <div class="col-md-6">
+                             <div class="form-group">
+                                 <input type="text" name="BankDetails.AccountHolderName" value="@Model.BankDetails.AccountHolderName" class="form-control" placeholder="Account Holder Name" />
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+
+                                 <!-- Company Tax Information -->
+                 <div class="form-section company-tax-section">
+                     <h4>Company Tax Information</h4>
+                     <div class="row">
+                         <div class="col-md-6">
+                             <div class="form-group">
+                                 <input type="text" name="CompanyTaxInfo.CompanyRegistration" value="@Model.CompanyTaxInfo.CompanyRegistration" class="form-control" placeholder="Company Registration" />
+                             </div>
+                         </div>
+                         <div class="col-md-6">
+                             <div class="form-group">
+                                 <input type="text" name="CompanyTaxInfo.VATNumber" value="@Model.CompanyTaxInfo.VATNumber" class="form-control" placeholder="VAT Number" />
+                             </div>
+                         </div>
+                     </div>
+                     <div class="row">
+                         <div class="col-md-6">
+                             <div class="form-group">
+                                 <input type="text" name="CompanyTaxInfo.UTRNumber" value="@Model.CompanyTaxInfo.UTRNumber" class="form-control" placeholder="UTR Number" />
+                             </div>
+                         </div>
+                         <div class="col-md-6">
+                             <div class="form-group">
+                                 <input type="text" name="CompanyTaxInfo.TaxOffice" value="@Model.CompanyTaxInfo.TaxOffice" class="form-control" placeholder="Tax Office" />
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+
+                <!-- Dynamic Sections Container -->
+                <div id="dynamicSectionsContainer">
+                    <!-- Dynamic content will be loaded here based on sector type -->
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Update Sector</button>
+                    <a href="@Url.Action("Dashboard", "Sector")" class="btn btn-secondary">Cancel</a>
+                </div>
+            }
+        </div>
+    </div>
+
+    @section scripts {
+        @if (TempData["ToastMessage"] != null)
+        {
+            <script>
+                $(function () {
+                    const message = "@TempData["ToastMessage"]";
+                    const type = "@TempData["ToastType"]";
+
+                    if (type === "success") {
+                        showToastSuccess(message);
+                    } else if (type === "error") {
+                        showToastError(message);
+                    }
+                });
+            </script>
+        }
+
+        <script src="~/Scripts/Sector/sectorFormManager.js"></script>
+        <script src="~/Scripts/Sector/editSector.js"></script>
+    }
+
+    @section styles {
+        <link href="~/Content/Sector/EditSector.css" rel="stylesheet" />
+    }
+}
+else
+{
+    <div class="alert alert-danger text-center mt-5">
+        <h4>Access Denied</h4>
+        <p>You are not authorized to view this page.</p>
+    </div>
+}

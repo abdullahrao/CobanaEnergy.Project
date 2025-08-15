@@ -1,0 +1,178 @@
+@{
+    ViewBag.Title = "Create Sector";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@if (User.Identity.IsAuthenticated && User.IsInRole("Controls"))
+{
+    <div class="sector-page-container">
+        <h2 class="page-heading">Create New Sector</h2>
+
+        @using (Html.BeginForm("Create", "Sector", FormMethod.Post, new { id = "createSectorForm", @class = "sector-form", role = "form" }))
+        {
+            @Html.AntiForgeryToken()
+
+            <!-- Sector Type Selection -->
+            <div class="form-section sector-type-section">
+                <h4>Sector Type</h4>
+                <div class="row gx-4 gy-3 align-items-center">
+                    <div class="col-md-6">
+                        <label for="sectorType" class="form-label required">Sector Type</label>
+                        <select class="form-control" id="sectorType" name="SectorType" required>
+                            <option value="">Choose a sector</option>
+                            <option value="Brokerage">Brokerage</option>
+                            <option value="Closer">Closer</option>
+                            <option value="Leads Generator">Leads Generator</option>
+                            <option value="Referral Partner">Referral Partner</option>
+                            <option value="Introducer">Introducer</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Common Fields Section -->
+            <div class="form-section sector-meta-section" id="commonFieldsSection" style="display: none;">
+                <h4>Sector Details</h4>
+                <div class="row gx-4 gy-3">
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" id="sectorName" name="Name" placeholder="Sector Name *" required autocomplete="off" />
+                    </div>
+                    <div class="col-md-6">
+                        <select class="form-control" id="sectorActive" name="Active" required>
+                            <option value="">Select Status *</option>
+                            <option value="true">YES</option>
+                            <option value="false">NO</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row gx-4 gy-3 mt-3">
+                    <div class="col-md-6">
+                        <input type="date" class="form-control" id="startDate" name="StartDate" required />
+                    </div>
+                    <div class="col-md-6">
+                        <input type="date" class="form-control" id="endDate" name="EndDate" />
+                    </div>
+                </div>
+                <div class="row gx-4 gy-3 mt-3">
+                    <div class="col-md-6">
+                        <input type="email" class="form-control" id="sectorEmail" name="Email" placeholder="Email Address *" required autocomplete="off" />
+                    </div>
+                    <div class="col-md-6">
+                        <input type="tel" class="form-control" id="sectorLandline" name="Landline" placeholder="Landline Number (11 digits) *" maxlength="11" required autocomplete="off" />
+                    </div>
+                </div>
+                <div class="row gx-4 gy-3 mt-3">
+                    <div class="col-md-6">
+                        <input type="tel" class="form-control" id="sectorMobile" name="Mobile" placeholder="Mobile Number (11 digits) *" maxlength="11" required autocomplete="off" />
+                    </div>
+                </div>
+
+                <!-- Additional Fields for Brokerage and Introducers -->
+                <div id="additionalFieldsSection" style="display: none;">
+                    <div class="row gx-4 gy-3 mt-3">
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" id="ofgemId" name="OfgemID" placeholder="Ofgem ID" autocomplete="off" />
+                        </div>
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" id="department" name="Department" placeholder="Department" readonly />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bank Details Section (Generic) -->
+            <div class="form-section bank-details-section" id="bankDetailsSection" style="display: none;">
+                <h4>Bank Details</h4>
+                <div class="row gx-4 gy-3">
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" id="bankName" name="BankDetails.BankName" placeholder="Bank Name" autocomplete="off" />
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" id="accountName" name="BankDetails.AccountName" placeholder="Account Name" autocomplete="off" />
+                    </div>
+                </div>
+                <div class="row gx-4 gy-3 mt-3">
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" id="accountSortCode" name="BankDetails.AccountSortCode" placeholder="Sort Code" autocomplete="off" />
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" id="accountNumber" name="BankDetails.AccountNumber" placeholder="Account Number" autocomplete="off" />
+                    </div>
+                </div>
+                <div class="row gx-4 gy-3 mt-3">
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" id="iban" name="BankDetails.IBAN" placeholder="IBAN" autocomplete="off" />
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" id="swiftCode" name="BankDetails.SwiftCode" placeholder="Swift Code" autocomplete="off" />
+                    </div>
+                </div>
+                <div class="row gx-4 gy-3 mt-3">
+                    <div class="col-md-6">
+                        <textarea class="form-control" id="bankBranchAddress" name="BankDetails.BankBranchAddress" placeholder="Bank Branch Address" rows="2"></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <textarea class="form-control" id="receiversAddress" name="BankDetails.ReceiversAddress" placeholder="Receivers Address" rows="2"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Company Tax Info Section (Generic) -->
+            <div class="form-section company-tax-section" id="companyTaxSection" style="display: none;">
+                <h4>Company Tax Information</h4>
+                <div class="row gx-4 gy-3">
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" id="companyRegistration" name="CompanyTaxInfo.CompanyRegistration" placeholder="Company Registration" autocomplete="off" />
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" id="vatNumber" name="CompanyTaxInfo.VATNumber" placeholder="VAT Number" autocomplete="off" />
+                    </div>
+                </div>
+                <div class="row gx-4 gy-3 mt-3">
+                    <div class="col-md-12">
+                        <textarea class="form-control" id="taxNotes" name="CompanyTaxInfo.Notes" placeholder="Additional Notes" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dynamic Sections Container -->
+            <div id="dynamicSectionsContainer"></div>
+
+            <div class="form-group text-center">
+                <button type="submit" class="btn btn-primary" id="submitBtn" disabled>Create Sector</button>
+            </div>
+        }
+    </div>
+
+    @section scripts {
+        @if (TempData["ToastMessage"] != null)
+        {
+            <script>
+                $(function () {
+                    const message = "@TempData["ToastMessage"]";
+                    const type = "@TempData["ToastType"]";
+
+                    if (type === "success") {
+                        showToastSuccess(message);
+                    } else if (type === "error") {
+                        showToastError(message);
+                    }
+                });
+            </script>
+        }
+
+        <script src="~/Scripts/Sector/sectorFormManager.js"></script>
+        <script src="~/Scripts/Sector/createSector.js"></script>
+    }
+
+    @section styles {
+        <link href="~/Content/Sector/CreateSector.css" rel="stylesheet" />
+    }
+}
+else
+{
+    <div class="alert alert-danger text-center mt-5">
+        <h4>Access Denied</h4>
+        <p>You are not authorized to view this page.</p>
+    </div>
+}
