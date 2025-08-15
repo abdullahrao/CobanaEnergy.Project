@@ -1,8 +1,13 @@
-﻿using CobanaEnergy.Project.Controllers.Base;
+﻿using CobanaEnergy.Project.Common;
+using CobanaEnergy.Project.Controllers.Base;
 using CobanaEnergy.Project.Filters;
 using CobanaEnergy.Project.Models;
 using CobanaEnergy.Project.Models.Accounts.AwaitingPaymentsDashboard;
 using CobanaEnergy.Project.Models.Accounts.InvoiceSupplierDashboard;
+using CobanaEnergy.Project.Models.Accounts.SuppliersModels;
+using CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGB;
+using CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGB.DBModel;
+using CobanaEnergy.Project.Models.InvoiceSupplierDashboard;
 using Logic;
 using Logic.ResponseModel.Helper;
 using System;
@@ -86,18 +91,18 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
                 {
                     return JsonResponse.Ok(new List<AwaitingPaymentsRowViewModel>());
                 }
-
                 var electricContractsRaw = electricContractsList
-                    .Select(e => new
-                    {
-                        Contract = e,
-                        Status = db.CE_ContractStatuses
-                            .FirstOrDefault(cs => cs.EId == e.EId && cs.Type == "Electric" && cs.PaymentStatus == "Awaiting Invoice"),
-                        Reconciliation = db.CE_CommissionAndReconciliation
-                            .FirstOrDefault(r => r.EId == e.EId && r.contractType == "Electric")
-                    })
-                    .Where(x => x.Status != null)
+                     .Select(e => new
+                     {
+                         Contract = e,
+                         Status = db.CE_ContractStatuses
+                             .FirstOrDefault(cs => cs.EId == e.EId && cs.Type == "Electric"),
+                         Reconciliation = db.CE_CommissionAndReconciliation
+                             .FirstOrDefault(r => r.EId == e.EId && r.contractType == "Electric")
+                     })
+                    .Where(x => x.Status != null && ShouldShowOnAwaitingPaymentsDashboard(x.Status.PaymentStatus, x.Status.ModifyDate.ToString(), x.Reconciliation?.CED))
                     .ToList();
+
 
                 var gasContractsRaw = gasContractsList
                     .Select(g => new
@@ -108,7 +113,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
                         Reconciliation = db.CE_CommissionAndReconciliation
                             .FirstOrDefault(r => r.EId == g.EId && r.contractType == "Gas")
                     })
-                    .Where(x => x.Status != null)
+                    .Where(x => x.Status != null && ShouldShowOnAwaitingPaymentsDashboard(x.Status.PaymentStatus, x.Status.ModifyDate.ToString(), x.Reconciliation?.CED))
                     .ToList();
 
                 var contracts = electricContractsRaw.Select(x => new AwaitingPaymentsRowViewModel
@@ -119,6 +124,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
                     MPRN = null,
                     InputEAC = x.Contract.InputEAC,
                     InputDate = x.Contract.InputDate,
+                    ContractType = "Electric",
                     StartDate = DateTime.TryParse(x.Reconciliation?.StartDate, out var startDt)
                                 ? startDt.ToString("dd/MM/yyyy")
                                 : "N/A",
@@ -127,7 +133,8 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
                     InitialCommissionForecast = db.CE_CommissionMetrics
                         .Where(m => m.ReconciliationId == x.Reconciliation.Id && m.contractType == "Electric")
                         .Select(m => m.InitialCommissionForecast)
-                        .FirstOrDefault() ?? "N/A"
+                        .FirstOrDefault() ?? "N/A",
+                    SupplierCobanaInvoiceNotes = x.Reconciliation.SupplierCobanaInvoiceNotes ?? "N/A",
                 }).ToList();
 
                 contracts.AddRange(gasContractsRaw.Select(x => new AwaitingPaymentsRowViewModel
@@ -138,6 +145,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
                     MPRN = x.Contract.MPRN,
                     InputEAC = x.Contract.InputEAC,
                     InputDate = x.Contract.InputDate,
+                    ContractType = "Gas",
                     StartDate = DateTime.TryParse(x.Reconciliation?.StartDate, out var startDt)
                                 ? startDt.ToString("dd/MM/yyyy")
                                 : "N/A",
@@ -146,7 +154,8 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
                     InitialCommissionForecast = db.CE_CommissionMetrics
                         .Where(m => m.ReconciliationId == x.Reconciliation.Id && m.contractType == "Gas")
                         .Select(m => m.InitialCommissionForecast)
-                        .FirstOrDefault() ?? "N/A"
+                        .FirstOrDefault() ?? "N/A",
+                    SupplierCobanaInvoiceNotes = x.Reconciliation.SupplierCobanaInvoiceNotes ?? "N/A",
                 }));
 
                 var awaitingInvoiceCount = await db.CE_ContractStatuses
@@ -219,6 +228,73 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
             }
         }
 
+
+        [HttpGet]
+        public async Task<PartialViewResult> EditAwaitingPaymentPopup(string eid, string contractType, string paymentStatus)
+        {
+            try
+            {
+                var result = await db.CE_CommissionAndReconciliation.Where(x => x.EId == eid && x.contractType == contractType).FirstOrDefaultAsync();
+                if (result == null)
+                    return PartialView("~/Views/Shared/_ModalError.cshtml", "Record not found.");
+                var model = new EditAwaitingPaymentsViewModel
+                {
+                    ContractType = result.contractType,
+                    EId = result.EId,
+                    SupplierCobanaInvoiceNotes = result.SupplierCobanaInvoiceNotes,
+                    PaymentStatus = paymentStatus
+
+                };
+
+                return PartialView("~/Views/Accounts/Common/EditCobanaInvoiceNotes.cshtml", model);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("EditAwaitingPaymentPopup: " + ex);
+                return PartialView("~/Views/Shared/_ModalError.cshtml", "Failed to load popup.");
+            }
+        }
+
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        public async Task<JsonResult> EditAwaitingPaymentUpdate(EditAwaitingPaymentsViewModel model)
+        {
+            try
+            {
+
+                var result = await db.CE_CommissionAndReconciliation.Where(x => x.EId == model.EId && x.contractType == model.ContractType).FirstOrDefaultAsync();
+                if (result == null)
+                    return JsonResponse.Fail(message: " Supplier Cobana Invoice Notes updated.");
+                result.SupplierCobanaInvoiceNotes = model.SupplierCobanaInvoiceNotes;
+
+                #region [INSERT PAYMENT LOGS]
+                
+                var notesModel = new PaymentAndNotesLogsViewModel
+                {
+                    CobanaInvoiceNotes = model.SupplierCobanaInvoiceNotes,
+                    PaymentStatus = model.PaymentStatus,
+                    EId = model.EId,
+                    ContractType = model.ContractType,
+                    Dashboard = "AwaitingDashboardPayment",
+                    Username = User?.Identity?.Name ?? "Unknown User"
+                };
+                PaymentLogsHelper.InsertPaymentAndNotesLogs(db, notesModel);
+
+                
+                #endregion
+
+                await db.SaveChangesAsync();
+                return JsonResponse.Ok(message: " Supplier Cobana Invoice Notes updated.");
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("EditAwaitingPaymentUpdate: " + ex);
+
+
+                return JsonResponse.Fail("Error updating Supplier Cobana Invoice Notes.");
+            }
+        }
+
         private DateTime AddWorkingDays(DateTime start, int workingDays)
         {
             var current = start;
@@ -231,6 +307,62 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
                 }
             }
             return current;
+        }
+
+        private bool ShouldShowOnAwaitingPaymentsDashboard(string paymentStatus, string startDateStr, string endDateStr)
+        {
+            if (string.IsNullOrWhiteSpace(paymentStatus))
+                return false;
+
+            DateTime now = DateTime.UtcNow.Date;
+            DateTime? startDate = DateTime.TryParse(startDateStr, out var sdt) ? sdt.Date : (DateTime?)null;
+            DateTime? endDate = DateTime.TryParse(endDateStr, out var edt) ? edt.Date : (DateTime?)null;
+
+            int waitDays;
+
+            switch (paymentStatus)
+            {
+                case "Awaiting Invoice":
+                    waitDays = 42;
+                    break;
+
+                case "Awaiting 1st Reconciliation":
+                case "Awaiting 2nd initial":
+                    waitDays = 395;
+                    break;
+
+                case "Awaiting 2nd Reconciliation":
+                case "Awaiting 3rd initial":
+                    waitDays = 760;
+                    break;
+
+                case "Awaiting 3rd Reconciliation":
+                case "Awaiting 4th initial":
+                    waitDays = 1125;
+                    break;
+
+                case "Awaiting 4th Reconciliation":
+                case "Awaiting 5th initial":
+                    waitDays = 1490;
+                    break;
+
+                case "Awaiting Final Reconciliation":
+                    waitDays = 60; // special case: use END date
+                    break;
+
+                default:
+                    return true;
+            }
+
+            if (paymentStatus == "Awaiting Final Reconciliation")
+            {
+                return endDate.HasValue && now >= endDate.Value.AddDays(waitDays);
+            }
+            else
+            {
+                return startDate.HasValue && now >= startDate.Value.AddDays(waitDays);
+            }
+
         }
 
     }
