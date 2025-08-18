@@ -1,8 +1,10 @@
-﻿using CobanaEnergy.Project.Controllers.Base;
+﻿using CobanaEnergy.Project.Common;
+using CobanaEnergy.Project.Controllers.Base;
 using CobanaEnergy.Project.Filters;
 using CobanaEnergy.Project.Models;
 using CobanaEnergy.Project.Models.Accounts.AwaitingPaymentsDashboard;
 using CobanaEnergy.Project.Models.Accounts.ProblematicsDashboard;
+using CobanaEnergy.Project.Models.Accounts.SuppliersModels;
 using Logic;
 using Logic.ResponseModel.Helper;
 using System;
@@ -121,6 +123,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.ProblematicsDashboard
                     MPAN = x.Contract.MPAN,
                     MPRN = null,
                     InputEAC = x.Contract.InputEAC,
+                    ContractType = "Electric",
                     InputDate = x.Contract.InputDate,
                     StartDate = DateTime.TryParse(x.Reconciliation?.StartDate, out var startDt)
                                 ? startDt.ToString("dd/MM/yyyy")
@@ -144,6 +147,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.ProblematicsDashboard
                     MPAN = null,
                     MPRN = x.Contract.MPRN,
                     InputEAC = x.Contract.InputEAC,
+                    ContractType = "Gas",
                     InputDate = x.Contract.InputDate,
                     StartDate = DateTime.TryParse(x.Reconciliation?.StartDate, out var startDt)
                                 ? startDt.ToString("dd/MM/yyyy")
@@ -225,6 +229,69 @@ namespace CobanaEnergy.Project.Controllers.Accounts.ProblematicsDashboard
             {
                 Logger.Log("UpdateFollowUpDates: " + ex);
                 return JsonResponse.Fail("Error updating follow-up dates.");
+            }
+        }
+
+
+        [HttpGet]
+        public async Task<PartialViewResult> EditProblematicDashboardPopup(string eid, string contractType)
+        {
+            try
+            {
+                var result = await db.CE_CommissionAndReconciliation.Where(x => x.EId == eid && x.contractType == contractType).FirstOrDefaultAsync();
+                if (result == null)
+                    return PartialView("~/Views/Shared/_ModalError.cshtml", "Record not found.");
+                var model = new EditAwaitingPaymentsViewModel
+                {
+                    ContractType = result.contractType,
+                    EId = result.EId,
+                    SupplierCobanaInvoiceNotes = result.SupplierCobanaInvoiceNotes
+                };
+
+                return PartialView("~/Views/Accounts/Common/EditCobanaInvoiceNotes.cshtml", model);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("EditProblematicDashboardPopup: " + ex);
+                return PartialView("~/Views/Shared/_ModalError.cshtml", "Failed to load popup.");
+            }
+        }
+
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        public async Task<JsonResult> EditProblematicDashboardUpdate(EditAwaitingPaymentsViewModel model)
+        {
+            try
+            {
+                var result = await db.CE_CommissionAndReconciliation.Where(x => x.EId == model.EId && x.contractType == model.ContractType).FirstOrDefaultAsync();
+                if (result == null)
+                    return JsonResponse.Fail(message: " Supplier Cobana Invoice Notes updated.");
+                result.SupplierCobanaInvoiceNotes = model.SupplierCobanaInvoiceNotes;
+
+                #region [INSERT PAYMENT LOGS]
+
+                var notesModel = new PaymentAndNotesLogsViewModel
+                {
+                    CobanaInvoiceNotes = model.SupplierCobanaInvoiceNotes,
+                    PaymentStatus = model.PaymentStatus,
+                    EId = model.EId,
+                    ContractType = model.ContractType,
+                    Dashboard = "ProblemticDashboardPayment",
+                    Username = User?.Identity?.Name ?? "Unknown User"
+                };
+                PaymentLogsHelper.InsertPaymentAndNotesLogs(db, notesModel);
+
+                #endregion
+
+                await db.SaveChangesAsync();
+                return JsonResponse.Ok(message: " Supplier Cobana Invoice Notes updated.");
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("EditProblematicDashboardUpdate: " + ex);
+
+
+                return JsonResponse.Fail("Error updating Supplier Cobana Invoice Notes.");
             }
         }
 

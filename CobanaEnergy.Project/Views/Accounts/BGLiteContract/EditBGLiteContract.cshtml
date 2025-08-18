@@ -254,11 +254,11 @@
                             </div>
                             <div class="col-md-6 col-lg-4">
                                 <label class="form-label">Live Days</label>
-                                <div class="readonly-value">@Model.LiveDays</div>
+                                <div class="readonly-value">@Model.LiveDays.ToTwoDecimal()</div>
                             </div>
                             <div class="col-md-6 col-lg-4">
                                 <label class="form-label">Percent Live Days</label>
-                                <div class="readonly-value">@Model.PercentLiveDays</div>
+                                <div class="readonly-value">@Model.PercentLiveDays.ToTwoDecimal()</div>
                             </div>
                             <div class="col-md-6 col-lg-4">
                                 <label class="form-label">Total Commission Forecast</label>
@@ -270,7 +270,7 @@
                             </div>
                             <div class="col-md-6 col-lg-4">
                                 <label class="form-label">COT/Lost Reconciliation</label>
-                                <div class="readonly-value">@Model.COTLostReconciliation</div>
+                                <div class="readonly-value">@Model.COTLostReconciliation.ToTwoDecimal()</div>
                             </div>
                             <div class="col-md-6 col-lg-4">
                                 <label class="form-label">Total Average EAC</label>
