@@ -175,3 +175,47 @@
         background-color: #545b61;
         color: #fff;
     }
+
+
+/* Section Box */
+.form-section {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 12px;
+    padding: 24px 20px;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.section-header {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #0055a5;
+    margin-bottom: 20px;
+    border-left: 4px solid #0055a5;
+    padding-left: 12px;
+}
+
+.collapsible-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    background-color: #f8f9fa;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s ease;
+}
+
+    .collapsible-header:hover {
+        background-color: #eef1f5;
+    }
+
+.toggle-icon {
+    font-size: 1.25rem;
+    transition: transform 0.2s ease;
+}
+
+.collapsible-header[aria-expanded="true"] .toggle-icon {
+    transform: rotate(180deg);
+}

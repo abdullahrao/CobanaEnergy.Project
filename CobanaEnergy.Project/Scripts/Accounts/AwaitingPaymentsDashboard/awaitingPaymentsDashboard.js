@@ -135,12 +135,12 @@
 
                 counterList.forEach(item => {
                     container.append(`
-                     <div class="invoice-summary-box mt-3">
-                         ${item.Label}: <span>${item.Count}</span>
-                     </div>
+                     <tr>
+                        <td>${item.Label}</td>
+                        <td>${item.Count}</td>
+                     </tr>
                  `);
                 });
-
 
                 $('#saveBtn').prop('disabled', true);
                 $('#checkAll').prop('checked', false);
@@ -148,7 +148,7 @@
             },
             error: function () {
                 table.clear().draw();
-                let container = $("#awaitingInvoiceContainer"); 
+                let container = $("#awaitingInvoiceContainer");
                 container.empty();
                 $('#awaitingInvoiceCount').text("0");
                 $('#saveBtn').prop('disabled', true);
