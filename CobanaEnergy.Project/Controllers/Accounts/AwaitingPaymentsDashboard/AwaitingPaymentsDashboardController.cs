@@ -109,7 +109,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
                     {
                         Contract = g,
                         Status = db.CE_ContractStatuses
-                            .FirstOrDefault(cs => cs.EId == g.EId && cs.Type == "Gas" && cs.PaymentStatus == "Awaiting Invoice"),
+                            .FirstOrDefault(cs => cs.EId == g.EId && cs.Type == "Gas"),
                         Reconciliation = db.CE_CommissionAndReconciliation
                             .FirstOrDefault(r => r.EId == g.EId && r.contractType == "Gas")
                     })
@@ -158,8 +158,6 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
                     SupplierCobanaInvoiceNotes = x.Reconciliation.SupplierCobanaInvoiceNotes ?? "N/A",
                 }));
 
-                var awaitingInvoiceCount = await db.CE_ContractStatuses
-                                           .CountAsync(cs => cs.PaymentStatus == "Awaiting Invoice");
 
                 #region [Status Count]
 
@@ -186,8 +184,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
                 return JsonResponse.Ok(new
                 {
                     Contracts = contracts,
-                    CounterList = result,
-                    AwaitingInvoiceCount = awaitingInvoiceCount
+                    CounterList = result
                 });
             }
             catch (Exception ex)
