@@ -161,9 +161,32 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
                 var awaitingInvoiceCount = await db.CE_ContractStatuses
                                            .CountAsync(cs => cs.PaymentStatus == "Awaiting Invoice");
 
+                #region [Status Count]
+
+                var statuses = HelperUtility.GetStatuses();
+                var statusKeys = statuses.Select(s => s.Status).ToList();
+
+                var dbCounts = await db.CE_ContractStatuses
+                    .Where(cs => statusKeys.Contains(cs.PaymentStatus))
+                    .GroupBy(cs => cs.PaymentStatus)
+                    .Select(g => new { Status = g.Key, Count = g.Count() })
+                    .ToListAsync();
+
+                var result = statuses
+                    .Select(s => new
+                    {
+                        Label = s.Label,
+                        Count = dbCounts.FirstOrDefault(dc => dc.Status == s.Status)?.Count ?? 0
+                    })
+                    .ToList();
+
+                #endregion
+
+
                 return JsonResponse.Ok(new
                 {
                     Contracts = contracts,
+                    CounterList = result,
                     AwaitingInvoiceCount = awaitingInvoiceCount
                 });
             }
@@ -351,7 +374,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
                     break;
 
                 default:
-                    return true;
+                    return false;
             }
 
             if (paymentStatus == "Awaiting Final Reconciliation")

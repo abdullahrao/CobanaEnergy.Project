@@ -36,7 +36,7 @@
                 <thead class="table-light">
                     <tr>
                         <th data-orderable="false">Action</th>
-                        <th class="no-sort"  data-orderable="false"><input type="checkbox" id="checkAll" /></th>
+                        <th class="no-sort" data-orderable="false"><input type="checkbox" id="checkAll" /></th>
                         <th>Business Name</th>
                         <th>MPAN</th>
                         <th>MPRN</th>
@@ -53,9 +53,10 @@
                     <!-- Populated dynamically via AJAX -->
                 </tbody>
             </table>
-            <div class="invoice-summary-box mt-3">
-                Contracts Awaiting Invoice: <span id="awaitingInvoiceCount">0</span>
-            </div>
+            @*<div class="invoice-summary-box mt-3">
+            Contracts Awaiting Invoice: <span id="awaitingInvoiceCount">0</span>
+        </div>*@
+            <div id="awaitingInvoiceContainer"></div>
             <div class="save-btn-wrapper text-end mt-3">
                 <button type="button" class="btn btn-primary px-4" id="saveBtn" disabled>
                     Save <i class="fas fa-save ms-2"></i>

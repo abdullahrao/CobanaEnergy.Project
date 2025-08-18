@@ -128,12 +128,28 @@
                 }
 
                 $('#awaitingInvoiceCount').text(res.Data.AwaitingInvoiceCount || "0");
+
+                let counterList = res.Data.CounterList || [];
+                let container = $("#awaitingInvoiceContainer");
+                container.empty();
+
+                counterList.forEach(item => {
+                    container.append(`
+                     <div class="invoice-summary-box mt-3">
+                         ${item.Label}: <span>${item.Count}</span>
+                     </div>
+                 `);
+                });
+
+
                 $('#saveBtn').prop('disabled', true);
                 $('#checkAll').prop('checked', false);
                 table.draw();
             },
             error: function () {
                 table.clear().draw();
+                let container = $("#awaitingInvoiceContainer"); 
+                container.empty();
                 $('#awaitingInvoiceCount').text("0");
                 $('#saveBtn').prop('disabled', true);
                 $('#checkAll').prop('checked', false);
@@ -201,7 +217,7 @@
         $.ajax({
             url: '/AwaitingPaymentsDashboard/EditAwaitingPaymentPopup',
             type: 'GET',
-            data: { eid: eid, contractType: contractType, paymentStatus : paymentStatus },
+            data: { eid: eid, contractType: contractType, paymentStatus: paymentStatus },
             success: function (html) {
                 $('body').append(html);
 
