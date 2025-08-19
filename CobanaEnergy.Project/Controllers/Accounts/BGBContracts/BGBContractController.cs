@@ -539,57 +539,60 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
                 }
                 else
                 {
-
                     int duration = int.TryParse(contract?.Duration, out int d) ? d : 1;
                     decimal dueCommission = 0m;
 
-                    decimal CalculateYearCommission(decimal val, bool isFinal)
+                    decimal CalculateYearCommission(decimal val, bool isFinal, string commsType, int dura)
                     {
-                        if (isFinal)
-                            return val * upliftVal;
-                        else
-                            return val * upliftVal * supplierCommsVal;
+                        decimal baseCommission = isFinal
+                            ? val * upliftVal
+                            : val * upliftVal * supplierCommsVal;
+
+                        if (commsType?.Equals("DURATION", StringComparison.OrdinalIgnoreCase) == true)
+                            baseCommission *= duration;
+
+                        return baseCommission;
                     }
 
                     // Accumulate based on duration and availability
                     switch (duration)
                     {
                         case 1:
-                            dueCommission = CalculateYearCommission(year1Data.Value, year1Data.IsFinal);
+                            dueCommission = CalculateYearCommission(year1Data.Value, year1Data.IsFinal, supplierCommsType, duration);
                             break;
 
                         case 2:
                             dueCommission =
-                                CalculateYearCommission(year1Data.Value, year1Data.IsFinal) +
-                                CalculateYearCommission(year2Data.Value, year2Data.IsFinal);
+                                CalculateYearCommission(year1Data.Value, year1Data.IsFinal, supplierCommsType, duration) +
+                                CalculateYearCommission(year2Data.Value, year2Data.IsFinal, supplierCommsType, duration);
                             break;
 
                         case 3:
                             dueCommission =  //(Year1final * uplift) + (year2final * uplift) + (
-                                CalculateYearCommission(year1Data.Value, year1Data.IsFinal) + // (150 * 0.015) + (0 * 0.015) + (0 * 0.015)
-                                CalculateYearCommission(year2Data.Value, year2Data.IsFinal) +
-                                CalculateYearCommission(year3Data.Value, year3Data.IsFinal);
+                                CalculateYearCommission(year1Data.Value, year1Data.IsFinal, supplierCommsType, duration) + // (150 * 0.015) + (0 * 0.015) + (0 * 0.015)
+                                CalculateYearCommission(year2Data.Value, year2Data.IsFinal, supplierCommsType, duration) +
+                                CalculateYearCommission(year3Data.Value, year3Data.IsFinal, supplierCommsType, duration);
                             break;
 
                         case 4:
                             dueCommission =
-                                CalculateYearCommission(year1Data.Value, year1Data.IsFinal) +
-                                CalculateYearCommission(year2Data.Value, year2Data.IsFinal) +
-                                CalculateYearCommission(year3Data.Value, year3Data.IsFinal) +
-                                CalculateYearCommission(year4Data.Value, year4Data.IsFinal);
+                                CalculateYearCommission(year1Data.Value, year1Data.IsFinal, supplierCommsType, duration) +
+                                CalculateYearCommission(year2Data.Value, year2Data.IsFinal, supplierCommsType, duration) +
+                                CalculateYearCommission(year3Data.Value, year3Data.IsFinal, supplierCommsType, duration) +
+                                CalculateYearCommission(year4Data.Value, year4Data.IsFinal, supplierCommsType, duration);
                             break;
 
                         case 5:
                             dueCommission =
-                                CalculateYearCommission(year1Data.Value, year1Data.IsFinal) +
-                                CalculateYearCommission(year2Data.Value, year2Data.IsFinal) +
-                                CalculateYearCommission(year3Data.Value, year3Data.IsFinal) +
-                                CalculateYearCommission(year4Data.Value, year4Data.IsFinal) +
-                                CalculateYearCommission(year5Data.Value, year5Data.IsFinal);
+                                CalculateYearCommission(year1Data.Value, year1Data.IsFinal, supplierCommsType, duration) +
+                                CalculateYearCommission(year2Data.Value, year2Data.IsFinal, supplierCommsType, duration) +
+                                CalculateYearCommission(year3Data.Value, year3Data.IsFinal, supplierCommsType, duration) +
+                                CalculateYearCommission(year4Data.Value, year4Data.IsFinal, supplierCommsType, duration) +
+                                CalculateYearCommission(year5Data.Value, year5Data.IsFinal, supplierCommsType, duration);
                             break;
 
                         default:
-                            dueCommission = CalculateYearCommission(year1Data.Value, year1Data.IsFinal);
+                            dueCommission = CalculateYearCommission(year1Data.Value, year1Data.IsFinal, supplierCommsType, duration);
                             break;
                     }
 
