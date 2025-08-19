@@ -47,10 +47,10 @@
                 </div>
                 <div class="row gx-4 gy-3 mt-3">
                     <div class="col-md-6">
-                        <input type="date" class="form-control" id="startDate" name="StartDate" required />
+                        <input type="date" class="form-control date-start" id="startDate" name="StartDate" required />
                     </div>
                     <div class="col-md-6">
-                        <input type="date" class="form-control" id="endDate" name="EndDate" />
+                        <input type="date" class="form-control date-end" id="endDate" name="EndDate" data-start-target="#startDate" />
                     </div>
                 </div>
                 <div class="row gx-4 gy-3 mt-3">
@@ -80,7 +80,7 @@
                 </div>
             </div>
 
-            <!-- Bank Details Section (Generic) -->
+            <!-- Bank Details Section -->
             <div class="form-section bank-details-section" id="bankDetailsSection" style="display: none;">
                 <h4>Bank Details</h4>
                 <div class="row gx-4 gy-3">
@@ -93,26 +93,26 @@
                 </div>
                 <div class="row gx-4 gy-3 mt-3">
                     <div class="col-md-6">
-                        <input type="text" class="form-control" id="accountSortCode" name="BankDetails.AccountSortCode" placeholder="Sort Code" autocomplete="off" />
+                        <input type="text" class="form-control" id="accountSortCode" name="BankDetails.AccountSortCode" placeholder="Account Sort Code (6 digits)" maxlength="6" pattern="[0-9]{6}" title="Please enter exactly 6 digits" />
                     </div>
                     <div class="col-md-6">
-                        <input type="text" class="form-control" id="accountNumber" name="BankDetails.AccountNumber" placeholder="Account Number" autocomplete="off" />
-                    </div>
-                </div>
-                <div class="row gx-4 gy-3 mt-3">
-                    <div class="col-md-6">
-                        <input type="text" class="form-control" id="iban" name="BankDetails.IBAN" placeholder="IBAN" autocomplete="off" />
-                    </div>
-                    <div class="col-md-6">
-                        <input type="text" class="form-control" id="swiftCode" name="BankDetails.SwiftCode" placeholder="Swift Code" autocomplete="off" />
+                        <input type="text" class="form-control" id="accountNumber" name="BankDetails.AccountNumber" placeholder="Account Number (8 digits)" maxlength="8" pattern="[0-9]{8}" title="Please enter exactly 8 digits" />
                     </div>
                 </div>
                 <div class="row gx-4 gy-3 mt-3">
                     <div class="col-md-6">
-                        <textarea class="form-control" id="bankBranchAddress" name="BankDetails.BankBranchAddress" placeholder="Bank Branch Address" rows="2"></textarea>
+                        <input type="text" class="form-control" id="iban" name="BankDetails.IBAN" placeholder="IBAN" />
                     </div>
                     <div class="col-md-6">
-                        <textarea class="form-control" id="receiversAddress" name="BankDetails.ReceiversAddress" placeholder="Receivers Address" rows="2"></textarea>
+                        <input type="text" class="form-control" id="swiftCode" name="BankDetails.SwiftCode" placeholder="Swift Code" />
+                    </div>
+                </div>
+                <div class="row gx-4 gy-3 mt-3">
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" id="bankBranchAddress" name="BankDetails.BankBranchAddress" placeholder="Bank Branch Address" />
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" id="receiversAddress" name="BankDetails.ReceiversAddress" placeholder="Receivers Address" />
                     </div>
                 </div>
             </div>

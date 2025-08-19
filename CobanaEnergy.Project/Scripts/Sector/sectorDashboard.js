@@ -41,12 +41,17 @@ $(document).ready(function () {
 
     // Show toast notification (for future use)
     function showToast(message, type) {
-        // You can implement your own toast notification system here
-        // For now, we'll use a simple alert
-        if (type === "success") {
-            alert("✓ " + message);
+        if (typeof showToastSuccess === 'function' && typeof showToastError === 'function') {
+            if (type === 'success') {
+                showToastSuccess(message);
+            } else if (type === 'error') {
+                showToastError(message);
+            } else if (type === 'warning') {
+                showToastWarning(message);
+            }
         } else {
-            alert("✗ " + message);
+            // Fallback to console if toast functions not available
+            console.log(type === 'success' ? '✓ ' : type === 'error' ? '✗ ' : '⚠ ', message);
         }
     }
 

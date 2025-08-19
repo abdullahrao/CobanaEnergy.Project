@@ -227,26 +227,36 @@ class SectorFormManager {
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="text" name="BrokerageCommissions[${index}].PaymentTerms" class="form-control" placeholder="Payment Terms" />
+                            <select name="BrokerageCommissions[${index}].PaymentTerms" class="form-control" required>
+                                <option value="">Payment Terms *</option>
+                                <option value="Weekly">Weekly</option>
+                                <option value="Monthly">Monthly</option>
+                            </select>
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="date" name="BrokerageCommissions[${index}].StartDate" class="form-control" />
+                            <input type="date" name="BrokerageCommissions[${index}].StartDate" class="form-control" placeholder="Start Date" />
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="date" name="BrokerageCommissions[${index}].EndDate" class="form-control" />
+                            <input type="date" name="BrokerageCommissions[${index}].EndDate" class="form-control" placeholder="End Date" />
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="text" name="BrokerageCommissions[${index}].CommissionType" class="form-control" placeholder="Commission Type" />
+                            <select name="BrokerageCommissions[${index}].CommissionType" class="form-control" required>
+                                <option value="">Commission Type *</option>
+                                <option value="Duration">Duration</option>
+                                <option value="Annual">Annual</option>
+                                <option value="Residual">Residual</option>
+                                <option value="As per System">As per System</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -293,14 +303,14 @@ class SectorFormManager {
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="text" name="BrokerageStaff[${index}].Landline" class="form-control" placeholder="Landline" />
+                            <input type="text" name="BrokerageStaff[${index}].Landline" class="form-control landline-input" placeholder="Landline (11 digits)" maxlength="11" pattern="[0-9]{11}" title="Please enter exactly 11 digits" />
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="text" name="BrokerageStaff[${index}].Mobile" class="form-control" placeholder="Mobile" />
+                            <input type="text" name="BrokerageStaff[${index}].Mobile" class="form-control mobile-input" placeholder="Mobile (11 digits)" maxlength="11" pattern="[0-9]{11}" title="Please enter exactly 11 digits" />
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -530,7 +540,11 @@ class SectorFormManager {
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="text" name="CloserCommissions[${index}].PaymentTerms" class="form-control" placeholder="Payment Terms" />
+                            <select name="CloserCommissions[${index}].PaymentTerms" class="form-control" required>
+                                <option value="">Payment Terms *</option>
+                                <option value="Weekly">Weekly</option>
+                                <option value="Monthly">Monthly</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -549,7 +563,13 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="text" name="CloserCommissions[${index}].CommissionType" class="form-control" placeholder="Commission Type" />
+                            <select name="CloserCommissions[${index}].CommissionType" class="form-control" required>
+                                <option value="">Commission Type *</option>
+                                <option value="Duration">Duration</option>
+                                <option value="Annual">Annual</option>
+                                <option value="Residual">Residual</option>
+                                <option value="As per System">As per System</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -600,12 +620,22 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="text" name="LeadGeneratorCommissions[${index}].PaymentTerms" class="form-control" placeholder="Payment Terms" />
+                            <select name="LeadGeneratorCommissions[${index}].PaymentTerms" class="form-control" required>
+                                <option value="">Payment Terms *</option>
+                                <option value="Weekly">Weekly</option>
+                                <option value="Monthly">Monthly</option>
+                            </select>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="text" name="LeadGeneratorCommissions[${index}].CommissionType" class="form-control" placeholder="Commission Type" />
+                            <select name="LeadGeneratorCommissions[${index}].CommissionType" class="form-control" required>
+                                <option value="">Commission Type *</option>
+                                <option value="Duration">Duration</option>
+                                <option value="Annual">Annual</option>
+                                <option value="Residual">Residual</option>
+                                <option value="As per System">As per System</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -656,12 +686,22 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="text" name="ReferralPartnerCommissions[${index}].PaymentTerms" class="form-control" placeholder="Payment Terms" />
+                            <select name="ReferralPartnerCommissions[${index}].PaymentTerms" class="form-control" required>
+                                <option value="">Payment Terms *</option>
+                                <option value="Weekly">Weekly</option>
+                                <option value="Monthly">Monthly</option>
+                            </select>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="text" name="ReferralPartnerCommissions[${index}].CommissionType" class="form-control" placeholder="Commission Type" />
+                            <select name="ReferralPartnerCommissions[${index}].CommissionType" class="form-control" required>
+                                <option value="">Commission Type *</option>
+                                <option value="Duration">Duration</option>
+                                <option value="Annual">Annual</option>
+                                <option value="Residual">Residual</option>
+                                <option value="As per System">As per System</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -672,20 +712,16 @@ class SectorFormManager {
 
     generateSubReferralFields(index) {
         return `
-            <div class="subsection-item" data-index="${index}">
-                <h5>Sub Referral ${index + 1}</h5>
+            <div class="sub-commission-item" data-index="${index}">
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="text" name="SubReferrals[${index}].SubReferralPartnerName" class="form-control" placeholder="Sub Referral Partner Name *" required />
+                            <input type="text" name="SubReferrals[${index}].SubReferralName" class="form-control" placeholder="Sub Referral Name *" required />
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label class="form-check-label">
-                                <input type="checkbox" name="SubReferrals[${index}].Active" class="form-check-input" checked />
-                                Active
-                            </label>
+                            <input type="number" name="SubReferrals[${index}].Commission" class="form-control" placeholder="Commission (%) *" step="0.01" min="0" max="100" required />
                         </div>
                     </div>
                 </div>
@@ -701,115 +737,7 @@ class SectorFormManager {
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <input type="email" name="SubReferrals[${index}].SubReferralPartnerEmail" class="form-control" placeholder="Email" />
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <input type="text" name="SubReferrals[${index}].SubReferralPartnerLandline" class="form-control" placeholder="Landline" />
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <input type="text" name="SubReferrals[${index}].SubReferralPartnerMobile" class="form-control" placeholder="Mobile" />
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Sub Referral Commission & Payment -->
-                <div class="sub-commission-section">
-                    <h6>Commission & Payment</h6>
-                    <div class="sub-commission-container">
-                        ${this.generateSubReferralCommissionFields(index, 0)}
-                    </div>
-                    <button type="button" class="btn btn-secondary btn-sm add-sub-commission" data-subsection-index="${index}">
-                        <i class="fas fa-plus me-1"></i>Add Commission
-                    </button>
-                </div>
-
-                <!-- Sub Referral Bank Details -->
-                <div class="sub-bank-details">
-                    <h6>Bank Details</h6>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <input type="text" name="SubReferrals[${index}].BankDetails.BankName" class="form-control" placeholder="Bank Name" />
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <input type="text" name="SubReferrals[${index}].BankDetails.BankBranchAddress" class="form-control" placeholder="Bank Branch Address" />
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <input type="text" name="SubReferrals[${index}].BankDetails.ReceiversAddress" class="form-control" placeholder="Receivers Address" />
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <input type="text" name="SubReferrals[${index}].BankDetails.AccountName" class="form-control" placeholder="Account Name" />
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <input type="text" name="SubReferrals[${index}].BankDetails.AccountSortCode" class="form-control" placeholder="Account Sort Code" />
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <input type="text" name="SubReferrals[${index}].BankDetails.AccountNumber" class="form-control" placeholder="Account Number" />
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <input type="text" name="SubReferrals[${index}].BankDetails.IBAN" class="form-control" placeholder="IBAN" />
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <input type="text" name="SubReferrals[${index}].BankDetails.SwiftCode" class="form-control" placeholder="Swift Code" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Sub Referral Company Tax Info -->
-                <div class="sub-company-tax">
-                    <h6>Company Tax Information</h6>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <input type="text" name="SubReferrals[${index}].CompanyTaxInfo.CompanyRegistration" class="form-control" placeholder="Company Registration" />
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <input type="text" name="SubReferrals[${index}].CompanyTaxInfo.VATNumber" class="form-control" placeholder="VAT Number" />
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <textarea name="SubReferrals[${index}].CompanyTaxInfo.Notes" class="form-control" placeholder="Notes" rows="2"></textarea>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                ${index > 0 ? '<button type="button" class="btn btn-danger btn-sm remove-subsection"><i class="fas fa-trash me-1"></i>Remove</button>' : ''}
+                ${index > 0 ? '<button type="button" class="btn btn-danger btn-sm remove-sub-commission"><i class="fas fa-trash me-1"></i>Remove</button>' : ''}
             </div>
         `;
     }
@@ -881,7 +809,11 @@ class SectorFormManager {
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="text" name="IntroducerCommissions[${index}].PaymentTerms" class="form-control" placeholder="Payment Terms" />
+                            <select name="IntroducerCommissions[${index}].PaymentTerms" class="form-control" required>
+                                <option value="">Payment Terms *</option>
+                                <option value="Weekly">Weekly</option>
+                                <option value="Monthly">Monthly</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -900,7 +832,13 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="text" name="IntroducerCommissions[${index}].CommissionType" class="form-control" placeholder="Commission Type" />
+                            <select name="IntroducerCommissions[${index}].CommissionType" class="form-control" required>
+                                <option value="">Commission Type *</option>
+                                <option value="Duration">Duration</option>
+                                <option value="Annual">Annual</option>
+                                <option value="Residual">Residual</option>
+                                <option value="As per System">As per System</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -911,8 +849,7 @@ class SectorFormManager {
 
     generateSubIntroducerFields(index) {
         return `
-            <div class="subsection-item" data-index="${index}">
-                <h5>Sub Introducer ${index + 1}</h5>
+            <div class="sub-commission-item" data-index="${index}">
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -927,12 +864,10 @@ class SectorFormManager {
                 </div>
                 <div class="row">
                     <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-check-label">
-                                <input type="checkbox" name="SubIntroducers[${index}].Active" class="form-check-input" checked />
-                                Active
-                            </label>
-                        </div>
+                        <label class="form-check-label">
+                            <input type="checkbox" name="SubIntroducers[${index}].Active" class="form-check-input" checked />
+                            Active
+                        </label>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
@@ -955,12 +890,12 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="text" name="SubIntroducers[${index}].SubIntroducerLandline" class="form-control" placeholder="Landline" />
+                            <input type="text" name="SubIntroducers[${index}].SubIntroducerLandline" class="form-control landline-input" placeholder="Landline (11 digits)" maxlength="11" pattern="[0-9]{11}" title="Please enter exactly 11 digits" />
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="text" name="SubIntroducers[${index}].SubIntroducerMobile" class="form-control" placeholder="Mobile" />
+                            <input type="text" name="SubIntroducers[${index}].SubIntroducerMobile" class="form-control mobile-input" placeholder="Mobile (11 digits)" maxlength="11" pattern="[0-9]{11}" title="Please enter exactly 11 digits" />
                         </div>
                     </div>
                 </div>
@@ -1208,6 +1143,12 @@ class SectorFormManager {
         $(document).on('click', '.remove-sub-commission', function () {
             $(this).closest('.sub-commission-item').remove();
         });
+
+        // Initialize input validation
+        this.initializeInputValidation();
+        
+        // Initialize date validation
+        this.initializeDateValidation();
     }
 
     // Helper functions to get containers
@@ -1258,13 +1199,251 @@ class SectorFormManager {
 
     // Toast notification functions
     showToastSuccess(message) {
-        // You can implement your own toast notification system here
-        alert('✓ ' + message);
+        if (typeof showToastSuccess === 'function') {
+            showToastSuccess(message);
+        } else {
+            // Fallback to console if toast function not available
+            console.log('✓ ' + message);
+        }
     }
 
     showToastError(message) {
-        // You can implement your own toast notification system here
-        alert('✗ ' + message);
+        if (typeof showToastError === 'function') {
+            showToastError(message);
+        } else {
+            // Fallback to console if toast function not available
+            console.log('✗ ' + message);
+        }
+    }
+
+    showToastWarning(message) {
+        if (typeof showToastWarning === 'function') {
+            showToastWarning(message);
+        } else {
+            // Fallback to console if toast function not available
+            console.log('⚠ ' + message);
+        }
+    }
+
+    initializeInputValidation() {
+        // Bank Details Validation
+        $(document).on('input', '#accountSortCode', function() {
+            let value = $(this).val();
+            // Remove non-digits
+            value = value.replace(/\D/g, '');
+            // Limit to 6 digits
+            value = value.substring(0, 6);
+            $(this).val(value);
+        });
+
+        $(document).on('input', '#accountNumber', function() {
+            let value = $(this).val();
+            // Remove non-digits
+            value = value.replace(/\D/g, '');
+            // Limit to 8 digits
+            value = value.substring(0, 8);
+            $(this).val(value);
+        });
+
+        // Landline and Mobile Validation
+        $(document).on('input', '.landline-input, .mobile-input', function() {
+            let value = $(this).val();
+            // Remove non-digits
+            value = value.replace(/\D/g, '');
+            // Limit to 11 digits
+            value = value.substring(0, 11);
+            $(this).val(value);
+        });
+
+        // Prevent non-numeric input for numeric fields
+        $(document).on('keypress', '#accountSortCode, #accountNumber, .landline-input, .mobile-input', function(e) {
+            if (e.which < 48 || e.which > 57) {
+                e.preventDefault();
+            }
+        });
+    }
+
+    initializeDateValidation() {
+        // Handle start date changes for main sector dates
+        $(document).on('change', '#startDate', function() {
+            const startDate = $(this).val();
+            const endDateInput = $('#endDate');
+            
+            if (startDate) {
+                endDateInput.prop('disabled', false).attr('min', startDate);
+                
+                // Clear end date if it's now invalid
+                if (endDateInput.val() && new Date(endDateInput.val()) <= new Date(startDate)) {
+                    endDateInput.val('');
+                    if (typeof showToastWarning === 'function') {
+                        showToastWarning('End Date cleared because it was earlier than Start Date.');
+                    }
+                }
+            } else {
+                endDateInput.prop('disabled', true).val('').removeAttr('min');
+            }
+        });
+        
+        // Handle end date changes for main sector dates
+        $(document).on('change', '#endDate', function() {
+            const startDate = $('#startDate').val();
+            const endDate = $(this).val();
+            
+            if (startDate && endDate && new Date(endDate) <= new Date(startDate)) {
+                if (typeof showToastWarning === 'function') {
+                    showToastWarning('End Date must be greater than Start Date.');
+                }
+                $(this).val('');
+            }
+        });
+
+        // Handle dynamic date fields for commissions and staff
+        $(document).on('change', 'input[type="date"]', function() {
+            const inputName = $(this).attr('name');
+            
+            // Check if this is a start date
+            if (inputName && inputName.includes('StartDate')) {
+                const startDate = $(this).val();
+                const row = $(this).closest('.commission-item, .staff-item, .sub-commission-item');
+                
+                // Find corresponding end date in the same row
+                const endDateInput = row.find('input[type="date"]').filter(function() {
+                    const name = $(this).attr('name');
+                    return name && name.includes('EndDate') && 
+                           name.replace('EndDate', '') === inputName.replace('StartDate', '');
+                });
+                
+                if (endDateInput.length && startDate) {
+                    endDateInput.prop('disabled', false).attr('min', startDate);
+                    
+                    // Clear end date if it's now invalid
+                    if (endDateInput.val() && new Date(endDateInput.val()) <= new Date(startDate)) {
+                        endDateInput.val('');
+                        if (typeof showToastWarning === 'function') {
+                            showToastWarning('End Date cleared because it was earlier than Start Date.');
+                        }
+                    }
+                }
+            }
+            
+            // Check if this is an end date
+            if (inputName && inputName.includes('EndDate')) {
+                const endDate = $(this).val();
+                const row = $(this).closest('.commission-item, .staff-item, .sub-commission-item');
+                
+                // Find corresponding start date in the same row
+                const startDateInput = row.find('input[type="date"]').filter(function() {
+                    const name = $(this).attr('name');
+                    return name && name.includes('StartDate') && 
+                           name.replace('StartDate', '') === inputName.replace('EndDate', '');
+                });
+                
+                if (startDateInput.length && startDateInput.val() && endDate) {
+                    if (new Date(endDate) <= new Date(startDateInput.val())) {
+                        if (typeof showToastWarning === 'function') {
+                            showToastWarning('End Date must be greater than Start Date.');
+                        }
+                        $(this).val('');
+                    }
+                }
+            }
+        });
+
+        // Add input event handlers to prevent invalid date selection
+        $(document).on('input', 'input[type="date"]', function() {
+            const inputName = $(this).attr('name');
+            
+            if (inputName && inputName.includes('EndDate')) {
+                const endDate = $(this).val();
+                const row = $(this).closest('.commission-item, .staff-item, .sub-commission-item');
+                
+                // Find corresponding start date
+                const startDateInput = row.find('input[type="date"]').filter(function() {
+                    const name = $(this).attr('name');
+                    return name && name.includes('StartDate') && 
+                           name.replace('StartDate', '') === inputName.replace('EndDate', '');
+                });
+                
+                if (startDateInput.length && startDateInput.val() && endDate) {
+                    const startDate = new Date(startDateInput.val());
+                    const endDateObj = new Date(endDate);
+                    
+                    if (endDateObj <= startDate) {
+                        // Reset to empty and show warning
+                        $(this).val('');
+                        if (typeof showToastWarning === 'function') {
+                            showToastWarning('End Date must be greater than Start Date.');
+                        }
+                    }
+                }
+            }
+        });
+
+        // Add keydown event to prevent manual typing of invalid dates
+        $(document).on('keydown', 'input[type="date"]', function(e) {
+            const inputName = $(this).attr('name');
+            
+            if (inputName && inputName.includes('EndDate')) {
+                const row = $(this).closest('.commission-item, .staff-item, .sub-commission-item');
+                const startDateInput = row.find('input[type="date"]').filter(function() {
+                    const name = $(this).attr('name');
+                    return name && name.includes('StartDate') && 
+                           name.replace('StartDate', '') === inputName.replace('EndDate', '');
+                });
+                
+                if (startDateInput.length && startDateInput.val()) {
+                    const startDate = new Date(startDateInput.val());
+                    const today = new Date();
+                    
+                    // Prevent selecting dates before start date or before today
+                    const minDate = new Date(Math.max(startDate, today));
+                    const minDateStr = minDate.toISOString().split('T')[0];
+                    
+                    $(this).attr('min', minDateStr);
+                }
+            }
+        });
+
+        // Enhanced validation on form submission
+        $(document).on('submit', 'form', function(e) {
+            let hasDateErrors = false;
+            
+            // Check all date pairs
+            $('input[type="date"]').each(function() {
+                const inputName = $(this).attr('name');
+                
+                if (inputName && inputName.includes('EndDate')) {
+                    const endDate = $(this).val();
+                    const row = $(this).closest('.commission-item, .staff-item, .sub-commission-item');
+                    
+                    const startDateInput = row.find('input[type="date"]').filter(function() {
+                        const name = $(this).attr('name');
+                        return name && name.includes('StartDate') && 
+                               name.replace('StartDate', '') === inputName.replace('EndDate', '');
+                    });
+                    
+                    if (startDateInput.length && startDateInput.val() && endDate) {
+                        if (new Date(endDate) <= new Date(startDateInput.val())) {
+                            hasDateErrors = true;
+                            $(this).addClass('is-invalid');
+                            
+                            if (typeof showToastError === 'function') {
+                                showToastError('End Date must be greater than Start Date for ' + inputName);
+                            }
+                        } else {
+                            $(this).removeClass('is-invalid');
+                        }
+                    }
+                }
+            });
+            
+            if (hasDateErrors) {
+                e.preventDefault();
+                if (typeof showToastError === 'function') {
+                    showToastError('Please fix the date validation errors before submitting.');
+                }
+            }
+        });
     }
 }
 
