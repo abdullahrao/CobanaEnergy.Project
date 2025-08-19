@@ -1,19 +1,16 @@
 $(document).ready(function () {
-    // Initialize DataTable
+    // Initialize DataTable with ReconciliationsDashboard-style configuration
     var sectorTable = $('#sectorTable').DataTable({
         responsive: true,
         paging: true,
         ordering: true,
         searching: true,
-        order: [[1, 'asc'], [2, 'desc']], // Sort by Name, then Active status
-        autoWidth: false,
-        dom: 'lfrtip',
+        order: [[1, 'asc']], // Sort by Name column
         columnDefs: [
-            { orderable: false, targets: 0 }, // Edit button column
-            { orderable: false, targets: 3 }, // Start Date column
-            { orderable: false, targets: 4 }, // End Date column
-            { visible: false, targets: 6 }    // Hide Sector Type column
-        ]
+            { targets: 6, visible: false } // Hide Sector Type column
+        ],
+        autoWidth: false,
+        dom: 'lfrtip'
     });
 
     // Handle sector type filter change
@@ -55,8 +52,20 @@ $(document).ready(function () {
 
     // Handle edit sector button click
     window.editSector = function(sectorId) {
+        console.log('Edit button clicked for sector ID:', sectorId);
+        console.log('Type of sectorId:', typeof sectorId);
+        
+        // Check if sectorId is valid
+        if (!sectorId || sectorId === 'null' || sectorId === 'undefined') {
+            console.error('Invalid sector ID:', sectorId);
+            alert('Invalid sector ID. Please try again.');
+            return;
+        }
+        
         // Redirect to edit page
-        window.location.href = '/Sector/Edit/' + sectorId;
+        var editUrl = '/Sector/Edit/' + sectorId;
+        console.log('Redirecting to:', editUrl);
+        window.location.href = editUrl;
     };
 
     // Initialize with "All Sectors" selected

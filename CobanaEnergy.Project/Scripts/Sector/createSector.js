@@ -7,6 +7,25 @@ $(document).ready(function () {
     // Initialize the consolidated sector form manager
     window.initializeCreateSector();
     
+    // Initialize duplicate account checker for bank details
+    DuplicateAccountChecker.init({
+        accountInputSelector: '#accountNumber',
+        modalId: 'duplicateAccountModalSector',
+        loaderSelector: null,
+        controllerEndpoint: 'CheckDuplicateBankAccount',
+        fields: [
+            { displayName: 'Bank Name', dataProperty: 'BankName' },
+            { displayName: 'Account Name', dataProperty: 'AccountName' },
+            { displayName: 'Sort Code', dataProperty: 'AccountSortCode' },
+            { displayName: 'Account Number', dataProperty: 'AccountNumber' },
+            { displayName: 'IBAN', dataProperty: 'IBAN' },
+            { displayName: 'Swift Code', dataProperty: 'SwiftCode' },
+            { displayName: 'Bank Branch Address', dataProperty: 'BankBranchAddress' },
+            { displayName: 'Receivers Address', dataProperty: 'ReceiversAddress' }
+        ],
+        showErrorToast: false
+    });
+    
     // Form submission handling
     $('#createSectorForm').on('submit', function (e) {
         e.preventDefault();

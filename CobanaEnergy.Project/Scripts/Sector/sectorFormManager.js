@@ -243,6 +243,13 @@ class SectorFormManager {
                         </div>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="text" name="BrokerageCommissions[${index}].CommissionType" class="form-control" placeholder="Commission Type" />
+                        </div>
+                    </div>
+                </div>
                 ${index > 0 ? '<button type="button" class="btn btn-danger btn-sm remove-commission"><i class="fas fa-trash me-1"></i>Remove</button>' : ''}
             </div>
         `;
@@ -254,12 +261,27 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="text" name="BrokerageStaff[${index}].StaffName" class="form-control" placeholder="Staff Name *" required />
+                            <input type="text" name="BrokerageStaff[${index}].BrokerageStaffName" class="form-control" placeholder="Staff Name *" required />
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="text" name="BrokerageStaff[${index}].Role" class="form-control" placeholder="Role" />
+                            <label class="form-check-label">
+                                <input type="checkbox" name="BrokerageStaff[${index}].Active" class="form-check-input" checked />
+                                Active
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="BrokerageStaff[${index}].StartDate" class="form-control" placeholder="Start Date" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="BrokerageStaff[${index}].EndDate" class="form-control" placeholder="End Date" />
                         </div>
                     </div>
                 </div>
@@ -271,7 +293,19 @@ class SectorFormManager {
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="text" name="BrokerageStaff[${index}].Phone" class="form-control" placeholder="Phone Number" />
+                            <input type="text" name="BrokerageStaff[${index}].Landline" class="form-control" placeholder="Landline" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="text" name="BrokerageStaff[${index}].Mobile" class="form-control" placeholder="Mobile" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <textarea name="BrokerageStaff[${index}].Notes" class="form-control" placeholder="Notes" rows="2"></textarea>
                         </div>
                     </div>
                 </div>
@@ -292,7 +326,46 @@ class SectorFormManager {
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="text" name="SubBrokerages[${index}].ContactPerson" class="form-control" placeholder="Contact Person" />
+                            <input type="text" name="SubBrokerages[${index}].OfgemID" class="form-control" placeholder="Ofgem ID" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-check-label">
+                                <input type="checkbox" name="SubBrokerages[${index}].Active" class="form-check-input" checked />
+                                Active
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="SubBrokerages[${index}].StartDate" class="form-control" placeholder="Start Date" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="SubBrokerages[${index}].EndDate" class="form-control" placeholder="End Date" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="email" name="SubBrokerages[${index}].Email" class="form-control" placeholder="Email" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="text" name="SubBrokerages[${index}].Landline" class="form-control" placeholder="Landline" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="text" name="SubBrokerages[${index}].Mobile" class="form-control" placeholder="Mobile" />
                         </div>
                     </div>
                 </div>
@@ -319,7 +392,43 @@ class SectorFormManager {
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
+                                <input type="text" name="SubBrokerages[${index}].BankDetails.BankBranchAddress" class="form-control" placeholder="Bank Branch Address" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubBrokerages[${index}].BankDetails.ReceiversAddress" class="form-control" placeholder="Receivers Address" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubBrokerages[${index}].BankDetails.AccountName" class="form-control" placeholder="Account Name" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubBrokerages[${index}].BankDetails.AccountSortCode" class="form-control" placeholder="Account Sort Code" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
                                 <input type="text" name="SubBrokerages[${index}].BankDetails.AccountNumber" class="form-control" placeholder="Account Number" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubBrokerages[${index}].BankDetails.IBAN" class="form-control" placeholder="IBAN" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubBrokerages[${index}].BankDetails.SwiftCode" class="form-control" placeholder="Swift Code" />
                             </div>
                         </div>
                     </div>
@@ -340,6 +449,13 @@ class SectorFormManager {
                             </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <textarea name="SubBrokerages[${index}].CompanyTaxInfo.Notes" class="form-control" placeholder="Notes" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 ${index > 0 ? '<button type="button" class="btn btn-danger btn-sm remove-subsection"><i class="fas fa-trash me-1"></i>Remove</button>' : ''}
@@ -353,12 +469,48 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="number" name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].Commission" class="form-control" placeholder="Commission (%) *" step="0.01" min="0" max="100" required />
+                            <input type="number" name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].SubBrokerageCommissionPercent" class="form-control" placeholder="Sub Brokerage Commission (%) *" step="0.01" min="0" max="100" required />
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
+                            <input type="number" name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].BrokerageCommissionPercent" class="form-control" placeholder="Brokerage Commission (%) *" step="0.01" min="0" max="100" required />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].SubBrokerageStartDate" class="form-control" placeholder="Sub Brokerage Start Date" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].SubBrokerageEndDate" class="form-control" placeholder="Sub Brokerage End Date" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].BrokerageStartDate" class="form-control" placeholder="Brokerage Start Date" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].BrokerageEndDate" class="form-control" placeholder="Brokerage End Date" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
                             <input type="text" name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].PaymentTerms" class="form-control" placeholder="Payment Terms" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="text" name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].CommissionType" class="form-control" placeholder="Commission Type" />
                         </div>
                     </div>
                 </div>
@@ -382,6 +534,25 @@ class SectorFormManager {
                         </div>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="CloserCommissions[${index}].StartDate" class="form-control" placeholder="Start Date" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="CloserCommissions[${index}].EndDate" class="form-control" placeholder="End Date" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="text" name="CloserCommissions[${index}].CommissionType" class="form-control" placeholder="Commission Type" />
+                        </div>
+                    </div>
+                </div>
                 ${index > 0 ? '<button type="button" class="btn btn-danger btn-sm remove-commission"><i class="fas fa-trash me-1"></i>Remove</button>' : ''}
             </div>
         `;
@@ -393,12 +564,48 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="number" name="LeadGeneratorCommissions[${index}].Commission" class="form-control" placeholder="Commission (%) *" step="0.01" min="0" max="100" required />
+                            <input type="number" name="LeadGeneratorCommissions[${index}].LeadGeneratorCommission" class="form-control" placeholder="Lead Generator Commission (%) *" step="0.01" min="0" max="100" required />
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
+                            <input type="number" name="LeadGeneratorCommissions[${index}].CloserCommission" class="form-control" placeholder="Closer Commission (%) *" step="0.01" min="0" max="100" required />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="LeadGeneratorCommissions[${index}].LeadGeneratorStartDate" class="form-control" placeholder="Lead Generator Start Date" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="LeadGeneratorCommissions[${index}].LeadGeneratorEndDate" class="form-control" placeholder="Lead Generator End Date" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="LeadGeneratorCommissions[${index}].CloserStartDate" class="form-control" placeholder="Closer Start Date" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="LeadGeneratorCommissions[${index}].CloserEndDate" class="form-control" placeholder="Closer End Date" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
                             <input type="text" name="LeadGeneratorCommissions[${index}].PaymentTerms" class="form-control" placeholder="Payment Terms" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="text" name="LeadGeneratorCommissions[${index}].CommissionType" class="form-control" placeholder="Commission Type" />
                         </div>
                     </div>
                 </div>
@@ -413,12 +620,48 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="number" name="ReferralPartnerCommissions[${index}].Commission" class="form-control" placeholder="Commission (%) *" step="0.01" min="0" max="100" required />
+                            <input type="number" name="ReferralPartnerCommissions[${index}].ReferralPartnerCommission" class="form-control" placeholder="Referral Partner Commission (%) *" step="0.01" min="0" max="100" required />
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
+                            <input type="number" name="ReferralPartnerCommissions[${index}].BrokerageCommission" class="form-control" placeholder="Brokerage Commission (%) *" step="0.01" min="0" max="100" required />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="ReferralPartnerCommissions[${index}].ReferralPartnerStartDate" class="form-control" placeholder="Referral Partner Start Date" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="ReferralPartnerCommissions[${index}].ReferralPartnerEndDate" class="form-control" placeholder="Referral Partner End Date" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="ReferralPartnerCommissions[${index}].BrokerageStartDate" class="form-control" placeholder="Brokerage Start Date" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="ReferralPartnerCommissions[${index}].BrokerageEndDate" class="form-control" placeholder="Brokerage End Date" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
                             <input type="text" name="ReferralPartnerCommissions[${index}].PaymentTerms" class="form-control" placeholder="Payment Terms" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="text" name="ReferralPartnerCommissions[${index}].CommissionType" class="form-control" placeholder="Commission Type" />
                         </div>
                     </div>
                 </div>
@@ -434,12 +677,46 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="text" name="SubReferrals[${index}].SubReferralName" class="form-control" placeholder="Sub Referral Name *" required />
+                            <input type="text" name="SubReferrals[${index}].SubReferralPartnerName" class="form-control" placeholder="Sub Referral Partner Name *" required />
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="text" name="SubReferrals[${index}].ContactPerson" class="form-control" placeholder="Contact Person" />
+                            <label class="form-check-label">
+                                <input type="checkbox" name="SubReferrals[${index}].Active" class="form-check-input" checked />
+                                Active
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="SubReferrals[${index}].StartDate" class="form-control" placeholder="Start Date" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="SubReferrals[${index}].EndDate" class="form-control" placeholder="End Date" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="email" name="SubReferrals[${index}].SubReferralPartnerEmail" class="form-control" placeholder="Email" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="text" name="SubReferrals[${index}].SubReferralPartnerLandline" class="form-control" placeholder="Landline" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="text" name="SubReferrals[${index}].SubReferralPartnerMobile" class="form-control" placeholder="Mobile" />
                         </div>
                     </div>
                 </div>
@@ -466,7 +743,43 @@ class SectorFormManager {
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
+                                <input type="text" name="SubReferrals[${index}].BankDetails.BankBranchAddress" class="form-control" placeholder="Bank Branch Address" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubReferrals[${index}].BankDetails.ReceiversAddress" class="form-control" placeholder="Receivers Address" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubReferrals[${index}].BankDetails.AccountName" class="form-control" placeholder="Account Name" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubReferrals[${index}].BankDetails.AccountSortCode" class="form-control" placeholder="Account Sort Code" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
                                 <input type="text" name="SubReferrals[${index}].BankDetails.AccountNumber" class="form-control" placeholder="Account Number" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubReferrals[${index}].BankDetails.IBAN" class="form-control" placeholder="IBAN" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubReferrals[${index}].BankDetails.SwiftCode" class="form-control" placeholder="Swift Code" />
                             </div>
                         </div>
                     </div>
@@ -487,6 +800,13 @@ class SectorFormManager {
                             </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <textarea name="SubReferrals[${index}].CompanyTaxInfo.Notes" class="form-control" placeholder="Notes" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 ${index > 0 ? '<button type="button" class="btn btn-danger btn-sm remove-subsection"><i class="fas fa-trash me-1"></i>Remove</button>' : ''}
@@ -500,12 +820,48 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="number" name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].Commission" class="form-control" placeholder="Commission (%) *" step="0.01" min="0" max="100" required />
+                            <input type="number" name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].SubIntroducerCommission" class="form-control" placeholder="Sub Introducer Commission (%) *" step="0.01" min="0" max="100" required />
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
+                            <input type="number" name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].IntroducerCommission" class="form-control" placeholder="Introducer Commission (%) *" step="0.01" min="0" max="100" required />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].SubIntroducerStartDate" class="form-control" placeholder="Sub Introducer Start Date" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].SubIntroducerEndDate" class="form-control" placeholder="Sub Introducer End Date" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].IntroducerStartDate" class="form-control" placeholder="Introducer Start Date" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].IntroducerEndDate" class="form-control" placeholder="Introducer End Date" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
                             <input type="text" name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].PaymentTerms" class="form-control" placeholder="Payment Terms" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="text" name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].CommissionType" class="form-control" placeholder="Commission Type" />
                         </div>
                     </div>
                 </div>
@@ -520,12 +876,31 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="number" name="IntroducerCommissions[${index}].Commission" class="form-control" placeholder="Commission (%) *" step="0.01" min="0" max="100" required />
+                            <input type="number" name="IntroducerCommissions[${index}].CommissionPercent" class="form-control" placeholder="Commission (%) *" step="0.01" min="0" max="100" required />
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <input type="text" name="IntroducerCommissions[${index}].PaymentTerms" class="form-control" placeholder="Payment Terms" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="IntroducerCommissions[${index}].StartDate" class="form-control" placeholder="Start Date" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="IntroducerCommissions[${index}].EndDate" class="form-control" placeholder="End Date" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="text" name="IntroducerCommissions[${index}].CommissionType" class="form-control" placeholder="Commission Type" />
                         </div>
                     </div>
                 </div>
@@ -546,7 +921,46 @@ class SectorFormManager {
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="text" name="SubIntroducers[${index}].ContactPerson" class="form-control" placeholder="Contact Person" />
+                            <input type="text" name="SubIntroducers[${index}].OfgemID" class="form-control" placeholder="Ofgem ID" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-check-label">
+                                <input type="checkbox" name="SubIntroducers[${index}].Active" class="form-check-input" checked />
+                                Active
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="SubIntroducers[${index}].StartDate" class="form-control" placeholder="Start Date" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="SubIntroducers[${index}].EndDate" class="form-control" placeholder="End Date" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="email" name="SubIntroducers[${index}].SubIntroducerEmail" class="form-control" placeholder="Email" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="text" name="SubIntroducers[${index}].SubIntroducerLandline" class="form-control" placeholder="Landline" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="text" name="SubIntroducers[${index}].SubIntroducerMobile" class="form-control" placeholder="Mobile" />
                         </div>
                     </div>
                 </div>
@@ -573,7 +987,43 @@ class SectorFormManager {
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
+                                <input type="text" name="SubIntroducers[${index}].BankDetails.BankBranchAddress" class="form-control" placeholder="Bank Branch Address" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubIntroducers[${index}].BankDetails.ReceiversAddress" class="form-control" placeholder="Receivers Address" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubIntroducers[${index}].BankDetails.AccountName" class="form-control" placeholder="Account Name" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubIntroducers[${index}].BankDetails.AccountSortCode" class="form-control" placeholder="Account Sort Code" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
                                 <input type="text" name="SubIntroducers[${index}].BankDetails.AccountNumber" class="form-control" placeholder="Account Number" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubIntroducers[${index}].BankDetails.IBAN" class="form-control" placeholder="IBAN" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubIntroducers[${index}].BankDetails.SwiftCode" class="form-control" placeholder="Swift Code" />
                             </div>
                         </div>
                     </div>
@@ -594,6 +1044,13 @@ class SectorFormManager {
                             </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <textarea name="SubIntroducers[${index}].CompanyTaxInfo.Notes" class="form-control" placeholder="Notes" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 ${index > 0 ? '<button type="button" class="btn btn-danger btn-sm remove-subsection"><i class="fas fa-trash me-1"></i>Remove</button>' : ''}
@@ -607,12 +1064,48 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="number" name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].Commission" class="form-control" placeholder="Commission (%) *" step="0.01" min="0" max="100" required />
+                            <input type="number" name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].SubIntroducerCommission" class="form-control" placeholder="Sub Introducer Commission (%) *" step="0.01" min="0" max="100" required />
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
+                            <input type="number" name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].IntroducerCommission" class="form-control" placeholder="Introducer Commission (%) *" step="0.01" min="0" max="100" required />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].SubIntroducerCommissionStartDate" class="form-control" placeholder="Sub Introducer Start Date" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].SubIntroducerCommissionEndDate" class="form-control" placeholder="Sub Introducer End Date" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].IntroducerCommissionStartDate" class="form-control" placeholder="Introducer Start Date" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].IntroducerCommissionEndDate" class="form-control" placeholder="Introducer End Date" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
                             <input type="text" name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].PaymentTerms" class="form-control" placeholder="Payment Terms" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="text" name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].CommissionType" class="form-control" placeholder="Commission Type" />
                         </div>
                     </div>
                 </div>
@@ -787,3 +1280,8 @@ window.initializeCreateSector = function() {
 window.initializeEditSector = function() {
     window.sectorFormManager = new SectorFormManager({ isEditMode: true });
 };
+
+window.initializeEditSector = function() {
+    window.sectorFormManager = new SectorFormManager({ isEditMode: true });
+};
+
