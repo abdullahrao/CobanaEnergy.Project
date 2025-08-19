@@ -25,9 +25,8 @@ namespace CobanaEnergy.Project.Models.Sector.SectorDBModels
         [StringLength(100)]
         public string Notes { get; set; }
 
-        // Navigation Properties - Polymorphic relationship
-        // EntityType determines which entity this belongs to
-        // EntityID is the foreign key to that entity
+        // Navigation Properties - None needed for polymorphic relationships
+        // Relationships are handled manually using EntityType and EntityID
     }
 }
   

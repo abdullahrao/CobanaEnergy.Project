@@ -73,5 +73,17 @@ namespace CobanaEnergy.Project.Models
         public DbSet<CE_SubReferralCommissionAndPayment> CE_SubReferralCommissionAndPayment { get; set; }
         public DbSet<CE_SubIntroducer> CE_SubIntroducer { get; set; }
         public DbSet<CE_SubIntroducerCommissionAndPayment> CE_SubIntroducerCommissionAndPayment { get; set; }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // Note: Polymorphic relationships for CE_BankDetails and CE_CompanyTaxInfo
+            // will be handled manually in the application logic using EntityType and EntityID
+            // EF6 doesn't support complex polymorphic relationships with multiple foreign keys to the same column
+            
+            // The navigation properties are kept for convenience but won't be automatically populated by EF6
+            // You'll need to manually populate them based on EntityType when querying
+        }
     }
 }

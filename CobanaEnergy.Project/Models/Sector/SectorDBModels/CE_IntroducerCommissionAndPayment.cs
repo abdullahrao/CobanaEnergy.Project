@@ -11,6 +11,9 @@ namespace CobanaEnergy.Project.Models.Sector.SectorDBModels
         public int CommissionID { get; set; }
 
         [Required]
+        public int SectorID { get; set; }
+
+        [Required]
         [Column(TypeName = "decimal")]
         public decimal CommissionPercent { get; set; }
 
@@ -24,5 +27,9 @@ namespace CobanaEnergy.Project.Models.Sector.SectorDBModels
 
         [StringLength(100)]
         public string CommissionType { get; set; }
+
+        // Navigation Property
+        [ForeignKey("SectorID")]
+        public virtual CE_Sector CE_Sector { get; set; }
     }
 }
