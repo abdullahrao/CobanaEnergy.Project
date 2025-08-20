@@ -282,6 +282,24 @@
     right: 10px;
 }
 
+/* Conditional Fields */
+.conditional-fields {
+    transition: all 0.3s ease-in-out;
+    overflow: hidden;
+    opacity: 0;
+    max-height: 0;
+}
+
+.conditional-fields.show {
+    opacity: 1;
+    max-height: 200px;
+}
+
+.conditional-fields.hide {
+    opacity: 0;
+    max-height: 0;
+}
+
 /* Form Actions */
 .form-actions {
     margin-top: 32px;

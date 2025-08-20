@@ -19,6 +19,13 @@ $(document).ready(function () {
         filterSectorsByType(selectedType);
     });
 
+    // Handle edit button clicks using event delegation (more reliable than inline onclick)
+    $(document).on('click', '.edit-btn', function(e) {
+        e.preventDefault();
+        var sectorId = $(this).data('sector-id');
+        editSector(sectorId);
+    });
+
     // Filter sectors by sector type
     function filterSectorsByType(sectorType) {
         if (sectorType === "") {
@@ -57,19 +64,18 @@ $(document).ready(function () {
 
     // Handle edit sector button click
     window.editSector = function(sectorId) {
-        console.log('Edit button clicked for sector ID:', sectorId);
-        console.log('Type of sectorId:', typeof sectorId);
-        
         // Check if sectorId is valid
-        if (!sectorId || sectorId === 'null' || sectorId === 'undefined') {
+        if (!sectorId || sectorId === 'null' || sectorId === 'undefined' || sectorId === '') {
             console.error('Invalid sector ID:', sectorId);
             alert('Invalid sector ID. Please try again.');
             return;
         }
         
+        // Trim any whitespace
+        sectorId = sectorId.toString().trim();
+        
         // Redirect to edit page
-        var editUrl = '/Sector/Edit/' + sectorId;
-        console.log('Redirecting to:', editUrl);
+        var editUrl = '/Sector/Edit/' + encodeURIComponent(sectorId);
         window.location.href = editUrl;
     };
 

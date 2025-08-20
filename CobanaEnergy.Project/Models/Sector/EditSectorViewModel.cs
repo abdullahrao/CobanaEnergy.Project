@@ -39,14 +39,11 @@ namespace CobanaEnergy.Project.Models.Sector
         [Display(Name = "Email")]
         public string Email { get; set; }
 
-        [Display(Name = "Address")]
-        public string Address { get; set; }
+        [Display(Name = "Landline")]
+        public string Landline { get; set; }
 
-        [Display(Name = "Postcode")]
-        public string Postcode { get; set; }
-
-        [Display(Name = "Notes")]
-        public string Notes { get; set; }
+        [Display(Name = "Department")]
+        public string Department { get; set; }
 
         // Common sections
         public BankDetailsViewModel BankDetails { get; set; } = new BankDetailsViewModel();

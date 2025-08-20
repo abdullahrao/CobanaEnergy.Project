@@ -7,6 +7,7 @@ class SectorFormManager {
     constructor(options = {}) {
         this.isEditMode = options.isEditMode || false;
         this.currentSectorType = '';
+        this.modelData = options.modelData || null; // Store model data for edit mode
         this.init();
     }
 
@@ -29,6 +30,7 @@ class SectorFormManager {
             const currentSectorType = $('#sectorType').val();
             if (currentSectorType) {
                 this.loadDynamicSections(currentSectorType);
+                this.toggleBankAndTaxSections();
             }
         }
     }
@@ -37,8 +39,12 @@ class SectorFormManager {
         const selectedType = $(e.target).val();
         
         if (this.isEditMode) {
-            // Edit mode: just load sections
+            // Edit mode: load sections and handle conditional fields
             this.loadDynamicSections(selectedType);
+            this.toggleConditionalFields(selectedType);
+            
+            // Show/hide Bank Details and Company Tax sections based on data
+            this.toggleBankAndTaxSections();
         } else {
             // Create mode: show/hide sections and handle additional logic
             if (selectedType) {
@@ -93,6 +99,45 @@ class SectorFormManager {
         }
     }
 
+    // Toggle conditional fields based on sector type
+    toggleConditionalFields(sectorType) {
+        const conditionalFields = $('#conditionalFields');
+        
+        if (sectorType === 'Introducer' || sectorType === 'Brokerage') {
+            conditionalFields.removeClass('hide').addClass('show');
+        } else {
+            conditionalFields.removeClass('show').addClass('hide');
+        }
+    }
+
+    // Toggle Bank Details and Company Tax sections based on data availability
+    toggleBankAndTaxSections() {
+        if (!this.isEditMode || !this.modelData) return;
+        
+        // Show Bank Details section if there's bank data
+        const hasBankData = this.modelData.BankDetails && 
+                           (this.modelData.BankDetails.BankName || 
+                            this.modelData.BankDetails.AccountName || 
+                            this.modelData.BankDetails.AccountNumber);
+        
+        if (hasBankData) {
+            $('#bankDetailsSection').show();
+        } else {
+            $('#bankDetailsSection').hide();
+        }
+        
+        // Show Company Tax section if there's tax data
+        const hasTaxData = this.modelData.CompanyTaxInfo && 
+                          (this.modelData.CompanyTaxInfo.CompanyRegistration || 
+                           this.modelData.CompanyTaxInfo.VATNumber);
+        
+        if (hasTaxData) {
+            $('#companyTaxSection').show();
+        } else {
+            $('#companyTaxSection').hide();
+        }
+    }
+
     // Load Brokerage specific sections
     loadBrokerageSections() {
         const container = $('#dynamicSectionsContainer');
@@ -102,33 +147,53 @@ class SectorFormManager {
             <div class="form-section brokerage-commission-section">
                 <h4>Brokerage Commission & Payment</h4>
                 <div id="brokerageCommissionContainer">
-                    ${this.generateBrokerageCommissionFields(0)}
+                    ${this.isEditMode ? this.generateBrokerageCommissionFieldsForEdit() : ''}
                 </div>
                 <button type="button" class="btn btn-secondary add-commission" data-type="brokerage">+ Add Commission</button>
             </div>
         `);
         
-        // Brokerage Staff Section
-        container.append(`
-            <div class="form-section brokerage-staff-section">
-                <h4>Brokerage Staff</h4>
-                <div id="brokerageStaffContainer">
-                    ${this.generateBrokerageStaffFields(0)}
+        // Brokerage Staff Section - Only show if there's staff data or if it's create mode
+        if (this.isEditMode && this.modelData && this.modelData.BrokerageStaff && this.modelData.BrokerageStaff.length > 0) {
+            container.append(`
+                <div class="form-section brokerage-staff-section">
+                    <h4>Brokerage Staff</h4>
+                    <div id="brokerageStaffContainer">
+                        ${this.generateBrokerageStaffFieldsForEdit()}
+                    </div>
+                    <button type="button" class="btn btn-secondary add-staff" data-type="brokerage">+ Add Staff Member</button>
                 </div>
-                <button type="button" class="btn btn-secondary add-staff" data-type="brokerage">+ Add Staff Member</button>
-            </div>
-        `);
+            `);
+        } else if (!this.isEditMode) {
+            container.append(`
+                <div class="form-section brokerage-staff-section">
+                    <h4>Brokerage Staff</h4>
+                    <div id="brokerageStaffContainer"></div>
+                    <button type="button" class="btn btn-secondary add-staff" data-type="brokerage">+ Add Staff Member</button>
+                </div>
+            `);
+        }
         
-        // Sub Brokerage Section
-        container.append(`
-            <div class="form-section sub-brokerage-section">
-                <h4>Sub Brokerage</h4>
-                <div id="subBrokerageContainer">
-                    ${this.generateSubBrokerageFields(0)}
+        // Sub Brokerage Section - Only show if there's sub-brokerage data or if it's create mode
+        if (this.isEditMode && this.modelData && this.modelData.SubBrokerages && this.modelData.SubBrokerages.length > 0) {
+            container.append(`
+                <div class="form-section sub-brokerage-section">
+                    <h4>Sub Brokerage</h4>
+                    <div id="subBrokerageContainer">
+                        ${this.generateSubBrokerageFieldsForEdit()}
+                    </div>
+                    <button type="button" class="btn btn-secondary add-subsection" data-type="subBrokerage">+ Add Sub Brokerage</button>
                 </div>
-                <button type="button" class="btn btn-secondary add-subsection" data-type="subBrokerage">+ Add Sub Brokerage</button>
-            </div>
-        `);
+            `);
+        } else if (!this.isEditMode) {
+            container.append(`
+                <div class="form-section sub-brokerage-section">
+                    <h4>Sub Brokerage</h4>
+                    <div id="subBrokerageContainer"></div>
+                    <button type="button" class="btn btn-secondary add-subsection" data-type="subBrokerage">+ Add Sub Brokerage</button>
+                </div>
+            `);
+        }
     }
 
     // Load Closer specific sections
@@ -139,7 +204,7 @@ class SectorFormManager {
             <div class="form-section closer-commission-section">
                 <h4>Closer Commission & Payment</h4>
                 <div id="closerCommissionContainer">
-                    ${this.generateCloserCommissionFields(0)}
+                    ${this.isEditMode ? this.generateCloserCommissionFieldsForEdit() : ''}
                 </div>
                 <button type="button" class="btn btn-secondary add-commission" data-type="closer">+ Add Commission</button>
             </div>
@@ -154,7 +219,7 @@ class SectorFormManager {
             <div class="form-section lead-generator-commission-section">
                 <h4>Lead Generator Commission & Payment</h4>
                 <div id="leadGeneratorCommissionContainer">
-                    ${this.generateLeadGeneratorCommissionFields(0)}
+                    ${this.isEditMode ? this.generateLeadGeneratorCommissionFieldsForEdit() : ''}
                 </div>
                 <button type="button" class="btn btn-secondary add-commission" data-type="leadGenerator">+ Add Commission</button>
             </div>
@@ -170,7 +235,7 @@ class SectorFormManager {
             <div class="form-section referral-partner-commission-section">
                 <h4>Referral Partner Commission & Payment</h4>
                 <div id="referralPartnerCommissionContainer">
-                    ${this.generateReferralPartnerCommissionFields(0)}
+                    ${this.isEditMode ? this.generateReferralPartnerCommissionFieldsForEdit() : ''}
                 </div>
                 <button type="button" class="btn btn-secondary add-commission" data-type="referralPartner">+ Add Commission</button>
             </div>
@@ -181,7 +246,7 @@ class SectorFormManager {
             <div class="form-section sub-referral-section">
                 <h4>Sub Referral</h4>
                 <div id="subReferralContainer">
-                    ${this.generateSubReferralFields(0)}
+                    ${this.isEditMode ? this.generateSubReferralFieldsForEdit() : ''}
                 </div>
                 <button type="button" class="btn btn-secondary add-subsection" data-type="subReferral">+ Add Sub Referral</button>
             </div>
@@ -197,22 +262,32 @@ class SectorFormManager {
             <div class="form-section introducer-commission-section">
                 <h4>Introducer Commission & Payment</h4>
                 <div id="introducerCommissionContainer">
-                    ${this.generateIntroducerCommissionFields(0)}
+                    ${this.isEditMode ? this.generateIntroducerCommissionFieldsForEdit() : ''}
                 </div>
                 <button type="button" class="btn btn-secondary add-commission" data-type="introducer">+ Add Commission</button>
             </div>
         `);
         
-        // Sub Introducer Section
-        container.append(`
-            <div class="form-section sub-introducer-section">
-                <h4>Sub Introducer</h4>
-                <div id="subIntroducerContainer">
-                    ${this.generateSubIntroducerFields(0)}
+        // Sub Introducer Section - Only show if there's sub-introducer data or if it's create mode
+        if (this.isEditMode && this.modelData && this.modelData.SubIntroducers && this.modelData.SubIntroducers.length > 0) {
+            container.append(`
+                <div class="form-section sub-introducer-section">
+                    <h4>Sub Introducer</h4>
+                    <div id="subIntroducerContainer">
+                        ${this.generateSubIntroducerFieldsForEdit()}
+                    </div>
+                    <button type="button" class="btn btn-secondary add-subsection" data-type="subIntroducer">+ Add Sub Introducer</button>
                 </div>
-                <button type="button" class="btn btn-secondary add-subsection" data-type="subIntroducer">+ Add Sub Introducer</button>
-            </div>
-        `);
+            `);
+        } else if (!this.isEditMode) {
+            container.append(`
+                <div class="form-section sub-introducer-section">
+                    <h4>Sub Introducer</h4>
+                    <div id="subIntroducerContainer"></div>
+                    <button type="button" class="btn btn-secondary add-subsection" data-type="subIntroducer">+ Add Sub Introducer</button>
+                </div>
+            `);
+        }
     }
 
     // Generate field functions
@@ -351,14 +426,14 @@ class SectorFormManager {
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="date" name="SubBrokerages[${index}].StartDate" class="form-control" placeholder="Start Date" />
+                            <input type="date" name="SubBrokerages[${index}].StartDate" class="form-control sub-start-date" placeholder="Start Date" />
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="date" name="SubBrokerages[${index}].EndDate" class="form-control" placeholder="End Date" />
+                            <input type="date" name="SubBrokerages[${index}].EndDate" class="form-control sub-end-date" placeholder="End Date" disabled />
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -515,12 +590,24 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="text" name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].PaymentTerms" class="form-control" placeholder="Payment Terms" />
+                            <select name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].PaymentTerms" class="form-control">
+                                <option value="">Payment Terms</option>
+                                <option value="Weekly">Weekly</option>
+                                <option value="Monthly">Monthly</option>
+                                <option value="Quarterly">Quarterly</option>
+                                <option value="Annually">Annually</option>
+                            </select>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="text" name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].CommissionType" class="form-control" placeholder="Commission Type" />
+                            <select name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].CommissionType" class="form-control">
+                                <option value="">Commission Type</option>
+                                <option value="Duration">Duration</option>
+                                <option value="Annual">Annual</option>
+                                <option value="Residual">Residual</option>
+                                <option value="As per System">As per System</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -728,12 +815,12 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="date" name="SubReferrals[${index}].StartDate" class="form-control" placeholder="Start Date" />
+                            <input type="date" name="SubReferrals[${index}].StartDate" class="form-control sub-start-date" placeholder="Start Date" />
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="date" name="SubReferrals[${index}].EndDate" class="form-control" placeholder="End Date" />
+                            <input type="date" name="SubReferrals[${index}].EndDate" class="form-control sub-end-date" placeholder="End Date" disabled />
                         </div>
                     </div>
                 </div>
@@ -871,14 +958,14 @@ class SectorFormManager {
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="date" name="SubIntroducers[${index}].StartDate" class="form-control" placeholder="Start Date" />
+                            <input type="date" name="SubIntroducers[${index}].StartDate" class="form-control sub-start-date" placeholder="Start Date" />
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="date" name="SubIntroducers[${index}].EndDate" class="form-control" placeholder="End Date" />
+                            <input type="date" name="SubIntroducers[${index}].EndDate" class="form-control sub-end-date" placeholder="End Date" disabled />
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -1035,18 +1122,750 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="text" name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].PaymentTerms" class="form-control" placeholder="Payment Terms" />
+                            <select name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].PaymentTerms" class="form-control">
+                                <option value="">Payment Terms</option>
+                                <option value="Weekly">Weekly</option>
+                                <option value="Monthly">Monthly</option>
+                                <option value="Quarterly">Quarterly</option>
+                                <option value="Annually">Annually</option>
+                            </select>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="text" name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].CommissionType" class="form-control" placeholder="Commission Type" />
+                            <select name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].CommissionType" class="form-control">
+                                <option value="">Commission Type</option>
+                                <option value="Duration">Duration</option>
+                                <option value="Annual">Annual</option>
+                                <option value="Residual">Residual</option>
+                                <option value="As per System">As per System</option>
+                            </select>
                         </div>
                     </div>
                 </div>
                 ${commissionIndex > 0 ? '<button type="button" class="btn btn-danger btn-sm remove-sub-commission"><i class="fas fa-trash me-1"></i>Remove</button>' : ''}
             </div>
         `;
+    }
+
+    // Edit Mode Field Generation Methods
+    generateBrokerageCommissionFieldsForEdit() {
+        if (!this.isEditMode || !this.modelData || !this.modelData.BrokerageCommissions || this.modelData.BrokerageCommissions.length === 0) {
+            return this.generateBrokerageCommissionFields(0);
+        }
+
+        let html = '';
+        this.modelData.BrokerageCommissions.forEach((commission, index) => {
+            html += `
+                <div class="commission-item" data-index="${index}">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="number" name="BrokerageCommissions[${index}].Commission" value="${commission.Commission || ''}" class="form-control" placeholder="Commission (%) *" step="0.01" min="0" max="100" required />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <select name="BrokerageCommissions[${index}].PaymentTerms" class="form-control" required>
+                                    <option value="">Payment Terms *</option>
+                                    <option value="Weekly" ${commission.PaymentTerms === 'Weekly' ? 'selected' : ''}>Weekly</option>
+                                    <option value="Monthly" ${commission.PaymentTerms === 'Monthly' ? 'selected' : ''}>Monthly</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="date" name="BrokerageCommissions[${index}].StartDate" value="${commission.StartDate || ''}" class="form-control" placeholder="Start Date" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="date" name="BrokerageCommissions[${index}].EndDate" value="${commission.EndDate || ''}" class="form-control" placeholder="End Date" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <select name="BrokerageCommissions[${index}].CommissionType" class="form-control" required>
+                                    <option value="">Commission Type *</option>
+                                    <option value="Duration" ${commission.CommissionType === 'Duration' ? 'selected' : ''}>Duration</option>
+                                    <option value="Annual" ${commission.CommissionType === 'Annual' ? 'selected' : ''}>Annual</option>
+                                    <option value="Residual" ${commission.CommissionType === 'Residual' ? 'selected' : ''}>Residual</option>
+                                    <option value="As per System" ${commission.CommissionType === 'As per System' ? 'selected' : ''}>As per System</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    ${index > 0 ? '<button type="button" class="btn btn-danger btn-sm remove-commission"><i class="fas fa-trash me-1"></i>Remove</button>' : ''}
+                </div>
+            `;
+        });
+        return html;
+    }
+
+    generateBrokerageStaffFieldsForEdit() {
+        if (!this.isEditMode || !this.modelData || !this.modelData.BrokerageStaff || this.modelData.BrokerageStaff.length === 0) {
+            return this.generateBrokerageStaffFields(0);
+        }
+
+        let html = '';
+        this.modelData.BrokerageStaff.forEach((staff, index) => {
+            html += `
+                <div class="staff-item" data-index="${index}">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="BrokerageStaff[${index}].BrokerageStaffName" value="${staff.BrokerageStaffName || ''}" class="form-control" placeholder="Staff Name *" required />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-check-label">
+                                    <input type="checkbox" name="BrokerageStaff[${index}].Active" class="form-check-input" ${staff.Active ? 'checked' : ''} />
+                                    Active
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="date" name="BrokerageStaff[${index}].StartDate" value="${staff.StartDate || ''}" class="form-control" placeholder="Start Date" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="date" name="BrokerageStaff[${index}].EndDate" value="${staff.EndDate || ''}" class="form-control" placeholder="End Date" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="email" name="BrokerageStaff[${index}].Email" value="${staff.Email || ''}" class="form-control" placeholder="Email Address" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="BrokerageStaff[${index}].Landline" value="${staff.Landline || ''}" class="form-control landline-input" placeholder="Landline (11 digits)" maxlength="11" pattern="[0-9]{11}" title="Please enter exactly 11 digits" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="BrokerageStaff[${index}].Mobile" value="${staff.Mobile || ''}" class="form-control mobile-input" placeholder="Mobile (11 digits)" maxlength="11" pattern="[0-9]{11}" title="Please enter exactly 11 digits" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <textarea name="BrokerageStaff[${index}].Notes" class="form-control" placeholder="Notes" rows="2">${staff.Notes || ''}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    ${index > 0 ? '<button type="button" class="btn btn-danger btn-sm remove-staff"><i class="fas fa-trash me-1"></i>Remove</button>' : ''}
+                </div>
+            `;
+        });
+        return html;
+    }
+
+    generateSubBrokerageFieldsForEdit() {
+        if (!this.isEditMode || !this.modelData || !this.modelData.SubBrokerages || this.modelData.SubBrokerages.length === 0) {
+            return this.generateSubBrokerageFields(0);
+        }
+
+        let html = '';
+        this.modelData.SubBrokerages.forEach((subBrokerage, index) => {
+            html += `
+                <div class="subsection-item" data-index="${index}">
+                    <h5>Sub Brokerage ${index + 1}</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubBrokerages[${index}].SubBrokerageName" value="${subBrokerage.SubBrokerageName || ''}" class="form-control" placeholder="Sub Brokerage Name *" required />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubBrokerages[${index}].OfgemID" value="${subBrokerage.OfgemID || ''}" class="form-control" placeholder="Ofgem ID" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-check-label">
+                                    <input type="checkbox" name="SubBrokerages[${index}].Active" class="form-check-input" ${subBrokerage.Active ? 'checked' : ''} />
+                                    Active
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="date" name="SubBrokerages[${index}].StartDate" value="${subBrokerage.StartDate || ''}" class="form-control" placeholder="Start Date" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="date" name="SubBrokerages[${index}].EndDate" value="${subBrokerage.EndDate || ''}" class="form-control" placeholder="End Date" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="email" name="SubBrokerages[${index}].Email" value="${subBrokerage.Email || ''}" class="form-control" placeholder="Email" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubBrokerages[${index}].Landline" value="${subBrokerage.Landline || ''}" class="form-control" placeholder="Landline" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubBrokerages[${index}].Mobile" value="${subBrokerage.Mobile || ''}" class="form-control" placeholder="Mobile" />
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sub Brokerage Commission & Payment -->
+                    <div class="sub-commission-section">
+                        <h6>Commission & Payment</h6>
+                        <div class="sub-commission-container">
+                            ${this.generateSubBrokerageCommissionFieldsForEdit(index)}
+                        </div>
+                        <button type="button" class="btn btn-secondary btn-sm add-sub-commission" data-subsection-index="${index}">
+                            <i class="fas fa-plus me-1"></i>Add Commission
+                        </button>
+                    </div>
+
+                    <!-- Sub Brokerage Bank Details -->
+                    <div class="sub-bank-details">
+                        <h6>Bank Details</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" name="SubBrokerages[${index}].BankDetails.BankName" value="${subBrokerage.BankDetails?.BankName || ''}" class="form-control" placeholder="Bank Name" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" name="SubBrokerages[${index}].BankDetails.BankBranchAddress" value="${subBrokerage.BankDetails?.BankBranchAddress || ''}" class="form-control" placeholder="Bank Branch Address" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" name="SubBrokerages[${index}].BankDetails.ReceiversAddress" value="${subBrokerage.BankDetails?.ReceiversAddress || ''}" class="form-control" placeholder="Receivers Address" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" name="SubBrokerages[${index}].BankDetails.AccountName" value="${subBrokerage.BankDetails?.AccountName || ''}" class="form-control" placeholder="Account Name" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" name="SubBrokerages[${index}].BankDetails.AccountSortCode" value="${subBrokerage.BankDetails?.AccountSortCode || ''}" class="form-control" placeholder="Account Sort Code" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" name="SubBrokerages[${index}].BankDetails.AccountNumber" value="${subBrokerage.BankDetails?.AccountNumber || ''}" class="form-control" placeholder="Account Number" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" name="SubBrokerages[${index}].BankDetails.IBAN" value="${subBrokerage.BankDetails?.IBAN || ''}" class="form-control" placeholder="IBAN" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" name="SubBrokerages[${index}].BankDetails.SwiftCode" value="${subBrokerage.BankDetails?.SwiftCode || ''}" class="form-control" placeholder="Swift Code" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sub Brokerage Company Tax Info -->
+                    <div class="sub-company-tax">
+                        <h6>Company Tax Information</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" name="SubBrokerages[${index}].CompanyTaxInfo.CompanyRegistration" value="${subBrokerage.CompanyTaxInfo?.CompanyRegistration || ''}" class="form-control" placeholder="Company Registration" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" name="SubBrokerages[${index}].CompanyTaxInfo.VATNumber" value="${subBrokerage.CompanyTaxInfo?.VATNumber || ''}" class="form-control" placeholder="VAT Number" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <textarea name="SubBrokerages[${index}].CompanyTaxInfo.Notes" class="form-control" placeholder="Notes" rows="2">${subBrokerage.CompanyTaxInfo?.Notes || ''}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${index > 0 ? '<button type="button" class="btn btn-danger btn-sm remove-subsection"><i class="fas fa-trash me-1"></i>Remove</button>' : ''}
+                </div>
+            `;
+        });
+        return html;
+    }
+
+    generateSubBrokerageCommissionFieldsForEdit(subsectionIndex) {
+        if (!this.isEditMode || !this.modelData || !this.modelData.SubBrokerages || 
+            !this.modelData.SubBrokerages[subsectionIndex] || 
+            !this.modelData.SubBrokerages[subsectionIndex].Commissions || 
+            this.modelData.SubBrokerages[subsectionIndex].Commissions.length === 0) {
+            return this.generateSubBrokerageCommissionFields(subsectionIndex, 0);
+        }
+
+        let html = '';
+        this.modelData.SubBrokerages[subsectionIndex].Commissions.forEach((commission, commissionIndex) => {
+            html += `
+                <div class="sub-commission-item" data-subsection-index="${subsectionIndex}" data-commission-index="${commissionIndex}">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="number" name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].SubBrokerageCommissionPercent" value="${commission.SubBrokerageCommission || ''}" class="form-control" placeholder="Sub Brokerage Commission (%) *" step="0.01" min="0" max="100" required />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="number" name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].BrokerageCommissionPercent" value="${commission.BrokerageCommission || ''}" class="form-control" placeholder="Brokerage Commission (%) *" step="0.01" min="0" max="100" required />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="date" name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].SubBrokerageStartDate" value="${commission.SubBrokerageStartDate || ''}" class="form-control" placeholder="Sub Brokerage Start Date" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="date" name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].SubBrokerageEndDate" value="${commission.SubBrokerageEndDate || ''}" class="form-control" placeholder="Sub Brokerage End Date" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="date" name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].BrokerageStartDate" value="${commission.BrokerageStartDate || ''}" class="form-control" placeholder="Brokerage Start Date" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="date" name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].BrokerageEndDate" value="${commission.BrokerageEndDate || ''}" class="form-control" placeholder="Brokerage End Date" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].PaymentTerms" value="${commission.PaymentTerms || ''}" class="form-control" placeholder="Payment Terms" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].CommissionType" value="${commission.CommissionType || ''}" class="form-control" placeholder="Commission Type" />
+                            </div>
+                        </div>
+                    </div>
+                    ${commissionIndex > 0 ? '<button type="button" class="btn btn-danger btn-sm remove-sub-commission"><i class="fas fa-trash me-1"></i>Remove</button>' : ''}
+                </div>
+            `;
+        });
+        return html;
+    }
+
+    generateCloserCommissionFieldsForEdit() {
+        if (!this.isEditMode || !this.modelData || !this.modelData.CloserCommissions || this.modelData.CloserCommissions.length === 0) {
+            return this.generateCloserCommissionFields(0);
+        }
+
+        let html = '';
+        this.modelData.CloserCommissions.forEach((commission, index) => {
+            html += `
+                <div class="commission-item" data-index="${index}">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="number" name="CloserCommissions[${index}].Commission" value="${commission.Commission || ''}" class="form-control" placeholder="Commission (%) *" step="0.01" min="0" max="100" required />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <select name="CloserCommissions[${index}].PaymentTerms" class="form-control" required>
+                                    <option value="">Payment Terms *</option>
+                                    <option value="Weekly" ${commission.PaymentTerms === 'Weekly' ? 'selected' : ''}>Weekly</option>
+                                    <option value="Monthly" ${commission.PaymentTerms === 'Monthly' ? 'selected' : ''}>Monthly</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="date" name="CloserCommissions[${index}].StartDate" value="${commission.StartDate || ''}" class="form-control" placeholder="Start Date" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="date" name="CloserCommissions[${index}].EndDate" value="${commission.EndDate || ''}" class="form-control" placeholder="End Date" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <select name="CloserCommissions[${index}].CommissionType" class="form-control" required>
+                                    <option value="">Commission Type *</option>
+                                    <option value="Duration" ${commission.CommissionType === 'Duration' ? 'selected' : ''}>Duration</option>
+                                    <option value="Annual" ${commission.CommissionType === 'Annual' ? 'selected' : ''}>Annual</option>
+                                    <option value="Residual" ${commission.CommissionType === 'Residual' ? 'selected' : ''}>Residual</option>
+                                    <option value="As per System" ${commission.CommissionType === 'As per System' ? 'selected' : ''}>As per System</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    ${index > 0 ? '<button type="button" class="btn btn-danger btn-sm remove-commission"><i class="fas fa-trash me-1"></i>Remove</button>' : ''}
+                </div>
+            `;
+        });
+        return html;
+    }
+
+    generateLeadGeneratorCommissionFieldsForEdit() {
+        if (!this.isEditMode || !this.modelData || !this.modelData.LeadGeneratorCommissions || this.modelData.LeadGeneratorCommissions.length === 0) {
+            return this.generateLeadGeneratorCommissionFields(0);
+        }
+
+        let html = '';
+        this.modelData.LeadGeneratorCommissions.forEach((commission, index) => {
+            html += `
+                <div class="commission-item" data-index="${index}">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="number" name="LeadGeneratorCommissions[${index}].LeadGeneratorCommission" value="${commission.LeadGeneratorCommission || ''}" class="form-control" placeholder="Lead Generator Commission (%) *" step="0.01" min="0" max="100" required />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="number" name="LeadGeneratorCommissions[${index}].CloserCommission" value="${commission.CloserCommission || ''}" class="form-control" placeholder="Closer Commission (%) *" step="0.01" min="0" max="100" required />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="date" name="LeadGeneratorCommissions[${index}].LeadGeneratorStartDate" value="${commission.LeadGeneratorStartDate || ''}" class="form-control" placeholder="Lead Generator Start Date" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="date" name="LeadGeneratorCommissions[${index}].LeadGeneratorEndDate" value="${commission.LeadGeneratorEndDate || ''}" class="form-control" placeholder="Lead Generator End Date" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="date" name="LeadGeneratorCommissions[${index}].CloserStartDate" value="${commission.CloserStartDate || ''}" class="form-control" placeholder="Closer Start Date" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="date" name="LeadGeneratorCommissions[${index}].CloserEndDate" value="${commission.CloserEndDate || ''}" class="form-control" placeholder="Closer End Date" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <select name="LeadGeneratorCommissions[${index}].PaymentTerms" class="form-control" required>
+                                    <option value="">Payment Terms *</option>
+                                    <option value="Weekly" ${commission.PaymentTerms === 'Weekly' ? 'selected' : ''}>Weekly</option>
+                                    <option value="Monthly" ${commission.PaymentTerms === 'Monthly' ? 'selected' : ''}>Monthly</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <select name="LeadGeneratorCommissions[${index}].CommissionType" class="form-control" required>
+                                    <option value="">Commission Type *</option>
+                                    <option value="Duration" ${commission.CommissionType === 'Duration' ? 'selected' : ''}>Duration</option>
+                                    <option value="Annual" ${commission.CommissionType === 'Annual' ? 'selected' : ''}>Annual</option>
+                                    <option value="Residual" ${commission.CommissionType === 'Residual' ? 'selected' : ''}>Residual</option>
+                                    <option value="As per System" ${commission.CommissionType === 'As per System' ? 'selected' : ''}>As per System</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    ${index > 0 ? '<button type="button" class="btn btn-danger btn-sm remove-commission"><i class="fas fa-trash me-1"></i>Remove</button>' : ''}
+                </div>
+            `;
+        });
+        return html;
+    }
+
+    generateReferralPartnerCommissionFieldsForEdit() {
+        if (!this.isEditMode || !this.modelData || !this.modelData.ReferralPartnerCommissions || this.modelData.ReferralPartnerCommissions.length === 0) {
+            return this.generateReferralPartnerCommissionFields(0);
+        }
+
+        let html = '';
+        this.modelData.ReferralPartnerCommissions.forEach((commission, index) => {
+            html += `
+                <div class="commission-item" data-index="${index}">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="number" name="ReferralPartnerCommissions[${index}].ReferralPartnerCommission" value="${commission.ReferralPartnerCommission || ''}" class="form-control" placeholder="Referral Partner Commission (%) *" step="0.01" min="0" max="100" required />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="number" name="ReferralPartnerCommissions[${index}].BrokerageCommission" value="${commission.BrokerageCommission || ''}" class="form-control" placeholder="Brokerage Commission (%) *" step="0.01" min="0" max="100" required />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="date" name="ReferralPartnerCommissions[${index}].ReferralPartnerStartDate" value="${commission.ReferralPartnerStartDate || ''}" class="form-control" placeholder="Referral Partner Start Date" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="date" name="ReferralPartnerCommissions[${index}].ReferralPartnerEndDate" value="${commission.ReferralPartnerEndDate || ''}" class="form-control" placeholder="Referral Partner End Date" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="date" name="ReferralPartnerCommissions[${index}].BrokerageStartDate" value="${commission.BrokerageStartDate || ''}" class="form-control" placeholder="Brokerage Start Date" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="date" name="ReferralPartnerCommissions[${index}].BrokerageEndDate" value="${commission.BrokerageEndDate || ''}" class="form-control" placeholder="Brokerage End Date" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <select name="ReferralPartnerCommissions[${index}].PaymentTerms" class="form-control" required>
+                                    <option value="">Payment Terms *</option>
+                                    <option value="Weekly" ${commission.PaymentTerms === 'Weekly' ? 'selected' : ''}>Weekly</option>
+                                    <option value="Monthly" ${commission.PaymentTerms === 'Monthly' ? 'selected' : ''}>Monthly</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <select name="ReferralPartnerCommissions[${index}].CommissionType" class="form-control" required>
+                                    <option value="">Commission Type *</option>
+                                    <option value="Duration" ${commission.CommissionType === 'Duration' ? 'selected' : ''}>Duration</option>
+                                    <option value="Annual" ${commission.CommissionType === 'Annual' ? 'selected' : ''}>Annual</option>
+                                    <option value="Residual" ${commission.CommissionType === 'Residual' ? 'selected' : ''}>Residual</option>
+                                    <option value="As per System" ${commission.CommissionType === 'As per System' ? 'selected' : ''}>As per System</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    ${index > 0 ? '<button type="button" class="btn btn-danger btn-sm remove-commission"><i class="fas fa-trash me-1"></i>Remove</button>' : ''}
+                </div>
+            `;
+        });
+        return html;
+    }
+
+    generateSubReferralFieldsForEdit() {
+        if (!this.isEditMode || !this.modelData || !this.modelData.SubReferrals || this.modelData.SubReferrals.length === 0) {
+            return this.generateSubReferralFields(0);
+        }
+
+        let html = '';
+        this.modelData.SubReferrals.forEach((subReferral, index) => {
+            html += `
+                <div class="subsection-item" data-index="${index}">
+                    <h5>Sub Referral ${index + 1}</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubReferrals[${index}].SubReferralPartnerName" value="${subReferral.SubReferralPartnerName || ''}" class="form-control" placeholder="Sub Referral Partner Name *" required />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="number" name="SubReferrals[${index}].Commission" value="${subReferral.Commission || ''}" class="form-control" placeholder="Commission (%) *" step="0.01" min="0" max="100" required />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="date" name="SubReferrals[${index}].StartDate" value="${subReferral.StartDate || ''}" class="form-control" placeholder="Start Date" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="date" name="SubReferrals[${index}].EndDate" value="${subReferral.EndDate || ''}" class="form-control" placeholder="End Date" />
+                            </div>
+                        </div>
+                    </div>
+                    ${index > 0 ? '<button type="button" class="btn btn-danger btn-sm remove-subsection"><i class="fas fa-trash me-1"></i>Remove</button>' : ''}
+                </div>
+            `;
+        });
+        return html;
+    }
+
+    generateIntroducerCommissionFieldsForEdit() {
+        if (!this.isEditMode || !this.modelData || !this.modelData.IntroducerCommissions || this.modelData.IntroducerCommissions.length === 0) {
+            return this.generateIntroducerCommissionFields(0);
+        }
+
+        let html = '';
+        this.modelData.IntroducerCommissions.forEach((commission, index) => {
+            html += `
+                <div class="commission-item" data-index="${index}">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="number" name="IntroducerCommissions[${index}].CommissionPercent" value="${commission.CommissionPercent || ''}" class="form-control" placeholder="Commission (%) *" step="0.01" min="0" max="100" required />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <select name="IntroducerCommissions[${index}].PaymentTerms" class="form-control" required>
+                                    <option value="">Payment Terms *</option>
+                                    <option value="Weekly" ${commission.PaymentTerms === 'Weekly' ? 'selected' : ''}>Weekly</option>
+                                    <option value="Monthly" ${commission.PaymentTerms === 'Monthly' ? 'selected' : ''}>Monthly</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="date" name="IntroducerCommissions[${index}].StartDate" value="${commission.StartDate || ''}" class="form-control" placeholder="Start Date" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="date" name="IntroducerCommissions[${index}].EndDate" value="${commission.EndDate || ''}" class="form-control" placeholder="End Date" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <select name="IntroducerCommissions[${index}].CommissionType" class="form-control" required>
+                                    <option value="">Commission Type *</option>
+                                    <option value="Duration" ${commission.CommissionType === 'Duration' ? 'selected' : ''}>Duration</option>
+                                    <option value="Annual" ${commission.CommissionType === 'Annual' ? 'selected' : ''}>Annual</option>
+                                    <option value="Residual" ${commission.CommissionType === 'Residual' ? 'selected' : ''}>Residual</option>
+                                    <option value="As per System" ${commission.CommissionType === 'As per System' ? 'selected' : ''}>As per System</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    ${index > 0 ? '<button type="button" class="btn btn-danger btn-sm remove-commission"><i class="fas fa-trash me-1"></i>Remove</button>' : ''}
+                </div>
+            `;
+        });
+        return html;
+    }
+
+    generateSubIntroducerFieldsForEdit() {
+        if (!this.isEditMode || !this.modelData || !this.modelData.SubIntroducers || this.modelData.SubIntroducers.length === 0) {
+            return this.generateSubIntroducerFields(0);
+        }
+
+        let html = '';
+        this.modelData.SubIntroducers.forEach((subIntroducer, index) => {
+            html += `
+                <div class="subsection-item" data-index="${index}">
+                    <h5>Sub Introducer ${index + 1}</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubIntroducers[${index}].SubIntroducerName" value="${subIntroducer.SubIntroducerName || ''}" class="form-control" placeholder="Sub Introducer Name *" required />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubIntroducers[${index}].OfgemID" value="${subIntroducer.OfgemID || ''}" class="form-control" placeholder="Ofgem ID" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-check-label">
+                                    <input type="checkbox" name="SubIntroducers[${index}].Active" class="form-check-input" ${subIntroducer.Active ? 'checked' : ''} />
+                                    Active
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="date" name="SubIntroducers[${index}].StartDate" value="${subIntroducer.StartDate || ''}" class="form-control" placeholder="Start Date" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="date" name="SubIntroducers[${index}].EndDate" value="${subIntroducer.EndDate || ''}" class="form-control" placeholder="End Date" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="email" name="SubIntroducers[${index}].SubIntroducerEmail" value="${subIntroducer.SubIntroducerEmail || ''}" class="form-control" placeholder="Email" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubIntroducers[${index}].SubIntroducerLandline" value="${subIntroducer.SubIntroducerLandline || ''}" class="form-control landline-input" placeholder="Landline (11 digits)" maxlength="11" pattern="[0-9]{11}" title="Please enter exactly 11 digits" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubIntroducers[${index}].SubIntroducerMobile" value="${subIntroducer.SubIntroducerMobile || ''}" class="form-control mobile-input" placeholder="Mobile (11 digits)" maxlength="11" pattern="[0-9]{11}" title="Please enter exactly 11 digits" />
+                            </div>
+                        </div>
+                    </div>
+                    ${index > 0 ? '<button type="button" class="btn btn-danger btn-sm remove-subsection"><i class="fas fa-trash me-1"></i>Remove</button>' : ''}
+                </div>
+            `;
+        });
+        return html;
     }
 
     // Bind global event handlers for dynamically added elements
@@ -1304,7 +2123,7 @@ class SectorFormManager {
             // Check if this is a start date
             if (inputName && inputName.includes('StartDate')) {
                 const startDate = $(this).val();
-                const row = $(this).closest('.commission-item, .staff-item, .sub-commission-item');
+                const row = $(this).closest('.commission-item, .staff-item, .sub-commission-item, .subsection-item');
                 
                 // Find corresponding end date in the same row
                 const endDateInput = row.find('input[type="date"]').filter(function() {
@@ -1329,7 +2148,7 @@ class SectorFormManager {
             // Check if this is an end date
             if (inputName && inputName.includes('EndDate')) {
                 const endDate = $(this).val();
-                const row = $(this).closest('.commission-item, .staff-item, .sub-commission-item');
+                const row = $(this).closest('.commission-item, .staff-item, .sub-commission-item, .subsection-item');
                 
                 // Find corresponding start date in the same row
                 const startDateInput = row.find('input[type="date"]').filter(function() {
@@ -1355,7 +2174,7 @@ class SectorFormManager {
             
             if (inputName && inputName.includes('EndDate')) {
                 const endDate = $(this).val();
-                const row = $(this).closest('.commission-item, .staff-item, .sub-commission-item');
+                const row = $(this).closest('.commission-item, .staff-item, .sub-commission-item, .subsection-item');
                 
                 // Find corresponding start date
                 const startDateInput = row.find('input[type="date"]').filter(function() {
@@ -1384,7 +2203,7 @@ class SectorFormManager {
             const inputName = $(this).attr('name');
             
             if (inputName && inputName.includes('EndDate')) {
-                const row = $(this).closest('.commission-item, .staff-item, .sub-commission-item');
+                const row = $(this).closest('.commission-item, .staff-item, .sub-commission-item, .subsection-item');
                 const startDateInput = row.find('input[type="date"]').filter(function() {
                     const name = $(this).attr('name');
                     return name && name.includes('StartDate') && 
@@ -1414,7 +2233,7 @@ class SectorFormManager {
                 
                 if (inputName && inputName.includes('EndDate')) {
                     const endDate = $(this).val();
-                    const row = $(this).closest('.commission-item, .staff-item, .sub-commission-item');
+                    const row = $(this).closest('.commission-item, .staff-item, .sub-commission-item, .subsection-item');
                     
                     const startDateInput = row.find('input[type="date"]').filter(function() {
                         const name = $(this).attr('name');
@@ -1456,11 +2275,15 @@ window.initializeCreateSector = function() {
 };
 
 // Initialize function for Edit page
-window.initializeEditSector = function() {
-    window.sectorFormManager = new SectorFormManager({ isEditMode: true });
-};
-
-window.initializeEditSector = function() {
-    window.sectorFormManager = new SectorFormManager({ isEditMode: true });
+window.initializeEditSector = function(modelData) {
+    window.sectorFormManager = new SectorFormManager({ 
+        isEditMode: true, 
+        modelData: modelData 
+    });
+    
+    // Initialize conditional fields display based on current sector type
+    if (modelData && modelData.SectorType) {
+        window.sectorFormManager.toggleConditionalFields(modelData.SectorType);
+    }
 };
 

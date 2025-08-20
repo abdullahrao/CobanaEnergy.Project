@@ -1,6 +1,6 @@
 /**
- * Edit Sector Page - Minimal JavaScript
- * All dynamic functionality is handled by sectorFormManager.js
+ * Edit Sector Page - Simplified JavaScript
+ * Data is now loaded server-side, JavaScript only handles form management
  */
 
 $(document).ready(function () {
