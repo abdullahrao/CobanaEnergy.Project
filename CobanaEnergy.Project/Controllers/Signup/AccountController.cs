@@ -366,7 +366,7 @@ namespace CobanaEnergy.Project.Controllers
         #region UserProfile
 
         [HttpGet]
-        [Authorize(Roles = "Controls")]
+        //[Authorize(Roles = "Controls")]
         public async Task<ActionResult> UserProfile()
         {
             try
@@ -401,7 +401,7 @@ namespace CobanaEnergy.Project.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Controls")]
+        //[Authorize(Roles = "Controls")]
         [ValidateAntiForgeryToken]
         public async Task<JsonResult> UpdateProfile(UserProfileViewModel model)
         {
