@@ -130,11 +130,13 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
                                 : "N/A",
                     Duration = x.Contract.Duration,
                     PaymentStatus = x.Status.PaymentStatus ?? "N/A",
-                    InitialCommissionForecast = db.CE_CommissionMetrics
-                        .Where(m => m.ReconciliationId == x.Reconciliation.Id && m.contractType == "Electric")
-                        .Select(m => m.InitialCommissionForecast)
-                        .FirstOrDefault() ?? "N/A",
-                    SupplierCobanaInvoiceNotes = x.Reconciliation.SupplierCobanaInvoiceNotes ?? "N/A",
+                    InitialCommissionForecast = x.Reconciliation != null
+                         ? db.CE_CommissionMetrics
+                             .Where(m => m.ReconciliationId == x.Reconciliation.Id && m.contractType == "Electric")
+                             .Select(m => m.InitialCommissionForecast)
+                             .FirstOrDefault() ?? "N/A"
+                         : "N/A",
+                    SupplierCobanaInvoiceNotes = x.Reconciliation?.SupplierCobanaInvoiceNotes ?? "N/A",
                 }).ToList();
 
                 contracts.AddRange(gasContractsRaw.Select(x => new AwaitingPaymentsRowViewModel
@@ -151,11 +153,13 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
                                 : "N/A",
                     Duration = x.Contract.Duration,
                     PaymentStatus = x.Status.PaymentStatus ?? "N/A",
-                    InitialCommissionForecast = db.CE_CommissionMetrics
-                        .Where(m => m.ReconciliationId == x.Reconciliation.Id && m.contractType == "Gas")
-                        .Select(m => m.InitialCommissionForecast)
-                        .FirstOrDefault() ?? "N/A",
-                    SupplierCobanaInvoiceNotes = x.Reconciliation.SupplierCobanaInvoiceNotes ?? "N/A",
+                    InitialCommissionForecast = x.Reconciliation != null
+                         ? db.CE_CommissionMetrics
+                             .Where(m => m.ReconciliationId == x.Reconciliation.Id && m.contractType == "Electric")
+                             .Select(m => m.InitialCommissionForecast)
+                             .FirstOrDefault() ?? "N/A"
+                         : "N/A",
+                    SupplierCobanaInvoiceNotes = x.Reconciliation?.SupplierCobanaInvoiceNotes ?? "N/A",
                 }));
 
 
@@ -177,6 +181,28 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
                         Count = dbCounts.FirstOrDefault(dc => dc.Status == s.Status)?.Count ?? 0
                     })
                     .ToList();
+                #endregion
+
+                #region [Monthly Counter]
+
+
+                var monthlyStatus = HelperUtility.GetMonthlyStatus();
+                var monthlyStatusKeys = statuses.Select(s => s.Status).ToList();
+
+                var monthlyCounterList = await db.CE_ContractStatuses
+                    .Where(cs => statusKeys.Contains(cs.PaymentStatus))
+                    .GroupBy(cs => cs.PaymentStatus)
+                    .Select(g => new { Status = g.Key, Count = g.Count() })
+                    .ToListAsync();
+
+                var resultantCounter = monthlyStatus
+                    .Select(s => new
+                    {
+                        Label = s.Label,
+                        Count = dbCounts.FirstOrDefault(dc => dc.Status == s.Status)?.Count ?? 0
+                    })
+                    .ToList();
+
 
                 #endregion
 
@@ -184,6 +210,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
                 return JsonResponse.Ok(new
                 {
                     Contracts = contracts,
+                    MonthlyCounterList = resultantCounter,
                     CounterList = result
                 });
             }
@@ -331,50 +358,18 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
 
         private bool ShouldShowOnAwaitingPaymentsDashboard(string paymentStatus, string startDateStr, string endDateStr)
         {
+            
             if (string.IsNullOrWhiteSpace(paymentStatus))
+                return false;
+
+            if (!SupportedSuppliers.TryGetWaitDays(paymentStatus, out var waitDays))
                 return false;
 
             DateTime now = DateTime.UtcNow.Date;
             DateTime? startDate = DateTime.TryParse(startDateStr, out var sdt) ? sdt.Date : (DateTime?)null;
             DateTime? endDate = DateTime.TryParse(endDateStr, out var edt) ? edt.Date : (DateTime?)null;
 
-            int waitDays;
-
-            switch (paymentStatus)
-            {
-                case "Awaiting Invoice":
-                    waitDays = 42;
-                    break;
-
-                case "Awaiting 1st Reconciliation":
-                case "Awaiting 2nd initial":
-                    waitDays = 395;
-                    break;
-
-                case "Awaiting 2nd Reconciliation":
-                case "Awaiting 3rd initial":
-                    waitDays = 760;
-                    break;
-
-                case "Awaiting 3rd Reconciliation":
-                case "Awaiting 4th initial":
-                    waitDays = 1125;
-                    break;
-
-                case "Awaiting 4th Reconciliation":
-                case "Awaiting 5th initial":
-                    waitDays = 1490;
-                    break;
-
-                case "Awaiting Final Reconciliation":
-                    waitDays = 60; // special case: use END date
-                    break;
-
-                default:
-                    return false;
-            }
-
-            if (paymentStatus == "Awaiting Final Reconciliation")
+            if (paymentStatus.Equals("Awaiting Final Reconciliation", StringComparison.OrdinalIgnoreCase))
             {
                 return endDate.HasValue && now >= endDate.Value.AddDays(waitDays);
             }
@@ -382,7 +377,6 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
             {
                 return startDate.HasValue && now >= startDate.Value.AddDays(waitDays);
             }
-
         }
 
     }

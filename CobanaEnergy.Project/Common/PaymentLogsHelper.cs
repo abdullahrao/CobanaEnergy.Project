@@ -50,5 +50,14 @@ namespace CobanaEnergy.Project.Common
             ("Contracts Awaiting Final Reconciliation", "Awaiting Final Reconciliation")
         };
         }
+
+        public static List<(string Label, string Status)> GetMonthlyStatus()
+        {
+            return SupportedSuppliers._statusWaitDays
+                    .Where(x => x.Key.Contains("Month Payment"))
+                    .OrderBy(x => x.Value) // Sort by wait days, so statuses come in sequence
+                    .Select(kvp => ($"Contracts {kvp.Key}", kvp.Key))
+                    .ToList();
+        }
     }
 }
