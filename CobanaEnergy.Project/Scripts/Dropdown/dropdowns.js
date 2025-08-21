@@ -78,5 +78,55 @@ const AccountDropdownOptions = {
         "Never Live - Resolved",
         "Resolve",
         "Reverse Clawback"
+    ],
+    paymentStatusCorona: [
+        "Contract Pending",
+        "Advanced Payment",
+        "Clawback - COT Reconciliation", 
+        "Clawback - Duplicate Payments",
+        "Clawback - Final Reconciliation",
+        "Clawback - Never Live",
+        "Commission Hold - Debt",
+        "Discrepancies",
+        "In Dispute",
+        "Lost Confirmation",
+        "Missing Bonus Payment",
+        "Never Live - Resolved",
+        "Resolved",
+        "Reverse Clawback",
+        "Unpaid Bill - Clawed back",
+        "Unpaid Bill - Never Invoiced"
+    ]
+};
+
+
+const AccountsDropdownOptions = {
+    supplierEAC: [
+        "Pending",
+        "Processing_Present Month",
+        "Processing_Future Months",
+        "Objection",
+        "Objection Closed",
+        "Reapplied - Awaiting Confirmation",
+        "New Lives",
+        "Live",
+        "Renewal Window",
+        "Renewal Window - Ag Lost",
+        "Renewed",
+        "Contract Ended - Ag Lost",
+        "Contract Ended - Not Renewed",
+        "Contract Ended - Renewed",
+        "Possible Loss",
+        "Lost",
+        "Credit Failed",
+        "Rejected",
+        "To Be Resolved - Internally",
+        "Waiting Agent Response",
+        "Waiting Supplier Response",
+        "Dead - No Action Required",
+        "Dead - Credit Failed",
+        "Dead - Valid Contract in Place",
+        "Dead - Duplicate Submission",
+        "Dead - Due to Objections"
     ]
 };
