@@ -20,7 +20,7 @@ using System.Web.Mvc;
 
 namespace CobanaEnergy.Project.Controllers.Accounts.CampaignDashboard
 {
-    [Authorize(Roles = "Accounts,Controls")]
+   
     public class CampaignController : BaseController
     {
         private readonly ApplicationDBContext db;
@@ -35,6 +35,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CampaignDashboard
         #region [Create Campaign]
 
         [HttpGet]
+        [Authorize(Roles = "Accounts,Controls")]
         public async Task<ActionResult> Create()
         {
             try
@@ -53,6 +54,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CampaignDashboard
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Accounts,Controls")]
         public async Task<JsonResult> Create(CampaignViewModel dto)
         {
             if (!ModelState.IsValid)
