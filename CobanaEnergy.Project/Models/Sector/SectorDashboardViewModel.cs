@@ -17,11 +17,11 @@ namespace CobanaEnergy.Project.Models.Sector
             SectorTypeOptions = new List<SectorTypeOption>
             {
                 new SectorTypeOption { Value = "", Text = "All Sectors" },
-                new SectorTypeOption { Value = "Brokerage", Text = "Brokerage - GenericC&P" },
-                new SectorTypeOption { Value = "Closer", Text = "Closer - Generic C&P" },
+                new SectorTypeOption { Value = "Brokerage", Text = "Brokerage" },
+                new SectorTypeOption { Value = "Closer", Text = "Closer" },
                 new SectorTypeOption { Value = "Leads Generator", Text = "Leads Generator" },
                 new SectorTypeOption { Value = "Referral Partner", Text = "Referral Partner" },
-                new SectorTypeOption { Value = "Introducer", Text = "Introducer - Generic C&P" }
+                new SectorTypeOption { Value = "Introducer", Text = "Introducer" }
             };
         }
     }

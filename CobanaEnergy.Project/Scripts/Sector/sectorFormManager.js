@@ -22,6 +22,9 @@ class SectorFormManager {
         
         // Global event handlers for dynamically added elements
         this.bindGlobalEventHandlers();
+        
+        // Initialize duplicate account checker for all account number fields
+        this.initializeDuplicateAccountChecker();
     }
 
     initializeForm() {
@@ -138,62 +141,76 @@ class SectorFormManager {
         }
     }
 
+    // Generic method to check if a collection has valid data
+    hasValidData(collectionName, primaryField, secondaryFields = []) {
+        if (!this.modelData || !this.modelData[collectionName]) return false;
+        
+        return this.modelData[collectionName].some(item => {
+            // Primary field must have value
+            if (!item[primaryField] || item[primaryField].toString().trim() === '') {
+                return false;
+            }
+            
+            // At least one secondary field must have value (if specified)
+            if (secondaryFields.length > 0) {
+                return secondaryFields.some(field => {
+                    const value = item[field];
+                    return value && value.toString().trim() !== '';
+                });
+            }
+            
+            return true;
+        });
+    }
+
     // Load Brokerage specific sections
     loadBrokerageSections() {
         const container = $('#dynamicSectionsContainer');
         
-        // Brokerage Commission Section
+        // Brokerage Commission Section - Only show fields when there's valid data
         container.append(`
             <div class="form-section brokerage-commission-section">
                 <h4>Brokerage Commission & Payment</h4>
                 <div id="brokerageCommissionContainer">
-                    ${this.isEditMode ? this.generateBrokerageCommissionFieldsForEdit() : ''}
+                    ${this.isEditMode && this.modelData && this.modelData.BrokerageCommissions && 
+                      this.modelData.BrokerageCommissions.length > 0 && 
+                      this.hasValidData('BrokerageCommissions', 'Commission', ['PaymentTerms', 'CommissionType']) 
+                        ? this.generateBrokerageCommissionFieldsForEdit() 
+                        : ''}
                 </div>
                 <button type="button" class="btn btn-secondary add-commission" data-type="brokerage">+ Add Commission</button>
             </div>
         `);
         
-        // Brokerage Staff Section - Only show if there's staff data or if it's create mode
-        if (this.isEditMode && this.modelData && this.modelData.BrokerageStaff && this.modelData.BrokerageStaff.length > 0) {
-            container.append(`
-                <div class="form-section brokerage-staff-section">
-                    <h4>Brokerage Staff</h4>
-                    <div id="brokerageStaffContainer">
-                        ${this.generateBrokerageStaffFieldsForEdit()}
-                    </div>
-                    <button type="button" class="btn btn-secondary add-staff" data-type="brokerage">+ Add Staff Member</button>
+        // Brokerage Staff Section - Only show fields when there's valid data
+        container.append(`
+            <div class="form-section brokerage-staff-section">
+                <h4>Brokerage Staff</h4>
+                <div id="brokerageStaffContainer">
+                    ${this.isEditMode && this.modelData && this.modelData.BrokerageStaff && 
+                      this.modelData.BrokerageStaff.length > 0 && 
+                      this.hasValidData('BrokerageStaff', 'BrokerageStaffName', ['Email', 'Mobile', 'Landline']) 
+                        ? this.generateBrokerageStaffFieldsForEdit() 
+                        : ''}
                 </div>
-            `);
-        } else if (!this.isEditMode) {
-            container.append(`
-                <div class="form-section brokerage-staff-section">
-                    <h4>Brokerage Staff</h4>
-                    <div id="brokerageStaffContainer"></div>
-                    <button type="button" class="btn btn-secondary add-staff" data-type="brokerage">+ Add Staff Member</button>
-                </div>
-            `);
-        }
+                <button type="button" class="btn btn-secondary add-staff" data-type="brokerage">+ Add Staff Member</button>
+            </div>
+        `);
         
-        // Sub Brokerage Section - Only show if there's sub-brokerage data or if it's create mode
-        if (this.isEditMode && this.modelData && this.modelData.SubBrokerages && this.modelData.SubBrokerages.length > 0) {
-            container.append(`
-                <div class="form-section sub-brokerage-section">
-                    <h4>Sub Brokerage</h4>
-                    <div id="subBrokerageContainer">
-                        ${this.generateSubBrokerageFieldsForEdit()}
-                    </div>
-                    <button type="button" class="btn btn-secondary add-subsection" data-type="subBrokerage">+ Add Sub Brokerage</button>
+        // Sub Brokerage Section - Only show fields when there's valid data
+        container.append(`
+            <div class="form-section sub-brokerage-section">
+                <h4>Sub Brokerage</h4>
+                <div id="subBrokerageContainer">
+                    ${this.isEditMode && this.modelData && this.modelData.SubBrokerages && 
+                      this.modelData.SubBrokerages.length > 0 && 
+                      this.hasValidData('SubBrokerages', 'SubBrokerageName', ['Email', 'Mobile', 'Landline']) 
+                        ? this.generateSubBrokerageFieldsForEdit() 
+                        : ''}
                 </div>
-            `);
-        } else if (!this.isEditMode) {
-            container.append(`
-                <div class="form-section sub-brokerage-section">
-                    <h4>Sub Brokerage</h4>
-                    <div id="subBrokerageContainer"></div>
-                    <button type="button" class="btn btn-secondary add-subsection" data-type="subBrokerage">+ Add Sub Brokerage</button>
-                </div>
-            `);
-        }
+                <button type="button" class="btn btn-secondary add-subsection" data-type="subBrokerage">+ Add Sub Brokerage</button>
+            </div>
+        `);
     }
 
     // Load Closer specific sections
@@ -204,7 +221,11 @@ class SectorFormManager {
             <div class="form-section closer-commission-section">
                 <h4>Closer Commission & Payment</h4>
                 <div id="closerCommissionContainer">
-                    ${this.isEditMode ? this.generateCloserCommissionFieldsForEdit() : ''}
+                    ${this.isEditMode && this.modelData && this.modelData.CloserCommissions && 
+                      this.modelData.CloserCommissions.length > 0 && 
+                      this.hasValidData('CloserCommissions', 'Commission', ['PaymentTerms', 'CommissionType']) 
+                        ? this.generateCloserCommissionFieldsForEdit() 
+                        : ''}
                 </div>
                 <button type="button" class="btn btn-secondary add-commission" data-type="closer">+ Add Commission</button>
             </div>
@@ -219,7 +240,11 @@ class SectorFormManager {
             <div class="form-section lead-generator-commission-section">
                 <h4>Lead Generator Commission & Payment</h4>
                 <div id="leadGeneratorCommissionContainer">
-                    ${this.isEditMode ? this.generateLeadGeneratorCommissionFieldsForEdit() : ''}
+                    ${this.isEditMode && this.modelData && this.modelData.LeadGeneratorCommissions && 
+                      this.modelData.LeadGeneratorCommissions.length > 0 && 
+                      this.hasValidData('LeadGeneratorCommissions', 'LeadGeneratorCommission', ['PaymentTerms', 'CommissionType']) 
+                        ? this.generateLeadGeneratorCommissionFieldsForEdit() 
+                        : ''}
                 </div>
                 <button type="button" class="btn btn-secondary add-commission" data-type="leadGenerator">+ Add Commission</button>
             </div>
@@ -230,23 +255,31 @@ class SectorFormManager {
     loadReferralPartnerSections() {
         const container = $('#dynamicSectionsContainer');
         
-        // Referral Partner Commission Section
+        // Referral Partner Commission Section - Only show fields when there's valid data
         container.append(`
             <div class="form-section referral-partner-commission-section">
                 <h4>Referral Partner Commission & Payment</h4>
                 <div id="referralPartnerCommissionContainer">
-                    ${this.isEditMode ? this.generateReferralPartnerCommissionFieldsForEdit() : ''}
+                    ${this.isEditMode && this.modelData && this.modelData.ReferralPartnerCommissions && 
+                      this.modelData.ReferralPartnerCommissions.length > 0 && 
+                      this.hasValidData('ReferralPartnerCommissions', 'ReferralPartnerCommission', ['PaymentTerms', 'CommissionType']) 
+                        ? this.generateReferralPartnerCommissionFieldsForEdit() 
+                        : ''}
                 </div>
                 <button type="button" class="btn btn-secondary add-commission" data-type="referralPartner">+ Add Commission</button>
             </div>
         `);
         
-        // Sub Referral Section
+        // Sub Referral Section - Only show fields when there's valid data
         container.append(`
             <div class="form-section sub-referral-section">
                 <h4>Sub Referral</h4>
                 <div id="subReferralContainer">
-                    ${this.isEditMode ? this.generateSubReferralFieldsForEdit() : ''}
+                    ${this.isEditMode && this.modelData && this.modelData.SubReferrals && 
+                      this.modelData.SubReferrals.length > 0 && 
+                      this.hasValidData('SubReferrals', 'SubReferralPartnerName', ['Commission']) 
+                        ? this.generateSubReferralFieldsForEdit() 
+                        : ''}
                 </div>
                 <button type="button" class="btn btn-secondary add-subsection" data-type="subReferral">+ Add Sub Referral</button>
             </div>
@@ -257,37 +290,35 @@ class SectorFormManager {
     loadIntroducerSections() {
         const container = $('#dynamicSectionsContainer');
         
-        // Introducer Commission Section
+        // Introducer Commission Section - Only show fields when there's valid data
         container.append(`
             <div class="form-section introducer-commission-section">
                 <h4>Introducer Commission & Payment</h4>
                 <div id="introducerCommissionContainer">
-                    ${this.isEditMode ? this.generateIntroducerCommissionFieldsForEdit() : ''}
+                    ${this.isEditMode && this.modelData && this.modelData.IntroducerCommissions && 
+                      this.modelData.IntroducerCommissions.length > 0 && 
+                      this.hasValidData('IntroducerCommissions', 'Commission', ['PaymentTerms', 'CommissionType']) 
+                        ? this.generateIntroducerCommissionFieldsForEdit() 
+                        : ''}
                 </div>
                 <button type="button" class="btn btn-secondary add-commission" data-type="introducer">+ Add Commission</button>
             </div>
         `);
         
-        // Sub Introducer Section - Only show if there's sub-introducer data or if it's create mode
-        if (this.isEditMode && this.modelData && this.modelData.SubIntroducers && this.modelData.SubIntroducers.length > 0) {
-            container.append(`
-                <div class="form-section sub-introducer-section">
-                    <h4>Sub Introducer</h4>
-                    <div id="subIntroducerContainer">
-                        ${this.generateSubIntroducerFieldsForEdit()}
-                    </div>
-                    <button type="button" class="btn btn-secondary add-subsection" data-type="subIntroducer">+ Add Sub Introducer</button>
+        // Sub Introducer Section - Only show fields when there's valid data
+        container.append(`
+            <div class="form-section sub-introducer-section">
+                <h4>Sub Introducer</h4>
+                <div id="subIntroducerContainer">
+                    ${this.isEditMode && this.modelData && this.modelData.SubIntroducers && 
+                      this.modelData.SubIntroducers.length > 0 && 
+                      this.hasValidData('SubIntroducers', 'SubIntroducerName', ['Email', 'Mobile', 'Landline']) 
+                        ? this.generateSubIntroducerFieldsForEdit() 
+                        : ''}
                 </div>
-            `);
-        } else if (!this.isEditMode) {
-            container.append(`
-                <div class="form-section sub-introducer-section">
-                    <h4>Sub Introducer</h4>
-                    <div id="subIntroducerContainer"></div>
-                    <button type="button" class="btn btn-secondary add-subsection" data-type="subIntroducer">+ Add Sub Introducer</button>
-                </div>
-            `);
-        }
+                <button type="button" class="btn btn-secondary add-subsection" data-type="subIntroducer">+ Add Sub Introducer</button>
+            </div>
+        `);
     }
 
     // Generate field functions
@@ -351,10 +382,10 @@ class SectorFormManager {
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label class="form-check-label">
-                                <input type="checkbox" name="BrokerageStaff[${index}].Active" class="form-check-input" checked />
-                                Active
-                            </label>
+                            <select name="BrokerageStaff[${index}].Active" class="form-control">
+                                <option value="true" selected>YES</option>
+                                <option value="false">NO</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -418,10 +449,10 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label class="form-check-label">
-                                <input type="checkbox" name="SubBrokerages[${index}].Active" class="form-check-input" checked />
-                                Active
-                            </label>
+                            <select name="SubBrokerages[${index}].Active" class="form-control">
+                                <option value="true" selected>YES</option>
+                                <option value="false">NO</option>
+                            </select>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -496,12 +527,12 @@ class SectorFormManager {
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <input type="text" name="SubBrokerages[${index}].BankDetails.AccountSortCode" class="form-control" placeholder="Account Sort Code" />
+                                <input type="text" name="SubBrokerages[${index}].BankDetails.AccountSortCode" class="form-control" placeholder="Account Sort Code (6 digits)" maxlength="6" pattern="[0-9]{6}" title="Please enter exactly 6 digits" />
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <input type="text" name="SubBrokerages[${index}].BankDetails.AccountNumber" class="form-control" placeholder="Account Number" />
+                                <input type="text" name="SubBrokerages[${index}].BankDetails.AccountNumber" class="form-control" placeholder="Account Number (8 digits)" maxlength="8" pattern="[0-9]{8}" title="Please enter exactly 8 digits" />
                             </div>
                         </div>
                     </div>
@@ -543,7 +574,9 @@ class SectorFormManager {
                     </div>
                 </div>
                 
-                ${index > 0 ? '<button type="button" class="btn btn-danger btn-sm remove-subsection"><i class="fas fa-trash me-1"></i>Remove</button>' : ''}
+                <div class="text-end mt-3">
+                    <button type="button" class="btn btn-danger btn-sm remove-subsection"><i class="fas fa-trash me-1"></i>Remove Subsection</button>
+                </div>
             </div>
         `;
     }
@@ -554,12 +587,12 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="number" name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].SubBrokerageCommissionPercent" class="form-control" placeholder="Sub Brokerage Commission (%) *" step="0.01" min="0" max="100" required />
+                            <input type="number" name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].SubBrokerageCommission" class="form-control" placeholder="Sub Brokerage Commission (%) *" step="0.01" min="0" max="100" required />
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="number" name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].BrokerageCommissionPercent" class="form-control" placeholder="Brokerage Commission (%) *" step="0.01" min="0" max="100" required />
+                            <input type="number" name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].BrokerageCommission" class="form-control" placeholder="Brokerage Commission (%) *" step="0.01" min="0" max="100" required />
                         </div>
                     </div>
                 </div>
@@ -799,7 +832,8 @@ class SectorFormManager {
 
     generateSubReferralFields(index) {
         return `
-            <div class="sub-commission-item" data-index="${index}">
+            <div class="subsection-item" data-index="${index}">
+                <h5>Sub Referral ${index + 1}</h5>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -815,15 +849,103 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
+                            <select name="SubReferrals[${index}].Active" class="form-control">
+                                <option value="true" selected>YES</option>
+                                <option value="false">NO</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
                             <input type="date" name="SubReferrals[${index}].StartDate" class="form-control sub-start-date" placeholder="Start Date" />
                         </div>
                     </div>
+                </div>
+                <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
                             <input type="date" name="SubReferrals[${index}].EndDate" class="form-control sub-end-date" placeholder="End Date" disabled />
                         </div>
                     </div>
                 </div>
+
+                <!-- Sub Referral Bank Details -->
+                <div class="sub-bank-details">
+                    <h6>Bank Details</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubReferrals[${index}].BankDetails.BankName" class="form-control" placeholder="Bank Name" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubReferrals[${index}].BankDetails.BankBranchAddress" class="form-control" placeholder="Bank Branch Address" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubReferrals[${index}].BankDetails.ReceiversAddress" class="form-control" placeholder="Receivers Address" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubReferrals[${index}].BankDetails.AccountName" class="form-control" placeholder="Account Name" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubReferrals[${index}].BankDetails.AccountSortCode" class="form-control" placeholder="Account Sort Code (6 digits)" maxlength="6" pattern="[0-9]{6}" title="Please enter exactly 6 digits" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubReferrals[${index}].BankDetails.AccountNumber" class="form-control" placeholder="Account Number (8 digits)" maxlength="8" pattern="[0-9]{8}" title="Please enter exactly 8 digits" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubReferrals[${index}].BankDetails.IBAN" class="form-control" placeholder="IBAN" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubReferrals[${index}].BankDetails.SwiftCode" class="form-control" placeholder="Swift Code" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sub Referral Company Tax Info -->
+                <div class="sub-company-tax">
+                    <h6>Company Tax Information</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubReferrals[${index}].CompanyTaxInfo.CompanyRegistration" class="form-control" placeholder="Company Registration" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubReferrals[${index}].CompanyTaxInfo.VATNumber" class="form-control" placeholder="VAT Number" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <textarea name="SubReferrals[${index}].CompanyTaxInfo.Notes" class="form-control" placeholder="Notes" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 ${index > 0 ? '<button type="button" class="btn btn-danger btn-sm remove-sub-commission"><i class="fas fa-trash me-1"></i>Remove</button>' : ''}
             </div>
         `;
@@ -835,48 +957,128 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="number" name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].SubIntroducerCommission" class="form-control" placeholder="Sub Introducer Commission (%) *" step="0.01" min="0" max="100" required />
+                            <input type="number" name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].SubReferralCommission" class="form-control" placeholder="Sub Referral Commission (%) *" step="0.01" min="0" max="100" required />
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="number" name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].IntroducerCommission" class="form-control" placeholder="Introducer Commission (%) *" step="0.01" min="0" max="100" required />
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <input type="date" name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].SubIntroducerStartDate" class="form-control" placeholder="Sub Introducer Start Date" />
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <input type="date" name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].SubIntroducerEndDate" class="form-control" placeholder="Sub Introducer End Date" />
+                            <input type="number" name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].ReferralPartnerCommission" class="form-control" placeholder="Referral Partner Commission (%) *" step="0.01" min="0" max="100" required />
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="date" name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].IntroducerStartDate" class="form-control" placeholder="Introducer Start Date" />
+                            <input type="date" name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].SubReferralStartDate" class="form-control" placeholder="Sub Referral Start Date" />
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="date" name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].IntroducerEndDate" class="form-control" placeholder="Introducer End Date" />
+                            <input type="date" name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].SubReferralEndDate" class="form-control" placeholder="Sub Referral End Date" />
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="text" name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].PaymentTerms" class="form-control" placeholder="Payment Terms" />
+                            <input type="date" name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].ReferralPartnerStartDate" class="form-control" placeholder="Referral Partner Start Date" />
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="text" name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].CommissionType" class="form-control" placeholder="Commission Type" />
+                            <input type="date" name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].ReferralPartnerEndDate" class="form-control" placeholder="Referral Partner End Date" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <select name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].PaymentTerms" class="form-control">
+                                <option value="">Payment Terms</option>
+                                <option value="Weekly">Weekly</option>
+                                <option value="Monthly">Monthly</option>
+                                <option value="Quarterly">Quarterly</option>
+                                <option value="Annually">Annually</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <select name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].CommissionType" class="form-control">
+                                <option value="">Commission Type</option>
+                                <option value="Duration">Duration</option>
+                                <option value="Annual">Annual</option>
+                                <option value="Residual">Residual</option>
+                                <option value="As per System">As per System</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                ${commissionIndex > 0 ? '<button type="button" class="btn btn-danger btn-sm remove-sub-commission"><i class="fas fa-trash me-1"></i>Remove</button>' : ''}
+            </div>
+        `;
+    }
+
+    generateSubReferralCommissionFieldsForEdit(subsectionIndex, commissionIndex, commission) {
+        return `
+            <div class="sub-commission-item" data-subsection-index="${subsectionIndex}" data-commission-index="${commissionIndex}">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="number" name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].SubReferralCommission" value="${commission.SubReferralCommission || ''}" class="form-control" placeholder="Sub Referral Commission (%) *" step="0.01" min="0" max="100" required />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="number" name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].ReferralPartnerCommission" value="${commission.ReferralPartnerCommission || ''}" class="form-control" placeholder="Referral Partner Commission (%) *" step="0.01" min="0" max="100" required />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].SubReferralStartDate" value="${commission.SubReferralStartDate || ''}" class="form-control" placeholder="Sub Referral Start Date" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].SubReferralEndDate" value="${commission.SubReferralEndDate || ''}" class="form-control" placeholder="Sub Referral End Date" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].ReferralPartnerStartDate" value="${commission.ReferralPartnerStartDate || ''}" class="form-control" placeholder="Referral Partner Start Date" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].ReferralPartnerEndDate" value="${commission.ReferralPartnerEndDate || ''}" class="form-control" placeholder="Referral Partner End Date" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <select name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].PaymentTerms" class="form-control">
+                                <option value="">Payment Terms</option>
+                                <option value="Weekly" ${commission.PaymentTerms === 'Weekly' ? 'selected' : ''}>Weekly</option>
+                                <option value="Monthly" ${commission.PaymentTerms === 'Monthly' ? 'selected' : ''}>Monthly</option>
+                                <option value="Quarterly" ${commission.PaymentTerms === 'Quarterly' ? 'selected' : ''}>Quarterly</option>
+                                <option value="Annually" ${commission.PaymentTerms === 'Annually' ? 'selected' : ''}>Annually</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <select name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].CommissionType" class="form-control">
+                                <option value="">Commission Type</option>
+                                <option value="Duration" ${commission.CommissionType === 'Duration' ? 'selected' : ''}>Duration</option>
+                                <option value="Annual" ${commission.CommissionType === 'Annual' ? 'selected' : ''}>Annual</option>
+                                <option value="Residual" ${commission.CommissionType === 'Residual' ? 'selected' : ''}>Residual</option>
+                                <option value="As per System" ${commission.CommissionType === 'As per System' ? 'selected' : ''}>As per System</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -891,7 +1093,7 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="number" name="IntroducerCommissions[${index}].CommissionPercent" class="form-control" placeholder="Commission (%) *" step="0.01" min="0" max="100" required />
+                            <input type="number" name="IntroducerCommissions[${index}].Commission" class="form-control" placeholder="Commission (%) *" step="0.01" min="0" max="100" required />
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -936,7 +1138,8 @@ class SectorFormManager {
 
     generateSubIntroducerFields(index) {
         return `
-            <div class="sub-commission-item" data-index="${index}">
+            <div class="subsection-item" data-index="${index}">
+                <h5>Sub Introducer ${index + 1}</h5>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -951,10 +1154,12 @@ class SectorFormManager {
                 </div>
                 <div class="row">
                     <div class="col-md-6">
-                        <label class="form-check-label">
-                            <input type="checkbox" name="SubIntroducers[${index}].Active" class="form-check-input" checked />
-                            Active
-                        </label>
+                        <div class="form-group">
+                            <select name="SubIntroducers[${index}].Active" class="form-control">
+                                <option value="true" selected>YES</option>
+                                <option value="false">NO</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
@@ -970,19 +1175,19 @@ class SectorFormManager {
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="email" name="SubIntroducers[${index}].SubIntroducerEmail" class="form-control" placeholder="Email" />
+                            <input type="email" name="SubIntroducers[${index}].Email" class="form-control" placeholder="Email" />
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="text" name="SubIntroducers[${index}].SubIntroducerLandline" class="form-control landline-input" placeholder="Landline (11 digits)" maxlength="11" pattern="[0-9]{11}" title="Please enter exactly 11 digits" />
+                            <input type="text" name="SubIntroducers[${index}].Landline" class="form-control landline-input" placeholder="Landline (11 digits)" maxlength="11" pattern="[0-9]{11}" title="Please enter exactly 11 digits" />
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="text" name="SubIntroducers[${index}].SubIntroducerMobile" class="form-control mobile-input" placeholder="Mobile (11 digits)" maxlength="11" pattern="[0-9]{11}" title="Please enter exactly 11 digits" />
+                            <input type="text" name="SubIntroducers[${index}].Mobile" class="form-control mobile-input" placeholder="Mobile (11 digits)" maxlength="11" pattern="[0-9]{11}" title="Please enter exactly 11 digits" />
                         </div>
                     </div>
                 </div>
@@ -1028,12 +1233,12 @@ class SectorFormManager {
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <input type="text" name="SubIntroducers[${index}].BankDetails.AccountSortCode" class="form-control" placeholder="Account Sort Code" />
+                                <input type="text" name="SubIntroducers[${index}].BankDetails.AccountSortCode" class="form-control" placeholder="Account Sort Code (6 digits)" maxlength="6" pattern="[0-9]{6}" title="Please enter exactly 6 digits" />
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <input type="text" name="SubIntroducers[${index}].BankDetails.AccountNumber" class="form-control" placeholder="Account Number" />
+                                <input type="text" name="SubIntroducers[${index}].BankDetails.AccountNumber" class="form-control" placeholder="Account Number (8 digits)" maxlength="8" pattern="[0-9]{8}" title="Please enter exactly 8 digits" />
                             </div>
                         </div>
                     </div>
@@ -1075,7 +1280,9 @@ class SectorFormManager {
                     </div>
                 </div>
                 
-                ${index > 0 ? '<button type="button" class="btn btn-danger btn-sm remove-subsection"><i class="fas fa-trash me-1"></i>Remove</button>' : ''}
+                <div class="text-end mt-3">
+                    <button type="button" class="btn btn-danger btn-sm remove-subsection"><i class="fas fa-trash me-1"></i>Remove Subsection</button>
+                </div>
             </div>
         `;
     }
@@ -1098,24 +1305,24 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="date" name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].SubIntroducerCommissionStartDate" class="form-control" placeholder="Sub Introducer Start Date" />
+                            <input type="date" name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].SubIntroducerStartDate" class="form-control" placeholder="Sub Introducer Start Date" />
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="date" name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].SubIntroducerCommissionEndDate" class="form-control" placeholder="Sub Introducer End Date" />
+                            <input type="date" name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].SubIntroducerEndDate" class="form-control" placeholder="Sub Introducer End Date" />
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="date" name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].IntroducerCommissionStartDate" class="form-control" placeholder="Introducer Start Date" />
+                            <input type="date" name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].IntroducerStartDate" class="form-control" placeholder="Introducer Start Date" />
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="date" name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].IntroducerCommissionEndDate" class="form-control" placeholder="Introducer End Date" />
+                            <input type="date" name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].IntroducerEndDate" class="form-control" placeholder="Introducer End Date" />
                         </div>
                     </div>
                 </div>
@@ -1139,6 +1346,74 @@ class SectorFormManager {
                                 <option value="Annual">Annual</option>
                                 <option value="Residual">Residual</option>
                                 <option value="As per System">As per System</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                ${commissionIndex > 0 ? '<button type="button" class="btn btn-danger btn-sm remove-sub-commission"><i class="fas fa-trash me-1"></i>Remove</button>' : ''}
+            </div>
+        `;
+    }
+
+    generateSubIntroducerCommissionFieldsForEdit(subsectionIndex, commissionIndex, commission) {
+        return `
+            <div class="sub-commission-item" data-subsection-index="${subsectionIndex}" data-commission-index="${commissionIndex}">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="number" name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].SubIntroducerCommission" value="${commission.SubIntroducerCommission || ''}" class="form-control" placeholder="Sub Introducer Commission (%) *" step="0.01" min="0" max="100" required />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="number" name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].IntroducerCommission" value="${commission.IntroducerCommission || ''}" class="form-control" placeholder="Introducer Commission (%) *" step="0.01" min="0" max="100" required />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].SubIntroducerStartDate" value="${commission.SubIntroducerStartDate || ''}" class="form-control" placeholder="Sub Introducer Start Date" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].SubIntroducerEndDate" value="${commission.SubIntroducerEndDate || ''}" class="form-control" placeholder="Sub Introducer End Date" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].IntroducerStartDate" value="${commission.IntroducerStartDate || ''}" class="form-control" placeholder="Introducer Start Date" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].IntroducerEndDate" value="${commission.IntroducerEndDate || ''}" class="form-control" placeholder="Introducer End Date" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <select name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].PaymentTerms" class="form-control">
+                                <option value="">Payment Terms</option>
+                                <option value="Weekly" ${commission.PaymentTerms === 'Weekly' ? 'selected' : ''}>Weekly</option>
+                                <option value="Monthly" ${commission.PaymentTerms === 'Monthly' ? 'selected' : ''}>Monthly</option>
+                                <option value="Quarterly" ${commission.PaymentTerms === 'Quarterly' ? 'selected' : ''}>Quarterly</option>
+                                <option value="Annually" ${commission.PaymentTerms === 'Annually' ? 'selected' : ''}>Annually</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <select name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].CommissionType" class="form-control">
+                                <option value="">Commission Type</option>
+                                <option value="Duration" ${commission.CommissionType === 'Duration' ? 'selected' : ''}>Duration</option>
+                                <option value="Annual" ${commission.CommissionType === 'Annual' ? 'selected' : ''}>Annual</option>
+                                <option value="Residual" ${commission.CommissionType === 'Residual' ? 'selected' : ''}>Residual</option>
+                                <option value="As per System" ${commission.CommissionType === 'As per System' ? 'selected' : ''}>As per System</option>
                             </select>
                         </div>
                     </div>
@@ -1223,10 +1498,10 @@ class SectorFormManager {
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="form-check-label">
-                                    <input type="checkbox" name="BrokerageStaff[${index}].Active" class="form-check-input" ${staff.Active ? 'checked' : ''} />
-                                    Active
-                                </label>
+                                <select name="BrokerageStaff[${index}].Active" class="form-control">
+                                    <option value="true" ${staff.Active ? 'selected' : ''}>YES</option>
+                                    <option value="false" ${!staff.Active ? 'selected' : ''}>NO</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -1298,10 +1573,10 @@ class SectorFormManager {
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="form-check-label">
-                                    <input type="checkbox" name="SubBrokerages[${index}].Active" class="form-check-input" ${subBrokerage.Active ? 'checked' : ''} />
-                                    Active
-                                </label>
+                                <select name="SubBrokerages[${index}].Active" class="form-control">
+                                    <option value="true" ${subBrokerage.Active ? 'selected' : ''}>YES</option>
+                                    <option value="false" ${!subBrokerage.Active ? 'selected' : ''}>NO</option>
+                                </select>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -1376,12 +1651,12 @@ class SectorFormManager {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <input type="text" name="SubBrokerages[${index}].BankDetails.AccountSortCode" value="${subBrokerage.BankDetails?.AccountSortCode || ''}" class="form-control" placeholder="Account Sort Code" />
+                                    <input type="text" name="SubBrokerages[${index}].BankDetails.AccountSortCode" value="${subBrokerage.BankDetails?.AccountSortCode || ''}" class="form-control" placeholder="Account Sort Code (6 digits)" maxlength="6" pattern="[0-9]{6}" title="Please enter exactly 6 digits" />
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <input type="text" name="SubBrokerages[${index}].BankDetails.AccountNumber" value="${subBrokerage.BankDetails?.AccountNumber || ''}" class="form-control" placeholder="Account Number" />
+                                    <input type="text" name="SubBrokerages[${index}].BankDetails.AccountNumber" value="${subBrokerage.BankDetails?.AccountNumber || ''}" class="form-control" placeholder="Account Number (8 digits)" maxlength="8" pattern="[0-9]{8}" title="Please enter exactly 8 digits" />
                                 </div>
                             </div>
                         </div>
@@ -1423,7 +1698,9 @@ class SectorFormManager {
                         </div>
                     </div>
                     
-                    ${index > 0 ? '<button type="button" class="btn btn-danger btn-sm remove-subsection"><i class="fas fa-trash me-1"></i>Remove</button>' : ''}
+                    <div class="text-end mt-3">
+                    <button type="button" class="btn btn-danger btn-sm remove-subsection"><i class="fas fa-trash me-1"></i>Remove Subsection</button>
+                </div>
                 </div>
             `;
         });
@@ -1445,12 +1722,12 @@ class SectorFormManager {
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <input type="number" name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].SubBrokerageCommissionPercent" value="${commission.SubBrokerageCommission || ''}" class="form-control" placeholder="Sub Brokerage Commission (%) *" step="0.01" min="0" max="100" required />
+                                <input type="number" name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].SubBrokerageCommission" value="${commission.SubBrokerageCommission || ''}" class="form-control" placeholder="Sub Brokerage Commission (%) *" step="0.01" min="0" max="100" required />
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <input type="number" name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].BrokerageCommissionPercent" value="${commission.BrokerageCommission || ''}" class="form-control" placeholder="Brokerage Commission (%) *" step="0.01" min="0" max="100" required />
+                                <input type="number" name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].BrokerageCommission" value="${commission.BrokerageCommission || ''}" class="form-control" placeholder="Brokerage Commission (%) *" step="0.01" min="0" max="100" required />
                             </div>
                         </div>
                     </div>
@@ -1481,12 +1758,24 @@ class SectorFormManager {
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <input type="text" name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].PaymentTerms" value="${commission.PaymentTerms || ''}" class="form-control" placeholder="Payment Terms" />
+                                <select name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].PaymentTerms" class="form-control">
+                                    <option value="">Payment Terms</option>
+                                    <option value="Weekly" ${commission.PaymentTerms === 'Weekly' ? 'selected' : ''}>Weekly</option>
+                                    <option value="Monthly" ${commission.PaymentTerms === 'Monthly' ? 'selected' : ''}>Monthly</option>
+                                    <option value="Quarterly" ${commission.PaymentTerms === 'Quarterly' ? 'selected' : ''}>Quarterly</option>
+                                    <option value="Annually" ${commission.PaymentTerms === 'Annually' ? 'selected' : ''}>Annually</option>
+                                </select>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <input type="text" name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].CommissionType" value="${commission.CommissionType || ''}" class="form-control" placeholder="Commission Type" />
+                                <select name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].CommissionType" class="form-control">
+                                    <option value="">Commission Type</option>
+                                    <option value="Duration" ${commission.CommissionType === 'Duration' ? 'selected' : ''}>Duration</option>
+                                    <option value="Annual" ${commission.CommissionType === 'Annual' ? 'selected' : ''}>Annual</option>
+                                    <option value="Residual" ${commission.CommissionType === 'Residual' ? 'selected' : ''}>Residual</option>
+                                    <option value="As per System" ${commission.CommissionType === 'As per System' ? 'selected' : ''}>As per System</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -1727,16 +2016,125 @@ class SectorFormManager {
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <input type="date" name="SubReferrals[${index}].StartDate" value="${subReferral.StartDate || ''}" class="form-control" placeholder="Start Date" />
+                                <select name="SubReferrals[${index}].Active" class="form-control">
+                                    <option value="true" ${subReferral.Active ? 'selected' : ''}>YES</option>
+                                    <option value="false" ${!subReferral.Active ? 'selected' : ''}>NO</option>
+                                </select>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <input type="date" name="SubReferrals[${index}].EndDate" value="${subReferral.EndDate || ''}" class="form-control" placeholder="End Date" />
+                                <input type="date" name="SubReferrals[${index}].StartDate" value="${subReferral.StartDate || ''}" class="form-control sub-start-date" placeholder="Start Date" />
                             </div>
                         </div>
                     </div>
-                    ${index > 0 ? '<button type="button" class="btn btn-danger btn-sm remove-subsection"><i class="fas fa-trash me-1"></i>Remove</button>' : ''}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="date" name="SubReferrals[${index}].StartDate" value="${subReferral.StartDate || ''}" class="form-control sub-start-date" placeholder="Start Date" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="date" name="SubReferrals[${index}].EndDate" value="${subReferral.EndDate || ''}" class="form-control sub-end-date" placeholder="End Date" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sub Referral Bank Details -->
+                    <div class="sub-bank-details">
+                        <h6>Bank Details</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" name="SubReferrals[${index}].BankDetails.BankName" value="${subReferral.BankDetails?.BankName || ''}" class="form-control" placeholder="Bank Name" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" name="SubReferrals[${index}].BankDetails.BankBranchAddress" value="${subReferral.BankDetails?.BankBranchAddress || ''}" class="form-control" placeholder="Bank Branch Address" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" name="SubReferrals[${index}].BankDetails.ReceiversAddress" value="${subReferral.BankDetails?.ReceiversAddress || ''}" class="form-control" placeholder="Receivers Address" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" name="SubReferrals[${index}].BankDetails.AccountName" value="${subReferral.BankDetails?.AccountName || ''}" class="form-control" placeholder="Account Name" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" name="SubReferrals[${index}].BankDetails.AccountSortCode" value="${subReferral.BankDetails?.AccountSortCode || ''}" class="form-control" placeholder="Account Sort Code (6 digits)" maxlength="6" pattern="[0-9]{6}" title="Please enter exactly 6 digits" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" name="SubReferrals[${index}].BankDetails.AccountNumber" value="${subReferral.BankDetails?.AccountNumber || ''}" class="form-control" placeholder="Account Number (8 digits)" maxlength="8" pattern="[0-9]{8}" title="Please enter exactly 8 digits" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" name="SubReferrals[${index}].BankDetails.IBAN" value="${subReferral.BankDetails?.IBAN || ''}" class="form-control" placeholder="IBAN" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" name="SubReferrals[${index}].BankDetails.SwiftCode" value="${subReferral.BankDetails?.SwiftCode || ''}" class="form-control" placeholder="Swift Code" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sub Referral Company Tax Info -->
+                    <div class="sub-company-tax">
+                        <h6>Company Tax Information</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" name="SubReferrals[${index}].CompanyTaxInfo.CompanyRegistration" value="${subReferral.CompanyTaxInfo?.CompanyRegistration || ''}" class="form-control" placeholder="Company Registration" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" name="SubReferrals[${index}].CompanyTaxInfo.VATNumber" value="${subReferral.CompanyTaxInfo?.VATNumber || ''}" class="form-control" placeholder="VAT Number" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <textarea name="SubReferrals[${index}].CompanyTaxInfo.Notes" class="form-control" placeholder="Notes" rows="2">${subReferral.CompanyTaxInfo?.Notes || ''}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sub Referral Commission & Payment -->
+                    <div class="sub-commission-section">
+                        <h6>Commission & Payment</h6>
+                        <div class="sub-commission-container" data-subsection-index="${index}">
+                            ${subReferral.Commissions && subReferral.Commissions.length > 0 ? 
+                                subReferral.Commissions.map((commission, commissionIndex) => 
+                                    this.generateSubReferralCommissionFieldsForEdit(index, commissionIndex, commission)
+                                ).join('') : 
+                                ''
+                            }
+                        </div>
+                        <button type="button" class="btn btn-secondary btn-sm add-sub-commission" data-subsection-index="${index}">+ Add Commission</button>
+                    </div>
+                    
+                    <div class="text-end mt-3">
+                    <button type="button" class="btn btn-danger btn-sm remove-subsection"><i class="fas fa-trash me-1"></i>Remove Subsection</button>
+                </div>
                 </div>
             `;
         });
@@ -1755,7 +2153,7 @@ class SectorFormManager {
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <input type="number" name="IntroducerCommissions[${index}].CommissionPercent" value="${commission.CommissionPercent || ''}" class="form-control" placeholder="Commission (%) *" step="0.01" min="0" max="100" required />
+                                <input type="number" name="IntroducerCommissions[${index}].Commission" value="${commission.Commission || ''}" class="form-control" placeholder="Commission (%) *" step="0.01" min="0" max="100" required />
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -1825,10 +2223,10 @@ class SectorFormManager {
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="form-check-label">
-                                    <input type="checkbox" name="SubIntroducers[${index}].Active" class="form-check-input" ${subIntroducer.Active ? 'checked' : ''} />
-                                    Active
-                                </label>
+                                <select name="SubIntroducers[${index}].Active" class="form-control">
+                                    <option value="true" ${subIntroducer.Active ? 'selected' : ''}>YES</option>
+                                    <option value="false" ${!subIntroducer.Active ? 'selected' : ''}>NO</option>
+                                </select>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -1845,23 +2243,116 @@ class SectorFormManager {
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <input type="email" name="SubIntroducers[${index}].SubIntroducerEmail" value="${subIntroducer.SubIntroducerEmail || ''}" class="form-control" placeholder="Email" />
+                                <input type="email" name="SubIntroducers[${index}].Email" value="${subIntroducer.Email || ''}" class="form-control" placeholder="Email" />
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <input type="text" name="SubIntroducers[${index}].SubIntroducerLandline" value="${subIntroducer.SubIntroducerLandline || ''}" class="form-control landline-input" placeholder="Landline (11 digits)" maxlength="11" pattern="[0-9]{11}" title="Please enter exactly 11 digits" />
+                                <input type="text" name="SubIntroducers[${index}].Landline" value="${subIntroducer.Landline || ''}" class="form-control landline-input" placeholder="Landline (11 digits)" maxlength="11" pattern="[0-9]{11}" title="Please enter exactly 11 digits" />
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <input type="text" name="SubIntroducers[${index}].SubIntroducerMobile" value="${subIntroducer.SubIntroducerMobile || ''}" class="form-control mobile-input" placeholder="Mobile (11 digits)" maxlength="11" pattern="[0-9]{11}" title="Please enter exactly 11 digits" />
+                                <input type="text" name="SubIntroducers[${index}].Mobile" value="${subIntroducer.Mobile || ''}" class="form-control mobile-input" placeholder="Mobile (11 digits)" maxlength="11" pattern="[0-9]{11}" title="Please enter exactly 11 digits" />
                             </div>
                         </div>
                     </div>
-                    ${index > 0 ? '<button type="button" class="btn btn-danger btn-sm remove-subsection"><i class="fas fa-trash me-1"></i>Remove</button>' : ''}
+
+                    <!-- Sub Introducer Bank Details -->
+                    <div class="sub-bank-details">
+                        <h6>Bank Details</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" name="SubIntroducers[${index}].BankDetails.BankName" value="${subIntroducer.BankDetails?.BankName || ''}" class="form-control" placeholder="Bank Name" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" name="SubIntroducers[${index}].BankDetails.BankBranchAddress" value="${subIntroducer.BankDetails?.BankBranchAddress || ''}" class="form-control" placeholder="Bank Branch Address" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" name="SubIntroducers[${index}].BankDetails.ReceiversAddress" value="${subIntroducer.BankDetails?.ReceiversAddress || ''}" class="form-control" placeholder="Receivers Address" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" name="SubIntroducers[${index}].BankDetails.AccountName" value="${subIntroducer.BankDetails?.AccountName || ''}" class="form-control" placeholder="Account Name" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" name="SubIntroducers[${index}].BankDetails.AccountSortCode" value="${subIntroducer.BankDetails?.AccountSortCode || ''}" class="form-control" placeholder="Account Sort Code (6 digits)" maxlength="6" pattern="[0-9]{6}" title="Please enter exactly 6 digits" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" name="SubIntroducers[${index}].BankDetails.AccountNumber" value="${subIntroducer.BankDetails?.AccountNumber || ''}" class="form-control" placeholder="Account Number (8 digits)" maxlength="8" pattern="[0-9]{8}" title="Please enter exactly 8 digits" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" name="SubIntroducers[${index}].BankDetails.IBAN" value="${subIntroducer.BankDetails?.IBAN || ''}" class="form-control" placeholder="IBAN" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" name="SubIntroducers[${index}].BankDetails.SwiftCode" value="${subIntroducer.BankDetails?.SwiftCode || ''}" class="form-control" placeholder="Swift Code" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sub Introducer Company Tax Info -->
+                    <div class="sub-company-tax">
+                        <h6>Company Tax Information</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" name="SubIntroducers[${index}].CompanyTaxInfo.CompanyRegistration" value="${subIntroducer.CompanyTaxInfo?.CompanyRegistration || ''}" class="form-control" placeholder="Company Registration" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="text" name="SubIntroducers[${index}].CompanyTaxInfo.VATNumber" value="${subIntroducer.CompanyTaxInfo?.VATNumber || ''}" class="form-control" placeholder="VAT Number" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <textarea name="SubIntroducers[${index}].CompanyTaxInfo.Notes" class="form-control" placeholder="Notes" rows="2">${subIntroducer.CompanyTaxInfo?.Notes || ''}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sub Introducer Commission & Payment -->
+                    <div class="sub-commission-section">
+                        <h6>Commission & Payment</h6>
+                        <div class="sub-commission-container">
+                            ${subIntroducer.Commissions && subIntroducer.Commissions.length > 0 
+                                ? subIntroducer.Commissions.map((commission, commissionIndex) => this.generateSubIntroducerCommissionFieldsForEdit(index, commissionIndex, commission)).join('') 
+                                : this.generateSubIntroducerCommissionFields(index, 0)}
+                        </div>
+                        <button type="button" class="btn btn-secondary btn-sm add-sub-commission" data-subsection-index="${index}">
+                            <i class="fas fa-plus me-1"></i>Add Commission
+                        </button>
+                    </div>
+                    
+                    <div class="text-end mt-3">
+                    <button type="button" class="btn btn-danger btn-sm remove-subsection"><i class="fas fa-trash me-1"></i>Remove Subsection</button>
+                </div>
                 </div>
             `;
         });
@@ -1872,77 +2363,209 @@ class SectorFormManager {
     bindGlobalEventHandlers() {
         const self = this; // Store reference to the class instance
         
-        // Add Commission buttons
-        $(document).on('click', '.add-commission', function () {
-            const type = $(this).data('type');
+        // Add Commission buttons with debouncing
+        $(document).on('click', '.add-commission', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const $button = $(this);
+            
+            // Prevent double-clicking by temporarily disabling the button
+            if ($button.prop('disabled') || $button.hasClass('processing')) {
+                return false;
+            }
+            
+            // Disable button and add processing class
+            $button.prop('disabled', true).addClass('processing');
+            const originalText = $button.text();
+            $button.text('Adding...');
+            
+            try {
+                const type = $button.data('type');
             const container = self.getCommissionContainer(type);
             const newIndex = container.children().length;
             
+                let newCommissionHtml = '';
             switch (type) {
                 case 'brokerage':
-                    container.append(self.generateBrokerageCommissionFields(newIndex));
+                        newCommissionHtml = self.generateBrokerageCommissionFields(newIndex);
                     break;
                 case 'closer':
-                    container.append(self.generateCloserCommissionFields(newIndex));
+                        newCommissionHtml = self.generateCloserCommissionFields(newIndex);
                     break;
                 case 'leadGenerator':
-                    container.append(self.generateLeadGeneratorCommissionFields(newIndex));
+                        newCommissionHtml = self.generateLeadGeneratorCommissionFields(newIndex);
                     break;
                 case 'referralPartner':
-                    container.append(self.generateReferralPartnerCommissionFields(newIndex));
+                        newCommissionHtml = self.generateReferralPartnerCommissionFields(newIndex);
                     break;
                 case 'introducer':
-                    container.append(self.generateIntroducerCommissionFields(newIndex));
+                        newCommissionHtml = self.generateIntroducerCommissionFields(newIndex);
                     break;
+                }
+                
+                if (newCommissionHtml) {
+                    container.append(newCommissionHtml);
+                }
+            } catch (error) {
+                console.error('Error adding commission section:', error);
+                if (typeof showToastError === 'function') {
+                    showToastError('Failed to add commission section. Please try again.');
+                }
+            } finally {
+                // Re-enable button after a short delay
+                setTimeout(() => {
+                    $button.prop('disabled', false)
+                           .removeClass('processing')
+                           .text(originalText);
+                }, 500);
             }
         });
 
-        // Add Staff buttons
-        $(document).on('click', '.add-staff', function () {
-            const type = $(this).data('type');
+        // Add Staff buttons with debouncing
+        $(document).on('click', '.add-staff', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const $button = $(this);
+            
+            // Prevent double-clicking
+            if ($button.prop('disabled') || $button.hasClass('processing')) {
+                return false;
+            }
+            
+            $button.prop('disabled', true).addClass('processing');
+            const originalText = $button.text();
+            $button.text('Adding...');
+            
+            try {
+                const type = $button.data('type');
             const container = self.getStaffContainer(type);
             const newIndex = container.children().length;
             
+                let newStaffHtml = '';
             if (type === 'brokerage') {
-                container.append(self.generateBrokerageStaffFields(newIndex));
+                    newStaffHtml = self.generateBrokerageStaffFields(newIndex);
+                }
+                
+                if (newStaffHtml) {
+                    container.append(newStaffHtml);
+                }
+            } catch (error) {
+                console.error('Error adding staff section:', error);
+                if (typeof showToastError === 'function') {
+                    showToastError('Failed to add staff section. Please try again.');
+                }
+            } finally {
+                setTimeout(() => {
+                    $button.prop('disabled', false)
+                           .removeClass('processing')
+                           .text(originalText);
+                }, 500);
             }
         });
 
-        // Add Subsection buttons
-        $(document).on('click', '.add-subsection', function () {
-            const type = $(this).data('type');
+        // Add Subsection buttons with debouncing
+        $(document).on('click', '.add-subsection', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const $button = $(this);
+            
+            // Prevent double-clicking
+            if ($button.prop('disabled') || $button.hasClass('processing')) {
+                return false;
+            }
+            
+            $button.prop('disabled', true).addClass('processing');
+            const originalText = $button.text();
+            $button.text('Adding...');
+            
+            try {
+                const type = $button.data('type');
             const container = self.getSubsectionContainer(type);
             const newIndex = container.children().length;
             
+                let newSubsectionHtml = '';
             switch (type) {
                 case 'subBrokerage':
-                    container.append(self.generateSubBrokerageFields(newIndex));
+                        newSubsectionHtml = self.generateSubBrokerageFields(newIndex);
                     break;
                 case 'subReferral':
-                    container.append(self.generateSubReferralFields(newIndex));
+                        newSubsectionHtml = self.generateSubReferralFields(newIndex);
                     break;
                 case 'subIntroducer':
-                    container.append(self.generateSubIntroducerFields(newIndex));
+                        newSubsectionHtml = self.generateSubIntroducerFields(newIndex);
                     break;
+                }
+                
+                if (newSubsectionHtml) {
+                    container.append(newSubsectionHtml);
+                }
+            } catch (error) {
+                console.error('Error adding subsection:', error);
+                if (typeof showToastError === 'function') {
+                    showToastError('Failed to add subsection. Please try again.');
+                }
+            } finally {
+                setTimeout(() => {
+                    $button.prop('disabled', false)
+                           .removeClass('processing')
+                           .text(originalText);
+                }, 500);
             }
         });
 
-        // Add Sub Commission buttons
-        $(document).on('click', '.add-sub-commission', function () {
-            const subsectionIndex = $(this).data('subsection-index');
-            const container = $(this).siblings('.sub-commission-container');
+        // Add Sub Commission buttons with debouncing
+        $(document).on('click', '.add-sub-commission', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const $button = $(this);
+            
+            // Prevent double-clicking by temporarily disabling the button
+            if ($button.prop('disabled') || $button.hasClass('processing')) {
+                return false;
+            }
+            
+            // Disable button and add processing class
+            $button.prop('disabled', true).addClass('processing');
+            const originalText = $button.text();
+            $button.text('Adding...');
+            
+            try {
+                const subsectionIndex = $button.data('subsection-index');
+                const container = $button.siblings('.sub-commission-container');
             const newIndex = container.children().length;
             
             // Determine the type based on the parent section
-            const parentSection = $(this).closest('.subsection-item');
+                const parentSection = $button.closest('.subsection-item');
             const sectionType = parentSection.find('h5').text().toLowerCase();
             
+                let newCommissionHtml = '';
             if (sectionType.includes('brokerage')) {
-                container.append(self.generateSubBrokerageCommissionFields(subsectionIndex, newIndex));
+                    newCommissionHtml = self.generateSubBrokerageCommissionFields(subsectionIndex, newIndex);
             } else if (sectionType.includes('referral')) {
-                container.append(self.generateSubReferralCommissionFields(subsectionIndex, newIndex));
+                    newCommissionHtml = self.generateSubReferralCommissionFields(subsectionIndex, newIndex);
             } else if (sectionType.includes('introducer')) {
-                container.append(self.generateSubIntroducerCommissionFields(subsectionIndex, newIndex));
+                    newCommissionHtml = self.generateSubIntroducerCommissionFields(subsectionIndex, newIndex);
+                }
+                
+                if (newCommissionHtml) {
+                    container.append(newCommissionHtml);
+                }
+            } catch (error) {
+                console.error('Error adding commission section:', error);
+                if (typeof showToastError === 'function') {
+                    showToastError('Failed to add commission section. Please try again.');
+                }
+            } finally {
+                // Re-enable button after a short delay
+                setTimeout(() => {
+                    $button.prop('disabled', false)
+                           .removeClass('processing')
+                           .text(originalText);
+                }, 500);
             }
         });
 
@@ -1956,7 +2579,8 @@ class SectorFormManager {
         });
 
         $(document).on('click', '.remove-subsection', function () {
-            $(this).closest('.subsection-item').remove();
+            const $subsection = $(this).closest('.subsection-item');
+            $subsection.remove();
         });
 
         $(document).on('click', '.remove-sub-commission', function () {
@@ -2223,8 +2847,10 @@ class SectorFormManager {
             }
         });
 
-        // Enhanced validation on form submission
+        // Enhanced validation and AJAX form submission
         $(document).on('submit', 'form', function(e) {
+            e.preventDefault(); // Always prevent default form submission
+            
             let hasDateErrors = false;
             
             // Check all date pairs
@@ -2257,11 +2883,108 @@ class SectorFormManager {
             });
             
             if (hasDateErrors) {
-                e.preventDefault();
                 if (typeof showToastError === 'function') {
                     showToastError('Please fix the date validation errors before submitting.');
                 }
+                return false;
             }
+            
+            // If validation passes, submit via AJAX
+            const $form = $(this);
+            const formData = new FormData(this);
+            const submitButton = $form.find('button[type="submit"]');
+            
+            // Disable submit button to prevent double submission
+            submitButton.prop('disabled', true);
+            
+            // Show loading state
+            const originalText = submitButton.text();
+            submitButton.text('Processing...');
+            
+            $.ajax({
+                url: $form.attr('action'),
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Show success toast
+                        if (typeof showToastSuccess === 'function') {
+                            showToastSuccess(response.message);
+                        } else {
+                            alert(response.message);
+                        }
+                        
+                        // Redirect after a short delay to show the toast
+                        setTimeout(function() {
+                            if (response.redirectUrl) {
+                                window.location.href = response.redirectUrl;
+                            }
+                        }, 1500);
+                    } else {
+                        // Show error toast
+                        const errorMessage = response.message || 'An error occurred';
+                        if (typeof showToastError === 'function') {
+                            showToastError(errorMessage);
+                        } else {
+                            alert(errorMessage);
+                        }
+                        
+                        // Log detailed errors if available
+                        if (response.errors && response.errors.length > 0) {
+                            console.error('Validation errors:', response.errors);
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:', error);
+                    console.error('Response:', xhr.responseText);
+                    
+                    if (typeof showToastError === 'function') {
+                        showToastError('A network error occurred. Please try again.');
+                    } else {
+                        alert('A network error occurred. Please try again.');
+                    }
+                },
+                complete: function() {
+                    // Re-enable submit button and restore text
+                    submitButton.prop('disabled', false);
+                    submitButton.text(originalText);
+                }
+            });
+        });
+    }
+
+    initializeDuplicateAccountChecker() {
+        // Check if DuplicateAccountChecker is available
+        if (typeof DuplicateAccountChecker === 'undefined') {
+            console.warn('DuplicateAccountChecker not loaded');
+            return;
+        }
+
+        // Initialize duplicate account checker for all account number fields
+        // This selector will catch:
+        // 1. Main sector account number: #accountNumber or input[name*="BankDetails.AccountNumber"]
+        // 2. All subsection account numbers (current and dynamically added)
+        DuplicateAccountChecker.init({
+            accountInputSelector: 'input[name*="AccountNumber"], #accountNumber',
+            modalId: 'duplicateAccountModalSector',
+            loaderSelector: '.account-loader', // Optional loader
+            controllerEndpoint: 'CheckDuplicateBankAccount', // Use the specific bank account endpoint
+            showErrorToast: true,
+            fields: [
+                { displayName: 'Bank Name', dataProperty: 'BankName' },
+                { displayName: 'Account Name', dataProperty: 'AccountName' },
+                { displayName: 'Account Number', dataProperty: 'AccountNumber' },
+                { displayName: 'Sort Code', dataProperty: 'AccountSortCode' },
+                { displayName: 'Branch Address', dataProperty: 'BankBranchAddress' },
+                { displayName: 'IBAN', dataProperty: 'IBAN' },
+                { displayName: 'Swift Code', dataProperty: 'SwiftCode' }
+            ]
         });
     }
 }

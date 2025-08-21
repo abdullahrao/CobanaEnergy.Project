@@ -218,24 +218,28 @@ namespace CobanaEnergy.Project.Controllers.Sector
 
         [HttpPost]
         [Authorize(Roles = "Controls")]
-        [ValidateAntiForgeryToken]
+        [ValidateJsonAntiForgeryToken]
         public async Task<ActionResult> Create(CreateSectorViewModel model)
         {
             if (!ModelState.IsValid)
             {
                 var errors = ModelState.Values.SelectMany(x => x.Errors).Select(e => e.ErrorMessage).ToList();
-                TempData["ToastMessage"] = string.Join("<br>", errors);
-                TempData["ToastType"] = "error";
-                return View(model);
+                return Json(new { 
+                    success = false, 
+                    message = "Validation failed. Please check your input.",
+                    errors = errors
+                }, JsonRequestBehavior.AllowGet);
             }
 
             // Additional validation for Brokerage and Introducers
             if ((model.SectorType == "Brokerage" || model.SectorType == "Introducer") && 
                 string.IsNullOrWhiteSpace(model.OfgemID))
             {
-                TempData["ToastMessage"] = "Ofgem ID is required for Brokerage and Introducer sectors.";
-                TempData["ToastType"] = "error";
-                return View(model);
+                return Json(new { 
+                    success = false, 
+                    message = "Ofgem ID is required for Brokerage and Introducer sectors.",
+                    errors = new[] { "Ofgem ID is required for Brokerage and Introducer sectors." }
+                }, JsonRequestBehavior.AllowGet);
             }
 
             using (var transaction = db.Database.BeginTransaction())
@@ -303,23 +307,30 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     // Step 5: Add Staff and Sub-sections based on sector type
                     await AddStaffAndSubsections(sector.SectorID, model);
 
-                    // Step 6: Add Bank Details and Company Tax Info for sub-entities
-                    await AddSubEntityBankDetailsAndTaxInfo(model);
+                    // Step 6: Add Bank Details and Company Tax Info for sub-entities (MOVED to AddStaffAndSubsections to fix EntityID=1 bug)
+                    // await AddSubEntityBankDetailsAndTaxInfo(model);
 
                     await db.SaveChangesAsync();
                     transaction.Commit();
 
-                    TempData["ToastMessage"] = "Sector created successfully!";
-                    TempData["ToastType"] = "success";
-                    return RedirectToAction("Dashboard", "Sector");
+                    // Return JSON for immediate toast notification
+                    return Json(new { 
+                        success = true, 
+                        message = "Sector created successfully!",
+                        redirectUrl = Url.Action("Dashboard", "Sector")
+                    }, JsonRequestBehavior.AllowGet);
                 }
                 catch (Exception ex)
                 {
                     transaction.Rollback();
                     Logic.Logger.Log($"Sector creation failed: {ex.Message}");
-                    TempData["ToastMessage"] = "An unexpected error occurred while saving sector.";
-                    TempData["ToastType"] = "error";
-                    return View(model);
+                    
+                    // Return JSON error for immediate toast notification
+                    return Json(new { 
+                        success = false, 
+                        message = "An unexpected error occurred while saving sector.",
+                        errors = new[] { ex.Message }
+                    }, JsonRequestBehavior.AllowGet);
                 }
             }
         }
@@ -352,7 +363,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     var closerCommission = new CE_CloserCommissionAndPayment
                     {
                         SectorID = sectorId,
-                        Commission = commission.Commission,  // ViewModel.Commission -> DBModel.Commission
+                        Commission = commission.Commission,  
                         StartDate = !string.IsNullOrEmpty(commission.StartDate) ? DateTime.Parse(commission.StartDate) : DateTime.Now,
                         EndDate = !string.IsNullOrEmpty(commission.EndDate) ? DateTime.Parse(commission.EndDate) : (DateTime?)null,
                         PaymentTerms = commission.PaymentTerms ?? "",
@@ -370,7 +381,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     var introducerCommission = new CE_IntroducerCommissionAndPayment
                     {
                         SectorID = sectorId,
-                        CommissionPercent = commission.Commission,  // ViewModel.Commission -> DBModel.CommissionPercent
+                        CommissionPercent = commission.Commission, 
                         StartDate = !string.IsNullOrEmpty(commission.StartDate) ? DateTime.Parse(commission.StartDate) : DateTime.Now,
                         EndDate = !string.IsNullOrEmpty(commission.EndDate) ? DateTime.Parse(commission.EndDate) : (DateTime?)null,
                         PaymentTerms = commission.PaymentTerms,
@@ -488,6 +499,39 @@ namespace CobanaEnergy.Project.Controllers.Sector
                             db.CE_SubBrokerageCommissionAndPayment.Add(subBrokerageCommission);
                         }
                     }
+
+                    // Add Bank Details if provided (move from AddSubEntityBankDetailsAndTaxInfo to fix EntityID=1 bug)
+                    if (subBrokerage.BankDetails != null && !string.IsNullOrEmpty(subBrokerage.BankDetails.BankName))
+                    {
+                        var subBrokerageBankDetails = new CE_BankDetails
+                        {
+                            EntityType = "SubBrokerage",
+                            EntityID = subBrokerageEntity.SubBrokerageID, // Use the correct ID from the created entity
+                            BankName = subBrokerage.BankDetails.BankName,
+                            BankBranchAddress = subBrokerage.BankDetails.BankBranchAddress,
+                            ReceiversAddress = subBrokerage.BankDetails.ReceiversAddress,
+                            AccountName = subBrokerage.BankDetails.AccountName,
+                            AccountSortCode = subBrokerage.BankDetails.AccountSortCode,
+                            AccountNumber = subBrokerage.BankDetails.AccountNumber,
+                            IBAN = subBrokerage.BankDetails.IBAN,
+                            SwiftCode = subBrokerage.BankDetails.SwiftCode
+                        };
+                        db.CE_BankDetails.Add(subBrokerageBankDetails);
+                    }
+
+                    // Add Company Tax Info if provided (move from AddSubEntityBankDetailsAndTaxInfo to fix EntityID=1 bug)
+                    if (subBrokerage.CompanyTaxInfo != null && !string.IsNullOrEmpty(subBrokerage.CompanyTaxInfo.CompanyRegistration))
+                    {
+                        var subBrokerageCompanyTaxInfo = new CE_CompanyTaxInfo
+                        {
+                            EntityType = "SubBrokerage",
+                            EntityID = subBrokerageEntity.SubBrokerageID, // Use the correct ID from the created entity
+                            CompanyRegistration = subBrokerage.CompanyTaxInfo.CompanyRegistration,
+                            VATNumber = subBrokerage.CompanyTaxInfo.VATNumber,
+                            Notes = subBrokerage.CompanyTaxInfo.Notes
+                        };
+                        db.CE_CompanyTaxInfo.Add(subBrokerageCompanyTaxInfo);
+                    }
                 }
             }
 
@@ -513,24 +557,57 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     await db.SaveChangesAsync();
                     
                     // Add Sub Referral Commissions using the actual ID
-                    if (subReferral.Commissions != null && subReferral.Commissions.Any(c => !string.IsNullOrEmpty(c.SubIntroducerCommission.ToString())))
+                    if (subReferral.Commissions != null && subReferral.Commissions.Any(c => !string.IsNullOrEmpty(c.SubReferralCommission.ToString())))
                     {
-                        foreach (var commission in subReferral.Commissions.Where(c => c != null && !string.IsNullOrEmpty(c.SubIntroducerCommission.ToString())))
+                        foreach (var commission in subReferral.Commissions.Where(c => c != null && !string.IsNullOrEmpty(c.SubReferralCommission.ToString())))
                         {
                             var subReferralCommission = new CE_SubReferralCommissionAndPayment
                             {
                                 SubReferralID = subReferralEntity.SubReferralID, // Use actual ID, not 0
-                                SubIntroducerCommission = commission.SubIntroducerCommission,
-                                SubIntroducerStartDate = !string.IsNullOrEmpty(commission.SubIntroducerStartDate) ? DateTime.Parse(commission.SubIntroducerStartDate) : (DateTime?)null,
-                                SubIntroducerEndDate = !string.IsNullOrEmpty(commission.SubIntroducerEndDate) ? DateTime.Parse(commission.SubIntroducerEndDate) : (DateTime?)null,
-                                IntroducerCommission = commission.IntroducerCommission,
-                                IntroducerStartDate = !string.IsNullOrEmpty(commission.IntroducerStartDate) ? DateTime.Parse(commission.IntroducerStartDate) : (DateTime?)null,
-                                IntroducerEndDate = !string.IsNullOrEmpty(commission.IntroducerEndDate) ? DateTime.Parse(commission.IntroducerEndDate) : (DateTime?)null,
+                                SubIntroducerCommission = commission.SubReferralCommission,
+                                SubIntroducerStartDate = !string.IsNullOrEmpty(commission.SubReferralStartDate) ? DateTime.Parse(commission.SubReferralStartDate) : (DateTime?)null,
+                                SubIntroducerEndDate = !string.IsNullOrEmpty(commission.SubReferralEndDate) ? DateTime.Parse(commission.SubReferralEndDate) : (DateTime?)null,
+                                IntroducerCommission = commission.ReferralPartnerCommission,
+                                IntroducerStartDate = !string.IsNullOrEmpty(commission.ReferralPartnerStartDate) ? DateTime.Parse(commission.ReferralPartnerStartDate) : (DateTime?)null,
+                                IntroducerEndDate = !string.IsNullOrEmpty(commission.ReferralPartnerEndDate) ? DateTime.Parse(commission.ReferralPartnerEndDate) : (DateTime?)null,
                                 PaymentTerms = commission.PaymentTerms ?? "",
                                 CommissionType = commission.CommissionType ?? ""
                             };
                             db.CE_SubReferralCommissionAndPayment.Add(subReferralCommission);
                         }
+                    }
+
+                    // Add Bank Details if provided (move from AddSubEntityBankDetailsAndTaxInfo to fix EntityID=1 bug)
+                    if (subReferral.BankDetails != null && !string.IsNullOrEmpty(subReferral.BankDetails.BankName))
+                    {
+                        var subReferralBankDetails = new CE_BankDetails
+                        {
+                            EntityType = "SubReferral",
+                            EntityID = subReferralEntity.SubReferralID, // Use the correct ID from the created entity
+                            BankName = subReferral.BankDetails.BankName,
+                            BankBranchAddress = subReferral.BankDetails.BankBranchAddress,
+                            ReceiversAddress = subReferral.BankDetails.ReceiversAddress,
+                            AccountName = subReferral.BankDetails.AccountName,
+                            AccountSortCode = subReferral.BankDetails.AccountSortCode,
+                            AccountNumber = subReferral.BankDetails.AccountNumber,
+                            IBAN = subReferral.BankDetails.IBAN,
+                            SwiftCode = subReferral.BankDetails.SwiftCode
+                        };
+                        db.CE_BankDetails.Add(subReferralBankDetails);
+                    }
+
+                    // Add Company Tax Info if provided (move from AddSubEntityBankDetailsAndTaxInfo to fix EntityID=1 bug)
+                    if (subReferral.CompanyTaxInfo != null && !string.IsNullOrEmpty(subReferral.CompanyTaxInfo.CompanyRegistration))
+                    {
+                        var subReferralCompanyTaxInfo = new CE_CompanyTaxInfo
+                        {
+                            EntityType = "SubReferral",
+                            EntityID = subReferralEntity.SubReferralID, // Use the correct ID from the created entity
+                            CompanyRegistration = subReferral.CompanyTaxInfo.CompanyRegistration,
+                            VATNumber = subReferral.CompanyTaxInfo.VATNumber,
+                            Notes = subReferral.CompanyTaxInfo.Notes
+                        };
+                        db.CE_CompanyTaxInfo.Add(subReferralCompanyTaxInfo);
                     }
                 }
             }
@@ -577,149 +654,38 @@ namespace CobanaEnergy.Project.Controllers.Sector
                             db.CE_SubIntroducerCommissionAndPayment.Add(subIntroducerCommission);
                         }
                     }
-                }
-            }
-        }
 
-        private async Task AddSubEntityBankDetailsAndTaxInfo(CreateSectorViewModel model)
-        {
-            // Add Sub Brokerage Bank Details and Company Tax Info
-            if (model.SubBrokerages != null && model.SubBrokerages.Any(s => !string.IsNullOrEmpty(s.SubBrokerageName)))
-            {
-                foreach (var subBrokerage in model.SubBrokerages.Where(s => s != null && !string.IsNullOrEmpty(s.SubBrokerageName)))
-                {
-                    // Find the existing sub-brokerage entity to get its ID
-                    var existingSubBrokerage = await db.CE_SubBrokerage
-                        .FirstOrDefaultAsync(sb => sb.SubBrokerageName == subBrokerage.SubBrokerageName);
-                    
-                    if (existingSubBrokerage != null)
+                    // Add Bank Details if provided (move from AddSubEntityBankDetailsAndTaxInfo to fix EntityID=1 bug)
+                    if (subIntroducer.BankDetails != null && !string.IsNullOrEmpty(subIntroducer.BankDetails.BankName))
                     {
-                        // Add Bank Details if provided
-                        if (subBrokerage.BankDetails != null && !string.IsNullOrEmpty(subBrokerage.BankDetails.BankName))
+                        var subIntroducerBankDetails = new CE_BankDetails
                         {
-                            var subBrokerageBankDetails = new CE_BankDetails
-                            {
-                                EntityType = "SubBrokerage",
-                                EntityID = existingSubBrokerage.SubBrokerageID,
-                                BankName = subBrokerage.BankDetails.BankName,
-                                BankBranchAddress = subBrokerage.BankDetails.BankBranchAddress,
-                                ReceiversAddress = subBrokerage.BankDetails.ReceiversAddress,
-                                AccountName = subBrokerage.BankDetails.AccountName,
-                                AccountSortCode = subBrokerage.BankDetails.AccountSortCode,
-                                AccountNumber = subBrokerage.BankDetails.AccountNumber,
-                                IBAN = subBrokerage.BankDetails.IBAN,
-                                SwiftCode = subBrokerage.BankDetails.SwiftCode
-                            };
-                            db.CE_BankDetails.Add(subBrokerageBankDetails);
-                        }
-
-                        // Add Company Tax Info if provided
-                        if (subBrokerage.CompanyTaxInfo != null && !string.IsNullOrEmpty(subBrokerage.CompanyTaxInfo.CompanyRegistration))
-                        {
-                            var subBrokerageCompanyTaxInfo = new CE_CompanyTaxInfo
-                            {
-                                EntityType = "SubBrokerage",
-                                EntityID = existingSubBrokerage.SubBrokerageID,
-                                CompanyRegistration = subBrokerage.CompanyTaxInfo.CompanyRegistration,
-                                VATNumber = subBrokerage.CompanyTaxInfo.VATNumber,
-                                Notes = subBrokerage.CompanyTaxInfo.Notes
-                            };
-                            db.CE_CompanyTaxInfo.Add(subBrokerageCompanyTaxInfo);
-                        }
+                            EntityType = "SubIntroducer",
+                            EntityID = subIntroducerEntity.SubIntroducerID, // Use the correct ID from the created entity
+                            BankName = subIntroducer.BankDetails.BankName,
+                            BankBranchAddress = subIntroducer.BankDetails.BankBranchAddress,
+                            ReceiversAddress = subIntroducer.BankDetails.ReceiversAddress,
+                            AccountName = subIntroducer.BankDetails.AccountName,
+                            AccountSortCode = subIntroducer.BankDetails.AccountSortCode,
+                            AccountNumber = subIntroducer.BankDetails.AccountNumber,
+                            IBAN = subIntroducer.BankDetails.IBAN,
+                            SwiftCode = subIntroducer.BankDetails.SwiftCode
+                        };
+                        db.CE_BankDetails.Add(subIntroducerBankDetails);
                     }
-                }
-            }
 
-            // Add Sub Referral Bank Details and Company Tax Info
-            if (model.SubReferrals != null && model.SubReferrals.Any(s => !string.IsNullOrEmpty(s.SubReferralPartnerName)))
-            {
-                foreach (var subReferral in model.SubReferrals.Where(s => s != null && !string.IsNullOrEmpty(s.SubReferralPartnerName)))
-                {
-                    // Find the existing sub-referral entity to get its ID
-                    var existingSubReferral = await db.CE_SubReferral
-                        .FirstOrDefaultAsync(sr => sr.SubReferralPartnerName == subReferral.SubReferralPartnerName);
-                    
-                    if (existingSubReferral != null)
+                    // Add Company Tax Info if provided (move from AddSubEntityBankDetailsAndTaxInfo to fix EntityID=1 bug)
+                    if (subIntroducer.CompanyTaxInfo != null && !string.IsNullOrEmpty(subIntroducer.CompanyTaxInfo.CompanyRegistration))
                     {
-                        // Add Bank Details if provided
-                        if (subReferral.BankDetails != null && !string.IsNullOrEmpty(subReferral.BankDetails.BankName))
+                        var subIntroducerCompanyTaxInfo = new CE_CompanyTaxInfo
                         {
-                            var subReferralBankDetails = new CE_BankDetails
-                            {
-                                EntityType = "SubReferral",
-                                EntityID = existingSubReferral.SubReferralID,
-                                BankName = subReferral.BankDetails.BankName,
-                                BankBranchAddress = subReferral.BankDetails.BankBranchAddress,
-                                ReceiversAddress = subReferral.BankDetails.ReceiversAddress,
-                                AccountName = subReferral.BankDetails.AccountName,
-                                AccountSortCode = subReferral.BankDetails.AccountSortCode,
-                                AccountNumber = subReferral.BankDetails.AccountNumber,
-                                IBAN = subReferral.BankDetails.IBAN,
-                                SwiftCode = subReferral.BankDetails.SwiftCode
-                            };
-                            db.CE_BankDetails.Add(subReferralBankDetails);
-                        }
-
-                        // Add Company Tax Info if provided
-                        if (subReferral.CompanyTaxInfo != null && !string.IsNullOrEmpty(subReferral.CompanyTaxInfo.CompanyRegistration))
-                        {
-                            var subReferralCompanyTaxInfo = new CE_CompanyTaxInfo
-                            {
-                                EntityType = "SubReferral",
-                                EntityID = existingSubReferral.SubReferralID,
-                                CompanyRegistration = subReferral.CompanyTaxInfo.CompanyRegistration,
-                                VATNumber = subReferral.CompanyTaxInfo.VATNumber,
-                                Notes = subReferral.CompanyTaxInfo.Notes
-                            };
-                            db.CE_CompanyTaxInfo.Add(subReferralCompanyTaxInfo);
-                        }
-                    }
-                }
-            }
-
-            // Add Sub Introducer Bank Details and Company Tax Info
-            if (model.SubIntroducers != null && model.SubIntroducers.Any(s => !string.IsNullOrEmpty(s.SubIntroducerName)))
-            {
-                foreach (var subIntroducer in model.SubIntroducers.Where(s => s != null && !string.IsNullOrEmpty(s.SubIntroducerName)))
-                {
-                    // Find the existing sub-introducer entity to get its ID
-                    var existingSubIntroducer = await db.CE_SubIntroducer
-                        .FirstOrDefaultAsync(si => si.SubIntroducerName == subIntroducer.SubIntroducerName);
-                    
-                    if (existingSubIntroducer != null)
-                    {
-                        // Add Bank Details if provided
-                        if (subIntroducer.BankDetails != null && !string.IsNullOrEmpty(subIntroducer.BankDetails.BankName))
-                        {
-                            var subIntroducerBankDetails = new CE_BankDetails
-                            {
-                                EntityType = "SubIntroducer",
-                                EntityID = existingSubIntroducer.SubIntroducerID,
-                                BankName = subIntroducer.BankDetails.BankName,
-                                BankBranchAddress = subIntroducer.BankDetails.BankBranchAddress,
-                                ReceiversAddress = subIntroducer.BankDetails.ReceiversAddress,
-                                AccountName = subIntroducer.BankDetails.AccountName,
-                                AccountSortCode = subIntroducer.BankDetails.AccountSortCode,
-                                AccountNumber = subIntroducer.BankDetails.AccountNumber,
-                                IBAN = subIntroducer.BankDetails.IBAN,
-                                SwiftCode = subIntroducer.BankDetails.SwiftCode
-                            };
-                            db.CE_BankDetails.Add(subIntroducerBankDetails);
-                        }
-
-                        // Add Company Tax Info if provided
-                        if (subIntroducer.CompanyTaxInfo != null && !string.IsNullOrEmpty(subIntroducer.CompanyTaxInfo.CompanyRegistration))
-                        {
-                            var subIntroducerCompanyTaxInfo = new CE_CompanyTaxInfo
-                            {
-                                EntityType = "SubIntroducer",
-                                EntityID = existingSubIntroducer.SubIntroducerID,
-                                CompanyRegistration = subIntroducer.CompanyTaxInfo.CompanyRegistration,
-                                VATNumber = subIntroducer.CompanyTaxInfo.VATNumber,
-                                Notes = subIntroducer.CompanyTaxInfo.Notes
-                            };
-                            db.CE_CompanyTaxInfo.Add(subIntroducerCompanyTaxInfo);
-                        }
+                            EntityType = "SubIntroducer",
+                            EntityID = subIntroducerEntity.SubIntroducerID, // Use the correct ID from the created entity
+                            CompanyRegistration = subIntroducer.CompanyTaxInfo.CompanyRegistration,
+                            VATNumber = subIntroducer.CompanyTaxInfo.VATNumber,
+                            Notes = subIntroducer.CompanyTaxInfo.Notes
+                        };
+                        db.CE_CompanyTaxInfo.Add(subIntroducerCompanyTaxInfo);
                     }
                 }
             }
@@ -754,9 +720,9 @@ namespace CobanaEnergy.Project.Controllers.Sector
 
                 var sector = db.CE_Sector
                     .Include(s => s.CE_BrokerageStaff)
-                    .Include(s => s.CE_SubBrokerages)
-                    .Include(s => s.CE_SubReferrals)
-                    .Include(s => s.CE_SubIntroducers)
+                    .Include(s => s.CE_SubBrokerages.Select(sb => sb.CE_SubBrokerageCommissionAndPayments))
+                    .Include(s => s.CE_SubReferrals.Select(sr => sr.CE_SubReferralCommissionAndPayments))
+                    .Include(s => s.CE_SubIntroducers.Select(si => si.CE_SubIntroducerCommissionAndPayments))
                     .FirstOrDefault(s => s.SectorID == sectorId);
 
                 if (sector == null)
@@ -803,7 +769,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                 // Build the complete EditSectorViewModel
                 var model = BuildEditSectorViewModel(sector, bankDetails, companyTaxInfo, 
                     brokerageCommissions, closerCommissions, introducerCommissions, 
-                    referralPartnerCommissions, leadGeneratorCommissions);
+                    referralPartnerCommissions, leadGeneratorCommissions, db);
 
                 Logic.Logger.Log($"Successfully built EditSectorViewModel for sector {sector.SectorID}");
                 return View(model);
@@ -823,7 +789,8 @@ namespace CobanaEnergy.Project.Controllers.Sector
             List<CE_CloserCommissionAndPayment> closerCommissions,
             List<CE_IntroducerCommissionAndPayment> introducerCommissions,
             List<CE_ReferralPartnerCommissionAndPayment> referralPartnerCommissions,
-            List<CE_LeadGeneratorCommissionAndPayment> leadGeneratorCommissions)
+            List<CE_LeadGeneratorCommissionAndPayment> leadGeneratorCommissions,
+            ApplicationDBContext db)
         {
             var model = new EditSectorViewModel
             {
@@ -923,6 +890,9 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     LeadGeneratorCommission = c.LeadGeneratorCommissionPercent,
                     LeadGeneratorStartDate = c.LeadGeneratorStartDate?.ToString("yyyy-MM-dd") ?? "",
                     LeadGeneratorEndDate = c.LeadGeneratorEndDate?.ToString("yyyy-MM-dd") ?? "",
+                    CloserCommission = c.CloserCommissionPercent,
+                    CloserStartDate = c.CloserStartDate?.ToString("yyyy-MM-dd") ?? "",
+                    CloserEndDate = c.CloserEndDate?.ToString("yyyy-MM-dd") ?? "",
                     PaymentTerms = c.PaymentTerms ?? "",
                     CommissionType = c.CommissionType ?? ""
                 }).ToList();
@@ -954,7 +924,44 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     Mobile = s.Mobile ?? "",
                     StartDate = s.StartDate?.ToString("yyyy-MM-dd") ?? "",
                     EndDate = s.EndDate?.ToString("yyyy-MM-dd") ?? "",
-                    Active = s.Active
+                    Active = s.Active,
+                    
+                    BankDetails = db.CE_BankDetails
+                        .Where(b => b.EntityType == "SubBrokerage" && b.EntityID == s.SubBrokerageID)
+                        .Select(b => new BankDetailsViewModel
+                        {
+                            BankName = b.BankName ?? "",
+                            BankBranchAddress = b.BankBranchAddress ?? "",
+                            ReceiversAddress = b.ReceiversAddress ?? "",
+                            AccountName = b.AccountName ?? "",
+                            AccountSortCode = b.AccountSortCode ?? "",
+                            AccountNumber = b.AccountNumber ?? "",
+                            IBAN = b.IBAN ?? "",
+                            SwiftCode = b.SwiftCode ?? ""
+                        }).FirstOrDefault() ?? new BankDetailsViewModel(),
+                    
+                    // Company Tax Info - CORRECTED: Query by EntityType and EntityID
+                    CompanyTaxInfo = db.CE_CompanyTaxInfo
+                        .Where(c => c.EntityType == "SubBrokerage" && c.EntityID == s.SubBrokerageID)
+                        .Select(c => new CompanyTaxInfoViewModel
+                        {
+                            CompanyRegistration = c.CompanyRegistration ?? "",
+                            VATNumber = c.VATNumber ?? "",
+                            Notes = c.Notes ?? ""
+                        }).FirstOrDefault() ?? new CompanyTaxInfoViewModel(),
+                    
+                    
+                    Commissions = s.CE_SubBrokerageCommissionAndPayments?.Select(c => new SubBrokerageCommissionAndPaymentViewModel
+                    {
+                        SubBrokerageCommission = c.SubBrokerageCommissionPercent,
+                        BrokerageCommission = c.BrokerageCommissionPercent,
+                        SubBrokerageStartDate = c.SubBrokerageStartDate?.ToString("yyyy-MM-dd") ?? "",
+                        SubBrokerageEndDate = c.SubBrokerageEndDate?.ToString("yyyy-MM-dd") ?? "",
+                        BrokerageStartDate = c.BrokerageStartDate?.ToString("yyyy-MM-dd") ?? "",
+                        BrokerageEndDate = c.BrokerageEndDate?.ToString("yyyy-MM-dd") ?? "",
+                        PaymentTerms = c.PaymentTerms ?? "",
+                        CommissionType = c.CommissionType ?? ""
+                    }).ToList() ?? new List<SubBrokerageCommissionAndPaymentViewModel>()
                 }).ToList();
             }
 
@@ -968,7 +975,43 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     Mobile = s.SubReferralPartnerMobile ?? "",
                     StartDate = s.StartDate?.ToString("yyyy-MM-dd") ?? "",
                     EndDate = s.EndDate?.ToString("yyyy-MM-dd") ?? "",
-                    Active = s.Active
+                    Active = s.Active,
+                    
+                    // Bank Details - CORRECTED: Query by EntityType and EntityID
+                    BankDetails = db.CE_BankDetails
+                        .Where(b => b.EntityType == "SubReferral" && b.EntityID == s.SubReferralID)
+                        .Select(b => new BankDetailsViewModel
+                        {
+                            BankName = b.BankName ?? "",
+                            BankBranchAddress = b.BankBranchAddress ?? "",
+                            ReceiversAddress = b.ReceiversAddress ?? "",
+                            AccountName = b.AccountName ?? "",
+                            AccountSortCode = b.AccountSortCode ?? "",
+                            AccountNumber = b.AccountNumber ?? "",
+                            IBAN = b.IBAN ?? "",
+                            SwiftCode = b.SwiftCode ?? ""
+                        }).FirstOrDefault() ?? new BankDetailsViewModel(),
+                    
+                    CompanyTaxInfo = db.CE_CompanyTaxInfo
+                        .Where(c => c.EntityType == "SubReferral" && c.EntityID == s.SubReferralID)
+                        .Select(c => new CompanyTaxInfoViewModel
+                        {
+                            CompanyRegistration = c.CompanyRegistration ?? "",
+                            VATNumber = c.VATNumber ?? "",
+                            Notes = c.Notes ?? ""
+                        }).FirstOrDefault() ?? new CompanyTaxInfoViewModel(),
+                    
+                    Commissions = s.CE_SubReferralCommissionAndPayments?.Select(c => new SubReferralCommissionAndPaymentViewModel
+                    {
+                        SubReferralCommission = c.SubIntroducerCommission, // DB.SubIntroducerCommission -> ViewModel.SubReferralCommission
+                        SubReferralStartDate = c.SubIntroducerStartDate?.ToString("yyyy-MM-dd") ?? "",
+                        SubReferralEndDate = c.SubIntroducerEndDate?.ToString("yyyy-MM-dd") ?? "",
+                        ReferralPartnerCommission = c.IntroducerCommission, // DB.IntroducerCommission -> ViewModel.ReferralPartnerCommission
+                        ReferralPartnerStartDate = c.IntroducerStartDate?.ToString("yyyy-MM-dd") ?? "",
+                        ReferralPartnerEndDate = c.IntroducerEndDate?.ToString("yyyy-MM-dd") ?? "",
+                        PaymentTerms = c.PaymentTerms ?? "",
+                        CommissionType = c.CommissionType ?? ""
+                    }).ToList() ?? new List<SubReferralCommissionAndPaymentViewModel>()
                 }).ToList();
             }
 
@@ -983,7 +1026,45 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     Mobile = s.SubIntroducerMobile ?? "",
                     StartDate = s.StartDate?.ToString("yyyy-MM-dd") ?? "",
                     EndDate = s.EndDate?.ToString("yyyy-MM-dd") ?? "",
-                    Active = s.Active
+                    Active = s.Active,
+                    
+                    // Bank Details - CORRECTED: Query by EntityType and EntityID
+                    BankDetails = db.CE_BankDetails
+                        .Where(b => b.EntityType == "SubIntroducer" && b.EntityID == s.SubIntroducerID)
+                        .Select(b => new BankDetailsViewModel
+                        {
+                            BankName = b.BankName ?? "",
+                            BankBranchAddress = b.BankBranchAddress ?? "",
+                            ReceiversAddress = b.ReceiversAddress ?? "",
+                            AccountName = b.AccountName ?? "",
+                            AccountSortCode = b.AccountSortCode ?? "",
+                            AccountNumber = b.AccountNumber ?? "",
+                            IBAN = b.IBAN ?? "",
+                            SwiftCode = b.SwiftCode ?? ""
+                        }).FirstOrDefault() ?? new BankDetailsViewModel(),
+                    
+                    // Company Tax Info - CORRECTED: Query by EntityType and EntityID
+                    CompanyTaxInfo = db.CE_CompanyTaxInfo
+                        .Where(c => c.EntityType == "SubIntroducer" && c.EntityID == s.SubIntroducerID)
+                        .Select(c => new CompanyTaxInfoViewModel
+                        {
+                            CompanyRegistration = c.CompanyRegistration ?? "",
+                            VATNumber = c.VATNumber ?? "",
+                            Notes = c.Notes ?? ""
+                        }).FirstOrDefault() ?? new CompanyTaxInfoViewModel(),
+                    
+                    // Commissions - CORRECTED: Fixed field names to match DB model and ViewModel
+                    Commissions = s.CE_SubIntroducerCommissionAndPayments?.Select(c => new SubIntroducerCommissionAndPaymentViewModel
+                    {
+                        SubIntroducerCommission = c.SubIntroducerCommission,
+                        SubIntroducerStartDate = c.SubIntroducerCommissionStartDate?.ToString("yyyy-MM-dd") ?? "",
+                        SubIntroducerEndDate = c.SubIntroducerCommissionEndDate?.ToString("yyyy-MM-dd") ?? "",
+                        IntroducerCommission = c.IntroducerCommission,
+                        IntroducerStartDate = c.IntroducerCommissionStartDate?.ToString("yyyy-MM-dd") ?? "",
+                        IntroducerEndDate = c.IntroducerCommissionEndDate?.ToString("yyyy-MM-dd") ?? "",
+                        PaymentTerms = c.PaymentTerms ?? "",
+                        CommissionType = c.CommissionType ?? ""
+                    }).ToList() ?? new List<SubIntroducerCommissionAndPaymentViewModel>()
                 }).ToList();
             }
 
@@ -992,7 +1073,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
 
         [HttpPost]
         [Authorize(Roles = "Controls")]
-        [ValidateAntiForgeryToken]
+        [ValidateJsonAntiForgeryToken]
         public async Task<ActionResult> Edit(EditSectorViewModel model)
         {
             try
@@ -1005,26 +1086,31 @@ namespace CobanaEnergy.Project.Controllers.Sector
                                  .Select(e => e.ErrorMessage)
                                  .ToList();
 
-                    string combinedError = string.Join("<br>", errors);
-                    TempData["ToastMessage"] = combinedError;
-                    TempData["ToastType"] = "error";
-                    return RedirectToAction("Edit", new { id = model.SectorId });
+                    return Json(new { 
+                        success = false, 
+                        message = "Validation failed. Please check your input.",
+                        errors = errors
+                    }, JsonRequestBehavior.AllowGet);
                 }
 
                 // Additional validation for Brokerage and Introducers
                 if ((model.SectorType == "Brokerage" || model.SectorType == "Introducer") && 
                     string.IsNullOrWhiteSpace(model.OfgemID))
                 {
-                    TempData["ToastMessage"] = "Ofgem ID is required for Brokerage and Introducer sectors.";
-                    TempData["ToastType"] = "error";
-                    return RedirectToAction("Edit", new { id = model.SectorId });
+                    return Json(new { 
+                        success = false, 
+                        message = "Ofgem ID is required for Brokerage and Introducer sectors.",
+                        errors = new[] { "Ofgem ID is required for Brokerage and Introducer sectors." }
+                    }, JsonRequestBehavior.AllowGet);
                 }
 
                 if (!int.TryParse(model.SectorId, out int sectorId))
                 {
-                    TempData["ToastMessage"] = "Invalid sector ID.";
-                    TempData["ToastType"] = "error";
-                    return RedirectToAction("Dashboard", "Sector");
+                    return Json(new { 
+                        success = false, 
+                        message = "Invalid sector ID.",
+                        errors = new[] { "Invalid sector ID." }
+                    }, JsonRequestBehavior.AllowGet);
                 }
 
                 using (var transaction = db.Database.BeginTransaction())
@@ -1035,7 +1121,11 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         var sector = await db.CE_Sector.FindAsync(sectorId);
                         if (sector == null)
                         {
-                            return JsonResponse.Fail("Sector not found.");
+                            return Json(new { 
+                                success = false, 
+                                message = "Sector not found.",
+                                errors = new[] { "Sector not found." }
+                            }, JsonRequestBehavior.AllowGet);
                         }
 
                         sector.Name = model.Name;
@@ -1111,8 +1201,6 @@ namespace CobanaEnergy.Project.Controllers.Sector
                             db.CE_CompanyTaxInfo.Add(companyTaxInfo);
                         }
 
-                        await db.SaveChangesAsync();
-
                         // Step 4: Update Commission Records
                         await UpdateCommissionRecords(sectorId, model);
 
@@ -1122,57 +1210,41 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         await db.SaveChangesAsync();
                         transaction.Commit();
 
-                        TempData["ToastMessage"] = "Sector updated successfully!";
-                    TempData["ToastType"] = "success";
-                    return RedirectToAction("Dashboard", "Sector");
+                        // Return JSON for immediate toast notification
+                        return Json(new { 
+                            success = true, 
+                            message = "Sector updated successfully!",
+                            redirectUrl = Url.Action("Dashboard", "Sector")
+                        }, JsonRequestBehavior.AllowGet);
                     }
                     catch (Exception ex)
                     {
                         transaction.Rollback();
                         Logic.Logger.Log($"Sector update transaction failed: {ex.Message}");
-                        TempData["ToastMessage"] = $"Failed to update sector: {ex.Message}";
-                        TempData["ToastType"] = "error";
-                        return RedirectToAction("Edit", new { id = model.SectorId });
+                        
+                        // Return JSON error for immediate toast notification
+                        return Json(new { 
+                            success = false, 
+                            message = $"Failed to update sector: {ex.Message}",
+                            errors = new[] { ex.Message }
+                        }, JsonRequestBehavior.AllowGet);
                     }
                 }
             }
             catch (Exception ex)
             {
                 Logic.Logger.Log($"Sector update failed!! {ex.Message}");
-                TempData["ToastMessage"] = $"An error occurred: {ex.Message}";
-                TempData["ToastType"] = "error";
-                return RedirectToAction("Edit", new { id = model.SectorId });
+                
+                // Return JSON error for immediate toast notification
+                return Json(new { 
+                    success = false, 
+                    message = $"An error occurred: {ex.Message}",
+                    errors = new[] { ex.Message }
+                }, JsonRequestBehavior.AllowGet);
             }
         }
 
-        [HttpPost]
-        [Authorize(Roles = "Controls")]
-        [ValidateJsonAntiForgeryToken]
-        public async Task<JsonResult> DeleteSector(string sectorId)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(sectorId) || !int.TryParse(sectorId, out int id))
-                    return JsonResponse.Fail("Invalid or missing sector ID.");
-
-                var sector = await db.CE_Sector.FindAsync(id);
-                if (sector == null)
-                    return JsonResponse.Fail("Sector not found.");
-
-                // Soft delete - set Active to false
-                sector.Active = false;
-                sector.EndDate = DateTime.Now;
-
-                await db.SaveChangesAsync();
-
-                return JsonResponse.Ok(new { redirectUrl = Url.Action("Dashboard", "Sector") }, "Sector deleted successfully!");
-            }
-            catch (Exception ex)
-            {
-                Logic.Logger.Log($"Failed to delete sector: {ex.Message}");
-                return JsonResponse.Fail("Failed to delete sector.");
-            }
-        }
+  
 
         #endregion
 
@@ -1291,7 +1363,10 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         LeadGeneratorStartDate = !string.IsNullOrEmpty(commission.LeadGeneratorStartDate) ? DateTime.Parse(commission.LeadGeneratorStartDate) : (DateTime?)null,
                         LeadGeneratorEndDate = !string.IsNullOrEmpty(commission.LeadGeneratorEndDate) ? DateTime.Parse(commission.LeadGeneratorEndDate) : (DateTime?)null,
                         PaymentTerms = commission.PaymentTerms ?? "",
-                        CommissionType = commission.CommissionType ?? ""
+                        CommissionType = commission.CommissionType ?? "",
+                        CloserCommissionPercent = commission.CloserCommission,
+                        CloserStartDate = !string.IsNullOrEmpty(commission.CloserStartDate) ? DateTime.Parse(commission.CloserStartDate) : (DateTime?)null,
+                        CloserEndDate = !string.IsNullOrEmpty(commission.CloserEndDate) ? DateTime.Parse(commission.CloserEndDate) : (DateTime?)null
                     };
                     db.CE_LeadGeneratorCommissionAndPayment.Add(leadGeneratorCommission);
                 }
@@ -1325,80 +1400,523 @@ namespace CobanaEnergy.Project.Controllers.Sector
                 }
             }
 
-            // Update Sub Brokerages
-            if (model.SubBrokerages != null && model.SubBrokerages.Any())
+            // Update Sub Brokerages - Intelligent update strategy to preserve existing data
+            if (model.SubBrokerages != null && model.SubBrokerages.Any(s => !string.IsNullOrEmpty(s.SubBrokerageName)))
             {
                 var existingSubBrokerages = await db.CE_SubBrokerage
                     .Where(s => s.SectorID == sectorId)
                     .ToListAsync();
-                db.CE_SubBrokerage.RemoveRange(existingSubBrokerages);
-
+                
+                var submittedNames = model.SubBrokerages
+                    .Where(s => !string.IsNullOrEmpty(s.SubBrokerageName))
+                    .Select(s => s.SubBrokerageName)
+                    .ToList();
+                
+                // Remove SubBrokerages that are no longer present in the submission
+                var subBrokeragesToRemove = existingSubBrokerages
+                    .Where(existing => !submittedNames.Contains(existing.SubBrokerageName))
+                    .ToList();
+                
+                if (subBrokeragesToRemove.Any())
+                {
+                    var removeIds = subBrokeragesToRemove.Select(s => s.SubBrokerageID).ToList();
+                    
+                    // Remove related data for truly deleted SubBrokerages
+                    var bankDetailsToRemove = await db.CE_BankDetails
+                        .Where(b => b.EntityType == "SubBrokerage" && removeIds.Contains(b.EntityID))
+                        .ToListAsync();
+                    db.CE_BankDetails.RemoveRange(bankDetailsToRemove);
+                    
+                    var companyTaxToRemove = await db.CE_CompanyTaxInfo
+                        .Where(c => c.EntityType == "SubBrokerage" && removeIds.Contains(c.EntityID))
+                        .ToListAsync();
+                    db.CE_CompanyTaxInfo.RemoveRange(companyTaxToRemove);
+                    
+                    var commissionsToRemove = await db.CE_SubBrokerageCommissionAndPayment
+                        .Where(c => removeIds.Contains(c.SubBrokerageID))
+                        .ToListAsync();
+                    db.CE_SubBrokerageCommissionAndPayment.RemoveRange(commissionsToRemove);
+                    
+                    db.CE_SubBrokerage.RemoveRange(subBrokeragesToRemove);
+                }
+                
+                // Process each submitted SubBrokerage
                 foreach (var subBrokerage in model.SubBrokerages.Where(s => s != null && !string.IsNullOrEmpty(s.SubBrokerageName)))
                 {
-                    var subBrokerageEntity = new CE_SubBrokerage
+                    var existingSubBrokerage = existingSubBrokerages
+                        .FirstOrDefault(e => e.SubBrokerageName == subBrokerage.SubBrokerageName);
+                    
+                    CE_SubBrokerage subBrokerageEntity;
+                    
+                    if (existingSubBrokerage != null)
                     {
-                        SectorID = sectorId,
-                        SubBrokerageName = subBrokerage.SubBrokerageName,
-                        OfgemID = subBrokerage.OfgemID ?? "",
-                        Active = subBrokerage.Active,
-                        StartDate = !string.IsNullOrEmpty(subBrokerage.StartDate) ? DateTime.Parse(subBrokerage.StartDate) : (DateTime?)null,
-                        EndDate = !string.IsNullOrEmpty(subBrokerage.EndDate) ? DateTime.Parse(subBrokerage.EndDate) : (DateTime?)null,
-                        Email = subBrokerage.Email ?? "",
-                        Landline = subBrokerage.Landline ?? "",
-                        Mobile = subBrokerage.Mobile ?? ""
-                    };
-                    db.CE_SubBrokerage.Add(subBrokerageEntity);
+                        // Update existing SubBrokerage
+                        existingSubBrokerage.OfgemID = subBrokerage.OfgemID ?? "";
+                        existingSubBrokerage.Active = subBrokerage.Active;
+                        existingSubBrokerage.StartDate = !string.IsNullOrEmpty(subBrokerage.StartDate) ? DateTime.Parse(subBrokerage.StartDate) : (DateTime?)null;
+                        existingSubBrokerage.EndDate = !string.IsNullOrEmpty(subBrokerage.EndDate) ? DateTime.Parse(subBrokerage.EndDate) : (DateTime?)null;
+                        existingSubBrokerage.Email = subBrokerage.Email ?? "";
+                        existingSubBrokerage.Landline = subBrokerage.Landline ?? "";
+                        existingSubBrokerage.Mobile = subBrokerage.Mobile ?? "";
+                        subBrokerageEntity = existingSubBrokerage;
+                        
+                        // Update commissions (replace all)
+                        var existingCommissions = await db.CE_SubBrokerageCommissionAndPayment
+                            .Where(c => c.SubBrokerageID == existingSubBrokerage.SubBrokerageID)
+                            .ToListAsync();
+                        db.CE_SubBrokerageCommissionAndPayment.RemoveRange(existingCommissions);
+                    }
+                    else
+                    {
+                        // Create new SubBrokerage
+                        subBrokerageEntity = new CE_SubBrokerage
+                        {
+                            SectorID = sectorId,
+                            SubBrokerageName = subBrokerage.SubBrokerageName,
+                            OfgemID = subBrokerage.OfgemID ?? "",
+                            Active = subBrokerage.Active,
+                            StartDate = !string.IsNullOrEmpty(subBrokerage.StartDate) ? DateTime.Parse(subBrokerage.StartDate) : (DateTime?)null,
+                            EndDate = !string.IsNullOrEmpty(subBrokerage.EndDate) ? DateTime.Parse(subBrokerage.EndDate) : (DateTime?)null,
+                            Email = subBrokerage.Email ?? "",
+                            Landline = subBrokerage.Landline ?? "",
+                            Mobile = subBrokerage.Mobile ?? ""
+                        };
+                        db.CE_SubBrokerage.Add(subBrokerageEntity);
+                        await db.SaveChangesAsync(); // Save to get ID for new entity
+                    }
+                    
+                    // Update/Create Bank Details if provided
+                    if (subBrokerage.BankDetails != null && !string.IsNullOrEmpty(subBrokerage.BankDetails.BankName))
+                    {
+                        var existingBankDetails = await db.CE_BankDetails
+                            .FirstOrDefaultAsync(b => b.EntityType == "SubBrokerage" && b.EntityID == subBrokerageEntity.SubBrokerageID);
+                        
+                        if (existingBankDetails != null)
+                        {
+                            // Update existing bank details
+                            existingBankDetails.BankName = subBrokerage.BankDetails.BankName;
+                            existingBankDetails.BankBranchAddress = subBrokerage.BankDetails.BankBranchAddress;
+                            existingBankDetails.ReceiversAddress = subBrokerage.BankDetails.ReceiversAddress;
+                            existingBankDetails.AccountName = subBrokerage.BankDetails.AccountName;
+                            existingBankDetails.AccountSortCode = subBrokerage.BankDetails.AccountSortCode;
+                            existingBankDetails.AccountNumber = subBrokerage.BankDetails.AccountNumber;
+                            existingBankDetails.IBAN = subBrokerage.BankDetails.IBAN;
+                            existingBankDetails.SwiftCode = subBrokerage.BankDetails.SwiftCode;
+                        }
+                        else
+                        {
+                            // Create new bank details
+                            var subBrokerageBankDetails = new CE_BankDetails
+                            {
+                                EntityType = "SubBrokerage",
+                                EntityID = subBrokerageEntity.SubBrokerageID,
+                                BankName = subBrokerage.BankDetails.BankName,
+                                BankBranchAddress = subBrokerage.BankDetails.BankBranchAddress,
+                                ReceiversAddress = subBrokerage.BankDetails.ReceiversAddress,
+                                AccountName = subBrokerage.BankDetails.AccountName,
+                                AccountSortCode = subBrokerage.BankDetails.AccountSortCode,
+                                AccountNumber = subBrokerage.BankDetails.AccountNumber,
+                                IBAN = subBrokerage.BankDetails.IBAN,
+                                SwiftCode = subBrokerage.BankDetails.SwiftCode
+                            };
+                            db.CE_BankDetails.Add(subBrokerageBankDetails);
+                        }
+                    }
+                    
+                    // Update/Create Company Tax Info if provided
+                    if (subBrokerage.CompanyTaxInfo != null && !string.IsNullOrEmpty(subBrokerage.CompanyTaxInfo.CompanyRegistration))
+                    {
+                        var existingCompanyTaxInfo = await db.CE_CompanyTaxInfo
+                            .FirstOrDefaultAsync(c => c.EntityType == "SubBrokerage" && c.EntityID == subBrokerageEntity.SubBrokerageID);
+                        
+                        if (existingCompanyTaxInfo != null)
+                        {
+                            // Update existing company tax info
+                            existingCompanyTaxInfo.CompanyRegistration = subBrokerage.CompanyTaxInfo.CompanyRegistration;
+                            existingCompanyTaxInfo.VATNumber = subBrokerage.CompanyTaxInfo.VATNumber;
+                            existingCompanyTaxInfo.Notes = subBrokerage.CompanyTaxInfo.Notes;
+                        }
+                        else
+                        {
+                            // Create new company tax info
+                            var subBrokerageCompanyTaxInfo = new CE_CompanyTaxInfo
+                            {
+                                EntityType = "SubBrokerage",
+                                EntityID = subBrokerageEntity.SubBrokerageID,
+                                CompanyRegistration = subBrokerage.CompanyTaxInfo.CompanyRegistration,
+                                VATNumber = subBrokerage.CompanyTaxInfo.VATNumber,
+                                Notes = subBrokerage.CompanyTaxInfo.Notes
+                            };
+                            db.CE_CompanyTaxInfo.Add(subBrokerageCompanyTaxInfo);
+                        }
+                    }
+                    
+                    // Add new commissions
+                    if (subBrokerage.Commissions != null && subBrokerage.Commissions.Any())
+                    {
+                        foreach (var commission in subBrokerage.Commissions.Where(c => c != null))
+                        {
+                            var subBrokerageCommission = new CE_SubBrokerageCommissionAndPayment
+                            {
+                                SubBrokerageID = subBrokerageEntity.SubBrokerageID,
+                                SubBrokerageCommissionPercent = commission.SubBrokerageCommission,
+                                BrokerageCommissionPercent = commission.BrokerageCommission,
+                                SubBrokerageStartDate = !string.IsNullOrEmpty(commission.SubBrokerageStartDate) ? DateTime.Parse(commission.SubBrokerageStartDate) : (DateTime?)null,
+                                SubBrokerageEndDate = !string.IsNullOrEmpty(commission.SubBrokerageEndDate) ? DateTime.Parse(commission.SubBrokerageEndDate) : (DateTime?)null,
+                                BrokerageStartDate = !string.IsNullOrEmpty(commission.BrokerageStartDate) ? DateTime.Parse(commission.BrokerageStartDate) : (DateTime?)null,
+                                BrokerageEndDate = !string.IsNullOrEmpty(commission.BrokerageEndDate) ? DateTime.Parse(commission.BrokerageEndDate) : (DateTime?)null,
+                                PaymentTerms = commission.PaymentTerms,
+                                CommissionType = commission.CommissionType
+                            };
+                            db.CE_SubBrokerageCommissionAndPayment.Add(subBrokerageCommission);
+                        }
+                    }
                 }
             }
 
-            // Update Sub Referrals
-            if (model.SubReferrals != null && model.SubReferrals.Any())
+            // Update Sub Referrals - Intelligent update strategy to preserve existing data
+            if (model.SubReferrals != null && model.SubReferrals.Any(s => !string.IsNullOrEmpty(s.SubReferralPartnerName)))
             {
                 var existingSubReferrals = await db.CE_SubReferral
                     .Where(s => s.SectorID == sectorId)
                     .ToListAsync();
-                db.CE_SubReferral.RemoveRange(existingSubReferrals);
-
+                
+                var submittedNames = model.SubReferrals
+                    .Where(s => !string.IsNullOrEmpty(s.SubReferralPartnerName))
+                    .Select(s => s.SubReferralPartnerName)
+                    .ToList();
+                
+                // Remove SubReferrals that are no longer present in the submission
+                var subReferralsToRemove = existingSubReferrals
+                    .Where(existing => !submittedNames.Contains(existing.SubReferralPartnerName))
+                    .ToList();
+                
+                if (subReferralsToRemove.Any())
+                {
+                    var removeIds = subReferralsToRemove.Select(s => s.SubReferralID).ToList();
+                    
+                    // Remove related data for truly deleted SubReferrals
+                    var bankDetailsToRemove = await db.CE_BankDetails
+                        .Where(b => b.EntityType == "SubReferral" && removeIds.Contains(b.EntityID))
+                        .ToListAsync();
+                    db.CE_BankDetails.RemoveRange(bankDetailsToRemove);
+                    
+                    var companyTaxToRemove = await db.CE_CompanyTaxInfo
+                        .Where(c => c.EntityType == "SubReferral" && removeIds.Contains(c.EntityID))
+                        .ToListAsync();
+                    db.CE_CompanyTaxInfo.RemoveRange(companyTaxToRemove);
+                    
+                    var commissionsToRemove = await db.CE_SubReferralCommissionAndPayment
+                        .Where(c => removeIds.Contains(c.SubReferralID))
+                        .ToListAsync();
+                    db.CE_SubReferralCommissionAndPayment.RemoveRange(commissionsToRemove);
+                    
+                    db.CE_SubReferral.RemoveRange(subReferralsToRemove);
+                }
+                
+                // Process each submitted SubReferral
                 foreach (var subReferral in model.SubReferrals.Where(s => s != null && !string.IsNullOrEmpty(s.SubReferralPartnerName)))
                 {
-                    var subReferralEntity = new CE_SubReferral
+                    var existingSubReferral = existingSubReferrals
+                        .FirstOrDefault(e => e.SubReferralPartnerName == subReferral.SubReferralPartnerName);
+                    
+                    CE_SubReferral subReferralEntity;
+                    
+                    if (existingSubReferral != null)
                     {
-                        SectorID = sectorId,
-                        SubReferralPartnerName = subReferral.SubReferralPartnerName,
-                        Active = subReferral.Active,
-                        StartDate = !string.IsNullOrEmpty(subReferral.StartDate) ? DateTime.Parse(subReferral.StartDate) : (DateTime?)null,
-                        EndDate = !string.IsNullOrEmpty(subReferral.EndDate) ? DateTime.Parse(subReferral.EndDate) : (DateTime?)null,
-                        SubReferralPartnerEmail = subReferral.Email ?? "",
-                        SubReferralPartnerLandline = subReferral.Landline ?? "",
-                        SubReferralPartnerMobile = subReferral.Mobile ?? ""
-                    };
-                    db.CE_SubReferral.Add(subReferralEntity);
+                        // Update existing SubReferral
+                        existingSubReferral.Active = subReferral.Active;
+                        existingSubReferral.StartDate = !string.IsNullOrEmpty(subReferral.StartDate) ? DateTime.Parse(subReferral.StartDate) : (DateTime?)null;
+                        existingSubReferral.EndDate = !string.IsNullOrEmpty(subReferral.EndDate) ? DateTime.Parse(subReferral.EndDate) : (DateTime?)null;
+                        existingSubReferral.SubReferralPartnerEmail = subReferral.Email ?? "";
+                        existingSubReferral.SubReferralPartnerLandline = subReferral.Landline ?? "";
+                        existingSubReferral.SubReferralPartnerMobile = subReferral.Mobile ?? "";
+                        subReferralEntity = existingSubReferral;
+                        
+                        // Update commissions (replace all)
+                        var existingCommissions = await db.CE_SubReferralCommissionAndPayment
+                            .Where(c => c.SubReferralID == existingSubReferral.SubReferralID)
+                            .ToListAsync();
+                        db.CE_SubReferralCommissionAndPayment.RemoveRange(existingCommissions);
+                    }
+                    else
+                    {
+                        // Create new SubReferral
+                        subReferralEntity = new CE_SubReferral
+                        {
+                            SectorID = sectorId,
+                            SubReferralPartnerName = subReferral.SubReferralPartnerName,
+                            Active = subReferral.Active,
+                            StartDate = !string.IsNullOrEmpty(subReferral.StartDate) ? DateTime.Parse(subReferral.StartDate) : (DateTime?)null,
+                            EndDate = !string.IsNullOrEmpty(subReferral.EndDate) ? DateTime.Parse(subReferral.EndDate) : (DateTime?)null,
+                            SubReferralPartnerEmail = subReferral.Email ?? "",
+                            SubReferralPartnerLandline = subReferral.Landline ?? "",
+                            SubReferralPartnerMobile = subReferral.Mobile ?? ""
+                        };
+                        db.CE_SubReferral.Add(subReferralEntity);
+                        await db.SaveChangesAsync(); // Save to get ID for new entity
+                    }
+                    
+                    // Update/Create Bank Details if provided
+                    if (subReferral.BankDetails != null && !string.IsNullOrEmpty(subReferral.BankDetails.BankName))
+                    {
+                        var existingBankDetails = await db.CE_BankDetails
+                            .FirstOrDefaultAsync(b => b.EntityType == "SubReferral" && b.EntityID == subReferralEntity.SubReferralID);
+                        
+                        if (existingBankDetails != null)
+                        {
+                            // Update existing bank details
+                            existingBankDetails.BankName = subReferral.BankDetails.BankName;
+                            existingBankDetails.BankBranchAddress = subReferral.BankDetails.BankBranchAddress;
+                            existingBankDetails.ReceiversAddress = subReferral.BankDetails.ReceiversAddress;
+                            existingBankDetails.AccountName = subReferral.BankDetails.AccountName;
+                            existingBankDetails.AccountSortCode = subReferral.BankDetails.AccountSortCode;
+                            existingBankDetails.AccountNumber = subReferral.BankDetails.AccountNumber;
+                            existingBankDetails.IBAN = subReferral.BankDetails.IBAN;
+                            existingBankDetails.SwiftCode = subReferral.BankDetails.SwiftCode;
+                        }
+                        else
+                        {
+                            // Create new bank details
+                            var subReferralBankDetails = new CE_BankDetails
+                            {
+                                EntityType = "SubReferral",
+                                EntityID = subReferralEntity.SubReferralID,
+                                BankName = subReferral.BankDetails.BankName,
+                                BankBranchAddress = subReferral.BankDetails.BankBranchAddress,
+                                ReceiversAddress = subReferral.BankDetails.ReceiversAddress,
+                                AccountName = subReferral.BankDetails.AccountName,
+                                AccountSortCode = subReferral.BankDetails.AccountSortCode,
+                                AccountNumber = subReferral.BankDetails.AccountNumber,
+                                IBAN = subReferral.BankDetails.IBAN,
+                                SwiftCode = subReferral.BankDetails.SwiftCode
+                            };
+                            db.CE_BankDetails.Add(subReferralBankDetails);
+                        }
+                    }
+                    
+                    // Update/Create Company Tax Info if provided
+                    if (subReferral.CompanyTaxInfo != null && !string.IsNullOrEmpty(subReferral.CompanyTaxInfo.CompanyRegistration))
+                    {
+                        var existingCompanyTaxInfo = await db.CE_CompanyTaxInfo
+                            .FirstOrDefaultAsync(c => c.EntityType == "SubReferral" && c.EntityID == subReferralEntity.SubReferralID);
+                        
+                        if (existingCompanyTaxInfo != null)
+                        {
+                            // Update existing company tax info
+                            existingCompanyTaxInfo.CompanyRegistration = subReferral.CompanyTaxInfo.CompanyRegistration;
+                            existingCompanyTaxInfo.VATNumber = subReferral.CompanyTaxInfo.VATNumber;
+                            existingCompanyTaxInfo.Notes = subReferral.CompanyTaxInfo.Notes;
+                        }
+                        else
+                        {
+                            // Create new company tax info
+                            var subReferralCompanyTaxInfo = new CE_CompanyTaxInfo
+                            {
+                                EntityType = "SubReferral",
+                                EntityID = subReferralEntity.SubReferralID,
+                                CompanyRegistration = subReferral.CompanyTaxInfo.CompanyRegistration,
+                                VATNumber = subReferral.CompanyTaxInfo.VATNumber,
+                                Notes = subReferral.CompanyTaxInfo.Notes
+                            };
+                            db.CE_CompanyTaxInfo.Add(subReferralCompanyTaxInfo);
+                        }
+                    }
+                    
+                    // Add new commissions
+                    if (subReferral.Commissions != null && subReferral.Commissions.Any())
+                    {
+                        foreach (var commission in subReferral.Commissions.Where(c => c != null))
+                        {
+                            var subReferralCommission = new CE_SubReferralCommissionAndPayment
+                            {
+                                SubReferralID = subReferralEntity.SubReferralID,
+                                SubIntroducerCommission = commission.SubReferralCommission, // ViewModel.SubReferralCommission -> DB.SubIntroducerCommission
+                                IntroducerCommission = commission.ReferralPartnerCommission, // ViewModel.ReferralPartnerCommission -> DB.IntroducerCommission
+                                SubIntroducerStartDate = !string.IsNullOrEmpty(commission.SubReferralStartDate) ? DateTime.Parse(commission.SubReferralStartDate) : (DateTime?)null,
+                                SubIntroducerEndDate = !string.IsNullOrEmpty(commission.SubReferralEndDate) ? DateTime.Parse(commission.SubReferralEndDate) : (DateTime?)null,
+                                IntroducerStartDate = !string.IsNullOrEmpty(commission.ReferralPartnerStartDate) ? DateTime.Parse(commission.ReferralPartnerStartDate) : (DateTime?)null,
+                                IntroducerEndDate = !string.IsNullOrEmpty(commission.ReferralPartnerEndDate) ? DateTime.Parse(commission.ReferralPartnerEndDate) : (DateTime?)null,
+                                PaymentTerms = commission.PaymentTerms,
+                                CommissionType = commission.CommissionType
+                            };
+                            db.CE_SubReferralCommissionAndPayment.Add(subReferralCommission);
+                        }
+                    }
                 }
             }
 
-            // Update Sub Introducers
-            if (model.SubIntroducers != null && model.SubIntroducers.Any())
+            // Update Sub Introducers - Intelligent update strategy to preserve existing data
+            if (model.SubIntroducers != null && model.SubIntroducers.Any(s => !string.IsNullOrEmpty(s.SubIntroducerName)))
             {
                 var existingSubIntroducers = await db.CE_SubIntroducer
                     .Where(s => s.SectorID == sectorId)
                     .ToListAsync();
-                db.CE_SubIntroducer.RemoveRange(existingSubIntroducers);
-
+                
+                var submittedNames = model.SubIntroducers
+                    .Where(s => !string.IsNullOrEmpty(s.SubIntroducerName))
+                    .Select(s => s.SubIntroducerName)
+                    .ToList();
+                
+                // Remove SubIntroducers that are no longer present in the submission
+                var subIntroducersToRemove = existingSubIntroducers
+                    .Where(existing => !submittedNames.Contains(existing.SubIntroducerName))
+                    .ToList();
+                
+                if (subIntroducersToRemove.Any())
+                {
+                    var removeIds = subIntroducersToRemove.Select(s => s.SubIntroducerID).ToList();
+                    
+                    // Remove related data for truly deleted SubIntroducers
+                    var bankDetailsToRemove = await db.CE_BankDetails
+                        .Where(b => b.EntityType == "SubIntroducer" && removeIds.Contains(b.EntityID))
+                        .ToListAsync();
+                    db.CE_BankDetails.RemoveRange(bankDetailsToRemove);
+                    
+                    var companyTaxToRemove = await db.CE_CompanyTaxInfo
+                        .Where(c => c.EntityType == "SubIntroducer" && removeIds.Contains(c.EntityID))
+                        .ToListAsync();
+                    db.CE_CompanyTaxInfo.RemoveRange(companyTaxToRemove);
+                    
+                    var commissionsToRemove = await db.CE_SubIntroducerCommissionAndPayment
+                        .Where(c => removeIds.Contains(c.SubIntroducerID))
+                        .ToListAsync();
+                    db.CE_SubIntroducerCommissionAndPayment.RemoveRange(commissionsToRemove);
+                    
+                    db.CE_SubIntroducer.RemoveRange(subIntroducersToRemove);
+                }
+                
+                // Process each submitted SubIntroducer
                 foreach (var subIntroducer in model.SubIntroducers.Where(s => s != null && !string.IsNullOrEmpty(s.SubIntroducerName)))
                 {
-                    var subIntroducerEntity = new CE_SubIntroducer
+                    var existingSubIntroducer = existingSubIntroducers
+                        .FirstOrDefault(e => e.SubIntroducerName == subIntroducer.SubIntroducerName);
+                    
+                    CE_SubIntroducer subIntroducerEntity;
+                    
+                    if (existingSubIntroducer != null)
                     {
-                        SectorID = sectorId,
-                        SubIntroducerName = subIntroducer.SubIntroducerName,
-                        OfgemID = subIntroducer.OfgemID ?? "",
-                        Active = subIntroducer.Active,
-                        StartDate = !string.IsNullOrEmpty(subIntroducer.StartDate) ? DateTime.Parse(subIntroducer.StartDate) : (DateTime?)null,
-                        EndDate = !string.IsNullOrEmpty(subIntroducer.EndDate) ? DateTime.Parse(subIntroducer.EndDate) : (DateTime?)null,
-                        SubIntroducerEmail = subIntroducer.Email ?? "",
-                        SubIntroducerLandline = subIntroducer.Landline ?? "",
-                        SubIntroducerMobile = subIntroducer.Mobile ?? ""
-                    };
-                    db.CE_SubIntroducer.Add(subIntroducerEntity);
+                        // Update existing SubIntroducer
+                        existingSubIntroducer.OfgemID = subIntroducer.OfgemID ?? "";
+                        existingSubIntroducer.Active = subIntroducer.Active;
+                        existingSubIntroducer.StartDate = !string.IsNullOrEmpty(subIntroducer.StartDate) ? DateTime.Parse(subIntroducer.StartDate) : (DateTime?)null;
+                        existingSubIntroducer.EndDate = !string.IsNullOrEmpty(subIntroducer.EndDate) ? DateTime.Parse(subIntroducer.EndDate) : (DateTime?)null;
+                        existingSubIntroducer.SubIntroducerEmail = subIntroducer.Email ?? "";
+                        existingSubIntroducer.SubIntroducerLandline = subIntroducer.Landline ?? "";
+                        existingSubIntroducer.SubIntroducerMobile = subIntroducer.Mobile ?? "";
+                        subIntroducerEntity = existingSubIntroducer;
+                        
+                        // Update commissions (replace all)
+                        var existingCommissions = await db.CE_SubIntroducerCommissionAndPayment
+                            .Where(c => c.SubIntroducerID == existingSubIntroducer.SubIntroducerID)
+                            .ToListAsync();
+                        db.CE_SubIntroducerCommissionAndPayment.RemoveRange(existingCommissions);
+                    }
+                    else
+                    {
+                        // Create new SubIntroducer
+                        subIntroducerEntity = new CE_SubIntroducer
+                        {
+                            SectorID = sectorId,
+                            SubIntroducerName = subIntroducer.SubIntroducerName,
+                            OfgemID = subIntroducer.OfgemID ?? "",
+                            Active = subIntroducer.Active,
+                            StartDate = !string.IsNullOrEmpty(subIntroducer.StartDate) ? DateTime.Parse(subIntroducer.StartDate) : (DateTime?)null,
+                            EndDate = !string.IsNullOrEmpty(subIntroducer.EndDate) ? DateTime.Parse(subIntroducer.EndDate) : (DateTime?)null,
+                            SubIntroducerEmail = subIntroducer.Email ?? "",
+                            SubIntroducerLandline = subIntroducer.Landline ?? "",
+                            SubIntroducerMobile = subIntroducer.Mobile ?? ""
+                        };
+                        db.CE_SubIntroducer.Add(subIntroducerEntity);
+                        await db.SaveChangesAsync(); // Save to get ID for new entity
+                    }
+                    
+                    // Update/Create Bank Details if provided
+                    if (subIntroducer.BankDetails != null && !string.IsNullOrEmpty(subIntroducer.BankDetails.BankName))
+                    {
+                        var existingBankDetails = await db.CE_BankDetails
+                            .FirstOrDefaultAsync(b => b.EntityType == "SubIntroducer" && b.EntityID == subIntroducerEntity.SubIntroducerID);
+                        
+                        if (existingBankDetails != null)
+                        {
+                            // Update existing bank details
+                            existingBankDetails.BankName = subIntroducer.BankDetails.BankName;
+                            existingBankDetails.BankBranchAddress = subIntroducer.BankDetails.BankBranchAddress;
+                            existingBankDetails.ReceiversAddress = subIntroducer.BankDetails.ReceiversAddress;
+                            existingBankDetails.AccountName = subIntroducer.BankDetails.AccountName;
+                            existingBankDetails.AccountSortCode = subIntroducer.BankDetails.AccountSortCode;
+                            existingBankDetails.AccountNumber = subIntroducer.BankDetails.AccountNumber;
+                            existingBankDetails.IBAN = subIntroducer.BankDetails.IBAN;
+                            existingBankDetails.SwiftCode = subIntroducer.BankDetails.SwiftCode;
+                        }
+                        else
+                        {
+                            // Create new bank details
+                            var subIntroducerBankDetails = new CE_BankDetails
+                            {
+                                EntityType = "SubIntroducer",
+                                EntityID = subIntroducerEntity.SubIntroducerID,
+                                BankName = subIntroducer.BankDetails.BankName,
+                                BankBranchAddress = subIntroducer.BankDetails.BankBranchAddress,
+                                ReceiversAddress = subIntroducer.BankDetails.ReceiversAddress,
+                                AccountName = subIntroducer.BankDetails.AccountName,
+                                AccountSortCode = subIntroducer.BankDetails.AccountSortCode,
+                                AccountNumber = subIntroducer.BankDetails.AccountNumber,
+                                IBAN = subIntroducer.BankDetails.IBAN,
+                                SwiftCode = subIntroducer.BankDetails.SwiftCode
+                            };
+                            db.CE_BankDetails.Add(subIntroducerBankDetails);
+                        }
+                    }
+                    
+                    // Update/Create Company Tax Info if provided
+                    if (subIntroducer.CompanyTaxInfo != null && !string.IsNullOrEmpty(subIntroducer.CompanyTaxInfo.CompanyRegistration))
+                    {
+                        var existingCompanyTaxInfo = await db.CE_CompanyTaxInfo
+                            .FirstOrDefaultAsync(c => c.EntityType == "SubIntroducer" && c.EntityID == subIntroducerEntity.SubIntroducerID);
+                        
+                        if (existingCompanyTaxInfo != null)
+                        {
+                            // Update existing company tax info
+                            existingCompanyTaxInfo.CompanyRegistration = subIntroducer.CompanyTaxInfo.CompanyRegistration;
+                            existingCompanyTaxInfo.VATNumber = subIntroducer.CompanyTaxInfo.VATNumber;
+                            existingCompanyTaxInfo.Notes = subIntroducer.CompanyTaxInfo.Notes;
+                        }
+                        else
+                        {
+                            // Create new company tax info
+                            var subIntroducerCompanyTaxInfo = new CE_CompanyTaxInfo
+                            {
+                                EntityType = "SubIntroducer",
+                                EntityID = subIntroducerEntity.SubIntroducerID,
+                                CompanyRegistration = subIntroducer.CompanyTaxInfo.CompanyRegistration,
+                                VATNumber = subIntroducer.CompanyTaxInfo.VATNumber,
+                                Notes = subIntroducer.CompanyTaxInfo.Notes
+                            };
+                            db.CE_CompanyTaxInfo.Add(subIntroducerCompanyTaxInfo);
+                        }
+                    }
+                    
+                    // Add new commissions
+                    if (subIntroducer.Commissions != null && subIntroducer.Commissions.Any())
+                    {
+                        foreach (var commission in subIntroducer.Commissions.Where(c => c != null))
+                        {
+                            var subIntroducerCommission = new CE_SubIntroducerCommissionAndPayment
+                            {
+                                SubIntroducerID = subIntroducerEntity.SubIntroducerID,
+                                SubIntroducerCommission = commission.SubIntroducerCommission,
+                                IntroducerCommission = commission.IntroducerCommission,
+                                SubIntroducerCommissionStartDate = !string.IsNullOrEmpty(commission.SubIntroducerStartDate) ? DateTime.Parse(commission.SubIntroducerStartDate) : (DateTime?)null,
+                                SubIntroducerCommissionEndDate = !string.IsNullOrEmpty(commission.SubIntroducerEndDate) ? DateTime.Parse(commission.SubIntroducerEndDate) : (DateTime?)null,
+                                IntroducerCommissionStartDate = !string.IsNullOrEmpty(commission.IntroducerStartDate) ? DateTime.Parse(commission.IntroducerStartDate) : (DateTime?)null,
+                                IntroducerCommissionEndDate = !string.IsNullOrEmpty(commission.IntroducerEndDate) ? DateTime.Parse(commission.IntroducerEndDate) : (DateTime?)null,
+                                PaymentTerms = commission.PaymentTerms,
+                                CommissionType = commission.CommissionType
+                            };
+                            db.CE_SubIntroducerCommissionAndPayment.Add(subIntroducerCommission);
+                        }
+                    }
                 }
             }
         }

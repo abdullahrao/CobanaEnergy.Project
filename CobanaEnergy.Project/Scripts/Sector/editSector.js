@@ -5,39 +5,6 @@
 
 $(document).ready(function () {
     // Initialize the consolidated sector form manager
+    // The form submission is now handled by sectorFormManager.js to avoid double requests
     window.initializeEditSector();
-    
-    // Form submission handling
-    $('#editSectorForm').on('submit', function (e) {
-        e.preventDefault();
-        
-        // Basic validation
-        if (!window.sectorFormManager.validateForm()) {
-            return false;
-        }
-
-        // Submit form
-        var formData = new FormData(this);
-        
-        $.ajax({
-            url: $(this).attr('action'),
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function (response) {
-                if (response.success) {
-                    window.sectorFormManager.showToastSuccess(response.message || 'Sector updated successfully!');
-                    setTimeout(function () {
-                        window.location.href = response.redirectUrl || '/Sector/Dashboard';
-                    }, 1500);
-                } else {
-                    window.sectorFormManager.showToastError(response.message || 'Failed to update sector.');
-                }
-            },
-            error: function () {
-                window.sectorFormManager.showToastError('An error occurred while updating the sector.');
-            }
-        });
-    });
 });

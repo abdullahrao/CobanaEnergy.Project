@@ -5,28 +5,28 @@ namespace CobanaEnergy.Project.Models.Sector.ReferralPartner
     public class SubReferralCommissionAndPaymentViewModel
     {
         [Range(0, 100, ErrorMessage = "Commission must be between 0 and 100")]
-        [Display(Name = "Sub Introducer Commission (%)")]
-        public decimal? SubIntroducerCommission { get; set; }
+        [Display(Name = "Sub Referral Commission (%)")]
+        public decimal? SubReferralCommission { get; set; }
 
-        [Display(Name = "Sub Introducer Start Date")]
+        [Display(Name = "Sub Referral Start Date")]
         [DataType(DataType.Date)]
-        public string SubIntroducerStartDate { get; set; }
+        public string SubReferralStartDate { get; set; }
 
-        [Display(Name = "Sub Introducer End Date")]
+        [Display(Name = "Sub Referral End Date")]
         [DataType(DataType.Date)]
-        public string SubIntroducerEndDate { get; set; }
+        public string SubReferralEndDate { get; set; }
 
         [Range(0, 100, ErrorMessage = "Commission must be between 0 and 100")]
-        [Display(Name = "Introducer Commission (%)")]
-        public decimal? IntroducerCommission { get; set; }
+        [Display(Name = "Referral Partner Commission (%)")]
+        public decimal? ReferralPartnerCommission { get; set; }
 
-        [Display(Name = "Introducer Start Date")]
+        [Display(Name = "Referral Partner Start Date")]
         [DataType(DataType.Date)]
-        public string IntroducerStartDate { get; set; }
+        public string ReferralPartnerStartDate { get; set; }
 
-        [Display(Name = "Introducer End Date")]
+        [Display(Name = "Referral Partner End Date")]
         [DataType(DataType.Date)]
-        public string IntroducerEndDate { get; set; }
+        public string ReferralPartnerEndDate { get; set; }
 
         [Display(Name = "Payment Terms")]
         public string PaymentTerms { get; set; }

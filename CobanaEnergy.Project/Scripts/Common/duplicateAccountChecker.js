@@ -32,7 +32,7 @@ const DuplicateAccountChecker = (function() {
         // Bind the input event - use event delegation to avoid conflicts
         $(document).on('input', accountInputSelector, function() {
             const account = $(this).val().trim();
-            if (/^\d{12}$/.test(account)) {
+            if (/^\d{8}$/.test(account)) {
                 checkDuplicateAccount(account, modalId, loaderSelector, showErrorToast);
             }
         });
