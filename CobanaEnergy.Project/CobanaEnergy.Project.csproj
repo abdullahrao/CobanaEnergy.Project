@@ -339,6 +339,7 @@
     <Content Include="Scripts\Sector\sectorFormManager.js" />
     <Content Include="Scripts\Sector\createSector.js" />
     <Content Include="Scripts\Sector\editSector.js" />
+    <Content Include="Scripts\Common\duplicateAccountChecker.js" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -386,6 +387,14 @@
     <Compile Include="Migrations\202508151157394_Faryal_InitialSectorMapping.cs" />
     <Compile Include="Migrations\202508151157394_Faryal_InitialSectorMapping.Designer.cs">
       <DependentUpon>202508151157394_Faryal_InitialSectorMapping.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202508151620153_Faryal_SectorFK.cs" />
+    <Compile Include="Migrations\202508151620153_Faryal_SectorFK.Designer.cs">
+      <DependentUpon>202508151620153_Faryal_SectorFK.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202508180943056_Faryal_PolymorphicRelations.cs" />
+    <Compile Include="Migrations\202508180943056_Faryal_PolymorphicRelations.Designer.cs">
+      <DependentUpon>202508180943056_Faryal_PolymorphicRelations.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\Accounts\AwaitingPaymentsDashboard\AwaitingPaymentsDashboard.cs" />
     <Compile Include="Models\Accounts\CalendarDashboard\CalendarDashboardViewModel.cs" />
@@ -524,6 +533,7 @@
     <None Include="packages.config" />
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Views\Shared\Popups\_DuplicateAccountModal.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\_Header.cshtml" />
     <Content Include="Views\Shared\_Footer.cshtml" />
@@ -600,6 +610,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202508151157394_Faryal_InitialSectorMapping.resx">
       <DependentUpon>202508151157394_Faryal_InitialSectorMapping.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202508151620153_Faryal_SectorFK.resx">
+      <DependentUpon>202508151620153_Faryal_SectorFK.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202508180943056_Faryal_PolymorphicRelations.resx">
+      <DependentUpon>202508180943056_Faryal_PolymorphicRelations.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
