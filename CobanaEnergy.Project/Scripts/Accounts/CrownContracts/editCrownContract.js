@@ -394,44 +394,43 @@
         const startDate = readDate("#startDate");
         const cedDate = readDate("#ced");
 
-        if (!onload) {
-            const supplierComms = $("#gasContract").val() === "true"
-                ? $("#supplierCommsTypeGas").val()
-                : $("#supplierCommsTypeElectric").val();
+        const supplierComms = $("#gasContract").val() === "true"
+            ? $("#supplierCommsTypeGas").val()
+            : $("#supplierCommsTypeElectric").val();
 
-            if (supplierComms.toLowerCase() == "residual") {
-                // Check valid dates
-                if (!startDate || !cedDate || isNaN(startDate) || isNaN(cedDate)) {
-                    $("#durationElectric, #durationGas").val("");
-                    return;
-                }
-
-                // Exact date calculation for duration
-                const diffMs = cedDate - startDate;
-                if (diffMs < 0) {
-                    $("#durationElectric, #durationGas").val("");
-                    showToastError("CED cannot be earlier than Start Date!");
-                    return;
-                }
-
-                const days = diffMs / 86400000; // ms -> days
-                const years = (days / 365).toFixed(4);
-                $("#durationElectric, #durationGas").val(years);
-
-                loadSupplierEAC(supplierComms)
+        if (supplierComms.toLowerCase() == "residual") {
+            // Check valid dates
+            if (!startDate || !cedDate || isNaN(startDate) || isNaN(cedDate)) {
+                $("#durationElectric, #durationGas").val("");
+                return;
             }
 
+            // Exact date calculation for duration
+            const diffMs = cedDate - startDate;
+            if (diffMs < 0) {
+                $("#durationElectric, #durationGas").val("");
+                showToastError("CED cannot be earlier than Start Date!");
+                return;
+            }
+
+            const days = diffMs / 86400000; // ms -> days
+            const years = (days / 365).toFixed(4);
+            $("#durationElectric, #durationGas").val(years);
+
+            loadSupplierEAC(supplierComms)
         }
+
+        //if (!onload) {}
         // Always set CED to 1st day of that month after calculation
-        const isGasContract = $("#gasContract").val() === "true";
-        if (isGasContract) {
-            const cedFirstDayUtc = new Date(Date.UTC(
-                cedDate.getUTCFullYear(),
-                cedDate.getUTCMonth(),
-                1
-            ));
-            setDateToInput("#ced", cedFirstDayUtc);
-        }
+        // const isGasContract = $("#gasContract").val() === "true";
+        // if (isGasContract) {
+        //    const cedFirstDayUtc = new Date(Date.UTC(
+        //        cedDate.getUTCFullYear(),
+        //        cedDate.getUTCMonth(),
+        //        1
+        //    ));
+        //    setDateToInput("#ced", cedFirstDayUtc);
+        //}
     }
 
     // Run on change of Start Date or Duration
