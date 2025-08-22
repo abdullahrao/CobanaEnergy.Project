@@ -127,6 +127,10 @@
                     $('#awaitingInvoiceCount').text("0");
                 }
 
+                if (!res?.Data?.Contracts || res.Data.Contracts.length === 0) {
+                    showToastWarning("These contracts are in awaiting status.");
+                }
+
                 let counterList = res.Data.CounterList || [];
                 let container = $("#awaitingInvoiceContainer");
                 container.empty();
