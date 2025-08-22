@@ -475,16 +475,16 @@ class SectorFormManager {
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <input type="text" name="SubBrokerages[${index}].Landline" class="form-control" placeholder="Landline" />
+                                            <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubBrokerages[${index}].Landline" class="form-control landline-input" placeholder="Landline (11 digits)" maxlength="11" pattern="[0-9]{11}" title="Please enter exactly 11 digits" />
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <input type="text" name="SubBrokerages[${index}].Mobile" class="form-control" placeholder="Mobile" />
+                                            <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubBrokerages[${index}].Mobile" class="form-control mobile-input" placeholder="Mobile (11 digits)" maxlength="11" pattern="[0-9]{11}" title="Please enter exactly 11 digits" />
+                            </div>
                         </div>
-                    </div>
                 </div>
                 
                 <!-- Sub Brokerage Commission & Payment -->
@@ -841,16 +841,9 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="text" name="SubReferrals[${index}].SubReferralName" class="form-control" placeholder="Sub Referral Name *" required />
+                            <input type="text" name="SubReferrals[${index}].SubReferralPartnerName" class="form-control" placeholder="Sub Referral Partner Name *" required />
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <input type="number" name="SubReferrals[${index}].Commission" class="form-control" placeholder="Commission (%) *" step="0.01" min="0" max="100" required />
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
                             <select name="SubReferrals[${index}].Active" class="form-control">
@@ -859,18 +852,37 @@ class SectorFormManager {
                             </select>
                         </div>
                     </div>
+                </div>
+                <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
                             <input type="date" name="SubReferrals[${index}].StartDate" class="form-control sub-start-date" placeholder="Start Date" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="date" name="SubReferrals[${index}].EndDate" class="form-control sub-end-date" placeholder="End Date" />
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <input type="date" name="SubReferrals[${index}].EndDate" class="form-control sub-end-date" placeholder="End Date" disabled />
+                            <input type="email" name="SubReferrals[${index}].Email" class="form-control" placeholder="Sub Referral Partner Email" />
                         </div>
                     </div>
+                                            <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubReferrals[${index}].Landline" class="form-control landline-input" placeholder="Sub Referral Partner Landline (11 digits)" maxlength="11" pattern="[0-9]{11}" title="Please enter exactly 11 digits" />
+                            </div>
+                        </div>
+                </div>
+                <div class="row">
+                                            <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubReferrals[${index}].Mobile" class="form-control mobile-input" placeholder="Sub Referral Partner Mobile (11 digits)" maxlength="11" pattern="[0-9]{11}" title="Please enter exactly 11 digits" />
+                            </div>
+                        </div>
                 </div>
 
                 <!-- Sub Referral Bank Details -->
@@ -949,8 +961,81 @@ class SectorFormManager {
                         </div>
                     </div>
                 </div>
-                
-                ${index > 0 ? '<button type="button" class="btn btn-danger btn-sm remove-sub-commission"><i class="fas fa-trash me-1"></i>Remove</button>' : ''}
+
+                <!-- Sub Referral Commission and Payment Details -->
+                <div class="sub-commission-section">
+                    <h6>Commission and Payment Details</h6>
+                    <div class="sub-commission-container" data-subsection-index="${index}">
+                        <div class="sub-commission-item" data-subsection-index="${index}" data-commission-index="0">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input type="number" name="SubReferrals[${index}].Commissions[0].SubReferralCommission" class="form-control" placeholder="Sub Referral Partner Commission (%)" step="0.01" min="0" max="100" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input type="number" name="SubReferrals[${index}].Commissions[0].ReferralPartnerCommission" class="form-control" placeholder="Referral Partner Commission (%)" step="0.01" min="0" max="100" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input type="date" name="SubReferrals[${index}].Commissions[0].SubReferralStartDate" class="form-control" placeholder="Sub Referral Start Date" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input type="date" name="SubReferrals[${index}].Commissions[0].SubReferralEndDate" class="form-control" placeholder="Sub Referral End Date" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input type="date" name="SubReferrals[${index}].Commissions[0].ReferralPartnerStartDate" class="form-control" placeholder="Referral Partner Start Date" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input type="date" name="SubReferrals[${index}].Commissions[0].ReferralPartnerEndDate" class="form-control" placeholder="Referral Partner End Date" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <select name="SubReferrals[${index}].Commissions[0].PaymentTerms" class="form-control">
+                                            <option value="">Payment Terms</option>
+                                            <option value="Weekly">Weekly</option>
+                                            <option value="Monthly">Monthly</option>
+                                            <option value="Quarterly">Quarterly</option>
+                                            <option value="Annually">Annually</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <select name="SubReferrals[${index}].Commissions[0].CommissionType" class="form-control">
+                                            <option value="">Commission Type</option>
+                                            <option value="Duration">Duration</option>
+                                            <option value="Annual">Annual</option>
+                                            <option value="Residual">Residual</option>
+                                            <option value="As per System">As per System</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-sm add-sub-commission" data-subsection-index="${index}">
+                        +Add Commission
+                    </button>
+                </div>
+                <div class="text-end mt-3">
+                <button type="button" class="btn btn-danger btn-sm remove-subsection"><i class="fas fa-trash me-1"></i>Remove Subsection</button>
+                </div>
             </div>
         `;
     }
@@ -1606,12 +1691,12 @@ class SectorFormManager {
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <input type="text" name="SubBrokerages[${index}].Landline" value="${subBrokerage.Landline || ''}" class="form-control" placeholder="Landline" />
+                                <input type="text" name="SubBrokerages[${index}].Landline" value="${subBrokerage.Landline || ''}" class="form-control landline-input" placeholder="Landline (11 digits)" maxlength="11" pattern="[0-9]{11}" title="Please enter exactly 11 digits" />
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <input type="text" name="SubBrokerages[${index}].Mobile" value="${subBrokerage.Mobile || ''}" class="form-control" placeholder="Mobile" />
+                                <input type="text" name="SubBrokerages[${index}].Mobile" value="${subBrokerage.Mobile || ''}" class="form-control mobile-input" placeholder="Mobile (11 digits)" maxlength="11" pattern="[0-9]{11}" title="Please enter exactly 11 digits" />
                             </div>
                         </div>
                     </div>
@@ -2018,22 +2103,10 @@ class SectorFormManager {
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <input type="number" name="SubReferrals[${index}].Commission" value="${subReferral.Commission || ''}" class="form-control" placeholder="Commission (%) *" step="0.01" min="0" max="100" required />
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
                                 <select name="SubReferrals[${index}].Active" class="form-control">
                                     <option value="true" ${subReferral.Active ? 'selected' : ''}>YES</option>
                                     <option value="false" ${!subReferral.Active ? 'selected' : ''}>NO</option>
                                 </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <input type="date" name="SubReferrals[${index}].StartDate" value="${subReferral.StartDate || ''}" class="form-control sub-start-date" placeholder="Start Date" />
                             </div>
                         </div>
                     </div>
@@ -2046,6 +2119,30 @@ class SectorFormManager {
                         <div class="col-md-6">
                             <div class="form-group">
                                 <input type="date" name="SubReferrals[${index}].EndDate" value="${subReferral.EndDate || ''}" class="form-control sub-end-date" placeholder="End Date" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="date" name="SubReferrals[${index}].EndDate" value="${subReferral.EndDate || ''}" class="form-control sub-end-date" placeholder="End Date" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="email" name="SubReferrals[${index}].Email" value="${subReferral.Email || ''}" class="form-control" placeholder="Sub Referral Partner Email" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubReferrals[${index}].Landline" value="${subReferral.Landline || ''}" class="form-control landline-input" placeholder="Sub Referral Partner Landline (11 digits)" maxlength="11" pattern="[0-9]{11}" title="Please enter exactly 11 digits" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input type="text" name="SubReferrals[${index}].Mobile" value="${subReferral.Mobile || ''}" class="form-control mobile-input" placeholder="Sub Referral Partner Mobile (11 digits)" maxlength="11" pattern="[0-9]{11}" title="Please enter exactly 11 digits" />
                             </div>
                         </div>
                     </div>
@@ -2127,7 +2224,7 @@ class SectorFormManager {
                         </div>
                     </div>
 
-                    <!-- Sub Referral Commission & Payment -->
+                    <!-- Sub Referral Commission and Payment Details -->
                     <div class="sub-commission-section">
                         <h6>Commission & Payment</h6>
                         <div class="sub-commission-container" data-subsection-index="${index}">
@@ -2135,10 +2232,12 @@ class SectorFormManager {
                                 subReferral.Commissions.map((commission, commissionIndex) => 
                                     this.generateSubReferralCommissionFieldsForEdit(index, commissionIndex, commission)
                                 ).join('') : 
-                                ''
+                                this.generateSubReferralCommissionFieldsForEdit(index, 0, {})
                             }
                         </div>
-                        <button type="button" class="btn btn-secondary btn-sm add-sub-commission" data-subsection-index="${index}">+ Add Commission</button>
+                        <button type="button" class="btn btn-secondary btn-sm add-sub-commission" data-subsection-index="${index}">
+                            +Add Commission
+                        </button>
                     </div>
                     
                     <div class="text-end mt-3">

@@ -15,17 +15,19 @@
             <!-- Sector Type Selection -->
             <div class="form-section sector-type-section">
                 <h4>Sector Type</h4>
-                <div class="row gx-4 gy-3 align-items-center">
+                <div class="row justify-content-center">
                     <div class="col-md-6">
-                        <label for="sectorType" class="form-label required">Sector Type</label>
-                        <select class="form-control" id="sectorType" name="SectorType" required>
-                            <option value="">Choose a sector</option>
-                            <option value="Brokerage">Brokerage</option>
-                            <option value="Closer">Closer</option>
-                            <option value="Leads Generator">Leads Generator</option>
-                            <option value="Referral Partner">Referral Partner</option>
-                            <option value="Introducer">Introducer</option>
-                        </select>
+                        <div class="d-flex align-items-center">
+                            <label for="sectorType" class="form-label required me-3 mb-0">Sector Type:</label>
+                            <select class="form-control" id="sectorType" name="SectorType" required style="width: auto;">
+                                <option value="">Choose a sector</option>
+                                <option value="Brokerage">Brokerage</option>
+                                <option value="Closer">Closer</option>
+                                <option value="Leads Generator">Leads Generator</option>
+                                <option value="Referral Partner">Referral Partner</option>
+                                <option value="Introducer">Introducer</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -47,10 +49,12 @@
                 </div>
                 <div class="row gx-4 gy-3 mt-3">
                     <div class="col-md-6">
+                        <label class="form-label small text-muted">Start Date</label>
                         <input type="date" class="form-control date-start" id="startDate" name="StartDate" required />
                     </div>
                     <div class="col-md-6">
                         <input type="date" class="form-control date-end" id="endDate" name="EndDate" data-start-target="#startDate" />
+                        <small class="form-text text-muted">End Date</small>
                     </div>
                 </div>
                 <div class="row gx-4 gy-3 mt-3">
