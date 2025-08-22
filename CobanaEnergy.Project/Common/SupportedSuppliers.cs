@@ -11,10 +11,11 @@ namespace CobanaEnergy.Project.Common
             {
                 "british gas business",
                 "bg lite",
-                "corona"
+                "corona",
+                "crown gas and power"
             };
 
-        public static readonly string[] MeterHeaders = { "meternum", "meterpoint", "mpancore" };
+        public static readonly string[] MeterHeaders = { "meternum", "meterpoint", "mpancore", "mpr" };
 
         public static readonly Dictionary<string, int> _statusWaitDays = new Dictionary<string, int> (StringComparer.OrdinalIgnoreCase)
               {
@@ -105,7 +106,8 @@ namespace CobanaEnergy.Project.Common
         {
             { "British Gas Business", Tuple.Create("BGBContract", "EditBGBContract") },
             { "BG Lite", Tuple.Create("BGLiteContract", "EditBGLiteContract") },
-            { "Corona", Tuple.Create("CoronaContract", "EditCoronaContract") }
+            { "Corona", Tuple.Create("CoronaContract", "EditCoronaContract") },
+            { "Crown Gas and Power", Tuple.Create("CrownContract", "EditCrownContract") }
             // add more suppliers here later
         };
 

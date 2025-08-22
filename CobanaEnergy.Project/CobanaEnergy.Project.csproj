@@ -257,6 +257,7 @@
   <ItemGroup>
     <Content Include="Content\Accounts\AwaitingPaymentsDashboard\AwaitingPaymentsDashboard.css" />
     <Content Include="Content\Accounts\BGBContracts\EditBGBContract.css" />
+    <Content Include="Content\Accounts\CrownContracts\crownContract.css" />
     <Content Include="Content\Accounts\CoronaContracts\CoronaContract.css" />
     <Content Include="Content\Accounts\BGLiteContracts\EditBGLiteContract.css" />
     <Content Include="Content\Accounts\CalendarDashboard\CalendarDashboard.css" />
@@ -290,6 +291,7 @@
     <Content Include="migration-command.txt" />
     <Content Include="Scripts\Accounts\AwaitingPaymentsDashboard\awaitingPaymentsDashboard.js" />
     <Content Include="Scripts\Accounts\BGBContracts\editBGBContract.js" />
+    <Content Include="Scripts\Accounts\CrownContracts\editCrownContract.js" />
     <Content Include="Scripts\Accounts\CoronaContracts\editCoronaContract.js" />
     <Content Include="Scripts\Accounts\BGLiteContracts\editBGLiteContract.js" />
     <Content Include="Scripts\Accounts\CalendarDashboard\calendarDashboard.js" />
@@ -348,6 +350,7 @@
     <Compile Include="Controllers\Accounts\CampaignDashboard\CampaignController.cs" />
     <Compile Include="Controllers\Accounts\ClawbacksDashboard\ClawbacksDashboardController.cs" />
     <Compile Include="Controllers\Accounts\CoronaContracts\CoronaContractController.cs" />
+    <Compile Include="Controllers\Accounts\CrownContracts\CrownContractController.cs" />
     <Compile Include="Controllers\Accounts\InvoiceSupplierDashboard\InvoiceSupplierDashboardController.cs" />
     <Compile Include="Controllers\Accounts\ProblematicsDashboard\ProblematicsDashboardController.cs" />
     <Compile Include="Controllers\Accounts\ReconciliationsDashboard\ReconciliationsDashboardController.cs" />
@@ -414,6 +417,8 @@
     <Compile Include="Models\Accounts\SuppliersModels\BGLite\EditBGLiteContractViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\Corona\CoronaEacLogViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\Corona\EditCoronaContractViewModel.cs" />
+    <Compile Include="Models\Accounts\SuppliersModels\Crown\CrownEacLogViewModel.cs" />
+    <Compile Include="Models\Accounts\SuppliersModels\Crown\EditCrownContractViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\PaymentAndNotesLogsViewModel.cs" />
     <Compile Include="Models\Dual\EditDual\DualContractEditViewModel.cs" />
     <Compile Include="Models\Dual\LogsHelperClass\LogEntry.cs" />
@@ -524,6 +529,7 @@
     <Content Include="Views\Accounts\BGLiteContract\EditBGLiteContract.cshtml" />
     <Content Include="Views\Accounts\Common\EditCobanaInvoiceNotes.cshtml" />
     <Content Include="Views\Accounts\CoronaContract\EditCoronaContract.cshtml" />
+    <Content Include="Views\Accounts\CrownContract\EditCrownContract.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
