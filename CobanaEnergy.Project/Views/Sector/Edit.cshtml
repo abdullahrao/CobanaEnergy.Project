@@ -18,9 +18,7 @@
             <div class="form-section sector-type-section">
                     <h4>Sector Type</h4>
                 <div class="row gx-4 gy-3 align-items-center">
-                        <div class="col-md-6">
-                        <label for="sectorType" class="form-label required">Sector Type</label>
-                                <select name="SectorType" id="sectorType" class="form-control" required>
+                                <select name="SectorType" id="sectorType" class="form-control" required disabled>
                                     <option value="">Select Sector Type</option>
                                     <option value="Brokerage" @(Model.SectorType == "Brokerage" ? "selected" : "")>Brokerage</option>
                                     <option value="Closer" @(Model.SectorType == "Closer" ? "selected" : "")>Closer</option>
@@ -28,7 +26,7 @@
                                     <option value="Referral Partner" @(Model.SectorType == "Referral Partner" ? "selected" : "")>Referral Partner</option>
                                     <option value="Introducer" @(Model.SectorType == "Introducer" ? "selected" : "")>Introducer</option>
                                 </select>
-                        </div>
+                                @Html.Hidden("SectorType", Model.SectorType)
                     </div>
                 </div>
 
@@ -49,12 +47,14 @@
                         </div>
                 <div class="row gx-4 gy-3 mt-3">
                         <div class="col-md-6">
-                        <input type="date" name="StartDate" value="@Model.StartDate" class="form-control date-start" required />
+                            <label class="form-label small text-muted">Start Date</label>
+                            <input type="date" name="StartDate" value="@Model.StartDate" class="form-control date-start" required />
                         </div>
                         <div class="col-md-6">
-                        <input type="date" name="EndDate" value="@Model.EndDate" class="form-control date-end" data-start-target="#startDate" />
-                            </div>
+                            <label class="form-label small text-muted">End Date</label>
+                            <input type="date" name="EndDate" value="@Model.EndDate" class="form-control date-end" data-start-target="#startDate" />
                         </div>
+                    </div>
                 <div class="row gx-4 gy-3 mt-3">
                     <div class="col-md-6">
                         <input type="email" name="Email" value="@Model.Email" class="form-control" placeholder="Email Address *" required />
@@ -76,7 +76,9 @@
                                 <input type="text" name="OfgemID" value="@Model.OfgemID" class="form-control" placeholder="Ofgem ID" />
                         </div>
                         <div class="col-md-6">
-                            <input type="text" name="Department" value="@Model.Department" class="form-control" placeholder="Department" readonly />
+                            <select name="Department" id="department" class="form-control" required>
+                                <option value="">Select Department *</option>
+                            </select>
                             </div>
                         </div>
                     </div>
@@ -169,6 +171,7 @@
         }
 
         <script src="~/Scripts/Common/duplicateAccountChecker.js"></script>
+        <script src="~/Scripts/Dropdown/dropdowns.js"></script>
         <script src="~/Scripts/Sector/sectorFormManager.js"></script>
         <script src="~/Scripts/Sector/editSector.js"></script>
         <script>

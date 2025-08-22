@@ -16,10 +16,8 @@
             <div class="form-section sector-type-section">
                 <h4>Sector Type</h4>
                 <div class="row justify-content-center">
-                    <div class="col-md-6">
                         <div class="d-flex align-items-center">
-                            <label for="sectorType" class="form-label required me-3 mb-0">Sector Type:</label>
-                            <select class="form-control" id="sectorType" name="SectorType" required style="width: auto;">
+                            <select class="form-select" id="sectorType" name="SectorType" required>
                                 <option value="">Choose a sector</option>
                                 <option value="Brokerage">Brokerage</option>
                                 <option value="Closer">Closer</option>
@@ -28,7 +26,6 @@
                                 <option value="Introducer">Introducer</option>
                             </select>
                         </div>
-                    </div>
                 </div>
             </div>
 
@@ -40,7 +37,7 @@
                         <input type="text" class="form-control" id="sectorName" name="Name" placeholder="Sector Name *" required autocomplete="off" />
                     </div>
                     <div class="col-md-6">
-                        <select class="form-control" id="sectorActive" name="Active" required>
+                        <select class="form-select" id="sectorActive" name="Active" required>
                             <option value="">Select Status *</option>
                             <option value="true">YES</option>
                             <option value="false">NO</option>
@@ -53,8 +50,8 @@
                         <input type="date" class="form-control date-start" id="startDate" name="StartDate" required />
                     </div>
                     <div class="col-md-6">
+                        <label class="form-label small text-muted">End Date</label>
                         <input type="date" class="form-control date-end" id="endDate" name="EndDate" data-start-target="#startDate" />
-                        <small class="form-text text-muted">End Date</small>
                     </div>
                 </div>
                 <div class="row gx-4 gy-3 mt-3">
@@ -78,7 +75,9 @@
                             <input type="text" class="form-control" id="ofgemId" name="OfgemID" placeholder="Ofgem ID" autocomplete="off" />
                         </div>
                         <div class="col-md-6">
-                            <input type="text" class="form-control" id="department" name="Department" placeholder="Department" readonly />
+                            <select class="form-select" id="department" name="Department" required>
+                                <option value="">Select Department *</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -169,6 +168,7 @@
         }
 
         <script src="~/Scripts/Common/duplicateAccountChecker.js"></script>
+        <script src="~/Scripts/Dropdown/dropdowns.js"></script>
         <script src="~/Scripts/Sector/sectorFormManager.js"></script>
         <script src="~/Scripts/Sector/createSector.js"></script>
     }
