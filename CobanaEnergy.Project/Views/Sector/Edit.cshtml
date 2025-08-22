@@ -18,7 +18,7 @@
             <div class="form-section sector-type-section">
                     <h4>Sector Type</h4>
                 <div class="row gx-4 gy-3 align-items-center">
-                                <select name="SectorType" id="sectorType" class="form-control" required disabled>
+                                <select name="SectorType" id="sectorType" class="form-select" required disabled>
                                     <option value="">Select Sector Type</option>
                                     <option value="Brokerage" @(Model.SectorType == "Brokerage" ? "selected" : "")>Brokerage</option>
                                     <option value="Closer" @(Model.SectorType == "Closer" ? "selected" : "")>Closer</option>
@@ -38,7 +38,7 @@
                                 <input type="text" name="Name" value="@Model.Name" class="form-control" placeholder="Sector Name *" required />
                         </div>
                         <div class="col-md-6">
-                        <select name="Active" class="form-control" required>
+                        <select name="Active" class="form-select" required>
                             <option value="">Select Status *</option>
                             <option value="true" @(Model.Active ? "selected" : "")>YES</option>
                             <option value="false" @(!Model.Active ? "selected" : "")>NO</option>
@@ -76,7 +76,7 @@
                                 <input type="text" name="OfgemID" value="@Model.OfgemID" class="form-control" placeholder="Ofgem ID" />
                         </div>
                         <div class="col-md-6">
-                            <select name="Department" id="department" class="form-control" required>
+                            <select name="Department" id="department" class="form-select" required>
                                 <option value="">Select Department *</option>
                             </select>
                             </div>

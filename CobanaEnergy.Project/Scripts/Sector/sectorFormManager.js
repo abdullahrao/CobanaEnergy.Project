@@ -287,7 +287,7 @@ class SectorFormManager {
                 <div id="subReferralContainer">
                     ${this.isEditMode && this.modelData && this.modelData.SubReferrals && 
                       this.modelData.SubReferrals.length > 0 && 
-                      this.hasValidData('SubReferrals', 'SubReferralPartnerName', ['SubIntroducerCommission']) 
+            this.hasValidData('SubReferrals', 'SubReferralPartnerName', ['Email', 'Mobile', 'Landline']) 
                         ? this.generateSubReferralFieldsForEdit() 
                         : ''}
                 </div>
@@ -344,7 +344,7 @@ class SectorFormManager {
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <select name="BrokerageCommissions[${index}].PaymentTerms" class="form-control" required>
+                            <select name="BrokerageCommissions[${index}].PaymentTerms" class="form-select" required>
                                 <option value="">Payment Terms *</option>
                                 <option value="Weekly">Weekly</option>
                                 <option value="Monthly">Monthly</option>
@@ -369,7 +369,7 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <select name="BrokerageCommissions[${index}].CommissionType" class="form-control" required>
+                            <select name="BrokerageCommissions[${index}].CommissionType" class="form-select" required>
                                 <option value="">Commission Type *</option>
                                 <option value="Duration">Duration</option>
                                 <option value="Annual">Annual</option>
@@ -395,7 +395,7 @@ class SectorFormManager {
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <select name="BrokerageStaff[${index}].Active" class="form-control">
+                            <select name="BrokerageStaff[${index}].Active" class="form-select">
                                 <option value="true" selected>YES</option>
                                 <option value="false">NO</option>
                             </select>
@@ -464,7 +464,7 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <select name="SubBrokerages[${index}].Active" class="form-control">
+                            <select name="SubBrokerages[${index}].Active" class="form-select">
                                 <option value="true" selected>YES</option>
                                 <option value="false">NO</option>
                             </select>
@@ -644,7 +644,7 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <select name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].PaymentTerms" class="form-control">
+                            <select name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].PaymentTerms" class="form-select">
                                 <option value="">Payment Terms</option>
                                 <option value="Weekly">Weekly</option>
                                 <option value="Monthly">Monthly</option>
@@ -655,7 +655,7 @@ class SectorFormManager {
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <select name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].CommissionType" class="form-control">
+                            <select name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].CommissionType" class="form-select">
                                 <option value="">Commission Type</option>
                                 <option value="Duration">Duration</option>
                                 <option value="Annual">Annual</option>
@@ -682,7 +682,7 @@ class SectorFormManager {
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <select name="CloserCommissions[${index}].PaymentTerms" class="form-control" required>
+                            <select name="CloserCommissions[${index}].PaymentTerms" class="form-select" required>
                                 <option value="">Payment Terms *</option>
                                 <option value="Weekly">Weekly</option>
                                 <option value="Monthly">Monthly</option>
@@ -707,7 +707,7 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <select name="CloserCommissions[${index}].CommissionType" class="form-control" required>
+                            <select name="CloserCommissions[${index}].CommissionType" class="form-select" required>
                                 <option value="">Commission Type *</option>
                                 <option value="Duration">Duration</option>
                                 <option value="Annual">Annual</option>
@@ -769,7 +769,7 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <select name="LeadGeneratorCommissions[${index}].PaymentTerms" class="form-control" required>
+                            <select name="LeadGeneratorCommissions[${index}].PaymentTerms" class="form-select" required>
                                 <option value="">Payment Terms *</option>
                                 <option value="Weekly">Weekly</option>
                                 <option value="Monthly">Monthly</option>
@@ -778,7 +778,7 @@ class SectorFormManager {
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <select name="LeadGeneratorCommissions[${index}].CommissionType" class="form-control" required>
+                            <select name="LeadGeneratorCommissions[${index}].CommissionType" class="form-select" required>
                                 <option value="">Commission Type *</option>
                                 <option value="Duration">Duration</option>
                                 <option value="Annual">Annual</option>
@@ -840,7 +840,7 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <select name="ReferralPartnerCommissions[${index}].PaymentTerms" class="form-control" required>
+                            <select name="ReferralPartnerCommissions[${index}].PaymentTerms" class="form-select" required>
                                 <option value="">Payment Terms *</option>
                                 <option value="Weekly">Weekly</option>
                                 <option value="Monthly">Monthly</option>
@@ -849,7 +849,7 @@ class SectorFormManager {
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <select name="ReferralPartnerCommissions[${index}].CommissionType" class="form-control" required>
+                            <select name="ReferralPartnerCommissions[${index}].CommissionType" class="form-select" required>
                                 <option value="">Commission Type *</option>
                                 <option value="Duration">Duration</option>
                                 <option value="Annual">Annual</option>
@@ -876,7 +876,7 @@ class SectorFormManager {
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <select name="SubReferrals[${index}].Active" class="form-control">
+                            <select name="SubReferrals[${index}].Active" class="form-select">
                                 <option value="true" selected>YES</option>
                                 <option value="false">NO</option>
                             </select>
@@ -1042,7 +1042,7 @@ class SectorFormManager {
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <select name="SubReferrals[${index}].Commissions[0].PaymentTerms" class="form-control">
+                                        <select name="SubReferrals[${index}].Commissions[0].PaymentTerms" class="form-select">
                                             <option value="">Payment Terms</option>
                                             <option value="Weekly">Weekly</option>
                                             <option value="Monthly">Monthly</option>
@@ -1053,7 +1053,7 @@ class SectorFormManager {
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <select name="SubReferrals[${index}].Commissions[0].CommissionType" class="form-control">
+                                        <select name="SubReferrals[${index}].Commissions[0].CommissionType" class="form-select">
                                             <option value="">Commission Type</option>
                                             <option value="Duration">Duration</option>
                                             <option value="Annual">Annual</option>
@@ -1122,7 +1122,7 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <select name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].PaymentTerms" class="form-control">
+                            <select name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].PaymentTerms" class="form-select">
                                 <option value="">Payment Terms</option>
                                 <option value="Weekly">Weekly</option>
                                 <option value="Monthly">Monthly</option>
@@ -1133,7 +1133,7 @@ class SectorFormManager {
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <select name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].CommissionType" class="form-control">
+                            <select name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].CommissionType" class="form-select">
                                 <option value="">Commission Type</option>
                                 <option value="Duration">Duration</option>
                                 <option value="Annual">Annual</option>
@@ -1194,7 +1194,7 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <select name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].PaymentTerms" class="form-control">
+                            <select name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].PaymentTerms" class="form-select">
                                 <option value="">Payment Terms</option>
                                 <option value="Weekly" ${commission.PaymentTerms === 'Weekly' ? 'selected' : ''}>Weekly</option>
                                 <option value="Monthly" ${commission.PaymentTerms === 'Monthly' ? 'selected' : ''}>Monthly</option>
@@ -1205,7 +1205,7 @@ class SectorFormManager {
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <select name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].CommissionType" class="form-control">
+                            <select name="SubReferrals[${subsectionIndex}].Commissions[${commissionIndex}].CommissionType" class="form-select">
                                 <option value="">Commission Type</option>
                                 <option value="Duration" ${commission.CommissionType === 'Duration' ? 'selected' : ''}>Duration</option>
                                 <option value="Annual" ${commission.CommissionType === 'Annual' ? 'selected' : ''}>Annual</option>
@@ -1232,7 +1232,7 @@ class SectorFormManager {
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <select name="IntroducerCommissions[${index}].PaymentTerms" class="form-control" required>
+                            <select name="IntroducerCommissions[${index}].PaymentTerms" class="form-select" required>
                                 <option value="">Payment Terms *</option>
                                 <option value="Weekly">Weekly</option>
                                 <option value="Monthly">Monthly</option>
@@ -1257,7 +1257,7 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <select name="IntroducerCommissions[${index}].CommissionType" class="form-control" required>
+                            <select name="IntroducerCommissions[${index}].CommissionType" class="form-select" required>
                                 <option value="">Commission Type *</option>
                                 <option value="Duration">Duration</option>
                                 <option value="Annual">Annual</option>
@@ -1291,7 +1291,7 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <select name="SubIntroducers[${index}].Active" class="form-control">
+                            <select name="SubIntroducers[${index}].Active" class="form-select">
                                 <option value="true" selected>YES</option>
                                 <option value="false">NO</option>
                             </select>
@@ -1471,7 +1471,7 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <select name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].PaymentTerms" class="form-control">
+                            <select name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].PaymentTerms" class="form-select">
                                 <option value="">Payment Terms</option>
                                 <option value="Weekly">Weekly</option>
                                 <option value="Monthly">Monthly</option>
@@ -1482,7 +1482,7 @@ class SectorFormManager {
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <select name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].CommissionType" class="form-control">
+                            <select name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].CommissionType" class="form-select">
                                 <option value="">Commission Type</option>
                                 <option value="Duration">Duration</option>
                                 <option value="Annual">Annual</option>
@@ -1543,7 +1543,7 @@ class SectorFormManager {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <select name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].PaymentTerms" class="form-control">
+                            <select name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].PaymentTerms" class="form-select">
                                 <option value="">Payment Terms</option>
                                 <option value="Weekly" ${commission.PaymentTerms === 'Weekly' ? 'selected' : ''}>Weekly</option>
                                 <option value="Monthly" ${commission.PaymentTerms === 'Monthly' ? 'selected' : ''}>Monthly</option>
@@ -1554,7 +1554,7 @@ class SectorFormManager {
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <select name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].CommissionType" class="form-control">
+                            <select name="SubIntroducers[${subsectionIndex}].Commissions[${commissionIndex}].CommissionType" class="form-select">
                                 <option value="">Commission Type</option>
                                 <option value="Duration" ${commission.CommissionType === 'Duration' ? 'selected' : ''}>Duration</option>
                                 <option value="Annual" ${commission.CommissionType === 'Annual' ? 'selected' : ''}>Annual</option>
@@ -1588,7 +1588,7 @@ class SectorFormManager {
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <select name="BrokerageCommissions[${index}].PaymentTerms" class="form-control" required>
+                                <select name="BrokerageCommissions[${index}].PaymentTerms" class="form-select" required>
                                     <option value="">Payment Terms *</option>
                                     <option value="Weekly" ${commission.PaymentTerms === 'Weekly' ? 'selected' : ''}>Weekly</option>
                                     <option value="Monthly" ${commission.PaymentTerms === 'Monthly' ? 'selected' : ''}>Monthly</option>
@@ -1613,7 +1613,7 @@ class SectorFormManager {
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <select name="BrokerageCommissions[${index}].CommissionType" class="form-control" required>
+                                <select name="BrokerageCommissions[${index}].CommissionType" class="form-select" required>
                                     <option value="">Commission Type *</option>
                                     <option value="Duration" ${commission.CommissionType === 'Duration' ? 'selected' : ''}>Duration</option>
                                     <option value="Annual" ${commission.CommissionType === 'Annual' ? 'selected' : ''}>Annual</option>
@@ -1647,10 +1647,10 @@ class SectorFormManager {
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <select name="BrokerageStaff[${index}].Active" class="form-control">
-                                    <option value="true" ${staff.Active ? 'selected' : ''}>YES</option>
-                                    <option value="false" ${!staff.Active ? 'selected' : ''}>NO</option>
-                                </select>
+                                                            <select name="BrokerageStaff[${index}].Active" class="form-select">
+                                <option value="true" ${staff.Active ? 'selected' : ''}>YES</option>
+                                <option value="false" ${!staff.Active ? 'selected' : ''}>NO</option>
+                            </select>
                             </div>
                         </div>
                     </div>
@@ -1724,10 +1724,10 @@ class SectorFormManager {
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <select name="SubBrokerages[${index}].Active" class="form-control">
-                                    <option value="true" ${subBrokerage.Active ? 'selected' : ''}>YES</option>
-                                    <option value="false" ${!subBrokerage.Active ? 'selected' : ''}>NO</option>
-                                </select>
+                                                            <select name="SubBrokerages[${index}].Active" class="form-select">
+                                <option value="true" ${subBrokerage.Active ? 'selected' : ''}>YES</option>
+                                <option value="false" ${!subBrokerage.Active ? 'selected' : ''}>NO</option>
+                            </select>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -1916,7 +1916,7 @@ class SectorFormManager {
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <select name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].PaymentTerms" class="form-control">
+                                <select name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].PaymentTerms" class="form-select">
                                     <option value="">Payment Terms</option>
                                     <option value="Weekly" ${commission.PaymentTerms === 'Weekly' ? 'selected' : ''}>Weekly</option>
                                     <option value="Monthly" ${commission.PaymentTerms === 'Monthly' ? 'selected' : ''}>Monthly</option>
@@ -1927,7 +1927,7 @@ class SectorFormManager {
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <select name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].CommissionType" class="form-control">
+                                <select name="SubBrokerages[${subsectionIndex}].Commissions[${commissionIndex}].CommissionType" class="form-select">
                                     <option value="">Commission Type</option>
                                     <option value="Duration" ${commission.CommissionType === 'Duration' ? 'selected' : ''}>Duration</option>
                                     <option value="Annual" ${commission.CommissionType === 'Annual' ? 'selected' : ''}>Annual</option>
@@ -1962,7 +1962,7 @@ class SectorFormManager {
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <select name="CloserCommissions[${index}].PaymentTerms" class="form-control" required>
+                                <select name="CloserCommissions[${index}].PaymentTerms" class="form-select" required>
                                     <option value="">Payment Terms *</option>
                                     <option value="Weekly" ${commission.PaymentTerms === 'Weekly' ? 'selected' : ''}>Weekly</option>
                                     <option value="Monthly" ${commission.PaymentTerms === 'Monthly' ? 'selected' : ''}>Monthly</option>
@@ -1987,7 +1987,7 @@ class SectorFormManager {
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <select name="CloserCommissions[${index}].CommissionType" class="form-control" required>
+                                <select name="CloserCommissions[${index}].CommissionType" class="form-select" required>
                                     <option value="">Commission Type *</option>
                                     <option value="Duration" ${commission.CommissionType === 'Duration' ? 'selected' : ''}>Duration</option>
                                     <option value="Annual" ${commission.CommissionType === 'Annual' ? 'selected' : ''}>Annual</option>
@@ -2057,7 +2057,7 @@ class SectorFormManager {
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <select name="LeadGeneratorCommissions[${index}].PaymentTerms" class="form-control" required>
+                                <select name="LeadGeneratorCommissions[${index}].PaymentTerms" class="form-select" required>
                                     <option value="">Payment Terms *</option>
                                     <option value="Weekly" ${commission.PaymentTerms === 'Weekly' ? 'selected' : ''}>Weekly</option>
                                     <option value="Monthly" ${commission.PaymentTerms === 'Monthly' ? 'selected' : ''}>Monthly</option>
@@ -2066,7 +2066,7 @@ class SectorFormManager {
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <select name="LeadGeneratorCommissions[${index}].CommissionType" class="form-control" required>
+                                <select name="LeadGeneratorCommissions[${index}].CommissionType" class="form-select" required>
                                     <option value="">Commission Type *</option>
                                     <option value="Duration" ${commission.CommissionType === 'Duration' ? 'selected' : ''}>Duration</option>
                                     <option value="Annual" ${commission.CommissionType === 'Annual' ? 'selected' : ''}>Annual</option>
@@ -2136,7 +2136,7 @@ class SectorFormManager {
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <select name="ReferralPartnerCommissions[${index}].PaymentTerms" class="form-control" required>
+                                <select name="ReferralPartnerCommissions[${index}].PaymentTerms" class="form-select" required>
                                     <option value="">Payment Terms *</option>
                                     <option value="Weekly" ${commission.PaymentTerms === 'Weekly' ? 'selected' : ''}>Weekly</option>
                                     <option value="Monthly" ${commission.PaymentTerms === 'Monthly' ? 'selected' : ''}>Monthly</option>
@@ -2145,7 +2145,7 @@ class SectorFormManager {
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <select name="ReferralPartnerCommissions[${index}].CommissionType" class="form-control" required>
+                                <select name="ReferralPartnerCommissions[${index}].CommissionType" class="form-select" required>
                                     <option value="">Commission Type *</option>
                                     <option value="Duration" ${commission.CommissionType === 'Duration' ? 'selected' : ''}>Duration</option>
                                     <option value="Annual" ${commission.CommissionType === 'Annual' ? 'selected' : ''}>Annual</option>
@@ -2180,10 +2180,10 @@ class SectorFormManager {
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <select name="SubReferrals[${index}].Active" class="form-control">
-                                    <option value="true" ${subReferral.Active ? 'selected' : ''}>YES</option>
-                                    <option value="false" ${!subReferral.Active ? 'selected' : ''}>NO</option>
-                                </select>
+                                                            <select name="SubReferrals[${index}].Active" class="form-select">
+                                <option value="true" ${subReferral.Active ? 'selected' : ''}>YES</option>
+                                <option value="false" ${!subReferral.Active ? 'selected' : ''}>NO</option>
+                            </select>
                             </div>
                         </div>
                     </div>
@@ -2341,7 +2341,7 @@ class SectorFormManager {
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <select name="IntroducerCommissions[${index}].PaymentTerms" class="form-control" required>
+                                <select name="IntroducerCommissions[${index}].PaymentTerms" class="form-select" required>
                                     <option value="">Payment Terms *</option>
                                     <option value="Weekly" ${commission.PaymentTerms === 'Weekly' ? 'selected' : ''}>Weekly</option>
                                     <option value="Monthly" ${commission.PaymentTerms === 'Monthly' ? 'selected' : ''}>Monthly</option>
@@ -2366,7 +2366,7 @@ class SectorFormManager {
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <select name="IntroducerCommissions[${index}].CommissionType" class="form-control" required>
+                                <select name="IntroducerCommissions[${index}].CommissionType" class="form-select" required>
                                     <option value="">Commission Type *</option>
                                     <option value="Duration" ${commission.CommissionType === 'Duration' ? 'selected' : ''}>Duration</option>
                                     <option value="Annual" ${commission.CommissionType === 'Annual' ? 'selected' : ''}>Annual</option>
@@ -2408,10 +2408,10 @@ class SectorFormManager {
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <select name="SubIntroducers[${index}].Active" class="form-control">
-                                    <option value="true" ${subIntroducer.Active ? 'selected' : ''}>YES</option>
-                                    <option value="false" ${!subIntroducer.Active ? 'selected' : ''}>NO</option>
-                                </select>
+                                                            <select name="SubIntroducers[${index}].Active" class="form-select">
+                                <option value="true" ${subIntroducer.Active ? 'selected' : ''}>YES</option>
+                                <option value="false" ${!subIntroducer.Active ? 'selected' : ''}>NO</option>
+                            </select>
                             </div>
                         </div>
                        <div class="col-md-6">
