@@ -4,6 +4,8 @@ namespace CobanaEnergy.Project.Models.Sector.Commissions
 {
     public class LeadGeneratorCommissionAndPaymentViewModel
     {
+        public int? Id { get; set; }
+
         [Range(0, 100, ErrorMessage = "Commission must be between 0 and 100")]
         [Display(Name = "Lead Generator Commission (%)")]
         public decimal? LeadGeneratorCommission { get; set; }

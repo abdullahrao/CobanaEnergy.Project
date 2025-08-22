@@ -1,19 +1,20 @@
-using CobanaEnergy.Project.Controllers.Base;
+﻿using CobanaEnergy.Project.Controllers.Base;
 using CobanaEnergy.Project.Filters;
 using CobanaEnergy.Project.Models;
 using CobanaEnergy.Project.Models.Sector;
-using CobanaEnergy.Project.Models.Sector.SectorDBModels;
-using CobanaEnergy.Project.Models.Sector.Common;
-using CobanaEnergy.Project.Models.Sector.Commissions;
 using CobanaEnergy.Project.Models.Sector.Brokerage;
-using CobanaEnergy.Project.Models.Sector.ReferralPartner;
+using CobanaEnergy.Project.Models.Sector.Commissions;
+using CobanaEnergy.Project.Models.Sector.Common;
 using CobanaEnergy.Project.Models.Sector.Introducer;
+using CobanaEnergy.Project.Models.Sector.ReferralPartner;
+using CobanaEnergy.Project.Models.Sector.SectorDBModels;
 using Logic;
 using Logic.ResponseModel.Helper;
 using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
@@ -839,6 +840,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
             {
                 model.BrokerageCommissions = brokerageCommissions.Select(c => new BrokerageCommissionAndPaymentViewModel
                 {
+                    Id = c.CommissionID,
                     Commission = c.Commission,
                     StartDate = c.StartDate.ToString("yyyy-MM-dd"),
                     EndDate = c.EndDate?.ToString("yyyy-MM-dd") ?? "",
@@ -851,6 +853,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
             {
                 model.CloserCommissions = closerCommissions.Select(c => new CloserCommissionAndPaymentViewModel
                 {
+                    Id = c.CommissionID,
                     Commission = c.Commission,
                     StartDate = c.StartDate.ToString("yyyy-MM-dd"),
                     EndDate = c.EndDate?.ToString("yyyy-MM-dd") ?? "",
@@ -863,6 +866,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
             {
                 model.IntroducerCommissions = introducerCommissions.Select(c => new IntroducerCommissionAndPaymentViewModel
                 {
+                    Id = c.CommissionID,
                     Commission = c.CommissionPercent,
                     StartDate = c.StartDate.ToString("yyyy-MM-dd"),
                     EndDate = c.EndDate?.ToString("yyyy-MM-dd") ?? "",
@@ -875,6 +879,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
             {
                 model.ReferralPartnerCommissions = referralPartnerCommissions.Select(c => new ReferralPartnerCommissionAndPaymentViewModel
                 {
+                    Id = c.ReferralCommPayID,
                     ReferralPartnerCommission = c.ReferralPartnerCommission,
                     ReferralPartnerStartDate = c.ReferralPartnerStartDate?.ToString("yyyy-MM-dd") ?? "",
                     ReferralPartnerEndDate = c.ReferralPartnerEndDate?.ToString("yyyy-MM-dd") ?? "",
@@ -887,6 +892,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
             {
                 model.LeadGeneratorCommissions = leadGeneratorCommissions.Select(c => new LeadGeneratorCommissionAndPaymentViewModel
                 {
+                    Id = c.LeadGenCommPayID,
                     LeadGeneratorCommission = c.LeadGeneratorCommissionPercent,
                     LeadGeneratorStartDate = c.LeadGeneratorStartDate?.ToString("yyyy-MM-dd") ?? "",
                     LeadGeneratorEndDate = c.LeadGeneratorEndDate?.ToString("yyyy-MM-dd") ?? "",
@@ -1204,6 +1210,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         // Step 4: Update Commission Records
                         await UpdateCommissionRecords(sectorId, model);
 
+
                         // Step 5: Update Staff and Sub-sections
                         await UpdateStaffAndSubsections(sectorId, model);
 
@@ -1221,10 +1228,11 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     {
                         transaction.Rollback();
                         Logic.Logger.Log($"Sector update transaction failed: {ex.Message}");
-                        
+
                         // Return JSON error for immediate toast notification
-                        return Json(new { 
-                            success = false, 
+                        return Json(new
+                        {
+                            success = false,
                             message = $"Failed to update sector: {ex.Message}",
                             errors = new[] { ex.Message }
                         }, JsonRequestBehavior.AllowGet);
@@ -1253,27 +1261,52 @@ namespace CobanaEnergy.Project.Controllers.Sector
         private async Task UpdateCommissionRecords(int sectorId, EditSectorViewModel model)
         {
             // Update Brokerage Commissions - Only for Brokerage sector type
-            if (model.SectorType == "Brokerage" && model.BrokerageCommissions != null && model.BrokerageCommissions.Any())
+            if (model.SectorType == "Brokerage" && model.BrokerageCommissions != null && model.BrokerageCommissions.Any(c => !string.IsNullOrEmpty(c.Commission.ToString())))
             {
-                // Remove existing
                 var existingBrokerageCommissions = await db.CE_BrokerageCommissionAndPayment
                     .Where(c => c.SectorID == sectorId)
                     .ToListAsync();
-                db.CE_BrokerageCommissionAndPayment.RemoveRange(existingBrokerageCommissions);
 
-                // Add new
+                // Process each commission from the model
                 foreach (var commission in model.BrokerageCommissions.Where(c => c != null && !string.IsNullOrEmpty(c.Commission.ToString())))
                 {
-                    var brokerageCommission = new CE_BrokerageCommissionAndPayment
+                    if (commission.Id.HasValue)
                     {
-                        SectorID = sectorId,
-                        Commission = commission.Commission,
-                        StartDate = (DateTime)(!string.IsNullOrEmpty(commission.StartDate) ? DateTime.Parse(commission.StartDate) : (DateTime?)null),
-                        EndDate = !string.IsNullOrEmpty(commission.EndDate) ? DateTime.Parse(commission.EndDate) : (DateTime?)null,
-                        PaymentTerms = commission.PaymentTerms ?? "",
-                        CommissionType = commission.CommissionType ?? ""
-                    };
-                    db.CE_BrokerageCommissionAndPayment.Add(brokerageCommission);
+                        // Update existing commission
+                        var existingCommission = existingBrokerageCommissions
+                            .FirstOrDefault(ec => ec.CommissionID == commission.Id.Value);
+
+                        if (existingCommission != null)
+                        {
+                            existingCommission.Commission = commission.Commission;
+                            existingCommission.StartDate = (DateTime)(!string.IsNullOrEmpty(commission.StartDate) ? DateTime.Parse(commission.StartDate) : (DateTime?)null);
+                            existingCommission.EndDate = !string.IsNullOrEmpty(commission.EndDate) ? DateTime.Parse(commission.EndDate) : (DateTime?)null;
+                            existingCommission.PaymentTerms = commission.PaymentTerms ?? "";
+                            existingCommission.CommissionType = commission.CommissionType ?? "";
+
+                            existingBrokerageCommissions.Remove(existingCommission);
+                        }
+                    }
+                    else
+                    {
+                        // Create new commission
+                        var brokerageCommission = new CE_BrokerageCommissionAndPayment
+                        {
+                            SectorID = sectorId,
+                            Commission = commission.Commission,
+                            StartDate = (DateTime)(!string.IsNullOrEmpty(commission.StartDate) ? DateTime.Parse(commission.StartDate) : (DateTime?)null),
+                            EndDate = !string.IsNullOrEmpty(commission.EndDate) ? DateTime.Parse(commission.EndDate) : (DateTime?)null,
+                            PaymentTerms = commission.PaymentTerms ?? "",
+                            CommissionType = commission.CommissionType ?? ""
+                        };
+                        db.CE_BrokerageCommissionAndPayment.Add(brokerageCommission);
+                    }
+                }
+
+                // Remove any remaining existing commissions that weren't updated
+                if (existingBrokerageCommissions.Any())
+                {
+                    db.CE_BrokerageCommissionAndPayment.RemoveRange(existingBrokerageCommissions);
                 }
             }
 
@@ -1283,20 +1316,46 @@ namespace CobanaEnergy.Project.Controllers.Sector
                 var existingCloserCommissions = await db.CE_CloserCommissionAndPayment
                     .Where(c => c.SectorID == sectorId)
                     .ToListAsync();
-                db.CE_CloserCommissionAndPayment.RemoveRange(existingCloserCommissions);
 
                 foreach (var commission in model.CloserCommissions.Where(c => c != null && !string.IsNullOrEmpty(c.Commission.ToString())))
                 {
-                    var closerCommission = new CE_CloserCommissionAndPayment
+                    if (commission.Id.HasValue)
                     {
-                        SectorID = sectorId,
-                        Commission = commission.Commission,
-                        StartDate = (DateTime)(!string.IsNullOrEmpty(commission.StartDate) ? DateTime.Parse(commission.StartDate) : (DateTime?)null),
-                        EndDate = !string.IsNullOrEmpty(commission.EndDate) ? DateTime.Parse(commission.EndDate) : (DateTime?)null,
-                        PaymentTerms = commission.PaymentTerms ?? "",
-                        CommissionType = commission.CommissionType ?? ""
-                    };
-                    db.CE_CloserCommissionAndPayment.Add(closerCommission);
+                        // Update existing commission
+                        var existingCommission = existingCloserCommissions
+                            .FirstOrDefault(ec => ec.CommissionID == commission.Id.Value);
+
+                        if (existingCommission != null)
+                        {
+                            existingCommission.Commission = commission.Commission;
+                            existingCommission.StartDate = (DateTime)(!string.IsNullOrEmpty(commission.StartDate) ? DateTime.Parse(commission.StartDate) : (DateTime?)null);
+                            existingCommission.EndDate = !string.IsNullOrEmpty(commission.EndDate) ? DateTime.Parse(commission.EndDate) : (DateTime?)null;
+                            existingCommission.PaymentTerms = commission.PaymentTerms ?? "";
+                            existingCommission.CommissionType = commission.CommissionType ?? "";
+
+                            existingCloserCommissions.Remove(existingCommission);
+                        }
+                    }
+                    else
+                    {
+                        // Create new commission
+                        var closerCommission = new CE_CloserCommissionAndPayment
+                        {
+                            SectorID = sectorId,
+                            Commission = commission.Commission,
+                            StartDate = (DateTime)(!string.IsNullOrEmpty(commission.StartDate) ? DateTime.Parse(commission.StartDate) : (DateTime?)null),
+                            EndDate = !string.IsNullOrEmpty(commission.EndDate) ? DateTime.Parse(commission.EndDate) : (DateTime?)null,
+                            PaymentTerms = commission.PaymentTerms ?? "",
+                            CommissionType = commission.CommissionType ?? ""
+                        };
+                        db.CE_CloserCommissionAndPayment.Add(closerCommission);
+                    }
+                }
+
+                // Remove any remaining existing commissions that weren't updated
+                if (existingCloserCommissions.Any())
+                {
+                    db.CE_CloserCommissionAndPayment.RemoveRange(existingCloserCommissions);
                 }
             }
 
@@ -1306,20 +1365,46 @@ namespace CobanaEnergy.Project.Controllers.Sector
                 var existingIntroducerCommissions = await db.CE_IntroducerCommissionAndPayment
                     .Where(c => c.SectorID == sectorId)
                     .ToListAsync();
-                db.CE_IntroducerCommissionAndPayment.RemoveRange(existingIntroducerCommissions);
 
                 foreach (var commission in model.IntroducerCommissions.Where(c => c != null && !string.IsNullOrEmpty(c.Commission.ToString())))
                 {
-                    var introducerCommission = new CE_IntroducerCommissionAndPayment
+                    if (commission.Id.HasValue)
                     {
-                        SectorID = sectorId,
-                        CommissionPercent = commission.Commission,
-                        StartDate = (DateTime)(!string.IsNullOrEmpty(commission.StartDate) ? DateTime.Parse(commission.StartDate) : (DateTime?)null),
-                        EndDate = !string.IsNullOrEmpty(commission.EndDate) ? DateTime.Parse(commission.EndDate) : (DateTime?)null,
-                        PaymentTerms = commission.PaymentTerms ?? "",
-                        CommissionType = commission.CommissionType ?? ""
-                    };
-                    db.CE_IntroducerCommissionAndPayment.Add(introducerCommission);
+                        // Update existing commission
+                        var existingCommission = existingIntroducerCommissions
+                            .FirstOrDefault(ec => ec.CommissionID == commission.Id.Value);
+
+                        if (existingCommission != null)
+                        {
+                            existingCommission.CommissionPercent = commission.Commission;
+                            existingCommission.StartDate = (DateTime)(!string.IsNullOrEmpty(commission.StartDate) ? DateTime.Parse(commission.StartDate) : (DateTime?)null);
+                            existingCommission.EndDate = !string.IsNullOrEmpty(commission.EndDate) ? DateTime.Parse(commission.EndDate) : (DateTime?)null;
+                            existingCommission.PaymentTerms = commission.PaymentTerms ?? "";
+                            existingCommission.CommissionType = commission.CommissionType ?? "";
+
+                            existingIntroducerCommissions.Remove(existingCommission);
+                        }
+                    }
+                    else
+                    {
+                        // Create new commission
+                        var introducerCommission = new CE_IntroducerCommissionAndPayment
+                        {
+                            SectorID = sectorId,
+                            CommissionPercent = commission.Commission,
+                            StartDate = (DateTime)(!string.IsNullOrEmpty(commission.StartDate) ? DateTime.Parse(commission.StartDate) : (DateTime?)null),
+                            EndDate = !string.IsNullOrEmpty(commission.EndDate) ? DateTime.Parse(commission.EndDate) : (DateTime?)null,
+                            PaymentTerms = commission.PaymentTerms ?? "",
+                            CommissionType = commission.CommissionType ?? ""
+                        };
+                        db.CE_IntroducerCommissionAndPayment.Add(introducerCommission);
+                    }
+                }
+
+                // Remove any remaining existing commissions that weren't updated
+                if (existingIntroducerCommissions.Any())
+                {
+                    db.CE_IntroducerCommissionAndPayment.RemoveRange(existingIntroducerCommissions);
                 }
             }
 
@@ -1329,20 +1414,46 @@ namespace CobanaEnergy.Project.Controllers.Sector
                 var existingReferralPartnerCommissions = await db.CE_ReferralPartnerCommissionAndPayment
                     .Where(c => c.SectorID == sectorId)
                     .ToListAsync();
-                db.CE_ReferralPartnerCommissionAndPayment.RemoveRange(existingReferralPartnerCommissions);
 
                 foreach (var commission in model.ReferralPartnerCommissions.Where(c => c != null && !string.IsNullOrEmpty(c.ReferralPartnerCommission.ToString())))
                 {
-                    var referralPartnerCommission = new CE_ReferralPartnerCommissionAndPayment
+                    if (commission.Id.HasValue)
                     {
-                        SectorID = sectorId,
-                        ReferralPartnerCommission = commission.ReferralPartnerCommission,
-                        ReferralPartnerStartDate = !string.IsNullOrEmpty(commission.ReferralPartnerStartDate) ? DateTime.Parse(commission.ReferralPartnerStartDate) : (DateTime?)null,
-                        ReferralPartnerEndDate = !string.IsNullOrEmpty(commission.ReferralPartnerEndDate) ? DateTime.Parse(commission.ReferralPartnerEndDate) : (DateTime?)null,
-                        PaymentTerms = commission.PaymentTerms ?? "",
-                        CommissionType = commission.CommissionType ?? ""
-                    };
-                    db.CE_ReferralPartnerCommissionAndPayment.Add(referralPartnerCommission);
+                        // Update existing commission
+                        var existingCommission = existingReferralPartnerCommissions
+                            .FirstOrDefault(ec => ec.ReferralCommPayID == commission.Id.Value);
+
+                        if (existingCommission != null)
+                        {
+                            existingCommission.ReferralPartnerCommission = commission.ReferralPartnerCommission;
+                            existingCommission.ReferralPartnerStartDate = !string.IsNullOrEmpty(commission.ReferralPartnerStartDate) ? DateTime.Parse(commission.ReferralPartnerStartDate) : (DateTime?)null;
+                            existingCommission.ReferralPartnerEndDate = !string.IsNullOrEmpty(commission.ReferralPartnerEndDate) ? DateTime.Parse(commission.ReferralPartnerEndDate) : (DateTime?)null;
+                            existingCommission.PaymentTerms = commission.PaymentTerms ?? "";
+                            existingCommission.CommissionType = commission.CommissionType ?? "";
+
+                            existingReferralPartnerCommissions.Remove(existingCommission);
+                        }
+                    }
+                    else
+                    {
+                        // Create new commission
+                        var referralPartnerCommission = new CE_ReferralPartnerCommissionAndPayment
+                        {
+                            SectorID = sectorId,
+                            ReferralPartnerCommission = commission.ReferralPartnerCommission,
+                            ReferralPartnerStartDate = !string.IsNullOrEmpty(commission.ReferralPartnerStartDate) ? DateTime.Parse(commission.ReferralPartnerStartDate) : (DateTime?)null,
+                            ReferralPartnerEndDate = !string.IsNullOrEmpty(commission.ReferralPartnerEndDate) ? DateTime.Parse(commission.ReferralPartnerEndDate) : (DateTime?)null,
+                            PaymentTerms = commission.PaymentTerms ?? "",
+                            CommissionType = commission.CommissionType ?? ""
+                        };
+                        db.CE_ReferralPartnerCommissionAndPayment.Add(referralPartnerCommission);
+                    }
+                }
+
+                // Remove any remaining existing commissions that weren't updated
+                if (existingReferralPartnerCommissions.Any())
+                {
+                    db.CE_ReferralPartnerCommissionAndPayment.RemoveRange(existingReferralPartnerCommissions);
                 }
             }
 
@@ -1352,23 +1463,52 @@ namespace CobanaEnergy.Project.Controllers.Sector
                 var existingLeadGeneratorCommissions = await db.CE_LeadGeneratorCommissionAndPayment
                     .Where(c => c.SectorID == sectorId)
                     .ToListAsync();
-                db.CE_LeadGeneratorCommissionAndPayment.RemoveRange(existingLeadGeneratorCommissions);
 
                 foreach (var commission in model.LeadGeneratorCommissions.Where(c => c != null && !string.IsNullOrEmpty(c.LeadGeneratorCommission.ToString())))
                 {
-                    var leadGeneratorCommission = new CE_LeadGeneratorCommissionAndPayment
+                    if (commission.Id.HasValue)
                     {
-                        SectorID = sectorId,
-                        LeadGeneratorCommissionPercent = commission.LeadGeneratorCommission,
-                        LeadGeneratorStartDate = !string.IsNullOrEmpty(commission.LeadGeneratorStartDate) ? DateTime.Parse(commission.LeadGeneratorStartDate) : (DateTime?)null,
-                        LeadGeneratorEndDate = !string.IsNullOrEmpty(commission.LeadGeneratorEndDate) ? DateTime.Parse(commission.LeadGeneratorEndDate) : (DateTime?)null,
-                        PaymentTerms = commission.PaymentTerms ?? "",
-                        CommissionType = commission.CommissionType ?? "",
-                        CloserCommissionPercent = commission.CloserCommission,
-                        CloserStartDate = !string.IsNullOrEmpty(commission.CloserStartDate) ? DateTime.Parse(commission.CloserStartDate) : (DateTime?)null,
-                        CloserEndDate = !string.IsNullOrEmpty(commission.CloserEndDate) ? DateTime.Parse(commission.CloserEndDate) : (DateTime?)null
-                    };
-                    db.CE_LeadGeneratorCommissionAndPayment.Add(leadGeneratorCommission);
+                        // Update existing commission
+                        var existingCommission = existingLeadGeneratorCommissions
+                            .FirstOrDefault(ec => ec.LeadGenCommPayID == commission.Id.Value);
+
+                        if (existingCommission != null)
+                        {
+                            existingCommission.LeadGeneratorCommissionPercent = commission.LeadGeneratorCommission;
+                            existingCommission.LeadGeneratorStartDate = !string.IsNullOrEmpty(commission.LeadGeneratorStartDate) ? DateTime.Parse(commission.LeadGeneratorStartDate) : (DateTime?)null;
+                            existingCommission.LeadGeneratorEndDate = !string.IsNullOrEmpty(commission.LeadGeneratorEndDate) ? DateTime.Parse(commission.LeadGeneratorEndDate) : (DateTime?)null;
+                            existingCommission.PaymentTerms = commission.PaymentTerms ?? "";
+                            existingCommission.CommissionType = commission.CommissionType ?? "";
+                            existingCommission.CloserCommissionPercent = commission.CloserCommission;
+                            existingCommission.CloserStartDate = !string.IsNullOrEmpty(commission.CloserStartDate) ? DateTime.Parse(commission.CloserStartDate) : (DateTime?)null;
+                            existingCommission.CloserEndDate = !string.IsNullOrEmpty(commission.CloserEndDate) ? DateTime.Parse(commission.CloserEndDate) : (DateTime?)null;
+
+                            existingLeadGeneratorCommissions.Remove(existingCommission);
+                        }
+                    }
+                    else
+                    {
+                        // Create new commission
+                        var leadGeneratorCommission = new CE_LeadGeneratorCommissionAndPayment
+                        {
+                            SectorID = sectorId,
+                            LeadGeneratorCommissionPercent = commission.LeadGeneratorCommission,
+                            LeadGeneratorStartDate = !string.IsNullOrEmpty(commission.LeadGeneratorStartDate) ? DateTime.Parse(commission.LeadGeneratorStartDate) : (DateTime?)null,
+                            LeadGeneratorEndDate = !string.IsNullOrEmpty(commission.LeadGeneratorEndDate) ? DateTime.Parse(commission.LeadGeneratorEndDate) : (DateTime?)null,
+                            PaymentTerms = commission.PaymentTerms ?? "",
+                            CommissionType = commission.CommissionType ?? "",
+                            CloserCommissionPercent = commission.CloserCommission,
+                            CloserStartDate = !string.IsNullOrEmpty(commission.CloserStartDate) ? DateTime.Parse(commission.CloserStartDate) : (DateTime?)null,
+                            CloserEndDate = !string.IsNullOrEmpty(commission.CloserEndDate) ? DateTime.Parse(commission.CloserEndDate) : (DateTime?)null
+                        };
+                        db.CE_LeadGeneratorCommissionAndPayment.Add(leadGeneratorCommission);
+                    }
+                }
+
+                // Remove any remaining existing commissions that weren't updated
+                if (existingLeadGeneratorCommissions.Any())
+                {
+                    db.CE_LeadGeneratorCommissionAndPayment.RemoveRange(existingLeadGeneratorCommissions);
                 }
             }
         }

@@ -325,6 +325,7 @@ class SectorFormManager {
     generateBrokerageCommissionFields(index) {
         return `
             <div class="commission-item" data-index="${index}">
+                <input type="hidden" name="BrokerageCommissions[${index}].Id" value="" />
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -652,6 +653,7 @@ class SectorFormManager {
     generateCloserCommissionFields(index) {
         return `
             <div class="commission-item" data-index="${index}">
+                <input type="hidden" name="CloserCommissions[${index}].Id" value="" />
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -701,6 +703,7 @@ class SectorFormManager {
     generateLeadGeneratorCommissionFields(index) {
         return `
             <div class="commission-item" data-index="${index}">
+                <input type="hidden" name="LeadGeneratorCommissions[${index}].Id" value="" />
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -767,6 +770,7 @@ class SectorFormManager {
     generateReferralPartnerCommissionFields(index) {
         return `
             <div class="commission-item" data-index="${index}">
+                <input type="hidden" name="ReferralPartnerCommissions[${index}].Id" value="" />
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -1090,6 +1094,7 @@ class SectorFormManager {
     generateIntroducerCommissionFields(index) {
         return `
             <div class="commission-item" data-index="${index}">
+                <input type="hidden" name="IntroducerCommissions[${index}].Id" value="" />
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -1433,6 +1438,7 @@ class SectorFormManager {
         this.modelData.BrokerageCommissions.forEach((commission, index) => {
             html += `
                 <div class="commission-item" data-index="${index}">
+                    <input type="hidden" name="BrokerageCommissions[${index}].Id" value="" />
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
@@ -1795,6 +1801,7 @@ class SectorFormManager {
         this.modelData.CloserCommissions.forEach((commission, index) => {
             html += `
                 <div class="commission-item" data-index="${index}">
+                    <input type="hidden" name="CloserCommissions[${index}].Id" value="${commission.Id || ''}" />
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
@@ -1852,6 +1859,7 @@ class SectorFormManager {
         this.modelData.LeadGeneratorCommissions.forEach((commission, index) => {
             html += `
                 <div class="commission-item" data-index="${index}">
+                    <input type="hidden" name="LeadGeneratorCommissions[${index}].Id" value="${commission.Id || ''}" />
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
@@ -1926,6 +1934,7 @@ class SectorFormManager {
         this.modelData.ReferralPartnerCommissions.forEach((commission, index) => {
             html += `
                 <div class="commission-item" data-index="${index}">
+                    <input type="hidden" name="ReferralPartnerCommissions[${index}].Id" value="${commission.Id || ''}" />
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
@@ -2150,6 +2159,7 @@ class SectorFormManager {
         this.modelData.IntroducerCommissions.forEach((commission, index) => {
             html += `
                 <div class="commission-item" data-index="${index}">
+                    <input type="hidden" name="IntroducerCommissions[${index}].Id" value="${commission.Id || ''}" />
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
@@ -2847,8 +2857,9 @@ class SectorFormManager {
             }
         });
 
-        // Enhanced validation and AJAX form submission
-        $(document).on('submit', 'form', function(e) {
+        $(document).off('submit', '#editSectorForm, #createSectorForm');
+        $(document).on('submit', '#editSectorForm, #createSectorForm', function (e) {
+
             e.preventDefault(); // Always prevent default form submission
             
             let hasDateErrors = false;

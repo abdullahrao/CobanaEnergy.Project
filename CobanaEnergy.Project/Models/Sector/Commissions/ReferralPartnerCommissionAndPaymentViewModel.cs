@@ -4,6 +4,8 @@ namespace CobanaEnergy.Project.Models.Sector.Commissions
 {
     public class ReferralPartnerCommissionAndPaymentViewModel
     {
+        public int? Id { get; set; }
+
         [Range(0, 100, ErrorMessage = "Commission must be between 0 and 100")]
         [Display(Name = "Referral Partner Commission (%)")]
         public decimal? ReferralPartnerCommission { get; set; }
