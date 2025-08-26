@@ -9,6 +9,7 @@ using CobanaEnergy.Project.Models.InvoiceSupplierDashboard;
 using CobanaEnergy.Project.Models.Supplier.SupplierDBModels;
 using CobanaEnergy.Project.Models.Supplier.SupplierDBModels.snapshot;
 using CobanaEnergy.Project.Models.Supplier.SupplierDBModels.snapshot_Gas;
+using CobanaEnergy.Project.Models.Sector.SectorDBModels;
 using Microsoft.AspNet.Identity.EntityFramework;
 using System;
 using System.Collections.Generic;
@@ -55,5 +56,34 @@ namespace CobanaEnergy.Project.Models
         public DbSet<CE_Campaign> CE_Campaigns { get; set; }
         public DbSet<CE_CampaignNotification> CE_CampaignNotifications { get; set; }
         public DbSet<CE_UserNotificationStatus> CE_UserNotificationStatus { get; set; }
+
+        // Sector DbSets
+        public DbSet<CE_Sector> CE_Sector { get; set; }
+        public DbSet<CE_BankDetails> CE_BankDetails { get; set; }
+        public DbSet<CE_CompanyTaxInfo> CE_CompanyTaxInfo { get; set; }
+        public DbSet<CE_BrokerageCommissionAndPayment> CE_BrokerageCommissionAndPayment { get; set; }
+        public DbSet<CE_CloserCommissionAndPayment> CE_CloserCommissionAndPayment { get; set; }
+        public DbSet<CE_IntroducerCommissionAndPayment> CE_IntroducerCommissionAndPayment { get; set; }
+        public DbSet<CE_ReferralPartnerCommissionAndPayment> CE_ReferralPartnerCommissionAndPayment { get; set; }
+        public DbSet<CE_LeadGeneratorCommissionAndPayment> CE_LeadGeneratorCommissionAndPayment { get; set; }
+        public DbSet<CE_BrokerageStaff> CE_BrokerageStaff { get; set; }
+        public DbSet<CE_SubBrokerage> CE_SubBrokerage { get; set; }
+        public DbSet<CE_SubBrokerageCommissionAndPayment> CE_SubBrokerageCommissionAndPayment { get; set; }
+        public DbSet<CE_SubReferral> CE_SubReferral { get; set; }
+        public DbSet<CE_SubReferralCommissionAndPayment> CE_SubReferralCommissionAndPayment { get; set; }
+        public DbSet<CE_SubIntroducer> CE_SubIntroducer { get; set; }
+        public DbSet<CE_SubIntroducerCommissionAndPayment> CE_SubIntroducerCommissionAndPayment { get; set; }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // Note: Polymorphic relationships for CE_BankDetails and CE_CompanyTaxInfo
+            // will be handled manually in the application logic using EntityType and EntityID
+            // EF6 doesn't support complex polymorphic relationships with multiple foreign keys to the same column
+            
+            // The navigation properties are kept for convenience but won't be automatically populated by EF6
+            // You'll need to manually populate them based on EntityType when querying
+        }
     }
 }

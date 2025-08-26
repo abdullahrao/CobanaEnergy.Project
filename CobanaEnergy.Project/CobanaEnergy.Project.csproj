@@ -289,6 +289,9 @@
     <Content Include="Content\Supplier\EditSupplier.css" />
     <Content Include="Content\Supplier\SupplierCreation.css" />
     <Content Include="Content\Supplier\SupplierDashboard.css" />
+    <Content Include="Content\Sector\SectorDashboard.css" />
+    <Content Include="Content\Sector\CreateSector.css" />
+    <Content Include="Content\Sector\EditSector.css" />
     <Content Include="Global.asax" />
     <Content Include="migration-command.txt" />
     <Content Include="Scripts\Accounts\AwaitingPaymentsDashboard\awaitingPaymentsDashboard.js" />
@@ -340,6 +343,11 @@
     <Content Include="Scripts\Supplier\editSupplier.js" />
     <Content Include="Scripts\Supplier\supplierCreation.js" />
     <Content Include="Scripts\Supplier\supplierDashboard.js" />
+    <Content Include="Scripts\Sector\sectorDashboard.js" />
+    <Content Include="Scripts\Sector\sectorFormManager.js" />
+    <Content Include="Scripts\Sector\createSector.js" />
+    <Content Include="Scripts\Sector\editSector.js" />
+    <Content Include="Scripts\Common\duplicateAccountChecker.js" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -390,9 +398,25 @@
     <Compile Include="Migrations\202508111402486_AddUserProfileFields.Designer.cs">
       <DependentUpon>202508111402486_AddUserProfileFields.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202508151157394_Faryal_InitialSectorMapping.cs" />
+    <Compile Include="Migrations\202508151157394_Faryal_InitialSectorMapping.Designer.cs">
+      <DependentUpon>202508151157394_Faryal_InitialSectorMapping.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202508151620153_Faryal_SectorFK.cs" />
+    <Compile Include="Migrations\202508151620153_Faryal_SectorFK.Designer.cs">
+      <DependentUpon>202508151620153_Faryal_SectorFK.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202508180943056_Faryal_PolymorphicRelations.cs" />
+    <Compile Include="Migrations\202508180943056_Faryal_PolymorphicRelations.Designer.cs">
+      <DependentUpon>202508180943056_Faryal_PolymorphicRelations.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\202508151011359_PaymentsNoteLogs-86c4utjkv-InitialMapping.cs" />
     <Compile Include="Migrations\202508151011359_PaymentsNoteLogs-86c4utjkv-InitialMapping.Designer.cs">
       <DependentUpon>202508151011359_PaymentsNoteLogs-86c4utjkv-InitialMapping.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202508260930054_Faryal_Testing.cs" />
+    <Compile Include="Migrations\202508260930054_Faryal_Testing.Designer.cs">
+      <DependentUpon>202508260930054_Faryal_Testing.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\Accounts\AwaitingPaymentsDashboard\AwaitingPaymentsDashboard.cs" />
     <Compile Include="Models\Accounts\CalendarDashboard\CalendarDashboardViewModel.cs" />
@@ -437,6 +461,7 @@
     <Compile Include="Controllers\PreSales\GasController.cs" />
     <Compile Include="Controllers\PreSales\PreSalesController.cs" />
     <Compile Include="Controllers\PreSales\SupplierController.cs" />
+    <Compile Include="Controllers\Sector\SectorController.cs" />
     <Compile Include="Controllers\Signup\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Filters\ValidateJsonAntiForgeryTokenAttribute.cs" />
@@ -458,6 +483,44 @@
     <Compile Include="Models\Signup\UserProfileViewModel.cs" />
     <Compile Include="Models\Signup\UserUpdateModel.cs" />
     <Compile Include="Models\Signup\UserUpdateViewModel.cs" />
+    <Compile Include="Models\Sector\SectorDashboardViewModel.cs" />
+    <Compile Include="Models\Sector\CreateSectorViewModel.cs" />
+    <Compile Include="Models\Sector\EditSectorViewModel.cs" />
+    <!-- Common Sector View Models -->
+    <Compile Include="Models\Sector\Common\BankDetailsViewModel.cs" />
+    <Compile Include="Models\Sector\Common\CompanyTaxInfoViewModel.cs" />
+    <!-- Commission Sector View Models -->
+    <Compile Include="Models\Sector\Commissions\BrokerageCommissionAndPaymentViewModel.cs" />
+    <Compile Include="Models\Sector\Commissions\CloserCommissionAndPaymentViewModel.cs" />
+    <Compile Include="Models\Sector\Commissions\IntroducerCommissionAndPaymentViewModel.cs" />
+    <Compile Include="Models\Sector\Commissions\ReferralPartnerCommissionAndPaymentViewModel.cs" />
+    <Compile Include="Models\Sector\Commissions\LeadGeneratorCommissionAndPaymentViewModel.cs" />
+    <!-- Brokerage Sector View Models -->
+    <Compile Include="Models\Sector\Brokerage\BrokerageStaffViewModel.cs" />
+    <Compile Include="Models\Sector\Brokerage\SubBrokerageViewModel.cs" />
+    <Compile Include="Models\Sector\Brokerage\SubBrokerageCommissionAndPaymentViewModel.cs" />
+    <!-- Referral Partner Sector View Models -->
+    <Compile Include="Models\Sector\ReferralPartner\SubReferralViewModel.cs" />
+    <Compile Include="Models\Sector\ReferralPartner\SubReferralCommissionAndPaymentViewModel.cs" />
+    <!-- Introducer Sector View Models -->
+    <Compile Include="Models\Sector\Introducer\SubIntroducerViewModel.cs" />
+    <Compile Include="Models\Sector\Introducer\SubIntroducerCommissionAndPaymentViewModel.cs" />
+    <!-- Sector DBModels -->
+    <Compile Include="Models\Sector\SectorDBModels\CE_Sector.cs" />
+    <Compile Include="Models\Sector\SectorDBModels\CE_BankDetails.cs" />
+    <Compile Include="Models\Sector\SectorDBModels\CE_CompanyTaxInfo.cs" />
+    <Compile Include="Models\Sector\SectorDBModels\CE_BrokerageCommissionAndPayment.cs" />
+    <Compile Include="Models\Sector\SectorDBModels\CE_CloserCommissionAndPayment.cs" />
+    <Compile Include="Models\Sector\SectorDBModels\CE_IntroducerCommissionAndPayment.cs" />
+    <Compile Include="Models\Sector\SectorDBModels\CE_ReferralPartnerCommissionAndPayment.cs" />
+    <Compile Include="Models\Sector\SectorDBModels\CE_LeadGeneratorCommissionAndPayment.cs" />
+    <Compile Include="Models\Sector\SectorDBModels\CE_BrokerageStaff.cs" />
+    <Compile Include="Models\Sector\SectorDBModels\CE_SubBrokerage.cs" />
+    <Compile Include="Models\Sector\SectorDBModels\CE_SubBrokerageCommissionAndPayment.cs" />
+    <Compile Include="Models\Sector\SectorDBModels\CE_SubReferral.cs" />
+    <Compile Include="Models\Sector\SectorDBModels\CE_SubReferralCommissionAndPayment.cs" />
+    <Compile Include="Models\Sector\SectorDBModels\CE_SubIntroducer.cs" />
+    <Compile Include="Models\Sector\SectorDBModels\CE_SubIntroducerCommissionAndPayment.cs" />
     <Compile Include="Models\Supplier\SupplierDBModels\snapshot Electric\CE_ElectricSupplierContactSnapshots.cs" />
     <Compile Include="Models\Supplier\SupplierDBModels\snapshot Electric\CE_ElectricSupplierProductSnapshots.cs" />
     <Compile Include="Models\Supplier\SupplierDBModels\snapshot Electric\CE_ElectricSupplierSnapshots.cs" />
@@ -501,6 +564,7 @@
     <None Include="packages.config" />
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Views\Shared\Popups\_DuplicateAccountModal.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\_Header.cshtml" />
     <Content Include="Views\Shared\_Footer.cshtml" />
@@ -536,6 +600,9 @@
     <Content Include="Views\Account\UpdateUser.cshtml" />
     <Content Include="Views\Account\UserProfileDashboard.cshtml" />
     <Content Include="Views\Account\UserProfile.cshtml" />
+    <Content Include="Views\Sector\Dashboard.cshtml" />
+    <Content Include="Views\Sector\Create.cshtml" />
+    <Content Include="Views\Sector\Edit.cshtml" />
     <Content Include="Views\Accounts\BGLiteContract\EditBGLiteContract.cshtml" />
     <Content Include="Views\Accounts\Common\EditCobanaInvoiceNotes.cshtml" />
     <Content Include="Views\Accounts\CoronaContract\EditCoronaContract.cshtml" />
@@ -579,6 +646,18 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202508151011359_PaymentsNoteLogs-86c4utjkv-InitialMapping.resx">
       <DependentUpon>202508151011359_PaymentsNoteLogs-86c4utjkv-InitialMapping.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202508151157394_Faryal_InitialSectorMapping.resx">
+      <DependentUpon>202508151157394_Faryal_InitialSectorMapping.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202508151620153_Faryal_SectorFK.resx">
+      <DependentUpon>202508151620153_Faryal_SectorFK.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202508180943056_Faryal_PolymorphicRelations.resx">
+      <DependentUpon>202508180943056_Faryal_PolymorphicRelations.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202508260930054_Faryal_Testing.resx">
+      <DependentUpon>202508260930054_Faryal_Testing.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

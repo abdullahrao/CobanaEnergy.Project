@@ -555,8 +555,8 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CrownContracts
                 decimal otherAmount = decimal.TryParse(reconciliation.OtherAmount, out decimal other) ? other : 0;
 
                 var invoiceTotal = eacLogs
-                    .GroupBy(l => l.EacYear)
-                    .Select(g => g.First())
+                  //  .GroupBy(l => l.EacYear)
+                   // .Select(g => g.First())
                     .Sum(x => decimal.TryParse(x.InvoiceAmount, out decimal inv) ? inv : 0);
 
                 var finalReconciliation = (cobanaDue + otherAmount - invoiceTotal).ToString("F5");

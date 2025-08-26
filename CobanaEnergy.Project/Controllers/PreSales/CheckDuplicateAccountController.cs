@@ -117,6 +117,50 @@ namespace CobanaEnergy.Project.Controllers.PreSales
             }
         }
 
+        #region Sector Bank Details Duplicate Check
+
+        [HttpGet]
+        [Authorize]
+        public async Task<JsonResult> CheckDuplicateBankAccount(string account)
+        {
+            if (string.IsNullOrWhiteSpace(account))
+                return JsonResponse.Fail("Invalid account number.");
+
+            try
+            {
+                var bankDetailsQuery = db.CE_BankDetails
+                    .Where(bank => bank.AccountNumber == account)
+                    .Select(bank => new
+                    {
+                        BankName = bank.BankName ?? "-",
+                        BankBranchAddress = bank.BankBranchAddress ?? "-",
+                        ReceiversAddress = bank.ReceiversAddress ?? "-",
+                        AccountName = bank.AccountName ?? "-",
+                        AccountSortCode = bank.AccountSortCode ?? "-",
+                        AccountNumber = bank.AccountNumber ?? "-",
+                        IBAN = bank.IBAN ?? "-",
+                        SwiftCode = bank.SwiftCode ?? "-"
+                    })
+                    .OrderByDescending(x => x.AccountName)
+                    .ToListAsync();
+
+                var bankDetails = await bankDetailsQuery;
+
+                if (bankDetails.Count == 0)
+                {
+                    return JsonResponse.Ok(new List<object>());
+                }
+
+                return JsonResponse.Ok(bankDetails);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("CheckDuplicateBankAccount: " + ex);
+                return JsonResponse.Fail("Error checking bank account number.");
+            }
+        }
+
+        #endregion
 
     }
 }
