@@ -159,6 +159,24 @@
                                 </ul>
                             </li>
                             <li><hr class="dropdown-divider"></li>
+                            <li class="dropdown-submenu user-management-submenu">
+                                <a class="dropdown-item dropdown-toggle" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fas fa-chart-pie me-2"></i> Sector Management
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" href="@Url.Action("Create", "Sector")">
+                                            <i class="fas fa-plus-circle me-2"></i> Create Sector
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="@Url.Action("Dashboard", "Sector")">
+                                            <i class="fas fa-tachometer-alt me-2"></i> Sector Dashboard
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="@Url.Action("Create", "Campaign")"><i class="fas fa-bell me-2"></i> Create Campaign</a></li>
                         </ul>
                     </li>
