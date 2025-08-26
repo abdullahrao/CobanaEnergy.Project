@@ -127,7 +127,9 @@
                     $('#awaitingInvoiceCount').text("0");
                 }
 
-                $('#awaitingInvoiceCount').text(res.Data.AwaitingInvoiceCount || "0");
+                if (!res?.Data?.Contracts || res.Data.Contracts.length === 0) {
+                    showToastWarning("These contracts are in awaiting status.");
+                }
 
                 let counterList = res.Data.CounterList || [];
                 let container = $("#awaitingInvoiceContainer");
@@ -142,6 +144,20 @@
                  `);
                 });
 
+                let monthlyCounterList = res.Data.MonthlyCounterList || [];
+                let monthlyContainer = $("#awaitingInvoiceMonthlyContainer");
+                monthlyContainer.empty();
+
+                monthlyCounterList.forEach(item => {
+                    monthlyContainer.append(`
+                     <tr>
+                        <td>${item.Label}</td>
+                        <td>${item.Count}</td>
+                     </tr>
+                 `);
+                });
+
+
                 $('#saveBtn').prop('disabled', true);
                 $('#checkAll').prop('checked', false);
                 table.draw();
@@ -150,6 +166,8 @@
                 table.clear().draw();
                 let container = $("#awaitingInvoiceContainer");
                 container.empty();
+                let monthlyContainer = $("#awaitingInvoiceContainer");
+                monthlyContainer.empty();
                 $('#awaitingInvoiceCount').text("0");
                 $('#saveBtn').prop('disabled', true);
                 $('#checkAll').prop('checked', false);

@@ -1,0 +1,117 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+
+namespace CobanaEnergy.Project.Common
+{
+    public static class SupportedSuppliers
+    {
+        public static readonly HashSet<string> Names = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "british gas business",
+                "bg lite",
+                "corona",
+                "crown gas and power"
+            };
+
+        public static readonly string[] MeterHeaders = { "meternum", "meterpoint", "mpancore", "mpr" };
+
+        public static readonly Dictionary<string, int> _statusWaitDays = new Dictionary<string, int> (StringComparer.OrdinalIgnoreCase)
+              {
+                  { "Awaiting Invoice", 42 },
+                  { "Awaiting 1st Reconciliation", 395 },
+                  { "Awaiting 2nd initial", 395 },
+                  { "Awaiting 2nd Reconciliation", 760 },
+                  { "Awaiting 3rd initial", 760 },
+                  { "Awaiting 3rd Reconciliation", 1125 },
+                  { "Awaiting 4th initial", 1125 },
+                  { "Awaiting 4th Reconciliation", 1490 },
+                  { "Awaiting 5th initial", 1490 },
+                  { "Awaiting Final Reconciliation", 60 },
+                  { "Awaiting 1st Month Payment", 42 },
+                  { "Awaiting 2nd Month Payment", 72 },
+                  { "Awaiting 3rd Month Payment", 103 },
+                  { "Awaiting 4th Month Payment", 133 },
+                  { "Awaiting 5th Month Payment", 164 },
+                  { "Awaiting 6th Month Payment", 194 },
+                  { "Awaiting 7th Month Payment", 224 },
+                  { "Awaiting 8th Month Payment", 255 },
+                  { "Awaiting 9th Month Payment", 285 },
+                  { "Awaiting 10th Month Payment", 316 },
+                  { "Awaiting 11th Month Payment", 346 },
+                  { "Awaiting 12th Month Payment", 375 },
+                  { "Awaiting 13th Month Payment", 406 },
+                  { "Awaiting 14th Month Payment", 436 },
+                  { "Awaiting 15th Month Payment", 467 },
+                  { "Awaiting 16th Month Payment", 497 },
+                  { "Awaiting 17th Month Payment", 528 },
+                  { "Awaiting 18th Month Payment", 558 },
+                  { "Awaiting 19th Month Payment", 588 },
+                  { "Awaiting 20th Month Payment", 619 },
+                  { "Awaiting 21st Month Payment", 649 },
+                  { "Awaiting 22nd Month Payment", 680 },
+                  { "Awaiting 23rd Month Payment", 710 },
+                  { "Awaiting 24th Month Payment", 740 },
+                  { "Awaiting 25th Month Payment", 771 },
+                  { "Awaiting 26th Month Payment", 801 },
+                  { "Awaiting 27th Month Payment", 832 },
+                  { "Awaiting 28th Month Payment", 862 },
+                  { "Awaiting 29th Month Payment", 893 },
+                  { "Awaiting 30th Month Payment", 923 },
+                  { "Awaiting 31st Month Payment", 953 },
+                  { "Awaiting 32nd Month Payment", 984 },
+                  { "Awaiting 33rd Month Payment", 1014 },
+                  { "Awaiting 34th Month Payment", 1045 },
+                  { "Awaiting 35th Month Payment", 1075 },
+                  { "Awaiting 36th Month Payment", 1105 },
+                  { "Awaiting 37th Month Payment", 1136 },
+                  { "Awaiting 38th Month Payment", 1166 },
+                  { "Awaiting 39th Month Payment", 1197 },
+                  { "Awaiting 40th Month Payment", 1227 },
+                  { "Awaiting 41st Month Payment", 1258 },
+                  { "Awaiting 42nd Month Payment", 1288 },
+                  { "Awaiting 43rd Month Payment", 1318 },
+                  { "Awaiting 44th Month Payment", 1349 },
+                  { "Awaiting 45th Month Payment", 1379 },
+                  { "Awaiting 46th Month Payment", 1410 },
+                  { "Awaiting 47th Month Payment", 1440 },
+                  { "Awaiting 48th Month Payment", 1470 },
+                  { "Awaiting 49th Month Payment", 1501 },
+                  { "Awaiting 50th Month Payment", 1531 },
+                  { "Awaiting 51st Month Payment", 1562 },
+                  { "Awaiting 52nd Month Payment", 1592 },
+                  { "Awaiting 53rd Month Payment", 1623 },
+                  { "Awaiting 54th Month Payment", 1653 },
+                  { "Awaiting 55th Month Payment", 1683 },
+                  { "Awaiting 56th Month Payment", 1714 },
+                  { "Awaiting 57th Month Payment", 1744 },
+                  { "Awaiting 58th Month Payment", 1775 },
+                  { "Awaiting 59th Month Payment", 1805 },
+                  { "Awaiting 60th Month Payment", 1836 }
+               };
+
+
+        public static bool TryGetWaitDays(string paymentStatus, out int waitDays)
+        {
+            return _statusWaitDays.TryGetValue(paymentStatus, out waitDays);
+        }
+
+
+        /// <summary>
+        /// Add more supplier here 
+        /// </summary>
+        public static readonly Dictionary<string, Tuple<string, string>> Map =
+        new Dictionary<string, Tuple<string, string>>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "British Gas Business", Tuple.Create("BGBContract", "EditBGBContract") },
+            { "BG Lite", Tuple.Create("BGLiteContract", "EditBGLiteContract") },
+            { "Corona", Tuple.Create("CoronaContract", "EditCoronaContract") },
+            { "Crown Gas and Power", Tuple.Create("CrownContract", "EditCrownContract") }
+            // add more suppliers here later
+        };
+
+        public const string DefaultAction = "EditSingleContract";
+        public const string DefaultController = "Contract";
+    }
+}

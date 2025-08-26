@@ -13,11 +13,13 @@ namespace CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGB
 
         public string UpliftElectric { get; set; }
         public string SupplierCommsTypeElectric { get; set; }
+        public string DurationElectric { get; set; }
         public string CommissionElectric { get; set; }
         public long ElectricSnapshotId { get; set; }
 
         public string UpliftGas { get; set; }
         public string SupplierCommsTypeGas { get; set; }
+        public string DurationGas { get; set; }
         public string CommissionGas { get; set; }
         public long GasSnapshotId { get; set; }
 
