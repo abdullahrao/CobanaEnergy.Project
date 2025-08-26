@@ -1,14 +1,14 @@
-﻿@model CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGLite.EditBGLiteContractViewModel
+﻿@model CobanaEnergy.Project.Models.Accounts.SuppliersModels.Corona.EditCoronaContractViewModel
 @using CobanaEnergy.Project.Service.ExtensionService;
 
 @{
-    ViewBag.Title = "Edit BG Lite Contract";
+    ViewBag.Title = "Edit Corona Contract";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="container-fluid px-4">
     <div class="text-center mb-4">
-        <h2 class="fw-bold">BG Lite Contract</h2>
+        <h2 class="fw-bold">Corona Contract</h2>
     </div>
 
     <div class="edit-bgb-container d-flex flex-wrap gap-4">
@@ -26,16 +26,6 @@
                             <label class="form-label required" for="eacYear">Supplier EAC</label>
                             <select id="eacYear" class="form-select" required>
                                 <option value="">Select Year</option>
-                                <option value="1ST YEAR EAC-INITIAL">1ST YEAR EAC-INITIAL</option>
-                                <option value="1ST YEAR EAC-FINAL">1ST YEAR EAC-FINAL</option>
-                                <option value="2ND YEAR EAC-INITIAL">2ND YEAR EAC-INITIAL</option>
-                                <option value="2ND YEAR EAC-FINAL">2ND YEAR EAC-FINAL</option>
-                                <option value="3RD YEAR EAC-INITIAL">3RD YEAR EAC-INITIAL</option>
-                                <option value="3RD YEAR EAC-FINAL">3RD YEAR EAC-FINAL</option>
-                                <option value="4TH YEAR EAC-INITIAL">4TH YEAR EAC-INITIAL</option>
-                                <option value="4TH YEAR EAC-FINAL">4TH YEAR EAC-FINAL</option>
-                                <option value="5TH YEAR EAC-INITIAL">5TH YEAR EAC-INITIAL</option>
-                                <option value="5TH YEAR EAC-FINAL">5TH YEAR EAC-FINAL</option>
                             </select>
                         </div>
                         <div class="col-md-6 col-lg-4">
@@ -72,7 +62,11 @@
             </div>
 
             <!-- Contract & Presales -->
-            <form id="editBGBContractForm" method="post" novalidate>
+            <form id="editCrownContractForm" method="post" novalidate>
+
+                <input type="hidden" id="electricContract" name="HasElectricDetails" value="@(Model.HasElectricDetails ? "true" : "false")" />
+                <input type="hidden" id="gasContract" name="HasGasDetails" value="@(Model.HasGasDetails ? "true" : "false")" />
+
                 @Html.AntiForgeryToken()
                 <input type="hidden" id="eid" name="eid" value="@Model.Id" />
                 <div class="form-section">
@@ -109,7 +103,7 @@
                                 </div>
                                 <div class="col-md-6 col-lg-4">
                                     <label class="form-label" for="durationElectric">Duration</label>
-                                    <input type="text" id="durationElectric" class="form-control" value="@Model.DurationElectric" autocomplete="off" disabled />
+                                    <input type="text" id="durationElectric" class="form-control" value="@Model.DurationElectric" autocomplete="off" />
                                 </div>
                                 <div class="col-md-6 col-lg-4">
                                     <label class="form-label" for="productElectric">Product</label>
@@ -154,7 +148,7 @@
                                 </div>
                                 <div class="col-md-6 col-lg-4">
                                     <label class="form-label" for="durationGas">Duration</label>
-                                    <input type="text" id="durationGas" class="form-control" value="@Model.DurationGas" autocomplete="off" disabled />
+                                    <input type="text" id="durationGas" class="form-control" value="@Model.DurationGas" autocomplete="off" />
                                 </div>
                                 <div class="col-md-6 col-lg-4">
                                     <label class="form-label" for="productGas">Product</label>
@@ -338,11 +332,11 @@
 </div>
 
 @section styles {
-    <link href="~/Content/Accounts/BGLiteContracts/EditBGLiteContract.css" rel="stylesheet" />
+    <link href="~/Content/Accounts/CoronaContracts/CoronaContract.css" rel="stylesheet" />
 }
 
 @section scripts {
     <script src="~/Scripts/Dropdown/dropdowns.js"></script>
-    <script src="~/Scripts/Accounts/BGLiteContracts/editBGLiteContract.js"></script>
+    <script src="~/Scripts/Accounts/CoronaContracts/editCoronaContract.js"></script>
 }
 

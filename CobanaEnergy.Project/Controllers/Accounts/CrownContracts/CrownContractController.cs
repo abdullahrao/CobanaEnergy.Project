@@ -7,6 +7,7 @@ using CobanaEnergy.Project.Models.Accounts.SuppliersModels;
 using CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGB;
 using CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGB.DBModel;
 using CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGLite;
+using CobanaEnergy.Project.Models.Accounts.SuppliersModels.Crown;
 using Logic;
 using Logic.ResponseModel.Helper;
 using System;
@@ -18,25 +19,23 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
-using System.Web.Http.Results;
 using System.Web.Mvc;
-using static NPOI.POIFS.Crypt.CryptoFunctions;
 
-namespace CobanaEnergy.Project.Controllers.Accounts.BGLiteContracts
+namespace CobanaEnergy.Project.Controllers.Accounts.CrownContracts
 {
-    public class BGLiteContractController : BaseController
+    public class CrownContractController : BaseController
     {
         private readonly ApplicationDBContext _db;
-        public BGLiteContractController(ApplicationDBContext db)
+        public CrownContractController(ApplicationDBContext db)
         {
             _db = db;
         }
 
-        #region BGLiteContract 
+        #region CrownContract 
 
         [HttpGet]
         [Authorize(Roles = "Accounts,Controls")]
-        public async Task<ActionResult> EditBGLiteContract(string id, string supplierId, string type)
+        public async Task<ActionResult> EditCrownContract(string id, string supplierId, string type)
         {
             try
             {
@@ -47,7 +46,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGLiteContracts
                     return HttpNotFound("Invalid ID, SupplierId, or Type.");
                 }
 
-                var model = new EditBGLiteContractViewModel
+                var model = new EditCrownContractViewModel
                 {
                     Id = id,
                     SupplierId = supplierId
@@ -227,15 +226,15 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGLiteContracts
 
                 model.PaymentDate = CalculatePaymentDate(model.InvoiceDate);
 
-                return View("~/Views/Accounts/BGLiteContract/EditBGLiteContract.cshtml", model);
+                return View("~/Views/Accounts/CrownContract/EditCrownContract.cshtml", model);
             }
             catch (Exception ex)
             {
-                Logger.Log($"EditBGLiteContract failed for id={id}, supplierId={supplierId}, type={type}: {ex}");
+                Logger.Log($"EditCrownContract failed for id={id}, supplierId={supplierId}, type={type}: {ex}");
                 return RedirectToAction("NotFound", "Error");
             }
         }
-        private async Task ReconciliationAndCommsssionMetrics(string id, EditBGLiteContractViewModel model, string contractType)
+        private async Task ReconciliationAndCommsssionMetrics(string id, EditCrownContractViewModel model, string contractType)
         {
             var reconciliation = await _db.CE_CommissionAndReconciliation
                 .AsNoTracking()
@@ -303,8 +302,8 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGLiteContracts
                     {
                         if (model.HasElectricDetails)
                         {
-                            if (!(model.SupplierCommsTypeElectric.Equals("ANNUAL", StringComparison.OrdinalIgnoreCase) || model.SupplierCommsTypeElectric.Equals("DURATION", StringComparison.OrdinalIgnoreCase)))
-                                return JsonResponse.Fail("Invalid Supplier Comms Type for BG Lite. Only ANNUAL or DURATION are allowed.");
+                            if (!(model.SupplierCommsTypeElectric.Equals("RESIDUAL", StringComparison.OrdinalIgnoreCase)))
+                                return JsonResponse.Fail("Invalid Supplier Comms Type for Crown. Only RESIDUAL are allowed.");
 
 
                             electricContract.Uplift = model.UpliftElectric;
@@ -358,8 +357,8 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGLiteContracts
                         if (model.HasGasDetails)
                         {
 
-                            if (!(model.SupplierCommsTypeGas.Equals("ANNUAL", StringComparison.OrdinalIgnoreCase) || model.SupplierCommsTypeGas.Equals("DURATION", StringComparison.OrdinalIgnoreCase)))
-                                return JsonResponse.Fail("Invalid Supplier Comms Type for BG Lite. Only ANNUAL or DURATION are allowed.");
+                            if (!(model.SupplierCommsTypeGas.Equals("RESIDUAL", StringComparison.OrdinalIgnoreCase)))
+                                return JsonResponse.Fail("Invalid Supplier Comms Type for Crown. Only RESIDUAL are allowed.");
 
                             gasContract.Uplift = model.UpliftGas;
                             gasContract.SupplierCommsType = model.SupplierCommsTypeGas;
@@ -427,29 +426,35 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGLiteContracts
                 PaymentStatus = model.paymentStatus,
                 EId = model.EId,
                 ContractType = contracttype,
-                Dashboard = "BGLiteContracts",
+                Dashboard = "CrownContracts",
                 Username = User?.Identity?.Name ?? "Unknown User"
             };
             PaymentLogsHelper.InsertPaymentAndNotesLogs(_db, notesModel);
         }
-        
+
         private async Task SaveOrUpdateCommissionData(UpdateContractViewModel model, string contractType)
         {
             try
             {
                 dynamic contract = null;
-
+                var durationVal = string.Empty;
                 if (contractType == "Electric")
                 {
                     contract = await _db.CE_ElectricContracts
-                        .AsNoTracking()
                         .FirstOrDefaultAsync(c => c.EId == model.EId);
+
+                    contract.Duration = model.DurationElectric;
+                    durationVal = model.DurationElectric;
+
+                    _db.SaveChanges();
                 }
                 else if (contractType == "Gas")
                 {
                     contract = await _db.CE_GasContracts
-                        .AsNoTracking()
                         .FirstOrDefaultAsync(c => c.EId == model.EId);
+                    contract.Duration = model.DurationElectric;
+                    durationVal = model.DurationGas;
+                    _db.SaveChanges();
                 }
 
                 if (contract == null)
@@ -458,9 +463,9 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGLiteContracts
                     return;
                 }
 
-                string uplift = contractType == "Electric" ? model.UpliftElectric : model.UpliftGas;
-                string supplierCommsType = contractType == "Electric" ? model.SupplierCommsTypeElectric : model.SupplierCommsTypeGas;
-                string commission = contractType == "Electric" ? model.CommissionElectric : model.CommissionGas;
+                string uplift = (contractType == "Electric") ? model.UpliftElectric : model.UpliftGas;
+                string supplierCommsType = (contractType == "Electric") ? model.SupplierCommsTypeElectric : model.SupplierCommsTypeGas;
+                string commission = (contractType == "Electric") ? model.CommissionElectric : model.CommissionGas;
 
                 decimal.TryParse(uplift, out decimal upliftVal);
                 decimal.TryParse(commission, out decimal supplierCommsVal);
@@ -470,11 +475,8 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGLiteContracts
                     .OrderByDescending(l => l.CreatedAt)
                     .ToListAsync();
 
-                var year1Data = GetLatestEac(eacLogs, "1ST YEAR EAC-FINAL", "1ST YEAR EAC-INITIAL");
-                var year2Data = GetLatestEac(eacLogs, "2ND YEAR EAC-FINAL", "2ND YEAR EAC-INITIAL");
-                var year3Data = GetLatestEac(eacLogs, "3RD YEAR EAC-FINAL", "3RD YEAR EAC-INITIAL");
-                var year4Data = GetLatestEac(eacLogs, "4TH YEAR EAC-FINAL", "4TH YEAR EAC-INITIAL");
-                var year5Data = GetLatestEac(eacLogs, "5TH YEAR EAC-FINAL", "5TH YEAR EAC-INITIAL");
+                decimal resultantDuration = decimal.TryParse(durationVal, out decimal d) ? d : 1m;
+                var TotalEac = GetTotalEacValue(eacLogs, resultantDuration);
 
                 var reconciliation = await _db.CE_CommissionAndReconciliation
                     .FirstOrDefaultAsync(r => r.EId == model.EId && r.contractType == contractType);
@@ -513,111 +515,34 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGLiteContracts
                     DateTime.TryParse(model.StartDate, out DateTime startDt) &&
                     DateTime.TryParse(model.CedCOT, out DateTime cedCOTDate))
                 {
+
                     liveDays = (cedCOTDate - startDt).TotalDays.ToString("F5");
-
-                    if (decimal.TryParse(liveDays, out decimal live) &&
-                        decimal.TryParse(contractDurationDays, out decimal duration) && duration != 0)
+                    if (decimal.TryParse(model.CotLostConsumption, out decimal cotLostVal))
                     {
-                        percentLiveDays = (live / duration).ToString("F5");
+                        cotLostReconciliation = (cotLostVal * upliftVal).ToString("F5");
+                        foreach (var log in eacLogs)
+                        {
+                            log.FinalEac = cotLostReconciliation;
+                            supplierEacFinal = log.FinalEac;
+                        }
+
+                        if (upliftVal != 0 && decimal.TryParse(liveDays, out decimal live) && live != 0)
+                        {
+                            decimal totalAverage = ((cotLostVal / live) * 365);
+                            reconciliation.CobanaDueCommission = ((totalAverage / 365) * live * upliftVal).ToString("F5");
+                        }
                     }
 
-                    if (decimal.TryParse(model.CotLostConsumption, out decimal cotLostVal) && live != 0)
-                    {
-                        cotLostReconciliation = (cotLostVal / live * 365).ToString("F5");
-                    }
-
-                    foreach (var log in eacLogs)
-                    {
-                        log.FinalEac = cotLostReconciliation;
-                        supplierEacFinal = log.FinalEac;
-                    }
-
-                    if (decimal.TryParse(supplierEacFinal, out decimal supplierEacFinalVal) &&
-                        upliftVal != 0 && supplierCommsVal != 0 && live != 0)
-                    {
-                        reconciliation.CobanaDueCommission = (supplierEacFinalVal * upliftVal * supplierCommsVal * live / 365).ToString("F5");
-                    }
                 }
                 else
                 {
-                    int duration = int.TryParse(contract?.Duration, out int d) ? d : 1;
-                    decimal dueCommission = 0m;
-
-                    decimal CalculateYearCommission(decimal val, bool isFinal, string commsType, int dura)
-                    {
-                        decimal baseCommission = isFinal
-                            ? val * upliftVal
-                            : val * upliftVal * supplierCommsVal;
-
-                        if (commsType?.Equals("DURATION", StringComparison.OrdinalIgnoreCase) == true)
-                            baseCommission *= duration;
-
-                        return baseCommission;
-                    }
-
-                    // Accumulate based on duration and availability
-                    switch (duration)
-                    {
-                        case 1:
-                            dueCommission = CalculateYearCommission(year1Data.Value, year1Data.IsFinal, supplierCommsType,duration);
-                            break;
-
-                        case 2:
-                            dueCommission =
-                                CalculateYearCommission(year1Data.Value, year1Data.IsFinal, supplierCommsType, duration) +
-                                CalculateYearCommission(year2Data.Value, year2Data.IsFinal, supplierCommsType, duration);
-                            break;
-
-                        case 3:
-                            dueCommission =  //(Year1final * uplift) + (year2final * uplift) + (
-                                CalculateYearCommission(year1Data.Value, year1Data.IsFinal, supplierCommsType, duration) + // (150 * 0.015) + (0 * 0.015) + (0 * 0.015)
-                                CalculateYearCommission(year2Data.Value, year2Data.IsFinal, supplierCommsType, duration) +
-                                CalculateYearCommission(year3Data.Value, year3Data.IsFinal, supplierCommsType, duration);
-                            break;
-
-                        case 4:
-                            dueCommission =
-                                CalculateYearCommission(year1Data.Value, year1Data.IsFinal, supplierCommsType, duration) +
-                                CalculateYearCommission(year2Data.Value, year2Data.IsFinal, supplierCommsType, duration) +
-                                CalculateYearCommission(year3Data.Value, year3Data.IsFinal, supplierCommsType, duration) +
-                                CalculateYearCommission(year4Data.Value, year4Data.IsFinal, supplierCommsType, duration);
-                            break;
-
-                        case 5:
-                            dueCommission =
-                                CalculateYearCommission(year1Data.Value, year1Data.IsFinal, supplierCommsType, duration) +
-                                CalculateYearCommission(year2Data.Value, year2Data.IsFinal, supplierCommsType, duration) +
-                                CalculateYearCommission(year3Data.Value, year3Data.IsFinal, supplierCommsType, duration) +
-                                CalculateYearCommission(year4Data.Value, year4Data.IsFinal, supplierCommsType, duration) +
-                                CalculateYearCommission(year5Data.Value, year5Data.IsFinal, supplierCommsType, duration);
-                            break;
-
-                        default:
-                            dueCommission = CalculateYearCommission(year1Data.Value, year1Data.IsFinal, supplierCommsType, duration);
-                            break;
-                    }
-
-                    reconciliation.CobanaDueCommission = dueCommission.ToString("F5");
+                    reconciliation.CobanaDueCommission = (TotalEac * upliftVal).ToString("F5");
                 }
 
                 string totalCommissionForecast = "";
                 if (decimal.TryParse(contract.InputEAC, out decimal inputEACVal))
                 {
-                    switch (supplierCommsType?.Trim().ToLower())
-                    {
-                        case "annual":
-                            totalCommissionForecast = (inputEACVal * upliftVal).ToString("F5");
-                            break;
-                        case "residual":
-                            totalCommissionForecast = (inputEACVal * upliftVal / 12).ToString("F5");
-                            break;
-                        case "duration":
-                            totalCommissionForecast = (inputEACVal * upliftVal * supplierCommsVal).ToString("F5");
-                            break;
-                        case "quarterly":
-                            totalCommissionForecast = (inputEACVal * upliftVal / 4).ToString("F5");
-                            break;
-                    }
+                    totalCommissionForecast = ((inputEACVal * upliftVal) / 12).ToString("F5");
                 }
 
                 string initialCommissionForecast = "";
@@ -643,14 +568,11 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGLiteContracts
                     if (decimal.TryParse(model.CotLostConsumption, out decimal cotLostVal) &&
                         decimal.TryParse(liveDays, out decimal live) && live != 0)
                     {
-                        totalAverageEAC = (cotLostVal / live * 365).ToString("F2");
+                        totalAverageEAC = ((cotLostVal / live) * 365).ToString("F2"); // >> (COT/LOST Consumption/Live Days) *365
                     }
                 }
                 else
                 {
-                    // TotalFinalEac i-e Total Average Eac ---- 
-                    decimal totalEac = year1Data.Value + year2Data.Value + year3Data.Value + year4Data.Value + year5Data.Value;
-
                     var finalEacLog = _db.CE_EacLogs
                         .Where(x => x.EId == model.EId && x.ContractType == contractType &&
                                x.EacYear != null)
@@ -659,11 +581,9 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGLiteContracts
 
                     if (finalEacLog != null && decimal.TryParse(finalEacLog.FinalEac, out var finalEacVal))
                     {
-                        totalEac += finalEacVal;
+                        TotalEac += finalEacVal;
                     }
-
-                    int duration = int.TryParse(contract?.Duration, out int d) ? d : 1;
-                    totalAverageEAC = (totalEac / duration).ToString("F2");
+                    totalAverageEAC = (TotalEac / resultantDuration).ToString("F2");
                 }
 
                 if (metrics != null)
@@ -691,6 +611,8 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGLiteContracts
                         contractType = contractType
                     });
                 }
+
+
             }
             catch (Exception ex)
             {
@@ -699,14 +621,17 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGLiteContracts
             }
         }
 
+
         #endregion
+
+
 
         #region Invoice_Logs
 
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
         [Authorize(Roles = "Accounts,Controls")]
-        public async Task<JsonResult> SaveEacLog(BGLiteEacLogViewModel model)
+        public async Task<JsonResult> SaveEacLog(CrownEacLogViewModel model)
         {
             using (var transaction = _db.Database.BeginTransaction())
             {
@@ -714,6 +639,9 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGLiteContracts
                 {
                     if (!ModelState.IsValid)
                         return Json(JsonResponse.Fail("Please fill all required fields correctly."));
+
+                    if (!(model.SupplierCommsType.Equals("RESIDUAL", StringComparison.OrdinalIgnoreCase)))
+                        return JsonResponse.Fail("Invalid Supplier Comms Type for Crown. Only RESIDUAL are allowed.");
 
                     string durationStr = "1";
                     if (model.ContractType.Equals("Electric", StringComparison.OrdinalIgnoreCase))
@@ -739,15 +667,9 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGLiteContracts
                         .OrderByDescending(l => l.CreatedAt)
                         .ToListAsync();
 
-                    var year1 = GetLatestEac(eacLogs, "1ST YEAR EAC-FINAL", "1ST YEAR EAC-INITIAL");
-                    var year2 = GetLatestEac(eacLogs, "2ND YEAR EAC-FINAL", "2ND YEAR EAC-INITIAL");
-                    var year3 = GetLatestEac(eacLogs, "3RD YEAR EAC-FINAL", "3RD YEAR EAC-INITIAL");
-                    var year4 = GetLatestEac(eacLogs, "4TH YEAR EAC-FINAL", "4TH YEAR EAC-INITIAL");
-                    var year5 = GetLatestEac(eacLogs, "5TH YEAR EAC-FINAL", "5TH YEAR EAC-INITIAL");
-
-                    var eacValues = new List<decimal> { year1.Value, year2.Value, year3.Value, year4.Value, year5.Value };
-
-                    var averageEac = CalculateAverageEac(eacValues, duration);
+                    decimal averageEac = 0;
+                    var TotalEac = GetTotalEacValue(eacLogs, duration);
+                    averageEac = TotalEac / duration;
 
                     var log = new CE_EacLogs
                     {
@@ -912,113 +834,45 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGLiteContracts
             return new EacDataViewModel { Value = 0, IsFinal = false };
         }
 
+        private decimal GetTotalEacValue(List<CE_EacLogs> logs, decimal durationInYears)
+        {
+            if (logs == null || logs.Count == 0 || durationInYears <= 0)
+                return 0;
+
+            // Calculate total months based on duration
+            var totalMonths = durationInYears * 12;
+
+            decimal totalEac = 0;
+
+            for (int i = 1; i <= totalMonths; i++)
+            {
+                // Build the exact key e.g. "Awaiting 1st Month Payment"
+                string suffix;
+                if (i % 10 == 1 && i % 100 != 11) suffix = "st";
+                else if (i % 10 == 2 && i % 100 != 12) suffix = "nd";
+                else if (i % 10 == 3 && i % 100 != 13) suffix = "rd";
+                else suffix = "th";
+
+                var key = $"Awaiting {i}{suffix} Month Payment";
+
+                // Find EAC value for this key
+                var eacLog = logs.FirstOrDefault(l => l.EacYear.Equals(key, StringComparison.OrdinalIgnoreCase));
+
+                if (eacLog != null && decimal.TryParse(eacLog.EacValue, out var value))
+                {
+                    totalEac += value;
+                }
+            }
+
+            return totalEac;
+        }
+
         private decimal CalculateAverageEac(List<decimal> yearDataList, int duration)
         {
             var total = yearDataList.Sum(data => data);
             return duration > 0 ? total / duration : 0;
         }
 
-
         #endregion
-
-        [HttpPost]
-        [ValidateJsonAntiForgeryToken]
-        public async Task<JsonResult> CalculateFinalEacAverage(string eId, string contractType, string eacValue)
-        {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(eId) || string.IsNullOrWhiteSpace(contractType))
-                    return JsonResponse.Fail("Invalid EId or contract type.");
-
-                decimal parsedEacValue = 0;
-                if (!string.IsNullOrWhiteSpace(eacValue))
-                {
-                    if (!decimal.TryParse(eacValue, out parsedEacValue))
-                        return JsonResponse.Fail("Invalid EAC value received.");
-                }
-
-                var cotExists = await _db.CE_CommissionAndReconciliation
-                    .AnyAsync(x => x.EId == eId && x.contractType == contractType && x.CED_COT != null);
-
-                if (cotExists)
-                {
-                    var latestLog = await _db.CE_EacLogs
-                                        .Where(l => l.EId == eId && l.ContractType == contractType)
-                                        .OrderByDescending(l => l.CreatedAt)
-                                        .FirstOrDefaultAsync();
-
-                    if (latestLog != null && decimal.TryParse(latestLog.FinalEac, out var finalEacVal))
-                        return JsonResponse.Ok(finalEacVal);
-
-                    return JsonResponse.Fail("Unable to fetch relevant record!");
-                }
-
-                var logs = await _db.CE_EacLogs
-                    .Where(x => x.EId == eId && x.ContractType == contractType)
-                    .OrderByDescending(x => x.CreatedAt)
-                    .ToListAsync();
-
-                decimal GetVal(string year)
-                {
-                    if (year.Equals("Final EAC", StringComparison.OrdinalIgnoreCase))
-                    {
-                        var finalLog = logs
-                            .Where(l => l.EacYear != null)
-                            .OrderByDescending(l => l.CreatedAt)
-                            .FirstOrDefault();
-
-                        return finalLog != null && decimal.TryParse(finalLog.FinalEac, out var finalVal) ? finalVal : 0;
-                    }
-                    else
-                    {
-                        var log = logs.FirstOrDefault(l => l.EacYear?.Equals(year, StringComparison.OrdinalIgnoreCase) == true);
-                        return log != null && decimal.TryParse(log.EacValue, out var val) ? val : 0;
-                    }
-                }
-
-
-                var year1Data = GetLatestEac(logs, "1ST YEAR EAC-FINAL", "1ST YEAR EAC-INITIAL");
-                var year2Data = GetLatestEac(logs, "2ND YEAR EAC-FINAL", "2ND YEAR EAC-INITIAL");
-                var year3Data = GetLatestEac(logs, "3RD YEAR EAC-FINAL", "3RD YEAR EAC-INITIAL");
-                var year4Data = GetLatestEac(logs, "4TH YEAR EAC-FINAL", "4TH YEAR EAC-INITIAL");
-                var year5Data = GetLatestEac(logs, "5TH YEAR EAC-FINAL", "5TH YEAR EAC-INITIAL");
-
-                decimal totalEac =
-                    GetVal("1ST YEAR EAC") +
-                    GetVal("2ND YEAR EAC") +
-                    GetVal("3RD YEAR EAC") +
-                    GetVal("4TH YEAR EAC") +
-                    GetVal("5TH YEAR EAC") +
-                    GetVal("Final EAC") +
-                    parsedEacValue;
-
-                string durationStr = "1";
-                if (contractType.Equals("Electric", StringComparison.OrdinalIgnoreCase))
-                {
-                    durationStr = await _db.CE_ElectricContracts
-                        .Where(x => x.EId == eId)
-                        .Select(x => x.Duration)
-                        .FirstOrDefaultAsync();
-                }
-                else if (contractType.Equals("Gas", StringComparison.OrdinalIgnoreCase))
-                {
-                    durationStr = await _db.CE_GasContracts
-                        .Where(x => x.EId == eId)
-                        .Select(x => x.Duration)
-                        .FirstOrDefaultAsync();
-                }
-
-                if (!int.TryParse(durationStr, out int duration) || duration <= 0)
-                    duration = 1;
-
-                decimal average = totalEac / duration;
-                return JsonResponse.Ok(average);
-            }
-            catch (Exception ex)
-            {
-                Logger.Log($"Failed to calculate final EAC for eId={eId}, contractType={contractType}, eacValue={eacValue}: {ex}");
-                return JsonResponse.Fail("Failed to calculate final EAC");
-            }
-        }
     }
 }

@@ -78,6 +78,33 @@
                     </div>
                 </div>
             </div>
+
+            <!---MONTHLY COUNTER-->
+            <div class="form-section mt-4">
+                <div class="collapsible-section">
+                    <div class="collapsible-header" data-bs-toggle="collapse" data-bs-target="#monthlyContractStatusBody" aria-expanded="false" role="button">
+                        <h4 class="section-header mb-0">Monthly Contract Counter</h4>
+                        <i class="toggle-icon bi bi-chevron-down ms-auto"></i>
+                    </div>
+                    <div class="collapse" id="monthlyContractStatusBody">
+                        <div class="row gx-3 gy-3 mt-3">
+                            <div class="col-12">
+                                <table class="table table-striped table-sm table-bordered payment-logs-table w-100">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Payment Status</th>
+                                            <th>Count</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="awaitingInvoiceMonthlyContainer">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="save-btn-wrapper text-end mt-3">
                 <button type="button" class="btn btn-primary px-4" id="saveBtn" disabled>
                     Save <i class="fas fa-save ms-2"></i>

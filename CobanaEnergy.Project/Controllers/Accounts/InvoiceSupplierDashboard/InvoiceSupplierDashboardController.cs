@@ -1,4 +1,5 @@
-﻿using CobanaEnergy.Project.Controllers.Base;
+﻿using CobanaEnergy.Project.Common;
+using CobanaEnergy.Project.Controllers.Base;
 using CobanaEnergy.Project.Models;
 using CobanaEnergy.Project.Models.Accounts.InvoiceSupplierDashboard;
 using CobanaEnergy.Project.Models.InvoiceSupplierDashboard;
@@ -93,18 +94,15 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                 List<string> meterNumbers = null;
                 using (var memStream = new MemoryStream(fileBytes))
                 {
-                    if (supplier.Name?.Trim().ToLowerInvariant() == "british gas business")
+                    if (SupportedSuppliers.Names.Contains(supplier.Name?.Trim()))
                     {
-                        meterNumbers = await BGBSupplier(memStream, extension);
-                    }
-                    else if(supplier.Name?.Trim().ToLowerInvariant() == "bg lite")
-                    {
-                        meterNumbers = await BGLiteSupplier(memStream, extension);
+                        meterNumbers =  ParseSupplierFile(memStream, extension, supplier.Name);
                     }
                     else
                     {
                         return JsonResponse.Fail("Processing for this supplier is not yet supported. Please contact support.");
                     }
+
                 }
 
                 if (meterNumbers == null || meterNumbers.Count == 0)
@@ -138,17 +136,15 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
 
         #endregion
 
-        #region BGBSupplier
+        #region [SUPPLIER FILES ]
 
-        static readonly string[] BGBMeterHeaders = { "meternum", "meterpoint" };
-        public async Task<List<string>> BGBSupplier(Stream fileStream, string extension)
+        private List<string> ParseSupplierFile(Stream fileStream, string extension, string supplierName)
         {
+            var uniqueMeterNumbers = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            int maxScanRows = 120;
             try
             {
-                var uniqueMeterNumbers = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                 fileStream.Position = 0;
-                int maxScanRows = 120;
-
                 if (extension == ".xlsx" || extension == ".xls")
                 {
                     ISheet sheet;
@@ -185,7 +181,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
 
                                 //System.Diagnostics.Debug.WriteLine($"Row {rowIdx} Cell {cellIdx}: '{normalized}'");
 
-                                if (BGBMeterHeaders.Contains(normalized))
+                                if (SupportedSuppliers.MeterHeaders.Contains(normalized))
                                 {
                                     headerRowIdx = rowIdx;
                                     meterColIdx = cellIdx;
@@ -236,7 +232,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                                         .Replace(" ", "")
                                         .Trim()
                                         .ToLowerInvariant();
-                                    if (BGBMeterHeaders.Contains(h))
+                                    if (SupportedSuppliers.MeterHeaders.Contains(h))
                                     {
                                         meterColIdx = i;
                                         break;
@@ -261,142 +257,9 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
             }
             catch (Exception ex)
             {
-                Logger.Log("BGBSupplier: " + ex);
+                Logger.Log($"{supplierName}: {ex}");
                 return new List<string>();
             }
-
-        }
-
-
-
-        #endregion
-
-        #region [BG Lite Supplier]
-
-        public async Task<List<string>> BGLiteSupplier(Stream fileStream, string extension)
-        {
-            try
-            {
-                var uniqueMeterNumbers = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                fileStream.Position = 0;
-                int maxScanRows = 120;
-
-                if (extension == ".xlsx" || extension == ".xls")
-                {
-                    ISheet sheet;
-                    if (extension == ".xlsx")
-                    {
-                        var workbook = new XSSFWorkbook(fileStream);
-                        sheet = GetBackingDataSheet(workbook);
-                    }
-                    else
-                    {
-                        var workbook = new HSSFWorkbook(fileStream);
-                        sheet = GetBackingDataSheet(workbook);
-                    }
-
-                    int headerRowIdx = -1;
-                    int meterColIdx = -1;
-
-                    for (int rowIdx = sheet.FirstRowNum; rowIdx <= sheet.LastRowNum && rowIdx < maxScanRows; rowIdx++)
-                    {
-                        var row = sheet.GetRow(rowIdx);
-                        if (row == null) continue;
-
-                        for (int cellIdx = 0; cellIdx < row.LastCellNum; cellIdx++)
-                        {
-                            var cellVal = row.GetCell(cellIdx)?.ToString();
-                            if (!string.IsNullOrWhiteSpace(cellVal))
-                            {
-                                string normalized = cellVal
-                                    .Replace("\u00A0", " ")
-                                    .Replace("\u200B", "")
-                                    .Replace(" ", "")
-                                    .Trim()
-                                    .ToLowerInvariant();
-
-                                //System.Diagnostics.Debug.WriteLine($"Row {rowIdx} Cell {cellIdx}: '{normalized}'");
-
-                                if (BGBMeterHeaders.Contains(normalized))
-                                {
-                                    headerRowIdx = rowIdx;
-                                    meterColIdx = cellIdx;
-                                    break;
-                                }
-                            }
-                        }
-                        if (meterColIdx != -1) break;
-                    }
-
-                    if (headerRowIdx == -1 || meterColIdx == -1)
-                        return uniqueMeterNumbers.ToList();
-
-                    for (int rowIdx = headerRowIdx + 1; rowIdx <= sheet.LastRowNum; rowIdx++)
-                    {
-                        var row = sheet.GetRow(rowIdx);
-                        if (row == null) continue;
-                        var val = row.GetCell(meterColIdx)?.ToString()?.Trim();
-                        if (!string.IsNullOrWhiteSpace(val))
-                            uniqueMeterNumbers.Add(val);
-                    }
-                }
-                else if (extension == ".csv")
-                {
-                    fileStream.Position = 0;
-                    using (var reader = new StreamReader(fileStream))
-                    using (var csv = new CsvReader(reader, new CsvHelper.Configuration.CsvConfiguration(CultureInfo.InvariantCulture)
-                    {
-                        IgnoreBlankLines = true,
-                        BadDataFound = null,
-                        MissingFieldFound = null
-                    }))
-                    {
-                        int meterColIdx = -1;
-                        string[] header = null;
-                        int rowNum = 0;
-                        while (csv.Read())
-                        {
-                            rowNum++;
-                            if (!csv.Context.Parser.Record.All(f => string.IsNullOrWhiteSpace(f)))
-                            {
-                                header = csv.Context.Parser.Record;
-                                for (int i = 0; i < header.Length; i++)
-                                {
-                                    var h = header[i]
-                                        ?.Replace("\u00A0", " ")
-                                        .Replace("\u200B", "")
-                                        .Replace(" ", "")
-                                        .Trim()
-                                        .ToLowerInvariant();
-                                    if (BGBMeterHeaders.Contains(h))
-                                    {
-                                        meterColIdx = i;
-                                        break;
-                                    }
-                                }
-                                break;
-                            }
-                            if (rowNum > maxScanRows) break;
-                        }
-                        if (meterColIdx == -1)
-                            return uniqueMeterNumbers.ToList();
-
-                        while (csv.Read())
-                        {
-                            var val = csv.GetField(meterColIdx)?.Trim();
-                            if (!string.IsNullOrWhiteSpace(val))
-                                uniqueMeterNumbers.Add(val);
-                        }
-                    }
-                }
-                return uniqueMeterNumbers.ToList();
-            }
-            catch (Exception ex)
-            {
-                Logger.Log("BGLiteSupplier: " + ex);
-                return new List<string>();
-            }
-
         }
 
         #endregion
@@ -409,6 +272,8 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                 var name = workbook.GetSheetName(i)?.Replace(" ", "").Trim().ToLowerInvariant();
                 if (name == "backingdata")
                     return workbook.GetSheetAt(i);
+                if (name == "invoicedetail")
+                    return workbook.GetSheetAt(i);
             }
             return workbook.GetSheetAt(0);
         }
@@ -418,6 +283,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
         #region Contract Select Listing
 
         [HttpGet]
+
         [Authorize(Roles = "Accounts,Controls")]
         public async Task<ActionResult> ContractSelectListing(int uploadId)
         {
@@ -436,13 +302,9 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                 List<string> meterNumbers;
                 using (var memStream = new MemoryStream(upload.FileContent))
                 {
-                    if (supplier.Name?.Trim().ToLowerInvariant() == "british gas business")
+                    if (SupportedSuppliers.Names.Contains(supplier.Name?.Trim()))
                     {
-                        meterNumbers = await BGBSupplier(memStream, extension);
-                    }
-                    else if (supplier.Name?.Trim().ToLowerInvariant() == "bg lite")
-                    {
-                        meterNumbers = await BGLiteSupplier(memStream, extension);
+                        meterNumbers = ParseSupplierFile(memStream, extension, supplier.Name);
                     }
                     else
                     {
@@ -614,7 +476,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Accounts,Controls")]
-        public async Task<JsonResult> ConfirmSelectionInvoiceSupplier(List<string> selectedContracts)
+        public JsonResult ConfirmSelectionInvoiceSupplier(List<string> selectedContracts)
         {
             try
             {
@@ -622,7 +484,6 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                     return JsonResponse.Fail("No contracts selected.");
 
                 TempData["SelectedContractIds"] = selectedContracts;
-
                 return JsonResponse.Ok(new { redirectUrl = Url.Action("EditContractsInvoiceSupplier") });
             }
             catch (Exception ex)
