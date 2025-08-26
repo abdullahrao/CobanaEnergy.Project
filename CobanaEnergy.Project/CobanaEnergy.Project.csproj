@@ -269,6 +269,7 @@
     <Content Include="Content\Accounts\ProblematicsDashboard\ProblematicsDashboard.css" />
     <Content Include="Content\Accounts\ReconciliationsDashboard\ReconciliationsDashboard.css" />
     <Content Include="Content\Accounts\ResolveContractsDashboard\ResolveContractsDashboard.css" />
+    <Content Include="Content\Accounts\SSEContracts\EditSSEContract.css" />
     <Content Include="Content\Signup\userDashboard.css" />
     <Content Include="Content\Dual\CreateDual.css" />
     <Content Include="Content\Dual\EditDual.css" />
@@ -303,6 +304,7 @@
     <Content Include="Scripts\Accounts\ProblematicsDashboard\problematicsDashboard.js" />
     <Content Include="Scripts\Accounts\ReconciliationsDashboard\reconciliationsDashboard.js" />
     <Content Include="Scripts\Accounts\ResolveContractsDashboard\resolveContractsDashboard.js" />
+    <Content Include="Scripts\Accounts\SSEContracts\editSSEContract.js" />
     <Content Include="Scripts\Dropdown\dropdowns.js" />
     <Content Include="Scripts\Dual\createDual.js" />
     <Content Include="Scripts\Dual\editDual.js" />
@@ -355,6 +357,7 @@
     <Compile Include="Controllers\Accounts\ProblematicsDashboard\ProblematicsDashboardController.cs" />
     <Compile Include="Controllers\Accounts\ReconciliationsDashboard\ReconciliationsDashboardController.cs" />
     <Compile Include="Controllers\Accounts\ResolveContractsDashboard\ResolveContractsDashboardController.cs" />
+    <Compile Include="Controllers\Accounts\SSEContracts\SSEContractController.cs" />
     <Compile Include="Controllers\Base\BaseController.cs" />
     <Compile Include="Controllers\Error\ErrorController.cs" />
     <Compile Include="Controllers\PreSales\CheckDuplicateAccountController.cs" />
@@ -420,6 +423,8 @@
     <Compile Include="Models\Accounts\SuppliersModels\Crown\CrownEacLogViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\Crown\EditCrownContractViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\PaymentAndNotesLogsViewModel.cs" />
+    <Compile Include="Models\Accounts\SuppliersModels\SSE\EditSSEContractViewModel.cs" />
+    <Compile Include="Models\Accounts\SuppliersModels\SSE\SSEEacLogViewModel.cs" />
     <Compile Include="Models\Dual\EditDual\DualContractEditViewModel.cs" />
     <Compile Include="Models\Dual\LogsHelperClass\LogEntry.cs" />
     <Compile Include="Models\Electric\EditElectric\ElectricContractEditViewModel.cs" />
@@ -530,6 +535,7 @@
     <Content Include="Views\Accounts\Common\EditCobanaInvoiceNotes.cshtml" />
     <Content Include="Views\Accounts\CoronaContract\EditCoronaContract.cshtml" />
     <Content Include="Views\Accounts\CrownContract\EditCrownContract.cshtml" />
+    <Content Include="Views\Accounts\SSEContract\EditSSEContract.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
