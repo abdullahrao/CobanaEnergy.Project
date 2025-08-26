@@ -629,8 +629,8 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
                 decimal otherAmount = decimal.TryParse(reconciliation.OtherAmount, out decimal other) ? other : 0;
 
                 var invoiceTotal = eacLogs
-                    .GroupBy(l => l.EacYear)
-                    .Select(g => g.First())
+                    //.GroupBy(l => l.EacYear)
+                    //.Select(g => g.First())
                     .Sum(x => decimal.TryParse(x.InvoiceAmount, out decimal inv) ? inv : 0);
 
                 var finalReconciliation = (cobanaDue + otherAmount - invoiceTotal).ToString("F5");
@@ -650,16 +650,16 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
                     // TotalFinalEac i-e Total Average Eac ---- 
                     decimal totalEac = year1Data.Value + year2Data.Value + year3Data.Value + year4Data.Value + year5Data.Value;
 
-                    var finalEacLog = _db.CE_EacLogs
-                        .Where(x => x.EId == model.EId && x.ContractType == contractType &&
-                               x.EacYear != null)
-                        .OrderByDescending(x => x.CreatedAt)
-                        .FirstOrDefault();
+                    //var finalEacLog = _db.CE_EacLogs
+                    //    .Where(x => x.EId == model.EId && x.ContractType == contractType &&
+                    //           x.EacYear != null)
+                    //    .OrderByDescending(x => x.CreatedAt)
+                    //    .FirstOrDefault();
 
-                    if (finalEacLog != null && decimal.TryParse(finalEacLog.FinalEac, out var finalEacVal))
-                    {
-                        totalEac += finalEacVal;
-                    }
+                    //if (finalEacLog != null && decimal.TryParse(finalEacLog.FinalEac, out var finalEacVal))
+                    //{
+                    //    totalEac += finalEacVal;
+                    //}
 
                     int duration = int.TryParse(contract?.Duration, out int d) ? d : 1;
                     totalAverageEAC = (totalEac / duration).ToString("F2");
