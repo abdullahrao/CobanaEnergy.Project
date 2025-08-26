@@ -264,6 +264,7 @@
     <Content Include="Content\Accounts\CampaignDashboard\campaignCreate.css" />
     <Content Include="Content\Accounts\CampaignDashboard\campaignDashboard.css" />
     <Content Include="Content\Accounts\ClawbacksDashboard\ClawbacksDashboard.css" />
+    <Content Include="Content\Accounts\EDFContracts\edfContract.css" />
     <Content Include="Content\Accounts\InvoiceSupplierDashboard\ContractSelectListing.css" />
     <Content Include="Content\Accounts\InvoiceSupplierDashboard\EditContractsInvoiceSupplier.css" />
     <Content Include="Content\Accounts\ProblematicsDashboard\ProblematicsDashboard.css" />
@@ -299,6 +300,7 @@
     <Content Include="Scripts\Accounts\CampaignDashboard\campaignCreation.js" />
     <Content Include="Scripts\Accounts\CampaignDashboard\campaignDashboard.js" />
     <Content Include="Scripts\Accounts\ClawbacksDashboard\clawbacksDashboard.js" />
+    <Content Include="Scripts\Accounts\EDFContracts\editEDFContract.js" />
     <Content Include="Scripts\Accounts\InvoiceSupplierDashboard\contractSelectListing.js" />
     <Content Include="Scripts\Accounts\InvoiceSupplierDashboard\editContractsInvoiceSupplier.js" />
     <Content Include="Scripts\Accounts\ProblematicsDashboard\problematicsDashboard.js" />
@@ -353,6 +355,7 @@
     <Compile Include="Controllers\Accounts\ClawbacksDashboard\ClawbacksDashboardController.cs" />
     <Compile Include="Controllers\Accounts\CoronaContracts\CoronaContractController.cs" />
     <Compile Include="Controllers\Accounts\CrownContracts\CrownContractController.cs" />
+    <Compile Include="Controllers\Accounts\EDFContracts\EDFContractController.cs" />
     <Compile Include="Controllers\Accounts\InvoiceSupplierDashboard\InvoiceSupplierDashboardController.cs" />
     <Compile Include="Controllers\Accounts\ProblematicsDashboard\ProblematicsDashboardController.cs" />
     <Compile Include="Controllers\Accounts\ReconciliationsDashboard\ReconciliationsDashboardController.cs" />
@@ -422,6 +425,8 @@
     <Compile Include="Models\Accounts\SuppliersModels\Corona\EditCoronaContractViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\Crown\CrownEacLogViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\Crown\EditCrownContractViewModel.cs" />
+    <Compile Include="Models\Accounts\SuppliersModels\EDF\EDFEacLogViewModel.cs" />
+    <Compile Include="Models\Accounts\SuppliersModels\EDF\EditEDFContractViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\PaymentAndNotesLogsViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\SSE\EditSSEContractViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\SSE\SSEEacLogViewModel.cs" />
@@ -536,6 +541,7 @@
     <Content Include="Views\Accounts\CoronaContract\EditCoronaContract.cshtml" />
     <Content Include="Views\Accounts\CrownContract\EditCrownContract.cshtml" />
     <Content Include="Views\Accounts\SSEContract\EditSSEContract.cshtml" />
+    <Content Include="Views\Accounts\EDFContract\EditEDFContract.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

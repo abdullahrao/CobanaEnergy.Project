@@ -578,16 +578,16 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CoronaContracts
                     }
                     else
                     {
-                        var finalEacLog = _db.CE_EacLogs
-                            .Where(x => x.EId == model.EId && x.ContractType == contractType &&
-                                   x.EacYear != null)
-                            .OrderByDescending(x => x.CreatedAt)
-                            .FirstOrDefault();
+                        //var finalEacLog = _db.CE_EacLogs
+                        //    .Where(x => x.EId == model.EId && x.ContractType == contractType &&
+                        //           x.EacYear != null)
+                        //    .OrderByDescending(x => x.CreatedAt)
+                        //    .FirstOrDefault();
 
-                        if (finalEacLog != null && decimal.TryParse(finalEacLog.FinalEac, out var finalEacVal))
-                        {
-                            TotalEac += finalEacVal;
-                        }
+                        //if (finalEacLog != null && decimal.TryParse(finalEacLog.FinalEac, out var finalEacVal))
+                        //{
+                        //    TotalEac += finalEacVal;
+                        //}
                         totalAverageEAC = (TotalEac / resultantDuration).ToString("F2");
                     }
 

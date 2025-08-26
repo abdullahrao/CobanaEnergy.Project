@@ -651,16 +651,16 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGLiteContracts
                     // TotalFinalEac i-e Total Average Eac ---- 
                     decimal totalEac = year1Data.Value + year2Data.Value + year3Data.Value + year4Data.Value + year5Data.Value;
 
-                    var finalEacLog = _db.CE_EacLogs
-                        .Where(x => x.EId == model.EId && x.ContractType == contractType &&
-                               x.EacYear != null)
-                        .OrderByDescending(x => x.CreatedAt)
-                        .FirstOrDefault();
+                    //var finalEacLog = _db.CE_EacLogs
+                    //    .Where(x => x.EId == model.EId && x.ContractType == contractType &&
+                    //           x.EacYear != null)
+                    //    .OrderByDescending(x => x.CreatedAt)
+                    //    .FirstOrDefault();
 
-                    if (finalEacLog != null && decimal.TryParse(finalEacLog.FinalEac, out var finalEacVal))
-                    {
-                        totalEac += finalEacVal;
-                    }
+                    //if (finalEacLog != null && decimal.TryParse(finalEacLog.FinalEac, out var finalEacVal))
+                    //{
+                    //    totalEac += finalEacVal;
+                    //}
 
                     int duration = int.TryParse(contract?.Duration, out int d) ? d : 1;
                     totalAverageEAC = (totalEac / duration).ToString("F2");
