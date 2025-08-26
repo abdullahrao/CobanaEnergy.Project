@@ -292,8 +292,6 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                     matchingSheets.Add(workbook.GetSheetAt(i));
                 }
             }
-
-            // If none of the required sheets exist, fall back to the first sheet
             if (!matchingSheets.Any())
             {
                 matchingSheets.Add(workbook.GetSheetAt(0));
@@ -301,21 +299,6 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
 
             return matchingSheets;
 
-            //for (int i = 0; i < workbook.NumberOfSheets; i++)
-            //{
-            //    var name = workbook.GetSheetName(i)?.Replace(" ", "").Trim().ToLowerInvariant();
-            //    if (name == "backingdata")
-            //        return workbook.GetSheetAt(i);
-            //    if (name == "invoicedetail")
-            //        return workbook.GetSheetAt(i);
-            //    if (name == "paymentsdue")
-            //        return workbook.GetSheetAt(i);
-            //    if (name == "electricity_full_report")
-            //        return workbook.GetSheetAt(i);
-            //    if (name == "gas_full_report")
-            //        return workbook.GetSheetAt(i);
-            //}
-            //return workbook.GetSheetAt(0);
         }
 
         #endregion
