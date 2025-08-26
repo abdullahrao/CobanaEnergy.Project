@@ -26,6 +26,7 @@ namespace CobanaEnergy.Project.Models.Accounts.ProblematicsDashboard
         public string CEDCOT { get; set; }
         public string ContractStatus { get; set; }
         public string PaymentStatus { get; set; }
+        public string ContractType { get; set; }
         public string Invoices { get; set; }
         public string SupplierCobanaInvoiceNotes { get; set; } = "N/A";
         public string CobanaFinalReconciliation { get; set; } = "N/A";

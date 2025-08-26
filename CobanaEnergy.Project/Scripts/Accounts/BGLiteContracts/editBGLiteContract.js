@@ -62,7 +62,12 @@
                     showToastSuccess("EAC Log saved successfully.");
                     $("#eacLogForm")[0].reset();
                     // Set Final Eac Value 
-                    $('#finalEac').val(res.Data?.[0]?.FinalEac ?? 0)
+                    let finalEac = res.Data?.[0]?.FinalEac ?? 0;
+                    const decimalPart = finalEac.toString().split('.')[1];
+                    if (decimalPart && decimalPart.length > 2) {
+                        finalEac = Math.trunc(finalEac * 100) / 100;
+                    }
+
                     renderEacLogs(res.Data);
                 } else {
                     showToastError(res.message || "Failed to save EAC Log.");

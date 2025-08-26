@@ -35,7 +35,8 @@
             <table id="awaitingPaymentsTable" class="table table-bordered table-striped w-100">
                 <thead class="table-light">
                     <tr>
-                        <th class="no-sort"><input type="checkbox" id="checkAll" /></th>
+                        <th data-orderable="false">Action</th>
+                        <th class="no-sort" data-orderable="false"><input type="checkbox" id="checkAll" /></th>
                         <th>Business Name</th>
                         <th>MPAN</th>
                         <th>MPRN</th>
@@ -44,6 +45,7 @@
                         <th>Start Date</th>
                         <th>Duration</th>
                         <th>Payment Status</th>
+                        <th>Supplier Cobana Invoice Notes</th>
                         <th>Initial Commission (Forecast)</th>
                     </tr>
                 </thead>
@@ -51,8 +53,30 @@
                     <!-- Populated dynamically via AJAX -->
                 </tbody>
             </table>
-            <div class="invoice-summary-box mt-3">
-                Contracts Awaiting Invoice: <span id="awaitingInvoiceCount">0</span>
+
+            <div class="form-section mt-4">
+                <div class="collapsible-section">
+                    <div class="collapsible-header" data-bs-toggle="collapse" data-bs-target="#contractStatusBody" aria-expanded="false" role="button">
+                        <h4 class="section-header mb-0">Contract Counter</h4>
+                        <i class="toggle-icon bi bi-chevron-down ms-auto"></i>
+                    </div>
+                    <div class="collapse" id="contractStatusBody">
+                        <div class="row gx-3 gy-3 mt-3">
+                            <div class="col-12">
+                                <table class="table table-striped table-sm table-bordered payment-logs-table w-100">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Payment Status</th>
+                                            <th>Count</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="awaitingInvoiceContainer">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="save-btn-wrapper text-end mt-3">
                 <button type="button" class="btn btn-primary px-4" id="saveBtn" disabled>

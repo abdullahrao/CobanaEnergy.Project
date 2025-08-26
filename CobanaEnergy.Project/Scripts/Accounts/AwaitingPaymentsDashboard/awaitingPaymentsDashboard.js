@@ -104,8 +104,10 @@
                         $('#awaitingInvoiceCount').text("0");
                         return;
                     }
+                    // /${controler}?eid=${r.EId}
                     res.Data.Contracts.forEach(contract => {
                         table.row.add([
+                            `<a href="javascript:void(0)" id="openEditPaymentPopup"  data-eid="${contract.EId}" data-paymentstatus="${contract.PaymentStatus}" data-contracttype="${contract.ContractType}" class="btn btn-sm edit-btn" title="Edit"><i class="fas fa-pencil-alt me-1"></i> Edit</a>`,
                             `<input type="checkbox" name="selectedContracts" value="${contract.EId}" />`,
                             contract.BusinessName,
                             contract.MPAN ?? '',
@@ -115,6 +117,7 @@
                             contract.StartDate,
                             contract.Duration,
                             contract.PaymentStatus,
+                            contract.SupplierCobanaInvoiceNotes,
                             contract.InitialCommissionForecast
                         ]);
                     });
@@ -125,12 +128,28 @@
                 }
 
                 $('#awaitingInvoiceCount').text(res.Data.AwaitingInvoiceCount || "0");
+
+                let counterList = res.Data.CounterList || [];
+                let container = $("#awaitingInvoiceContainer");
+                container.empty();
+
+                counterList.forEach(item => {
+                    container.append(`
+                     <tr>
+                        <td>${item.Label}</td>
+                        <td>${item.Count}</td>
+                     </tr>
+                 `);
+                });
+
                 $('#saveBtn').prop('disabled', true);
                 $('#checkAll').prop('checked', false);
                 table.draw();
             },
             error: function () {
                 table.clear().draw();
+                let container = $("#awaitingInvoiceContainer");
+                container.empty();
                 $('#awaitingInvoiceCount').text("0");
                 $('#saveBtn').prop('disabled', true);
                 $('#checkAll').prop('checked', false);
@@ -184,6 +203,72 @@
             },
             error: function () {
                 showToastError("Error updating follow-up dates.");
+            }
+        });
+    });
+
+    //Edit Awaiting Payment Popup
+    $(document).on('click', '#openEditPaymentPopup', function (e) {
+        e.preventDefault();
+        let eid = $(this).data('eid');
+        let contractType = $(this).data('contracttype');
+        let paymentStatus = $(this).data('paymentstatus');
+
+        $.ajax({
+            url: '/AwaitingPaymentsDashboard/EditAwaitingPaymentPopup',
+            type: 'GET',
+            data: { eid: eid, contractType: contractType, paymentStatus: paymentStatus },
+            success: function (html) {
+                $('body').append(html);
+
+                $('#editCobanaInvoiceNotesModel').modal('show');
+
+                $('#editCobanaInvoiceNotesModel').on('hidden.bs.modal', function () {
+                    $(this).remove();
+                });
+            },
+            error: function () {
+                showToastError("Failed to load Invoice Supplier popup.");
+            }
+        });
+    });
+
+    $(document).on("submit", "#editCobanaInoviceNotesForm", function (e) {
+        e.preventDefault();
+        const $form = $(this);
+        const $btn = $form.find('button[type="submit"]');
+
+        const payload = {
+            eid: $("#eid").val(),
+            contractType: $("#contractType").val(),
+            supplierCobanaInvoiceNotes: $("#supplierCobanaInvoiceNotes").val(),
+            paymentStatus: $("#paymentStatus").val()
+        };
+
+        $btn.prop("disabled", true).html('<i class="fas fa-spinner fa-spin me-1"></i> Saving...');
+
+        $.ajax({
+            url: '/AwaitingPaymentsDashboard/EditAwaitingPaymentUpdate',
+            type: 'POST',
+            contentType: 'application/json',
+            headers: {
+                'RequestVerificationToken': $form.find('input[name="__RequestVerificationToken"]').val()
+            },
+            data: JSON.stringify(payload),
+            success: function (res) {
+                if (res.success) {
+                    showToastSuccess(res.message || "Supplier Cobana Invoice Notes updated.");
+                    $('#editCobanaInvoiceNotesModel').modal('hide');
+                    loadContracts();
+                } else {
+                    showToastError(res.message || "Failed to update Supplier Cobana Invoice Notes.");
+                }
+            },
+            error: function (xhr) {
+                showToastError(xhr.responseJSON?.message || xhr.statusText || "Server error while updating.");
+            },
+            complete: function () {
+                $btn.prop("disabled", false).html('Save');
             }
         });
     });

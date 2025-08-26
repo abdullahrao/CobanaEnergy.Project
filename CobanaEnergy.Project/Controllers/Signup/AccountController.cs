@@ -297,12 +297,14 @@ namespace CobanaEnergy.Project.Controllers
         #region [user dashboard]
 
         [HttpGet]
+        [Authorize(Roles = "Controls")]
         public ActionResult Index()
         {
             return View("~/Views/Account/UserDashboard.cshtml", new UserDashboardViewModel());
         }
 
         [HttpPost]
+        [Authorize(Roles = "Controls")]
         [ValidateJsonAntiForgeryToken]
         public async Task<JsonResult> GetUserList()
         {
@@ -328,6 +330,7 @@ namespace CobanaEnergy.Project.Controllers
 
 
         [HttpPost]
+        [Authorize(Roles = "Controls")]
         [ValidateJsonAntiForgeryToken]
         public async Task<JsonResult> UpdateUsers(List<UserUpdateModel> users)
         {
@@ -363,7 +366,7 @@ namespace CobanaEnergy.Project.Controllers
         #region UserProfile
 
         [HttpGet]
-        [Authorize]
+        //[Authorize(Roles = "Controls")]
         public async Task<ActionResult> UserProfile()
         {
             try
@@ -398,7 +401,7 @@ namespace CobanaEnergy.Project.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        //[Authorize(Roles = "Controls")]
         [ValidateAntiForgeryToken]
         public async Task<JsonResult> UpdateProfile(UserProfileViewModel model)
         {

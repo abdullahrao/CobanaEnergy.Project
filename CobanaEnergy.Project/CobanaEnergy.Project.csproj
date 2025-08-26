@@ -345,6 +345,7 @@
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Common\PaymentLogsHelper.cs" />
     <Compile Include="Controllers\Accounts\AwaitingPaymentsDashboard\AwaitingPaymentsDashboardController.cs" />
     <Compile Include="Controllers\Accounts\BGBContracts\BGBContractController.cs" />
     <Compile Include="Controllers\Accounts\BGLiteContracts\BGLiteContractController.cs" />
@@ -396,6 +397,10 @@
     <Compile Include="Migrations\202508180943056_Faryal_PolymorphicRelations.Designer.cs">
       <DependentUpon>202508180943056_Faryal_PolymorphicRelations.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202508151011359_PaymentsNoteLogs-86c4utjkv-InitialMapping.cs" />
+    <Compile Include="Migrations\202508151011359_PaymentsNoteLogs-86c4utjkv-InitialMapping.Designer.cs">
+      <DependentUpon>202508151011359_PaymentsNoteLogs-86c4utjkv-InitialMapping.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\Accounts\AwaitingPaymentsDashboard\AwaitingPaymentsDashboard.cs" />
     <Compile Include="Models\Accounts\CalendarDashboard\CalendarDashboardViewModel.cs" />
     <Compile Include="Models\Accounts\ClawbacksDashboard\ClawbacksDashboardViewModel.cs" />
@@ -423,6 +428,7 @@
     <Compile Include="Models\Accounts\SuppliersModels\BGB\UpdateContractViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\BGLite\BGLiteEacLogViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\BGLite\EditBGLiteContractViewModel.cs" />
+    <Compile Include="Models\Accounts\SuppliersModels\PaymentAndNotesLogsViewModel.cs" />
     <Compile Include="Models\Dual\EditDual\DualContractEditViewModel.cs" />
     <Compile Include="Models\Dual\LogsHelperClass\LogEntry.cs" />
     <Compile Include="Models\Electric\EditElectric\ElectricContractEditViewModel.cs" />
@@ -573,6 +579,7 @@
     <Content Include="Views\Sector\Create.cshtml" />
     <Content Include="Views\Sector\Edit.cshtml" />
     <Content Include="Views\Accounts\BGLiteContract\EditBGLiteContract.cshtml" />
+    <Content Include="Views\Accounts\Common\EditCobanaInvoiceNotes.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

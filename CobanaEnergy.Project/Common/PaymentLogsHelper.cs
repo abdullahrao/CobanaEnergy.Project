@@ -1,0 +1,54 @@
+﻿using CobanaEnergy.Project.Models;
+using CobanaEnergy.Project.Models.Accounts.SuppliersModels;
+using CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGB.DBModel;
+using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
+using System.Web;
+
+namespace CobanaEnergy.Project.Common
+{
+    public static class PaymentLogsHelper
+    {
+        public static void InsertPaymentAndNotesLogs(
+        ApplicationDBContext db, PaymentAndNotesLogsViewModel model)
+        {
+            if (!string.IsNullOrEmpty(model.PaymentStatus) || !string.IsNullOrEmpty(model.CobanaInvoiceNotes))
+            {
+                var log = new CE_PaymentAndNoteLogs
+                {
+                    EId = model.EId,
+                    PaymentStatus = model.PaymentStatus,
+                    CobanaInvoiceNotes = model.CobanaInvoiceNotes,
+                    Username = model.Username ?? "Unknown User",
+                    contracttype = model.ContractType,
+                    Dashboard = model.Dashboard,
+                    CreatedAt = DateTime.Now,
+                };
+
+                db.CE_PaymentAndNoteLogs.Add(log);
+            }
+        }
+    }
+
+    public static class HelperUtility
+    {
+        public static List<(string Label, string Status)> GetStatuses()
+        {
+            return new List<(string, string)>
+        {
+            ("Contracts Awaiting Invoice", "Awaiting Invoice"),
+            ("Contracts Awaiting 1st Reconciliation", "Awaiting 1st Reconciliation"),
+            ("Contracts Awaiting 2nd Initial", "Awaiting 2nd initial"),
+            ("Contracts Awaiting 2nd Reconciliation", "Awaiting 2nd Reconciliation"),
+            ("Contracts Awaiting 3rd Initial", "Awaiting 3rd initial"),
+            ("Contracts Awaiting 3rd Reconciliation", "Awaiting 3rd Reconciliation"),
+            ("Contracts Awaiting 4th Initial", "Awaiting 4th initial"),
+            ("Contracts Awaiting 4th Reconciliation", "Awaiting 4th Reconciliation"),
+            ("Contracts Awaiting 5th Initial", "Awaiting 5th initial"),
+            ("Contracts Awaiting Final Reconciliation", "Awaiting Final Reconciliation")
+        };
+        }
+    }
+}

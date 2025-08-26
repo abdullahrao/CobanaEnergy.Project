@@ -1,7 +1,9 @@
-﻿using CobanaEnergy.Project.Controllers.Base;
+﻿using CobanaEnergy.Project.Common;
+using CobanaEnergy.Project.Controllers.Base;
 using CobanaEnergy.Project.Filters;
 using CobanaEnergy.Project.Models;
 using CobanaEnergy.Project.Models.Accounts;
+using CobanaEnergy.Project.Models.Accounts.SuppliersModels;
 using CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGB;
 using CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGB.DBModel;
 using Logic;
@@ -346,7 +348,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
                         }
 
                         electricContract.ContractNotes = model.ContractNotes;
-                        await PaymentAndNotesLogs(model, "Electric");
+                        PaymentAndNotesLogs(model, "Electric");
                     }
 
                     // ----- Gas -----
@@ -400,7 +402,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
                         }
 
                         gasContract.ContractNotes = model.ContractNotes;
-                        await PaymentAndNotesLogs(model, "Gas");
+                        PaymentAndNotesLogs(model, "Gas");
                     }
                     await _db.SaveChangesAsync().ConfigureAwait(false);
                     transaction.Commit();
@@ -416,22 +418,18 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
             }
         }
 
-        private async Task PaymentAndNotesLogs(UpdateContractViewModel model, string contracttype)
+        private void PaymentAndNotesLogs(UpdateContractViewModel model, string contracttype)
         {
-            if (!string.IsNullOrEmpty(model.paymentStatus) || !string.IsNullOrEmpty(model.SupplierCobanaInvoiceNotes))
+            var notesModel = new PaymentAndNotesLogsViewModel
             {
-                var log = new CE_PaymentAndNoteLogs
-                {
-                    EId = model.EId,
-                    PaymentStatus = model.paymentStatus,
-                    CobanaInvoiceNotes = model.SupplierCobanaInvoiceNotes,
-                    Username = User?.Identity?.Name ?? "Unknown User",
-                    contracttype = contracttype,
-                    CreatedAt = DateTime.Now
-                };
-                _db.CE_PaymentAndNoteLogs.Add(log);
-                await _db.SaveChangesAsync();
-            }
+                CobanaInvoiceNotes = model.SupplierCobanaInvoiceNotes,
+                PaymentStatus = model.paymentStatus,
+                EId = model.EId,
+                ContractType = contracttype,
+                Dashboard = "BGBContracts",
+                Username = User?.Identity?.Name ?? "Unknown User"
+            };
+            PaymentLogsHelper.InsertPaymentAndNotesLogs(_db, notesModel);
         }
 
         private async Task SaveOrUpdateCommissionData(UpdateContractViewModel model, string contractType)
@@ -541,57 +539,60 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
                 }
                 else
                 {
-
                     int duration = int.TryParse(contract?.Duration, out int d) ? d : 1;
                     decimal dueCommission = 0m;
 
-                    decimal CalculateYearCommission(decimal val, bool isFinal)
+                    decimal CalculateYearCommission(decimal val, bool isFinal, string commsType, int dura)
                     {
-                        if (isFinal)
-                            return val * upliftVal;
-                        else
-                            return val * upliftVal * supplierCommsVal;
+                        decimal baseCommission = isFinal
+                            ? val * upliftVal
+                            : val * upliftVal * supplierCommsVal;
+
+                        if (commsType?.Equals("DURATION", StringComparison.OrdinalIgnoreCase) == true)
+                            baseCommission *= duration;
+
+                        return baseCommission;
                     }
 
                     // Accumulate based on duration and availability
                     switch (duration)
                     {
                         case 1:
-                            dueCommission = CalculateYearCommission(year1Data.Value, year1Data.IsFinal);
+                            dueCommission = CalculateYearCommission(year1Data.Value, year1Data.IsFinal, supplierCommsType, duration);
                             break;
 
                         case 2:
                             dueCommission =
-                                CalculateYearCommission(year1Data.Value, year1Data.IsFinal) +
-                                CalculateYearCommission(year2Data.Value, year2Data.IsFinal);
+                                CalculateYearCommission(year1Data.Value, year1Data.IsFinal, supplierCommsType, duration) +
+                                CalculateYearCommission(year2Data.Value, year2Data.IsFinal, supplierCommsType, duration);
                             break;
 
                         case 3:
                             dueCommission =  //(Year1final * uplift) + (year2final * uplift) + (
-                                CalculateYearCommission(year1Data.Value, year1Data.IsFinal) + // (150 * 0.015) + (0 * 0.015) + (0 * 0.015)
-                                CalculateYearCommission(year2Data.Value, year2Data.IsFinal) +
-                                CalculateYearCommission(year3Data.Value, year3Data.IsFinal);
+                                CalculateYearCommission(year1Data.Value, year1Data.IsFinal, supplierCommsType, duration) + // (150 * 0.015) + (0 * 0.015) + (0 * 0.015)
+                                CalculateYearCommission(year2Data.Value, year2Data.IsFinal, supplierCommsType, duration) +
+                                CalculateYearCommission(year3Data.Value, year3Data.IsFinal, supplierCommsType, duration);
                             break;
 
                         case 4:
                             dueCommission =
-                                CalculateYearCommission(year1Data.Value, year1Data.IsFinal) +
-                                CalculateYearCommission(year2Data.Value, year2Data.IsFinal) +
-                                CalculateYearCommission(year3Data.Value, year3Data.IsFinal) +
-                                CalculateYearCommission(year4Data.Value, year4Data.IsFinal);
+                                CalculateYearCommission(year1Data.Value, year1Data.IsFinal, supplierCommsType, duration) +
+                                CalculateYearCommission(year2Data.Value, year2Data.IsFinal, supplierCommsType, duration) +
+                                CalculateYearCommission(year3Data.Value, year3Data.IsFinal, supplierCommsType, duration) +
+                                CalculateYearCommission(year4Data.Value, year4Data.IsFinal, supplierCommsType, duration);
                             break;
 
                         case 5:
                             dueCommission =
-                                CalculateYearCommission(year1Data.Value, year1Data.IsFinal) +
-                                CalculateYearCommission(year2Data.Value, year2Data.IsFinal) +
-                                CalculateYearCommission(year3Data.Value, year3Data.IsFinal) +
-                                CalculateYearCommission(year4Data.Value, year4Data.IsFinal) +
-                                CalculateYearCommission(year5Data.Value, year5Data.IsFinal);
+                                CalculateYearCommission(year1Data.Value, year1Data.IsFinal, supplierCommsType, duration) +
+                                CalculateYearCommission(year2Data.Value, year2Data.IsFinal, supplierCommsType, duration) +
+                                CalculateYearCommission(year3Data.Value, year3Data.IsFinal, supplierCommsType, duration) +
+                                CalculateYearCommission(year4Data.Value, year4Data.IsFinal, supplierCommsType, duration) +
+                                CalculateYearCommission(year5Data.Value, year5Data.IsFinal, supplierCommsType, duration);
                             break;
 
                         default:
-                            dueCommission = CalculateYearCommission(year1Data.Value, year1Data.IsFinal);
+                            dueCommission = CalculateYearCommission(year1Data.Value, year1Data.IsFinal, supplierCommsType, duration);
                             break;
                     }
 
@@ -746,7 +747,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
                     var year4 = GetLatestEac(eacLogs, "4TH YEAR EAC-FINAL", "4TH YEAR EAC-INITIAL");
                     var year5 = GetLatestEac(eacLogs, "5TH YEAR EAC-FINAL", "5TH YEAR EAC-INITIAL");
 
-                    var eacValues = new List<decimal> { year1.Value, year2.Value, year3.Value, year4.Value,     year5.Value };
+                    var eacValues = new List<decimal> { year1.Value, year2.Value, year3.Value, year4.Value, year5.Value };
 
                     var averageEac = CalculateAverageEac(eacValues, duration);
 
@@ -916,7 +917,8 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
         private decimal CalculateAverageEac(List<decimal> yearDataList, int duration)
         {
             var total = yearDataList.Sum(data => data);
-            return duration > 0 ? total / duration : 0;
+            var average = duration > 0 ? total / duration : 0;
+            return Math.Truncate(average * 100) / 100;
         }
 
 
