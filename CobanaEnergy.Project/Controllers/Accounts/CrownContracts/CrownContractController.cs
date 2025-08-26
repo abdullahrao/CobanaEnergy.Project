@@ -555,8 +555,6 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CrownContracts
                 decimal otherAmount = decimal.TryParse(reconciliation.OtherAmount, out decimal other) ? other : 0;
 
                 var invoiceTotal = eacLogs
-                  //  .GroupBy(l => l.EacYear)
-                   // .Select(g => g.First())
                     .Sum(x => decimal.TryParse(x.InvoiceAmount, out decimal inv) ? inv : 0);
 
                 var finalReconciliation = (cobanaDue + otherAmount - invoiceTotal).ToString("F5");
@@ -573,16 +571,6 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CrownContracts
                 }
                 else
                 {
-                    //var finalEacLog = _db.CE_EacLogs
-                    //    .Where(x => x.EId == model.EId && x.ContractType == contractType &&
-                    //           x.EacYear != null)
-                    //    .OrderByDescending(x => x.CreatedAt)
-                    //    .FirstOrDefault();
-
-                    //if (finalEacLog != null && decimal.TryParse(finalEacLog.FinalEac, out var finalEacVal))
-                    //{
-                    //    TotalEac += finalEacVal;
-                    //}
                     totalAverageEAC = (TotalEac / resultantDuration).ToString("F2");
                 }
 
@@ -611,8 +599,6 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CrownContracts
                         contractType = contractType
                     });
                 }
-
-
             }
             catch (Exception ex)
             {
@@ -662,6 +648,23 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CrownContracts
                     if (!int.TryParse(durationStr, out int duration) || duration <= 0)
                         duration = 1;
 
+                    var log = new CE_EacLogs
+                    {
+                        EId = model.EId,
+                        ContractType = model.ContractType,
+                        EacYear = model.EacYear?.Trim(),
+                        EacValue = model.EacValue?.Trim(),
+                        FinalEac = model.EacValue?.Trim(),
+                        InvoiceNo = model.InvoiceNo?.Trim(),
+                        InvoiceDate = model.InvoiceDate?.Trim(),
+                        PaymentDate = model.PaymentDate?.Trim(),
+                        InvoiceAmount = model.InvoiceAmount?.Trim(),
+                        CreatedAt = DateTime.Now
+                    };
+
+                    _db.CE_EacLogs.Add(log);
+                    await _db.SaveChangesAsync();
+
                     var eacLogs = await _db.CE_EacLogs
                         .Where(l => l.EId == model.EId && l.ContractType == model.ContractType)
                         .OrderByDescending(l => l.CreatedAt)
@@ -671,21 +674,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CrownContracts
                     var TotalEac = GetTotalEacValue(eacLogs, duration);
                     averageEac = TotalEac / duration;
 
-                    var log = new CE_EacLogs
-                    {
-                        EId = model.EId,
-                        ContractType = model.ContractType,
-                        EacYear = model.EacYear?.Trim(),
-                        EacValue = model.EacValue?.Trim(),
-                        FinalEac = averageEac.ToString("F2"),
-                        InvoiceNo = model.InvoiceNo?.Trim(),
-                        InvoiceDate = model.InvoiceDate?.Trim(),
-                        PaymentDate = model.PaymentDate?.Trim(),
-                        InvoiceAmount = model.InvoiceAmount?.Trim(),
-                        CreatedAt = DateTime.Now
-                    };
-
-                    _db.CE_EacLogs.Add(log);
+                    log.FinalEac = averageEac.ToString("F2");
                     await _db.SaveChangesAsync();
 
                     var logs = await _db.CE_EacLogs

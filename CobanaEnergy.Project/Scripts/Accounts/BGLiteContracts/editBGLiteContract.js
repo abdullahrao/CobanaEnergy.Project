@@ -53,7 +53,7 @@
         $btn.prop("disabled", true).html('<i class="fas fa-spinner fa-spin me-1"></i> Saving...');
 
         $.ajax({
-            url: '/BGBContract/SaveEacLog',
+            url: '/BGLiteContract/SaveEacLog',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(payload),
@@ -88,7 +88,7 @@
 
     function loadEacLogs() {
         if (!eid) return;
-        $.get(`/BGBContract/GetEacLogs?eid=${eid}&contractType=${$("#contractType").val()}`, function (res) {
+        $.get(`/BGLiteContract/GetEacLogs?eid=${eid}&contractType=${$("#contractType").val()}`, function (res) {
             if (!res.success || !res.Data || !res.Data.length) {
                 $("#bgbInvoiceLogsContainer").html('<span class="text-muted">No logs yet. Save EAC entries to view them here.</span>');
                 return;
@@ -122,7 +122,7 @@
     }
 
     $("#exportInvoiceLogsBtn").on("click", function () {
-        $.get(`/BGBContract/GetEacLogs?eid=${eid}&contractType=${$("#contractType").val()}`, function (res) {
+        $.get(`/BGLiteContract/GetEacLogs?eid=${eid}&contractType=${$("#contractType").val()}`, function (res) {
             if (!res.success || !res.Data?.length) {
                 showToastWarning("No logs to export.");
                 return;
@@ -172,7 +172,7 @@
         return `${yyyy}-${mm}-${dd}`;
     }
 
-    $("#editBGBContractForm").on("submit", async function (e) {
+    $("#editBGLiteContractForm").on("submit", async function (e) {
         e.preventDefault();
         const $btn = $(this).find('button[type="submit"]');
         $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i> Updating...');
@@ -237,7 +237,7 @@
             };
 
             $.ajax({
-                url: '/BGBContract/UpdateContract',
+                url: '/BGLiteContract/UpdateContract',
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify(payload),
@@ -305,7 +305,7 @@
         }
         return valid;
     }
-    //https://localhost:44388/BGBContract/EditBGBContract/5356355D-541C-4124-BD8F-1C30864A700C?supplierId=29&type=1231231231231
+
     function getContractTypeFromUrl() {
         const params = new URLSearchParams(window.location.search);
         const type = params.get('type');

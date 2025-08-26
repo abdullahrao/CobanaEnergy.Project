@@ -447,7 +447,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CoronaContracts
 
                     contract.Duration = model.DurationElectric;
                     durationVal = model.DurationElectric;
-                   
+
                     _db.SaveChanges();
                 }
                 else if (contractType == "Gas")
@@ -535,7 +535,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CoronaContracts
                         if (decimal.TryParse(model.CotLostConsumption, out decimal cotLostConVal) &&
                             upliftVal != 0)
                         {
-                           /// var tAverage = ((cotLostConVal / liveDays) * 365).ToString("F2");
+                            /// var tAverage = ((cotLostConVal / liveDays) * 365).ToString("F2");
                             reconciliation.CobanaDueCommission = (cotLostConVal * upliftVal).ToString("F5"); // ([Total AVG EAC]/365) * Live Days * Uplift
                         }
                     }
@@ -560,8 +560,6 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CoronaContracts
                     decimal otherAmount = decimal.TryParse(reconciliation.OtherAmount, out decimal other) ? other : 0;
 
                     var invoiceTotal = eacLogs
-                        .GroupBy(l => l.EacYear)
-                        .Select(g => g.First())
                         .Sum(x => decimal.TryParse(x.InvoiceAmount, out decimal inv) ? inv : 0);
 
                     var finalReconciliation = (cobanaDue + otherAmount - invoiceTotal).ToString("F5");
@@ -578,16 +576,6 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CoronaContracts
                     }
                     else
                     {
-                        //var finalEacLog = _db.CE_EacLogs
-                        //    .Where(x => x.EId == model.EId && x.ContractType == contractType &&
-                        //           x.EacYear != null)
-                        //    .OrderByDescending(x => x.CreatedAt)
-                        //    .FirstOrDefault();
-
-                        //if (finalEacLog != null && decimal.TryParse(finalEacLog.FinalEac, out var finalEacVal))
-                        //{
-                        //    TotalEac += finalEacVal;
-                        //}
                         totalAverageEAC = (TotalEac / resultantDuration).ToString("F2");
                     }
 
@@ -790,8 +778,6 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CoronaContracts
                     decimal otherAmount = decimal.TryParse(reconciliation.OtherAmount, out decimal other) ? other : 0;
 
                     var invoiceTotal = eacLogs
-                       // .GroupBy(l => l.EacYear)
-                        //.Select(g => g.First())
                         .Sum(x => decimal.TryParse(x.InvoiceAmount, out decimal inv) ? inv : 0);
 
                     var finalReconciliation = (cobanaDue + otherAmount - invoiceTotal).ToString("F5");
@@ -810,18 +796,6 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CoronaContracts
                     {
                         // TotalFinalEac i-e Total Average Eac ---- 
                         decimal totalEac = year1Data.Value + year2Data.Value + year3Data.Value + year4Data.Value + year5Data.Value;
-
-                        var finalEacLog = _db.CE_EacLogs
-                            .Where(x => x.EId == model.EId && x.ContractType == contractType &&
-                                   x.EacYear != null)
-                            .OrderByDescending(x => x.CreatedAt)
-                            .FirstOrDefault();
-
-                        if (finalEacLog != null && decimal.TryParse(finalEacLog.FinalEac, out var finalEacVal))
-                        {
-                            totalEac += finalEacVal;
-                        }
-
                         int duration = int.TryParse(contract?.Duration, out int d) ? d : 1;
                         totalAverageEAC = (totalEac / duration).ToString("F2"); // 0.9151
                     }
@@ -904,6 +878,23 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CoronaContracts
                     if (!int.TryParse(durationStr, out int duration) || duration <= 0)
                         duration = 1;
 
+                    var log = new CE_EacLogs
+                    {
+                        EId = model.EId,
+                        ContractType = model.ContractType,
+                        EacYear = model.EacYear?.Trim(),
+                        EacValue = model.EacValue?.Trim(),
+                        FinalEac = model.EacValue?.Trim(),
+                        InvoiceNo = model.InvoiceNo?.Trim(),
+                        InvoiceDate = model.InvoiceDate?.Trim(),
+                        PaymentDate = model.PaymentDate?.Trim(),
+                        InvoiceAmount = model.InvoiceAmount?.Trim(),
+                        CreatedAt = DateTime.Now
+                    };
+
+                    _db.CE_EacLogs.Add(log);
+                    await _db.SaveChangesAsync();
+
                     var eacLogs = await _db.CE_EacLogs
                         .Where(l => l.EId == model.EId && l.ContractType == model.ContractType)
                         .OrderByDescending(l => l.CreatedAt)
@@ -927,22 +918,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CoronaContracts
                         averageEac = CalculateAverageEac(eacValues, duration);
                     }
 
-
-                    var log = new CE_EacLogs
-                    {
-                        EId = model.EId,
-                        ContractType = model.ContractType,
-                        EacYear = model.EacYear?.Trim(),
-                        EacValue = model.EacValue?.Trim(),
-                        FinalEac = averageEac.ToString("F2"),
-                        InvoiceNo = model.InvoiceNo?.Trim(),
-                        InvoiceDate = model.InvoiceDate?.Trim(),
-                        PaymentDate = model.PaymentDate?.Trim(),
-                        InvoiceAmount = model.InvoiceAmount?.Trim(),
-                        CreatedAt = DateTime.Now
-                    };
-
-                    _db.CE_EacLogs.Add(log);
+                    log.FinalEac = averageEac.ToString("F2");
                     await _db.SaveChangesAsync();
 
                     var logs = await _db.CE_EacLogs
