@@ -343,6 +343,7 @@
     <Content Include="Scripts\Sector\sectorFormManager.js" />
     <Content Include="Scripts\Sector\createSector.js" />
     <Content Include="Scripts\Sector\editSector.js" />
+    <Content Include="Scripts\Brokerage\brokerageManager.js" />
     <Content Include="Scripts\Common\duplicateAccountChecker.js" />
     <Content Include="Web.config" />
   </ItemGroup>

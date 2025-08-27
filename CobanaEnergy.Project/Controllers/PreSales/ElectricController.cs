@@ -63,9 +63,6 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     var contract = new CE_ElectricContracts
                     {
                         EId = guid,
-                        Agent = model.Agent,
-                        Introducer = model.Introducer,
-                        SubIntroducer = model.SubIntroducer,
                         TopLine = model.TopLine,
                         MPAN = model.MPAN,
                         BusinessName = model.BusinessName,
@@ -108,7 +105,11 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                         SalesType = model.SalesType,
                         SalesTypeStatus = model.SalesTypeStatus,
                         SupplierCommsType = model.SupplierCommsType,
-                        PreSalesStatus = model.PreSalesStatus
+                        PreSalesStatus = model.PreSalesStatus,
+                        // Brokerage Details
+                        //BrokerageId = model.BrokerageId,
+                        //OfgemId = model.OfgemId,
+                        //BrokerageDepartment = model.BrokerageDepartment
                     };
 
                     db.CE_ElectricContracts.Add(contract);
@@ -281,7 +282,6 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                 {
                     var result = new
                     {
-                        match.Agent,
                         match.BusinessName,
                         match.CustomerName,
                         InputDate = DateTime.TryParse(match.InputDate, out DateTime parsedDate)
@@ -338,11 +338,8 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                 var model = new ElectricContractEditViewModel
                 {
                     EId = contract.EId,
-                    Agent = contract.Agent,
                     Department = contract.Department,
                     Source = contract.Source,
-                    Introducer = contract.Introducer,
-                    SubIntroducer = contract.SubIntroducer,
                     SalesType = contract.SalesType,
                     SalesTypeStatus = contract.SalesTypeStatus,
                     BusinessName = contract.BusinessName,
@@ -382,6 +379,10 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     Terminated = contract.Terminated,
                     ContractNotes = contract.ContractNotes,
                     InputDate = contract.InputDate,
+                    //// Brokerage Details
+                    //BrokerageId = contract.BrokerageId,
+                    //OfgemId = contract.OfgemId,
+                    //BrokerageDepartment = contract.BrokerageDepartment,
 
                     SupplierSnapshot = new ElectricSupplierSnapshotViewModel
                     {
@@ -448,11 +449,8 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     if (contract == null)
                         return JsonResponse.Fail("Electric Contract not found.");
 
-                    contract.Agent = model.Agent;
                     contract.Department = model.Department;
                     contract.Source = model.Source;
-                    contract.Introducer = model.Introducer;
-                    contract.SubIntroducer = model.SubIntroducer;
                     contract.SalesType = model.SalesType;
                     contract.SalesTypeStatus = model.SalesTypeStatus;
                     contract.BusinessName = model.BusinessName;
@@ -570,11 +568,8 @@ namespace CobanaEnergy.Project.Controllers.PreSales
 
                     return JsonResponse.Ok(new
                     {
-                        contract.Agent,
                         contract.Department,
                         contract.Source,
-                        contract.Introducer,
-                        contract.SubIntroducer,
                         contract.SalesType,
                         contract.SalesTypeStatus,
                         contract.BusinessName,

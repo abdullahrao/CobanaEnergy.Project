@@ -120,6 +120,109 @@ namespace CobanaEnergy.Project.Controllers.Sector
             }
         }
 
+        /// <summary>
+        /// Get active sectors by type for contract forms (public access)
+        /// </summary>
+        [HttpGet]
+        public async Task<JsonResult> GetActiveSectors(string sectorType)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(sectorType))
+                {
+                    return JsonResponse.Fail("Sector type is required.");
+                }
+
+                var sectors = await db.CE_Sector
+                    .Where(s => s.SectorType == sectorType && s.Active)
+                    .OrderBy(s => s.Name)
+                    .Select(s => new
+                    {
+                        SectorId = s.SectorID,
+                        Name = s.Name,
+                        OfgemID = s.OfgemID,
+                        Department = s.Department
+                    })
+                    .ToListAsync();
+
+                return JsonResponse.Ok(new { Sectors = sectors });
+            }
+            catch (Exception ex)
+            {
+                Logic.Logger.Log($"Failed to load active sectors of type {sectorType}: {ex.Message}");
+                return JsonResponse.Fail($"Failed to load {sectorType} sectors.");
+            }
+        }
+
+        /// <summary>
+        /// Get active sub-sectors by type for contract forms (public access)
+        /// </summary>
+        [HttpGet]
+        public async Task<JsonResult> GetActiveSubSectors(string subSectorType)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(subSectorType))
+                {
+                    return JsonResponse.Fail("Sub-sector type is required.");
+                }
+
+                List<object> subSectors = new List<object>();
+
+                switch (subSectorType.ToLower())
+                {
+                    case "subreferral":
+                        var subReferrals = await db.CE_SubReferral
+                            .Where(s => s.Active)
+                            .OrderBy(s => s.SubReferralPartnerName)
+                            .Select(s => new { SubSectorId = s.SubReferralID, Name = s.SubReferralPartnerName })
+                            .ToListAsync();
+                        subSectors.AddRange(subReferrals);
+                        break;
+
+                    case "subintroducer":
+                        var subIntroducers = await db.CE_SubIntroducer
+                            .Where(s => s.Active)
+                            .OrderBy(s => s.SubIntroducerName)
+                            .Select(s => new { SubSectorId = s.SubIntroducerID, Name = s.SubIntroducerName })
+                            .ToListAsync();
+                        subSectors.AddRange(subIntroducers);
+                        break;
+
+                    case "subbrokerage":
+                        var subBrokerages = await db.CE_SubBrokerage
+                            .Where(s => s.Active)
+                            .OrderBy(s => s.SubBrokerageName)
+                            .Select(s => new { SubSectorId = s.SubBrokerageID, Name = s.SubBrokerageName })
+                            .ToListAsync();
+                        subSectors.AddRange(subBrokerages);
+                        break;
+
+                    case "brokeragestaff":
+                        var brokerageStaff = await db.CE_BrokerageStaff
+                            .Where(s => s.Active)
+                            .OrderBy(s => s.BrokerageStaffName)
+                            .Select(s => new { SubSectorId = s.BrokerageStaffID, Name = s.BrokerageStaffName })
+                            .ToListAsync();
+                        subSectors.AddRange(brokerageStaff);
+                        break;
+
+                    default:
+                        return JsonResponse.Fail($"Unknown sub-sector type: {subSectorType}");
+                }
+
+                // Add N/A option for sub-sectors
+                subSectors.Insert(0, new { SubSectorId = 0, Name = "N/A" });
+
+                return JsonResponse.Ok(new { SubSectors = subSectors });
+            }
+            catch (Exception ex)
+            {
+                Logic.Logger.Log($"Failed to load active sub-sectors of type {subSectorType}: {ex.Message}");
+                return JsonResponse.Fail($"Failed to load {subSectorType} sub-sectors.");
+            }
+        }
+
         [HttpGet]
         [Authorize(Roles = "Controls")]
         public async Task<JsonResult> GetSectorStatistics()

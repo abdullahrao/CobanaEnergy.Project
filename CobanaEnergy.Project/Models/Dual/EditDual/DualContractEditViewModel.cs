@@ -13,14 +13,20 @@ namespace CobanaEnergy.Project.Models.Dual.EditDual
         public string EId { get; set; }
         [Required]
         public string Department { get; set; }
-        [Required]
-        public string Agent { get; set; }
+        
+        // New dynamic fields based on Department
+        public int? CloserId { get; set; }
+        public int? ReferralPartnerId { get; set; }
+        public int? SubReferralPartnerId { get; set; }
+        public int? BrokerageStaffId { get; set; }
+        public int? IntroducerId { get; set; }
+        public int? SubIntroducerId { get; set; }
+        public int? SubBrokerageId { get; set; }
+        public string Collaboration { get; set; }
+        public int? LeadGeneratorId { get; set; }
+
         [Required]
         public string Source { get; set; }
-        [Required]
-        public string Introducer { get; set; }
-        [Required]
-        public string SubIntroducer { get; set; }
         [Required]
         public string ElectricSalesType { get; set; }
         [Required]
@@ -172,5 +178,11 @@ namespace CobanaEnergy.Project.Models.Dual.EditDual
         public string Type { get; set; } = "Dual";
         public ElectricSupplierSnapshotViewModel ElectricSupplierSnapshot { get; set; }
         public GasSupplierSnapshotViewModel GasSupplierSnapshot { get; set; }
+
+        // Brokerage Details
+        [Required(ErrorMessage = "Brokerage is required")]
+        public int? BrokerageId { get; set; }
+        
+        public string OfgemId { get; set; }
     }
 }

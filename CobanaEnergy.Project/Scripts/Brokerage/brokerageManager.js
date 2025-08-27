@@ -1,0 +1,895 @@
+/**
+ * Enhanced Brokerage Manager - Handles dynamic field population based on Department and Source
+ * This script manages the brokerage selection, Ofgem ID auto-population, Department auto-selection,
+ * and dynamic field population based on Department and Source selection
+ */
+
+class BrokerageManager {
+    constructor(options = {}) {
+        this.brokerageSelectId = options.brokerageSelectId || 'brokerage';
+        this.ofgemIdInputId = options.ofgemIdInputId || 'ofgemId';
+        this.departmentSelectId = options.departmentSelectId || 'department';
+        this.isEditMode = options.isEditMode || false;
+        this.currentBrokerageId = options.currentBrokerageId || null;
+        this.currentDepartment = options.currentDepartment || null;
+        this.currentSource = null; // Track current source selection
+        
+        this.applyDisabledStyling();
+        this.init();
+    }
+
+    init() {
+        this.loadBrokerages();
+        this.bindEvents();
+        
+        if (this.isEditMode && this.currentBrokerageId) {
+            this.setCurrentBrokerage();
+        }
+    }
+
+    /**
+     * Load active brokerages from the sectors table
+     */
+    loadBrokerages() {
+        const $brokerageSelect = $(`#${this.brokerageSelectId}`);
+        if (!$brokerageSelect.length) return;
+
+        // Clear existing options except the first one
+        $brokerageSelect.find('option:not(:first)').remove();
+
+        // Fetch brokerages from the server
+        $.ajax({
+            url: '/Sector/GetActiveSectors',
+            type: 'GET',
+            data: { sectorType: 'Brokerage' },
+            success: (response) => {
+                if (response.success && response.Data && response.Data.Sectors) {
+                    const brokerages = response.Data.Sectors;
+                    
+                    brokerages.forEach(brokerage => {
+                        const $option = $('<option>', {
+                            value: brokerage.SectorId,
+                            text: brokerage.Name
+                        }).attr({
+                            'data-ofgem-id': brokerage.OfgemID || '',
+                            'data-department': brokerage.Department || ''
+                        });
+                        
+                        $brokerageSelect.append($option);
+                    });
+                }
+            },
+            error: (xhr, status, error) => {
+                console.error('Failed to load brokerages:', error);
+                this.showError('Failed to load brokerages. Please refresh the page.');
+            }
+        });
+    }
+
+    /**
+     * Bind event handlers
+     */
+    bindEvents() {
+        $(`#${this.brokerageSelectId}`).on('change', (e) => this.handleBrokerageChange(e));
+        $('#source').on('change', (e) => this.handleSourceChange(e));
+        $('#collaboration').on('change', (e) => this.handleCollaborationChange(e));
+    }
+
+    /**
+     * Handle brokerage selection change
+     */
+    handleBrokerageChange(event) {
+        const $selectedOption = $(event.target).find('option:selected');
+        const $ofgemIdInput = $(`#${this.ofgemIdInputId}`);
+        const $departmentSelect = $(`#${this.departmentSelectId}`);
+
+        // Reset all dynamic fields and dropdowns when brokerage changes
+        this.hideAllDynamicFields();
+        this.hideAllSourceFields();
+        this.resetAllDropdownValues();
+
+        if ($selectedOption.length && $selectedOption.val()) {
+            // Auto-populate Ofgem ID
+            if ($ofgemIdInput.length) {
+                $ofgemIdInput.val($selectedOption.attr('data-ofgem-id') || '');
+                // Make the OfgemID field look disabled
+                $ofgemIdInput.prop('readonly', true);
+                $ofgemIdInput.addClass('disabled-field');
+            }
+
+            // Auto-populate Department
+            if ($departmentSelect.length) {
+                const department = $selectedOption.attr('data-department') || '';
+                this.populateDepartmentDropdown(department);
+                this.handleDepartmentChange(department);
+            }
+        } else {
+            // Clear fields if no brokerage selected
+            if ($ofgemIdInput.length) {
+                $ofgemIdInput.val('');
+                // Re-enable the OfgemID field
+                $ofgemIdInput.prop('readonly', false);
+                $ofgemIdInput.removeClass('disabled-field');
+            }
+            if ($departmentSelect.length) {
+                this.clearDepartmentDropdown();
+            }
+        }
+    }
+
+    /**
+     * Handle department change
+     */
+    handleDepartmentChange(department) {
+        this.hideAllDynamicFields();
+        
+        if (!department) return;
+
+        switch (department.toLowerCase()) {
+            case 'in house':
+                this.showInHouseFields();
+                this.populateSourceDropdown(['Data', 'Referral Partners', 'Self-Gen', 'Cobana RNW']);
+                break;
+            case 'brokers':
+                this.showBrokersFields();
+                this.populateSourceDropdown(['Sub Broker', 'N/A']);
+                break;
+            case 'introducers':
+                this.showIntroducersFields();
+                this.populateSourceDropdown(['Sub Introducer', 'N/A']);
+                break;
+        }
+    }
+
+    /**
+     * Handle source change
+     */
+    handleSourceChange(event) {
+        const newSource = $(event.target).val();
+        const previousSource = this.currentSource; // Track previous source
+        
+        // Reset dropdowns based on previous source before hiding fields
+        //this.resetDropdownsForPreviousSource(previousSource);
+        
+        // Hide all source fields
+        this.hideAllSourceFields("sourceDropdown");
+        
+        // Update current source
+        this.currentSource = newSource;
+        
+        if (!newSource) return;
+
+        switch (newSource.toLowerCase()) {
+            case 'data':
+                this.showDataSourceFields();
+                break;
+            case 'referral partners':
+                this.showReferralSourceFields();
+                this.loadReferralPartners();
+                this.loadSubReferralPartners();
+                break;
+            case 'self-gen':
+                this.showSelfGenSourceFields();
+                break;
+            case 'cobana rnw':
+                this.showCobanaRnwSourceFields();
+                break;
+            case 'sub broker':
+                this.showSubBrokerSourceFields();
+                this.loadSubBrokerages();
+                break;
+            case 'sub introducer':
+                this.showSubIntroducerSourceFields();
+                this.loadSubIntroducers();
+                break;
+        }
+    }
+
+    /**
+     * Handle collaboration change
+     */
+    handleCollaborationChange(event) {
+        const collaboration = $(event.target).val();
+        const $leadGeneratorField = $('#leadGeneratorField');
+        const $leadGenerator = $('#leadGenerator');
+        const $referralPartnerField = $('#referralPartnerField');
+        const $subReferralPartnerField = $('#subReferralPartnerField');
+        
+        // Get current source to determine which fields to show
+        const currentSource = $('#source').val();
+        
+        if (collaboration === 'Lead Generator') {
+            // For Data source, show Lead Generator field
+            if (currentSource && currentSource.toLowerCase() === 'data') {
+                $leadGeneratorField.show();
+                $leadGenerator.prop('disabled', false);
+                this.loadLeadGenerators();
+                $referralPartnerField.hide();
+                $subReferralPartnerField.hide();
+            }
+            // For Self-Gen and Cobana RNW sources, show Referral Partner fields
+            else if (currentSource && (currentSource.toLowerCase() === 'self-gen' || currentSource.toLowerCase() === 'cobana rnw')) {
+                $leadGeneratorField.hide();
+                $leadGenerator.prop('disabled', true);
+                $leadGenerator.val('');
+                $referralPartnerField.show();
+                $subReferralPartnerField.show();
+                this.loadReferralPartners();
+                this.loadSubReferralPartners();
+            }
+        } else {
+            // Hide all additional fields when N/A is selected
+            $leadGeneratorField.hide();
+            $leadGenerator.prop('disabled', true);
+            $leadGenerator.val('');
+            $referralPartnerField.hide();
+            $subReferralPartnerField.hide();
+        }
+    }
+
+    /**
+     * Show In House fields
+     */
+    showInHouseFields() {
+        $('#inHouseFields').show();
+        $('#brokersFields').hide();
+        $('#introducersFields').hide();
+        
+        this.loadClosers();
+    }
+
+    /**
+     * Show Brokers fields
+     */
+    showBrokersFields() {
+        $('#brokersFields').show();
+        $('#inHouseFields').hide();
+        $('#introducersFields').hide();
+        
+        this.loadBrokerageStaff();
+    }
+
+    /**
+     * Show Introducers fields
+     */
+    showIntroducersFields() {
+        $('#introducersFields').show();
+        $('#inHouseFields').hide();
+        $('#brokersFields').hide();
+        
+        this.loadIntroducers();
+    }
+
+    /**
+     * Show Data source fields
+     */
+    showDataSourceFields() {
+        $('#dataSourceFields').show();
+        $('#leadGeneratorField').hide();
+        $('#referralPartnerField').hide();
+        $('#subReferralPartnerField').hide();
+        $('#subBrokerageField').hide();
+        $('#subIntroducerField').hide();
+    }
+
+    /**
+     * Show Referral source fields
+     */
+    showReferralSourceFields() {
+        $('#referralPartnerField').show();
+        $('#subReferralPartnerField').show();
+        $('#dataSourceFields').hide();
+        $('#leadGeneratorField').hide();
+        $('#subBrokerageField').hide();
+        $('#subIntroducerField').hide();
+    }
+
+    /**
+     * Show Sub Broker source fields
+     */
+    showSubBrokerSourceFields() {
+        $('#subBrokerageField').show();
+        $('#dataSourceFields').hide();
+        $('#leadGeneratorField').hide();
+        $('#referralPartnerField').hide();
+        $('#subReferralPartnerField').hide();
+        $('#subIntroducerField').hide();
+    }
+
+    /**
+     * Show Sub Introducer source fields
+     */
+    showSubIntroducerSourceFields() {
+        $('#subIntroducerField').show();
+        $('#dataSourceFields').hide();
+        $('#leadGeneratorField').hide();
+        $('#referralPartnerField').hide();
+        $('#subReferralPartnerField').hide();
+        $('#subBrokerageField').hide();
+    }
+
+    /**
+     * Show Self-Gen source fields
+     */
+    showSelfGenSourceFields() {
+        $('#dataSourceFields').show();
+        $('#leadGeneratorField').hide();
+        $('#referralPartnerField').hide();
+        $('#subReferralPartnerField').hide();
+        $('#subBrokerageField').hide();
+        $('#subIntroducerField').hide();
+    }
+
+    /**
+     * Show Cobana RNW source fields
+     */
+    showCobanaRnwSourceFields() {
+        $('#dataSourceFields').show();
+        $('#leadGeneratorField').hide();
+        $('#referralPartnerField').hide();
+        $('#subReferralPartnerField').hide();
+        $('#subBrokerageField').hide();
+        $('#subIntroducerField').hide();
+    }
+
+    /**
+     * Hide all dynamic fields
+     */
+    hideAllDynamicFields() {
+        $('#inHouseFields').hide();
+        $('#brokersFields').hide();
+        $('#introducersFields').hide();
+    }
+
+    /**
+     * Hide all source fields
+     */
+    hideAllSourceFields(mode) {
+        $('#dataSourceFields').hide();
+        $('#leadGeneratorField').hide();
+        $('#referralPartnerField').hide();
+        $('#subReferralPartnerField').hide();
+        $('#subBrokerageField').hide();
+        $('#subIntroducerField').hide();
+
+        if (mode == "sourceDropdown") {
+            this.resetSourceDropdownValues();
+        }
+        else {
+            this.resetAllDropdownValues();
+        }
+    }
+
+    /**
+     * Load closers
+     */
+    loadClosers() {
+        $.ajax({
+            url: '/Sector/GetActiveSectors',
+            type: 'GET',
+            data: { sectorType: 'Closer' },
+            success: (response) => {
+                if (response.success && response.Data && response.Data.Sectors) {
+                    const $closerSelect = $('#closer');
+                    $closerSelect.find('option:not(:first)').remove();
+                    
+                    response.Data.Sectors.forEach(closer => {
+                        const $option = $('<option>', {
+                            value: closer.SectorId,
+                            text: closer.Name
+                        });
+                        $closerSelect.append($option);
+                    });
+                }
+            }
+        });
+    }
+
+    /**
+     * Load referral partners
+     */
+    loadReferralPartners() {
+        $.ajax({
+            url: '/Sector/GetActiveSectors',
+            type: 'GET',
+            data: { sectorType: 'Referral' },
+            success: (response) => {
+                if (response.success && response.Data && response.Data.Sectors) {
+                    const $referralSelect = $('#referralPartner');
+                    $referralSelect.find('option:not(:first)').remove();
+                    
+                    response.Data.Sectors.forEach(referral => {
+                        const $option = $('<option>', {
+                            value: referral.SectorId,
+                            text: referral.Name
+                        });
+                        $referralSelect.append($option);
+                    });
+                }
+            }
+        });
+    }
+
+    /**
+     * Load sub referral partners
+     */
+    loadSubReferralPartners() {
+        $.ajax({
+            url: '/Sector/GetActiveSubSectors',
+            type: 'GET',
+            data: { subSectorType: 'SubReferral' },
+            success: (response) => {
+                if (response.success && response.Data && response.Data.SubSectors) {
+                    const $subReferralSelect = $('#subReferralPartner');
+                    $subReferralSelect.find('option:not(:first)').remove();
+                    
+                    response.Data.SubSectors.forEach(subReferral => {
+                        const $option = $('<option>', {
+                            value: subReferral.SubSectorId,
+                            text: subReferral.Name
+                        });
+                        $subReferralSelect.append($option);
+                    });
+                }
+            }
+        });
+    }
+
+    /**
+     * Load brokerage staff
+     */
+    loadBrokerageStaff() {
+        $.ajax({
+            url: '/Sector/GetActiveSubSectors',
+            type: 'GET',
+            data: { subSectorType: 'BrokerageStaff' },
+            success: (response) => {
+                if (response.success && response.Data && response.Data.SubSectors) {
+                    const $brokerageStaffSelect = $('#brokerageStaff');
+                    $brokerageStaffSelect.find('option:not(:first)').remove();
+                    
+                    response.Data.SubSectors.forEach(staff => {
+                        const $option = $('<option>', {
+                            value: staff.SubSectorId,
+                            text: staff.Name
+                        });
+                        $brokerageStaffSelect.append($option);
+                    });
+                }
+            }
+        });
+    }
+
+    /**
+     * Load introducers
+     */
+    loadIntroducers() {
+        $.ajax({
+            url: '/Sector/GetActiveSectors',
+            type: 'GET',
+            data: { sectorType: 'Introducer' },
+            success: (response) => {
+                if (response.success && response.Data && response.Data.Sectors) {
+                    const $introducerSelect = $('#introducer');
+                    $introducerSelect.find('option:not(:first)').remove();
+                    
+                    response.Data.Sectors.forEach(introducer => {
+                        const $option = $('<option>', {
+                            value: introducer.SectorId,
+                            text: introducer.Name
+                        });
+                        $introducerSelect.append($option);
+                    });
+                }
+            }
+        });
+    }
+
+    /**
+     * Load sub brokerages
+     */
+    loadSubBrokerages() {
+        $.ajax({
+            url: '/Sector/GetActiveSubSectors',
+            type: 'GET',
+            data: { subSectorType: 'SubBrokerage' },
+            success: (response) => {
+                if (response.success && response.Data && response.Data.SubSectors) {
+                    const $subBrokerageSelect = $('#subBrokerage');
+                    $subBrokerageSelect.find('option:not(:first)').remove();
+                    
+                    response.Data.SubSectors.forEach(subBrokerage => {
+                        const $option = $('<option>', {
+                            value: subBrokerage.SubSectorId,
+                            text: subBrokerage.Name
+                        });
+                        $subBrokerageSelect.append($option);
+                    });
+                }
+            }
+        });
+    }
+
+    /**
+     * Load sub introducers
+     */
+    loadSubIntroducers() {
+        $.ajax({
+            url: '/Sector/GetActiveSubSectors',
+            type: 'GET',
+            data: { subSectorType: 'SubIntroducer' },
+            success: (response) => {
+                if (response.success && response.Data && response.Data.SubSectors) {
+                    const $subIntroducerSelect = $('#subIntroducer');
+                    $subIntroducerSelect.find('option:not(:first)').remove();
+                    
+                    response.Data.SubSectors.forEach(subIntroducer => {
+                        const $option = $('<option>', {
+                            value: subIntroducer.SubSectorId,
+                            text: subIntroducer.Name
+                        });
+                        $subIntroducerSelect.append($option);
+                    });
+                }
+            }
+        });
+    }
+
+    /**
+     * Load lead generators
+     */
+    loadLeadGenerators() {
+        $.ajax({
+            url: '/Sector/GetActiveSectors',
+            type: 'GET',
+            data: { sectorType: 'Lead Generator' },
+            success: (response) => {
+                if (response.success && response.Data && response.Data.Sectors) {
+                    const $leadGeneratorSelect = $('#leadGenerator');
+                    $leadGeneratorSelect.find('option:not(:first)').remove();
+                    
+                    response.Data.Sectors.forEach(leadGenerator => {
+                        const $option = $('<option>', {
+                            value: leadGenerator.SectorId,
+                            text: leadGenerator.Name
+                        });
+                        $leadGeneratorSelect.append($option);
+                    });
+                }
+            }
+        });
+    }
+
+    /**
+     * Populate department dropdown with the selected department
+     */
+    populateDepartmentDropdown(selectedDepartment) {
+        const $departmentSelect = $(`#${this.departmentSelectId}`);
+        if (!$departmentSelect.length) return;
+
+        // Clear existing options except the first one
+        $departmentSelect.find('option:not(:first)').remove();
+
+        if (selectedDepartment) {
+            // Add the selected department as an option
+            const $option = $('<option>', {
+                value: selectedDepartment,
+                text: selectedDepartment,
+                selected: true
+            });
+            $departmentSelect.append($option);
+            
+            // Make the department field look disabled and non-changeable
+            $departmentSelect.prop('disabled', true);
+            $departmentSelect.addClass('disabled-field');
+        }
+    }
+
+    /**
+     * Populate source dropdown with options
+     */
+    populateSourceDropdown(options) {
+        const $sourceSelect = $('#source');
+        if (!$sourceSelect.length) return;
+
+        // Clear existing options except the first one
+        $sourceSelect.find('option:not(:first)').remove();
+
+        options.forEach(option => {
+            const $optionElement = $('<option>', {
+                value: option,
+                text: option
+            });
+            $sourceSelect.append($optionElement);
+        });
+    }
+
+    /**
+     * Clear department dropdown
+     */
+    clearDepartmentDropdown() {
+        const $departmentSelect = $(`#${this.departmentSelectId}`);
+        if (!$departmentSelect.length) return;
+
+        // Clear existing options except the first one
+        $departmentSelect.find('option:not(:first)').remove();
+        $departmentSelect.prop('selectedIndex', 0);
+        
+        // Re-enable the department field
+        $departmentSelect.prop('disabled', false);
+        $departmentSelect.removeClass('disabled-field');
+    }
+
+    /**
+     * Reset all dropdown values to default
+     */
+    resetAllDropdownValues() {
+        // Reset source dropdown
+        const $sourceSelect = $('#source');
+        if ($sourceSelect.length) {
+            $sourceSelect.prop('selectedIndex', 0);
+        }
+        
+        // Reset collaboration dropdown
+        const $collaborationSelect = $('#collaboration');
+        if ($collaborationSelect.length) {
+            $collaborationSelect.prop('selectedIndex', 0);
+        }
+        
+        // Reset lead generator dropdown
+        const $leadGeneratorSelect = $('#leadGenerator');
+        if ($leadGeneratorSelect.length) {
+            $leadGeneratorSelect.prop('selectedIndex', 0);
+        }
+        
+        // Reset referral partner dropdown
+        const $referralPartnerSelect = $('#referralPartner');
+        if ($referralPartnerSelect.length) {
+            $referralPartnerSelect.prop('selectedIndex', 0);
+        }
+        
+        // Reset sub referral partner dropdown
+        const $subReferralPartnerSelect = $('#subReferralPartner');
+        if ($subReferralPartnerSelect.length) {
+            $subReferralPartnerSelect.prop('selectedIndex', 0);
+        }
+        
+        // Reset sub brokerage dropdown
+        const $subBrokerageSelect = $('#subBrokerage');
+        if ($subBrokerageSelect.length) {
+            $subBrokerageSelect.prop('selectedIndex', 0);
+        }
+        
+        // Reset sub introducer dropdown
+        const $subIntroducerSelect = $('#subIntroducer');
+        if ($subIntroducerSelect.length) {
+            $subIntroducerSelect.prop('selectedIndex', 0);
+        }
+        
+        // Reset closer dropdown
+        const $closerSelect = $('#closer');
+        if ($closerSelect.length) {
+            $closerSelect.prop('selectedIndex', 0);
+        }
+        
+        // Reset brokerage staff dropdown
+        const $brokerageStaffSelect = $('#brokerageStaff');
+        if ($brokerageStaffSelect.length) {
+            $brokerageStaffSelect.prop('selectedIndex', 0);
+        }
+        
+        // Reset introducer dropdown
+        const $introducerSelect = $('#introducer');
+        if ($introducerSelect.length) {
+            $introducerSelect.prop('selectedIndex', 0);
+        }
+    }
+
+    resetSourceDropdownValues() {
+
+        // Reset collaboration dropdown
+        const $collaborationSelect = $('#collaboration');
+        if ($collaborationSelect.length) {
+            $collaborationSelect.prop('selectedIndex', 0);
+        }
+
+        // Reset lead generator dropdown
+        const $leadGeneratorSelect = $('#leadGenerator');
+        if ($leadGeneratorSelect.length) {
+            $leadGeneratorSelect.prop('selectedIndex', 0);
+        }
+
+        // Reset referral partner dropdown
+        const $referralPartnerSelect = $('#referralPartner');
+        if ($referralPartnerSelect.length) {
+            $referralPartnerSelect.prop('selectedIndex', 0);
+        }
+
+        // Reset sub referral partner dropdown
+        const $subReferralPartnerSelect = $('#subReferralPartner');
+        if ($subReferralPartnerSelect.length) {
+            $subReferralPartnerSelect.prop('selectedIndex', 0);
+        }
+
+        // Reset sub brokerage dropdown
+        const $subBrokerageSelect = $('#subBrokerage');
+        if ($subBrokerageSelect.length) {
+            $subBrokerageSelect.prop('selectedIndex', 0);
+        }
+
+        // Reset sub introducer dropdown
+        const $subIntroducerSelect = $('#subIntroducer');
+        if ($subIntroducerSelect.length) {
+            $subIntroducerSelect.prop('selectedIndex', 0);
+        }
+        // Reset introducer dropdown
+        const $introducerSelect = $('#introducer');
+        if ($introducerSelect.length) {
+            $introducerSelect.prop('selectedIndex', 0);
+        }
+    }
+
+    /**
+     * Apply disabled field styling
+     */
+    applyDisabledStyling() {
+        // Add CSS for disabled fields
+        if (!$('#disabledFieldStyles').length) {
+            const $style = $('<style id="disabledFieldStyles">')
+                .text(`
+                    .disabled-field {
+                        background-color: #e9ecef !important;
+                        color: #6c757d !important;
+                        cursor: not-allowed !important;
+                        opacity: 0.65 !important;
+                    }
+                    .disabled-field:focus {
+                        box-shadow: none !important;
+                        border-color: #ced4da !important;
+                    }
+                `);
+            $('head').append($style);
+        }
+    }
+
+    /**
+     * Set current brokerage for edit mode
+     */
+    setCurrentBrokerage() {
+        const $brokerageSelect = $(`#${this.brokerageSelectId}`);
+        if (!$brokerageSelect.length || !this.currentBrokerageId) return;
+
+        // Set the selected brokerage
+        $brokerageSelect.val(this.currentBrokerageId);
+
+        // Trigger change event to populate Ofgem ID and Department
+        $brokerageSelect.trigger('change');
+    }
+
+    /**
+     * Get selected brokerage data
+     */
+    getSelectedBrokerageData() {
+        const $brokerageSelect = $(`#${this.brokerageSelectId}`);
+        const $selectedOption = $brokerageSelect.find('option:selected');
+        
+        if (!$selectedOption.length || !$selectedOption.val()) {
+            return null;
+        }
+
+        return {
+            sectorId: $selectedOption.val(),
+            name: $selectedOption.text(),
+            ofgemId: $selectedOption.attr('data-ofgem-id') || '',
+            department: $selectedOption.attr('data-department') || ''
+        };
+    }
+
+    /**
+     * Reset all fields
+     */
+    reset() {
+        const $brokerageSelect = $(`#${this.brokerageSelectId}`);
+        const $ofgemIdInput = $(`#${this.ofgemIdInputId}`);
+        const $departmentSelect = $(`#${this.departmentSelectId}`);
+
+        if ($brokerageSelect.length) {
+            $brokerageSelect.prop('selectedIndex', 0);
+        }
+        
+        if ($ofgemIdInput.length) {
+            $ofgemIdInput.val('');
+        }
+        
+        if ($departmentSelect.length) {
+            this.clearDepartmentDropdown();
+        }
+
+        this.hideAllDynamicFields();
+        $('#source').prop('selectedIndex', 0);
+    }
+
+    /**
+     * Show error message
+     */
+    showError(message) {
+        console.error(message);
+        // Example: show a toast notification or alert
+        // alert(message);
+    }
+
+    /**
+     * Destroy the manager and clean up
+     */
+    destroy() {
+        $(`#${this.brokerageSelectId}`).off('change');
+        $('#source').off('change');
+        $('#collaboration').off('change');
+    }
+}
+
+// Auto-initialize for all contract forms
+$(document).ready(function() {
+    // Initialize for Create Electric form
+    if ($('#createElectricForm').length) {
+        new BrokerageManager({
+            brokerageSelectId: 'brokerage',
+            ofgemIdInputId: 'ofgemId',
+            departmentSelectId: 'department'
+        });
+    }
+
+    // Initialize for Edit Electric form
+    if ($('#editElectricForm').length) {
+        new BrokerageManager({
+            brokerageSelectId: 'brokerage',
+            ofgemIdInputId: 'ofgemId',
+            departmentSelectId: 'department',
+            isEditMode: true,
+            currentBrokerageId: $('#brokerage').attr('data-current'),
+            currentDepartment: $('#department').attr('data-current')
+        });
+    }
+
+    // Initialize for Create Gas form
+    if ($('#createGasForm').length) {
+        new BrokerageManager({
+            brokerageSelectId: 'brokerage',
+            ofgemIdInputId: 'ofgemId',
+            departmentSelectId: 'department'
+        });
+    }
+
+    // Initialize for Edit Gas form
+    if ($('#editGasForm').length) {
+        new BrokerageManager({
+            brokerageSelectId: 'brokerage',
+            ofgemIdInputId: 'ofgemId',
+            departmentSelectId: 'department',
+            isEditMode: true,
+            currentBrokerageId: $('#brokerage').attr('data-current'),
+            currentDepartment: $('#department').attr('data-current')
+        });
+    }
+
+    // Initialize for Create Dual form
+    if ($('#createDualForm').length) {
+        new BrokerageManager({
+            brokerageSelectId: 'brokerage',
+            ofgemIdInputId: 'ofgemId',
+            departmentSelectId: 'department'
+        });
+    }
+
+    // Initialize for Edit Dual form
+    if ($('#editDualForm').length) {
+        new BrokerageManager({
+            brokerageSelectId: 'brokerage',
+            ofgemIdInputId: 'ofgemId',
+            departmentSelectId: 'department',
+            isEditMode: true,
+            currentBrokerageId: $('#brokerage').attr('data-current'),
+            currentDepartment: $('#department').attr('data-current')
+        });
+    }
+});

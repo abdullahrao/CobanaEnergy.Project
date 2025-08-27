@@ -63,9 +63,6 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     var contract = new CE_GasContracts
                     {
                         EId = guid,
-                        Agent = model.Agent,
-                        Introducer = model.Introducer,
-                        SubIntroducer = model.SubIntroducer,
                         MPRN = model.MPRN,
                         BusinessName = model.BusinessName,
                         CustomerName = model.CustomerName,
@@ -104,7 +101,11 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                         SalesType = model.SalesType,
                         SalesTypeStatus = model.SalesTypeStatus,
                         SupplierCommsType = model.SupplierCommsType,
-                        PreSalesStatus = model.PreSalesStatus
+                        PreSalesStatus = model.PreSalesStatus,
+                        // Brokerage Details
+                        //BrokerageId = model.BrokerageId,
+                        //OfgemId = model.OfgemId,
+                        //BrokerageDepartment = model.BrokerageDepartment
                     };
 
                     db.CE_GasContracts.Add(contract);
@@ -277,7 +278,6 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                 {
                     var result = new
                     {
-                        match.Agent,
                         match.BusinessName,
                         match.CustomerName,
                         InputDate = DateTime.TryParse(match.InputDate, out DateTime parsedDate)
@@ -334,9 +334,6 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                 var model = new GasContractEditViewModel
                 {
                     EId = contract.EId,
-                    Agent = contract.Agent,
-                    Introducer = contract.Introducer,
-                    SubIntroducer = contract.SubIntroducer,
                     MPRN = contract.MPRN,
                     BusinessName = contract.BusinessName,
                     CustomerName = contract.CustomerName,
@@ -375,6 +372,10 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     SalesType = contract.SalesType,
                     SalesTypeStatus = contract.SalesTypeStatus,
                     PreSalesStatus = contract.PreSalesStatus,
+                    // Brokerage Details
+                    //BrokerageId = contract.BrokerageId,
+                    //OfgemId = contract.OfgemId,
+                    //BrokerageDepartment = contract.BrokerageDepartment,
 
                     SupplierSnapshot = new GasSupplierSnapshotViewModel
                     {
@@ -460,9 +461,6 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                         return JsonResponse.Fail("Selected product does not exist in snapshot.");
                     }
 
-                    contract.Agent = model.Agent;
-                    contract.Introducer = model.Introducer;
-                    contract.SubIntroducer = model.SubIntroducer;
                     contract.MPRN = model.MPRN;
                     contract.BusinessName = model.BusinessName;
                     contract.CustomerName = model.CustomerName;
@@ -568,11 +566,8 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     return JsonResponse.Ok(new
                     {
 
-                        contract.Agent,
                         contract.Department,
                         contract.Source,
-                        contract.Introducer,
-                        contract.SubIntroducer,
                         contract.SalesType,
                         contract.SalesTypeStatus,
                         contract.BusinessName,

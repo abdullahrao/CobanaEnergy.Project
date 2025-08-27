@@ -70,10 +70,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     {
                         EId = guid,
                         Department = model.Department,
-                        Agent = model.Agent,
                         Source = model.Source,
-                        Introducer = model.Introducer,
-                        SubIntroducer = model.SubIntroducer,
                         SalesType = model.ElectricSalesType,
                         SalesTypeStatus = model.ElectricSalesTypeStatus,
                         BusinessName = model.BusinessName,
@@ -111,7 +108,11 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                         ContractNotes = model.ContractNotes,
                         CreatedAt = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
                         UpdatedAt = "000",
-                        Type = "Dual"
+                        Type = "Dual",
+                        // Brokerage Details
+                        //BrokerageId = model.BrokerageId,
+                        //OfgemId = model.OfgemId,
+                        //BrokerageDepartment = model.BrokerageDepartment
                     };
 
                     _db.CE_ElectricContracts.Add(electric);
@@ -244,10 +245,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     {
                         EId = guid,
                         Department = model.Department,
-                        Agent = model.Agent,
                         Source = model.Source,
-                        Introducer = model.Introducer,
-                        SubIntroducer = model.SubIntroducer,
                         SalesType = model.GasSalesType,
                         SalesTypeStatus = model.GasSalesTypeStatus,
                         BusinessName = model.BusinessName,
@@ -282,7 +280,11 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                         ContractNotes = model.ContractNotes,
                         CreatedAt = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
                         UpdatedAt = "000",
-                        Type = "Dual"
+                        Type = "Dual",
+                        // Brokerage Details
+                        //BrokerageId = model.BrokerageId,
+                        //OfgemId = model.OfgemId,
+                        //BrokerageDepartment = model.BrokerageDepartment
                     };
 
                     _db.CE_GasContracts.Add(gas);
@@ -483,10 +485,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
 
                     // Shared
                     Department = electric.Department,
-                    Agent = electric.Agent,
                     Source = electric.Source,
-                    Introducer = electric.Introducer,
-                    SubIntroducer = electric.SubIntroducer,
                     BusinessName = electric.BusinessName,
                     CustomerName = electric.CustomerName,
                     BusinessDoorNumber = electric.BusinessDoorNumber,
@@ -615,7 +614,11 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                             Email = c.Email,
                             Notes = c.Notes
                         }).ToList()
-                    }
+                    },
+                    // Brokerage Details
+                    //BrokerageId = electric.BrokerageId,
+                    //OfgemId = electric.OfgemId,
+                    //BrokerageDepartment = electric.BrokerageDepartment
                 };
 
                 return View("EditDual", model);
@@ -667,10 +670,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
 
                     // ---- ELECTRIC
                     electric.Department = model.Department;
-                    electric.Agent = model.Agent;
                     electric.Source = model.Source;
-                    electric.Introducer = model.Introducer;
-                    electric.SubIntroducer = model.SubIntroducer;
                     electric.TopLine = model.TopLine;
                     electric.MPAN = model.MPAN;
                     electric.CurrentSupplier = model.ElectricCurrentSupplier;
@@ -725,10 +725,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
 
                     // ---- GAS
                     gas.Department = model.Department;
-                    gas.Agent = model.Agent;
                     gas.Source = model.Source;
-                    gas.Introducer = model.Introducer;
-                    gas.SubIntroducer = model.SubIntroducer;
                     gas.MPRN = model.MPRN;
                     gas.CurrentSupplier = model.GasCurrentSupplier;
                     gas.SupplierId = model.GasSupplierId;
@@ -815,10 +812,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     {
                         EId = model.EId,
                         Department = electric.Department,
-                        Agent = electric.Agent,
                         Source = electric.Source,
-                        Introducer = electric.Introducer,
-                        SubIntroducer = electric.SubIntroducer,
                         BusinessName = electric.BusinessName,
                         CustomerName = electric.CustomerName,
                         BusinessDoorNumber = electric.BusinessDoorNumber,
