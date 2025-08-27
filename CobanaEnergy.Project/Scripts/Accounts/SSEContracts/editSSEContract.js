@@ -53,7 +53,7 @@
         $btn.prop("disabled", true).html('<i class="fas fa-spinner fa-spin me-1"></i> Saving...');
 
         $.ajax({
-            url: '/BGLiteContract/SaveEacLog',
+            url: '/SSEContract/SaveEacLog',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(payload),
@@ -61,17 +61,17 @@
                 if (res.success) {
                     showToastSuccess("EAC Log saved successfully.");
                     $("#eacLogForm")[0].reset();
-                    // Set Final Eac Value 
+                    // Set Final Eac Value
                     let finalEac = res.Data?.[0]?.FinalEac ?? 0;
-                    let decimalPart = finalEac.toString().split('.')[1];
-                    if (decimalPart) {
-                        if (decimalPart.length > 2) {
-                            finalEac = Math.round(finalEac * 100) / 100;
-                        }
-                    } else {
-                        finalEac = Number(finalEac).toFixed(2);
+                    const decimalPart = finalEac.toString().split('.')[1];
+                    if (decimalPart && decimalPart.length > 2) {
+                        finalEac = Math.trunc(finalEac * 100) / 100;
                     }
-                    $("#finalEac").val(finalEac);
+
+                    $('#finalEac').val(finalEac);
+
+                    $('#finalEac').val(finalEac);
+
                     renderEacLogs(res.Data);
                 } else {
                     showToastError(res.message || "Failed to save EAC Log.");
@@ -88,7 +88,7 @@
 
     function loadEacLogs() {
         if (!eid) return;
-        $.get(`/BGLiteContract/GetEacLogs?eid=${eid}&contractType=${$("#contractType").val()}`, function (res) {
+        $.get(`/SSEContract/GetEacLogs?eid=${eid}&contractType=${$("#contractType").val()}`, function (res) {
             if (!res.success || !res.Data || !res.Data.length) {
                 $("#bgbInvoiceLogsContainer").html('<span class="text-muted">No logs yet. Save EAC entries to view them here.</span>');
                 return;
@@ -122,7 +122,7 @@
     }
 
     $("#exportInvoiceLogsBtn").on("click", function () {
-        $.get(`/BGLiteContract/GetEacLogs?eid=${eid}&contractType=${$("#contractType").val()}`, function (res) {
+        $.get(`/SSEContract/GetEacLogs?eid=${eid}&contractType=${$("#contractType").val()}`, function (res) {
             if (!res.success || !res.Data?.length) {
                 showToastWarning("No logs to export.");
                 return;
@@ -172,7 +172,7 @@
         return `${yyyy}-${mm}-${dd}`;
     }
 
-    $("#editBGLiteContractForm").on("submit", async function (e) {
+    $("#editSSEContractForm").on("submit", async function (e) {
         e.preventDefault();
         const $btn = $(this).find('button[type="submit"]');
         $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i> Updating...');
@@ -237,7 +237,7 @@
             };
 
             $.ajax({
-                url: '/BGLiteContract/UpdateContract',
+                url: '/SSEContract/UpdateContract',
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify(payload),

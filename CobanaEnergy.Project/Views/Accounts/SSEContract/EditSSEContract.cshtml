@@ -1,14 +1,14 @@
-﻿@model CobanaEnergy.Project.Models.Accounts.SuppliersModels.Crown.EditCrownContractViewModel
+﻿@model CobanaEnergy.Project.Models.Accounts.SuppliersModels.SSE.EditSSEContractViewModel
 @using CobanaEnergy.Project.Service.ExtensionService;
 
 @{
-    ViewBag.Title = "Edit Crown Contract";
+    ViewBag.Title = "Edit SSE Contract";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="container-fluid px-4">
     <div class="text-center mb-4">
-        <h2 class="fw-bold">Crown Gas and Power Contract</h2>
+        <h2 class="fw-bold">SSE Contract</h2>
     </div>
 
     <div class="edit-bgb-container d-flex flex-wrap gap-4">
@@ -26,6 +26,16 @@
                             <label class="form-label required" for="eacYear">Supplier EAC</label>
                             <select id="eacYear" class="form-select" required>
                                 <option value="">Select Year</option>
+                                <option value="1ST YEAR EAC-INITIAL">1ST YEAR EAC-INITIAL</option>
+                                <option value="1ST YEAR EAC-FINAL">1ST YEAR EAC-FINAL</option>
+                                <option value="2ND YEAR EAC-INITIAL">2ND YEAR EAC-INITIAL</option>
+                                <option value="2ND YEAR EAC-FINAL">2ND YEAR EAC-FINAL</option>
+                                <option value="3RD YEAR EAC-INITIAL">3RD YEAR EAC-INITIAL</option>
+                                <option value="3RD YEAR EAC-FINAL">3RD YEAR EAC-FINAL</option>
+                                <option value="4TH YEAR EAC-INITIAL">4TH YEAR EAC-INITIAL</option>
+                                <option value="4TH YEAR EAC-FINAL">4TH YEAR EAC-FINAL</option>
+                                <option value="5TH YEAR EAC-INITIAL">5TH YEAR EAC-INITIAL</option>
+                                <option value="5TH YEAR EAC-FINAL">5TH YEAR EAC-FINAL</option>
                             </select>
                         </div>
                         <div class="col-md-6 col-lg-4">
@@ -62,9 +72,7 @@
             </div>
 
             <!-- Contract & Presales -->
-            <form id="editCrownContractForm" method="post" novalidate>
-                <input type="hidden" id="electricContract" name="HasElectricDetails" value="@(Model.HasElectricDetails ? "true" : "false")" />
-                <input type="hidden" id="gasContract" name="HasGasDetails" value="@(Model.HasGasDetails ? "true" : "false")" />
+            <form id="editSSEContractForm" method="post" novalidate>
                 @Html.AntiForgeryToken()
                 <input type="hidden" id="eid" name="eid" value="@Model.Id" />
                 <div class="form-section">
@@ -288,6 +296,7 @@
                                             <th>Payment Status</th>
                                             <th>Invoice Notes</th>
                                             <th>Username</th>
+                                            <th>Dashboard</th>
                                             <th>Date</th>
                                             <th>Time</th>
                                         </tr>
@@ -299,6 +308,7 @@
                                                 <td>@log.PaymentStatus</td>
                                                 <td>@log.CobanaInvoiceNotes</td>
                                                 <td>@log.Username</td>
+                                                <td>@log.Dashboard</td>
                                                 <td>@log.CreatedAt.ToString("dd-MM-yyyy")</td>
                                                 <td>@log.CreatedAt.ToString("HH:mm:ss")</td>
                                             </tr>
@@ -330,11 +340,11 @@
 </div>
 
 @section styles {
-    <link href="~/Content/Accounts/CrownContracts/crownContract.css" rel="stylesheet" />
+    <link href="~/Content/Accounts/SSEContracts/EditSSEContract.css" rel="stylesheet" />
 }
 
 @section scripts {
     <script src="~/Scripts/Dropdown/dropdowns.js"></script>
-    <script src="~/Scripts/Accounts/CrownContracts/editCrownContract.js"></script>
+    <script src="~/Scripts/Accounts/SSEContracts/editSSEContract.js"></script>
 }
 

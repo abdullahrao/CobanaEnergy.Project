@@ -420,17 +420,6 @@
             loadSupplierEAC(supplierComms)
         }
 
-        //if (!onload) {}
-        // Always set CED to 1st day of that month after calculation
-        // const isGasContract = $("#gasContract").val() === "true";
-        // if (isGasContract) {
-        //    const cedFirstDayUtc = new Date(Date.UTC(
-        //        cedDate.getUTCFullYear(),
-        //        cedDate.getUTCMonth(),
-        //        1
-        //    ));
-        //    setDateToInput("#ced", cedFirstDayUtc);
-        //}
     }
 
     // Run on change of Start Date or Duration

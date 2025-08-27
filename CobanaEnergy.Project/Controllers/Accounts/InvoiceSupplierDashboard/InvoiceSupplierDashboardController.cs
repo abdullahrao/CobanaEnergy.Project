@@ -96,7 +96,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                 {
                     if (SupportedSuppliers.Names.Contains(supplier.Name?.Trim()))
                     {
-                        meterNumbers =  ParseSupplierFile(memStream, extension, supplier.Name);
+                        meterNumbers = ParseSupplierFile(memStream, extension, supplier.Name);
                     }
                     else
                     {
@@ -147,61 +147,63 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                 fileStream.Position = 0;
                 if (extension == ".xlsx" || extension == ".xls")
                 {
-                    ISheet sheet;
+                    List<ISheet> sheets = new List<ISheet>();
                     if (extension == ".xlsx")
                     {
                         var workbook = new XSSFWorkbook(fileStream);
-                        sheet = GetBackingDataSheet(workbook);
+                        sheets = GetBackingDataSheet(workbook);
                     }
                     else
                     {
                         var workbook = new HSSFWorkbook(fileStream);
-                        sheet = GetBackingDataSheet(workbook);
+                        sheets = GetBackingDataSheet(workbook);
                     }
-
-                    int headerRowIdx = -1;
-                    int meterColIdx = -1;
-
-                    for (int rowIdx = sheet.FirstRowNum; rowIdx <= sheet.LastRowNum && rowIdx < maxScanRows; rowIdx++)
+                    foreach (var sheet in sheets)
                     {
-                        var row = sheet.GetRow(rowIdx);
-                        if (row == null) continue;
+                        int headerRowIdx = -1;
+                        int meterColIdx = -1;
 
-                        for (int cellIdx = 0; cellIdx < row.LastCellNum; cellIdx++)
+                        for (int rowIdx = sheet.FirstRowNum; rowIdx <= sheet.LastRowNum && rowIdx < maxScanRows; rowIdx++)
                         {
-                            var cellVal = row.GetCell(cellIdx)?.ToString();
-                            if (!string.IsNullOrWhiteSpace(cellVal))
+                            var row = sheet.GetRow(rowIdx);
+                            if (row == null) continue;
+
+                            for (int cellIdx = 0; cellIdx < row.LastCellNum; cellIdx++)
                             {
-                                string normalized = cellVal
-                                    .Replace("\u00A0", " ")
-                                    .Replace("\u200B", "")
-                                    .Replace(" ", "")
-                                    .Trim()
-                                    .ToLowerInvariant();
-
-                                //System.Diagnostics.Debug.WriteLine($"Row {rowIdx} Cell {cellIdx}: '{normalized}'");
-
-                                if (SupportedSuppliers.MeterHeaders.Contains(normalized))
+                                var cellVal = row.GetCell(cellIdx)?.ToString();
+                                if (!string.IsNullOrWhiteSpace(cellVal))
                                 {
-                                    headerRowIdx = rowIdx;
-                                    meterColIdx = cellIdx;
-                                    break;
+                                    string normalized = cellVal
+                                        .Replace("\u00A0", " ")
+                                        .Replace("\u200B", "")
+                                        .Replace(" ", "")
+                                        .Trim()
+                                        .ToLowerInvariant();
+
+                                    //System.Diagnostics.Debug.WriteLine($"Row {rowIdx} Cell {cellIdx}: '{normalized}'");
+
+                                    if (SupportedSuppliers.MeterHeaders.Contains(normalized))
+                                    {
+                                        headerRowIdx = rowIdx;
+                                        meterColIdx = cellIdx;
+                                        break;
+                                    }
                                 }
                             }
+                            if (meterColIdx != -1) break;
                         }
-                        if (meterColIdx != -1) break;
-                    }
 
-                    if (headerRowIdx == -1 || meterColIdx == -1)
-                        return uniqueMeterNumbers.ToList();
+                        if (headerRowIdx == -1 || meterColIdx == -1)
+                            return uniqueMeterNumbers.ToList();
 
-                    for (int rowIdx = headerRowIdx + 1; rowIdx <= sheet.LastRowNum; rowIdx++)
-                    {
-                        var row = sheet.GetRow(rowIdx);
-                        if (row == null) continue;
-                        var val = row.GetCell(meterColIdx)?.ToString()?.Trim();
-                        if (!string.IsNullOrWhiteSpace(val))
-                            uniqueMeterNumbers.Add(val);
+                        for (int rowIdx = headerRowIdx + 1; rowIdx <= sheet.LastRowNum; rowIdx++)
+                        {
+                            var row = sheet.GetRow(rowIdx);
+                            if (row == null) continue;
+                            var val = row.GetCell(meterColIdx)?.ToString()?.Trim();
+                            if (!string.IsNullOrWhiteSpace(val))
+                                uniqueMeterNumbers.Add(val);
+                        }
                     }
                 }
                 else if (extension == ".csv")
@@ -265,17 +267,38 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
         #endregion
 
         #region Helper Methods
-        private ISheet GetBackingDataSheet(IWorkbook workbook)
+        private List<ISheet> GetBackingDataSheet(IWorkbook workbook)
         {
+
+            var requiredSheets = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    "backingdata",
+                    "invoicedetail",
+                    "paymentsdue",
+                    "electricity_full_report",
+                    "gas_full_report",
+                    "80%upfrontcommissionfixed",
+                    "80%upfrontcommissionppkwh",
+                    "20%reconciliationfixed",
+                    "20%reconciliationppkwh"
+                };
+
+            var matchingSheets = new List<ISheet>();
             for (int i = 0; i < workbook.NumberOfSheets; i++)
             {
                 var name = workbook.GetSheetName(i)?.Replace(" ", "").Trim().ToLowerInvariant();
-                if (name == "backingdata")
-                    return workbook.GetSheetAt(i);
-                if (name == "invoicedetail")
-                    return workbook.GetSheetAt(i);
+                if (requiredSheets.Contains(name))
+                {
+                    matchingSheets.Add(workbook.GetSheetAt(i));
+                }
             }
-            return workbook.GetSheetAt(0);
+            if (!matchingSheets.Any())
+            {
+                matchingSheets.Add(workbook.GetSheetAt(0));
+            }
+
+            return matchingSheets;
+
         }
 
         #endregion
