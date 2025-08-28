@@ -356,7 +356,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         Name = model.Name,
                         Active = model.Active,
                         StartDate = !string.IsNullOrEmpty(model.StartDate) ? DateTime.Parse(model.StartDate) : (DateTime?)null,
-                        EndDate = !string.IsNullOrEmpty(model.EndDate) ? DateTime.Parse(model.EndDate) : (DateTime?)null,
+                        EndDate = DateTime.MaxValue,
                         Email = model.Email,
                         Landline = model.Landline,
                         Mobile = model.Mobile,
@@ -451,7 +451,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         SectorID = sectorId,
                         Commission = commission.Commission,  // ViewModel.Commission -> DBModel.Commission
                         StartDate = !string.IsNullOrEmpty(commission.StartDate) ? DateTime.Parse(commission.StartDate) : DateTime.Now,
-                        EndDate = !string.IsNullOrEmpty(commission.EndDate) ? DateTime.Parse(commission.EndDate) : (DateTime?)null,
+                        EndDate = DateTime.MaxValue,
                         PaymentTerms = commission.PaymentTerms ?? "",
                         CommissionType = commission.CommissionType ?? ""
                     };
@@ -469,7 +469,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         SectorID = sectorId,
                         Commission = commission.Commission,  
                         StartDate = !string.IsNullOrEmpty(commission.StartDate) ? DateTime.Parse(commission.StartDate) : DateTime.Now,
-                        EndDate = !string.IsNullOrEmpty(commission.EndDate) ? DateTime.Parse(commission.EndDate) : (DateTime?)null,
+                        EndDate = DateTime.MaxValue,
                         PaymentTerms = commission.PaymentTerms ?? "",
                         CommissionType = commission.CommissionType ?? ""
                     };
@@ -487,7 +487,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         SectorID = sectorId,
                         CommissionPercent = commission.Commission, 
                         StartDate = !string.IsNullOrEmpty(commission.StartDate) ? DateTime.Parse(commission.StartDate) : DateTime.Now,
-                        EndDate = !string.IsNullOrEmpty(commission.EndDate) ? DateTime.Parse(commission.EndDate) : (DateTime?)null,
+                        EndDate = DateTime.MaxValue,
                         PaymentTerms = commission.PaymentTerms,
                         CommissionType = commission.CommissionType
                     };
@@ -505,10 +505,10 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         SectorID = sectorId,
                         ReferralPartnerCommission = commission.ReferralPartnerCommission,
                         ReferralPartnerStartDate = !string.IsNullOrEmpty(commission.ReferralPartnerStartDate) ? DateTime.Parse(commission.ReferralPartnerStartDate) : (DateTime?)null,
-                        ReferralPartnerEndDate = !string.IsNullOrEmpty(commission.ReferralPartnerEndDate) ? DateTime.Parse(commission.ReferralPartnerEndDate) : (DateTime?)null,
+                        ReferralPartnerEndDate = DateTime.MaxValue,
                         BrokerageCommission = commission.BrokerageCommission,
                         BrokerageStartDate = !string.IsNullOrEmpty(commission.BrokerageStartDate) ? DateTime.Parse(commission.BrokerageStartDate) : (DateTime?)null,
-                        BrokerageEndDate = !string.IsNullOrEmpty(commission.BrokerageEndDate) ? DateTime.Parse(commission.BrokerageEndDate) : (DateTime?)null,
+                        BrokerageEndDate = DateTime.MaxValue,
                         PaymentTerms = commission.PaymentTerms,
                         CommissionType = commission.CommissionType
                     };
@@ -526,10 +526,10 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         SectorID = sectorId,
                         LeadGeneratorCommissionPercent = commission.LeadGeneratorCommission,
                         LeadGeneratorStartDate = !string.IsNullOrEmpty(commission.LeadGeneratorStartDate) ? DateTime.Parse(commission.LeadGeneratorStartDate) : (DateTime?)null,
-                        LeadGeneratorEndDate = !string.IsNullOrEmpty(commission.LeadGeneratorEndDate) ? DateTime.Parse(commission.LeadGeneratorEndDate) : (DateTime?)null,
+                        LeadGeneratorEndDate = DateTime.MaxValue,
                         CloserCommissionPercent = commission.CloserCommission,
                         CloserStartDate = !string.IsNullOrEmpty(commission.CloserStartDate) ? DateTime.Parse(commission.CloserStartDate) : (DateTime?)null,
-                        CloserEndDate = !string.IsNullOrEmpty(commission.CloserEndDate) ? DateTime.Parse(commission.CloserEndDate) : (DateTime?)null,
+                        CloserEndDate = DateTime.MaxValue,
                         PaymentTerms = commission.PaymentTerms,
                         CommissionType = commission.CommissionType
                     };
@@ -551,7 +551,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         BrokerageStaffName = staff.BrokerageStaffName,
                         Active = staff.Active,
                         StartDate = !string.IsNullOrEmpty(staff.StartDate) ? DateTime.Parse(staff.StartDate) : (DateTime?)null,
-                        EndDate = !string.IsNullOrEmpty(staff.EndDate) ? DateTime.Parse(staff.EndDate) : (DateTime?)null,
+                        EndDate = DateTime.MaxValue,
                         Email = staff.Email ?? "",
                         Landline = staff.Landline ?? "",
                         Mobile = staff.Mobile ?? "",
@@ -573,7 +573,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         OfgemID = subBrokerage.OfgemID ?? "",
                         Active = subBrokerage.Active,
                         StartDate = !string.IsNullOrEmpty(subBrokerage.StartDate) ? DateTime.Parse(subBrokerage.StartDate) : (DateTime?)null,
-                        EndDate = !string.IsNullOrEmpty(subBrokerage.EndDate) ? DateTime.Parse(subBrokerage.EndDate) : (DateTime?)null,
+                        EndDate = DateTime.MaxValue,
                         Email = subBrokerage.Email ?? "",
                         Landline = subBrokerage.Landline ?? "",
                         Mobile = subBrokerage.Mobile ?? ""
@@ -593,10 +593,10 @@ namespace CobanaEnergy.Project.Controllers.Sector
                                 SubBrokerageID = subBrokerageEntity.SubBrokerageID, // Use actual ID, not 0
                                 SubBrokerageCommissionPercent = commission.SubBrokerageCommission,
                                 SubBrokerageStartDate = !string.IsNullOrEmpty(commission.SubBrokerageStartDate) ? DateTime.Parse(commission.SubBrokerageStartDate) : (DateTime?)null,
-                                SubBrokerageEndDate = !string.IsNullOrEmpty(commission.SubBrokerageEndDate) ? DateTime.Parse(commission.SubBrokerageEndDate) : (DateTime?)null,
+                                SubBrokerageEndDate = DateTime.MaxValue,
                                 BrokerageCommissionPercent = commission.BrokerageCommission,
                                 BrokerageStartDate = !string.IsNullOrEmpty(commission.BrokerageStartDate) ? DateTime.Parse(commission.BrokerageStartDate) : (DateTime?)null,
-                                BrokerageEndDate = !string.IsNullOrEmpty(commission.BrokerageEndDate) ? DateTime.Parse(commission.BrokerageEndDate) : (DateTime?)null,
+                                BrokerageEndDate = DateTime.MaxValue,
                                 PaymentTerms = commission.PaymentTerms ?? "",
                                 CommissionType = commission.CommissionType ?? ""
                             };
@@ -650,7 +650,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         SubReferralPartnerName = subReferral.SubReferralPartnerName,
                         Active = subReferral.Active,
                         StartDate = !string.IsNullOrEmpty(subReferral.StartDate) ? DateTime.Parse(subReferral.StartDate) : (DateTime?)null,
-                        EndDate = !string.IsNullOrEmpty(subReferral.EndDate) ? DateTime.Parse(subReferral.EndDate) : (DateTime?)null,
+                        EndDate = DateTime.MaxValue,
                         SubReferralPartnerEmail = subReferral.Email ?? "",
                         SubReferralPartnerLandline = subReferral.Landline ?? "",
                         SubReferralPartnerMobile = subReferral.Mobile ?? ""
@@ -670,10 +670,10 @@ namespace CobanaEnergy.Project.Controllers.Sector
                                 SubReferralID = subReferralEntity.SubReferralID, // Use actual ID, not 0
                                 SubIntroducerCommission = commission.SubReferralCommission,
                                 SubIntroducerStartDate = !string.IsNullOrEmpty(commission.SubReferralStartDate) ? DateTime.Parse(commission.SubReferralStartDate) : (DateTime?)null,
-                                SubIntroducerEndDate = !string.IsNullOrEmpty(commission.SubReferralEndDate) ? DateTime.Parse(commission.SubReferralEndDate) : (DateTime?)null,
+                                SubIntroducerEndDate = DateTime.MaxValue,
                                 IntroducerCommission = commission.ReferralPartnerCommission,
                                 IntroducerStartDate = !string.IsNullOrEmpty(commission.ReferralPartnerStartDate) ? DateTime.Parse(commission.ReferralPartnerStartDate) : (DateTime?)null,
-                                IntroducerEndDate = !string.IsNullOrEmpty(commission.ReferralPartnerEndDate) ? DateTime.Parse(commission.ReferralPartnerEndDate) : (DateTime?)null,
+                                IntroducerEndDate = DateTime.MaxValue,
                                 PaymentTerms = commission.PaymentTerms ?? "",
                                 CommissionType = commission.CommissionType ?? ""
                             };
@@ -728,7 +728,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         OfgemID = subIntroducer.OfgemID ?? "",
                         Active = subIntroducer.Active,
                         StartDate = !string.IsNullOrEmpty(subIntroducer.StartDate) ? DateTime.Parse(subIntroducer.StartDate) : (DateTime?)null,
-                        EndDate = !string.IsNullOrEmpty(subIntroducer.EndDate) ? DateTime.Parse(subIntroducer.EndDate) : (DateTime?)null,
+                        EndDate = DateTime.MaxValue,
                         SubIntroducerEmail = subIntroducer.Email ?? "",
                         SubIntroducerLandline = subIntroducer.Landline ?? "",
                         SubIntroducerMobile = subIntroducer.Mobile ?? ""
@@ -748,10 +748,10 @@ namespace CobanaEnergy.Project.Controllers.Sector
                                 SubIntroducerID = subIntroducerEntity.SubIntroducerID, // Use actual ID, not 0
                                 SubIntroducerCommission = commission.SubIntroducerCommission,
                                 SubIntroducerCommissionStartDate = !string.IsNullOrEmpty(commission.SubIntroducerStartDate) ? DateTime.Parse(commission.SubIntroducerStartDate) : (DateTime?)null,
-                                SubIntroducerCommissionEndDate = !string.IsNullOrEmpty(commission.SubIntroducerEndDate) ? DateTime.Parse(commission.SubIntroducerEndDate) : (DateTime?)null,
+                                SubIntroducerCommissionEndDate = DateTime.MaxValue,
                                 IntroducerCommission = commission.IntroducerCommission,
                                 IntroducerCommissionStartDate = !string.IsNullOrEmpty(commission.IntroducerStartDate) ? DateTime.Parse(commission.IntroducerStartDate) : (DateTime?)null,
-                                IntroducerCommissionEndDate = !string.IsNullOrEmpty(commission.IntroducerEndDate) ? DateTime.Parse(commission.IntroducerEndDate) : (DateTime?)null,
+                                IntroducerCommissionEndDate =  DateTime.MaxValue, 
                                 PaymentTerms = commission.PaymentTerms ?? "",
                                 CommissionType = commission.CommissionType ?? ""
                             };

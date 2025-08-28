@@ -1,6 +1,16 @@
 /**
  * Sector Form Manager - Consolidated JavaScript for Create and Edit Sector pages
  * This file contains all shared functions to eliminate code duplication
+ * 
+ * END DATE HANDLING:
+ * - Create Mode: All end dates are non-required. Backend will save MAX DATE value from database.
+ * - Edit Mode: Loads saved values, allows user selection, all end dates are non-required.
+ * - Business logic remains the same for edit mode, only required validation is removed.
+ * 
+ * BACKEND REQUIREMENT:
+ * - When creating sectors, if any end date field is empty/null, the backend should set it to 
+ *   the MAX DATE value from the database (e.g., '9999-12-31' or similar maximum date).
+ * - This ensures all sectors have valid end dates for business logic while keeping them optional for users.
  */
 
 class SectorFormManager {
@@ -41,6 +51,7 @@ class SectorFormManager {
         } else {
             // Create mode: ensure department is not required initially
             $('#department').prop('required', false);
+            $('#department').prop('selectedIndex', 0);
         }
     }
 
@@ -362,7 +373,7 @@ class SectorFormManager {
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="form-label small text-muted">Brokerage Commission End Date</label>
-                            <input type="date" name="BrokerageCommissions[${index}].EndDate" class="form-control" placeholder="End Date" />
+                            <input type="date" name="BrokerageCommissions[${index}].EndDate" class="form-control" placeholder="End Date (Optional)" />
                         </div>
                     </div>
                 </div>
@@ -412,7 +423,7 @@ class SectorFormManager {
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="form-label small text-muted">Brokerage Staff End Date</label>
-                            <input type="date" name="BrokerageStaff[${index}].EndDate" class="form-control" placeholder="End Date" />
+                            <input type="date" name="BrokerageStaff[${index}].EndDate" class="form-control" placeholder="End Date (Optional)" />
                         </div>
                     </div>
                 </div>
@@ -476,20 +487,20 @@ class SectorFormManager {
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label small text-muted">Sub Brokerage Start Date</label>
-                            <input type="date" name="SubBrokerages[${index}].StartDate" class="form-control sub-start-date" placeholder="Start Date" />
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label small text-muted">Sub Brokerage Start Date</label>
+                                <input type="date" name="SubBrokerages[${index}].StartDate" class="form-control sub-start-date" placeholder="Start Date" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label small text-muted">Sub Brokerage End Date</label>
+                                <input type="date" name="SubBrokerages[${index}].EndDate" class="form-control sub-end-date" placeholder="End Date (Optional)" />
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label small text-muted">Sub Brokerage End Date</label>
-                            <input type="date" name="SubBrokerages[${index}].EndDate" class="form-control sub-end-date" placeholder="End Date" disabled />
-                        </div>
-                    </div>
-                </div>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -690,20 +701,20 @@ class SectorFormManager {
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label small text-muted">Closer Commission Start Date</label>
-                            <input type="date" name="CloserCommissions[${index}].StartDate" class="form-control" placeholder="Start Date" />
+                                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label small text-muted">Closer Commission Start Date</label>
+                                <input type="date" name="CloserCommissions[${index}].StartDate" class="form-control" placeholder="Start Date" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label small text-muted">Closer Commission End Date</label>
+                                <input type="date" name="CloserCommissions[${index}].EndDate" class="form-control" placeholder="End Date (Optional)" />
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label small text-muted">Closer Commission End Date</label>
-                            <input type="date" name="CloserCommissions[${index}].EndDate" class="form-control" placeholder="End Date" />
-                        </div>
-                    </div>
-                </div>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -738,34 +749,34 @@ class SectorFormManager {
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label small text-muted">Lead Generator Commission Start Date</label>
-                            <input type="date" name="LeadGeneratorCommissions[${index}].LeadGeneratorStartDate" class="form-control" placeholder="Lead Generator Start Date" />
+                                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label small text-muted">Lead Generator Commission Start Date</label>
+                                <input type="date" name="LeadGeneratorCommissions[${index}].LeadGeneratorStartDate" class="form-control" placeholder="Lead Generator Start Date" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label small text-muted">Lead Generator Commission End Date</label>
+                                <input type="date" name="LeadGeneratorCommissions[${index}].LeadGeneratorEndDate" class="form-control" placeholder="Lead Generator End Date (Optional)" />
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label small text-muted">Lead Generator Commission End Date</label>
-                            <input type="date" name="LeadGeneratorCommissions[${index}].LeadGeneratorEndDate" class="form-control" placeholder="Lead Generator End Date" />
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label small text-muted">Closer Commission Start Date</label>
+                                <input type="date" name="LeadGeneratorCommissions[${index}].CloserStartDate" class="form-control" placeholder="Closer Start Date" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label small text-muted">Closer Commission End Date</label>
+                                <input type="date" name="LeadGeneratorCommissions[${index}].CloserEndDate" class="form-control" placeholder="Closer End Date (Optional)" />
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label small text-muted">Closer Commission Start Date</label>
-                            <input type="date" name="LeadGeneratorCommissions[${index}].CloserStartDate" class="form-control" placeholder="Closer Start Date" />
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label small text-muted">Closer Commission End Date</label>
-                            <input type="date" name="LeadGeneratorCommissions[${index}].CloserEndDate" class="form-control" placeholder="Closer End Date" />
-                        </div>
-                    </div>
-                </div>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -809,34 +820,34 @@ class SectorFormManager {
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label small text-muted">Referral Partner Commission Start Date</label>
-                            <input type="date" name="ReferralPartnerCommissions[${index}].ReferralPartnerStartDate" class="form-control" placeholder="Referral Partner Start Date" />
+                                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label small text-muted">Referral Partner Commission Start Date</label>
+                                <input type="date" name="ReferralPartnerCommissions[${index}].ReferralPartnerStartDate" class="form-control" placeholder="Referral Partner Start Date" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label small text-muted">Referral Partner Commission End Date</label>
+                                <input type="date" name="ReferralPartnerCommissions[${index}].ReferralPartnerEndDate" class="form-control" placeholder="Referral Partner End Date (Optional)" />
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label small text-muted">Referral Partner Commission End Date</label>
-                            <input type="date" name="ReferralPartnerCommissions[${index}].ReferralPartnerEndDate" class="form-control" placeholder="Referral Partner End Date" />
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label small text-muted">Brokerage Commission Start Date</label>
+                                <input type="date" name="ReferralPartnerCommissions[${index}].BrokerageStartDate" class="form-control" placeholder="Brokerage Start Date" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label small text-muted">Brokerage Commission End Date</label>
+                                <input type="date" name="ReferralPartnerCommissions[${index}].BrokerageEndDate" class="form-control" placeholder="Brokerage End Date (Optional)" />
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label small text-muted">Brokerage Commission Start Date</label>
-                            <input type="date" name="ReferralPartnerCommissions[${index}].BrokerageStartDate" class="form-control" placeholder="Brokerage Start Date" />
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label small text-muted">Brokerage Commission End Date</label>
-                            <input type="date" name="ReferralPartnerCommissions[${index}].BrokerageEndDate" class="form-control" placeholder="Brokerage End Date" />
-                        </div>
-                    </div>
-                </div>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -883,20 +894,20 @@ class SectorFormManager {
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label small text-muted">Sub Referral Start Date</label>
-                            <input type="date" name="SubReferrals[${index}].StartDate" class="form-control sub-start-date" placeholder="Start Date" />
+                                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label small text-muted">Sub Referral Start Date</label>
+                                <input type="date" name="SubReferrals[${index}].StartDate" class="form-control sub-start-date" placeholder="Start Date" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label small text-muted">Sub Referral End Date</label>
+                                <input type="date" name="SubReferrals[${index}].EndDate" class="form-control sub-end-date" placeholder="End Date (Optional)" />
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label small text-muted">Sub Referral End Date</label>
-                            <input type="date" name="SubReferrals[${index}].EndDate" class="form-control sub-end-date" placeholder="End Date" />
-                        </div>
-                    </div>
-                </div>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -1240,20 +1251,20 @@ class SectorFormManager {
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label small text-muted">Introducer Commission Start Date</label>
-                            <input type="date" name="IntroducerCommissions[${index}].StartDate" class="form-control" placeholder="Start Date" />
+                                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label small text-muted">Introducer Commission Start Date</label>
+                                <input type="date" name="IntroducerCommissions[${index}].StartDate" class="form-control" placeholder="Start Date" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label small text-muted">Introducer Commission End Date</label>
+                                <input type="date" name="IntroducerCommissions[${index}].EndDate" class="form-control" placeholder="End Date (Optional)" />
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label small text-muted">Introducer Commission End Date</label>
-                            <input type="date" name="IntroducerCommissions[${index}].EndDate" class="form-control" placeholder="End Date" />
-                        </div>
-                    </div>
-                </div>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -1313,7 +1324,7 @@ class SectorFormManager {
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="form-label small text-muted">Sub Introducer End Date</label>
-                            <input type="date" name="SubIntroducers[${index}].EndDate" class="form-control sub-end-date" placeholder="End Date" disabled />
+                            <input type="date" name="SubIntroducers[${index}].EndDate" class="form-control sub-end-date" placeholder="End Date (Optional)" />
                         </div>
                     </div>
                 </div>
@@ -2900,7 +2911,7 @@ class SectorFormManager {
             const endDateInput = $('#endDate');
             
             if (startDate) {
-                endDateInput.prop('disabled', false).attr('min', startDate);
+                endDateInput.attr('min', startDate);
                 
                 // Clear end date if it's now invalid
                 if (endDateInput.val() && new Date(endDateInput.val()) <= new Date(startDate)) {
@@ -2910,7 +2921,7 @@ class SectorFormManager {
                     }
                 }
             } else {
-                endDateInput.prop('disabled', true).val('').removeAttr('min');
+                endDateInput.val('').removeAttr('min');
             }
         });
         
@@ -2944,7 +2955,7 @@ class SectorFormManager {
                 });
                 
                 if (endDateInput.length && startDate) {
-                    endDateInput.prop('disabled', false).attr('min', startDate);
+                    endDateInput.attr('min', startDate);
                     
                     // Clear end date if it's now invalid
                     if (endDateInput.val() && new Date(endDateInput.val()) <= new Date(startDate)) {
@@ -3038,6 +3049,11 @@ class SectorFormManager {
         $(document).on('submit', '#editSectorForm, #createSectorForm', function (e) {
 
             e.preventDefault(); // Always prevent default form submission
+            
+            // Handle end date logic before form submission
+            if (window.sectorFormManager) {
+                window.sectorFormManager.handleEndDateLogic();
+            }
             
             // Temporarily remove required attribute from hidden fields to prevent validation errors
             const hiddenRequiredFields = $('#additionalFieldsSection:hidden [required]');
@@ -3162,17 +3178,27 @@ class SectorFormManager {
         if (typeof DropdownOptions !== 'undefined' && DropdownOptions.department) {
             const departmentSelect = $('#department');
             if (departmentSelect.length > 0) {
-                // Clear existing options except the first one (placeholder)
-                departmentSelect.find('option:not(:first)').remove();
+                // Clear all existing options
+                departmentSelect.empty();
                 
-                // Add options from DropdownOptions.department
-                DropdownOptions.department.forEach(dept => {
-                    departmentSelect.append(`<option value="${dept}">${dept}</option>`);
+                // Create array with initial option and department options
+                const allOptions = [
+                    { value: '', text: 'Select Department *' },
+                    ...DropdownOptions.department.map(dept => ({ value: dept, text: dept }))
+                ];
+                
+                // Add all options to the dropdown
+                allOptions.forEach(option => {
+                    departmentSelect.append(`<option value="${option.value}">${option.text}</option>`);
                 });
                 
-                // For edit mode, set the selected value from model data
+                // Handle selection based on mode and data availability
                 if (this.isEditMode && this.modelData && this.modelData.Department) {
+                    // Edit mode: Set to existing department value
                     departmentSelect.val(this.modelData.Department);
+                } else {
+                    // Create mode: Select first option (Select Department *)
+                    departmentSelect.prop('selectedIndex', 0);
                 }
                 
                 // Set initial required state based on current sector type
@@ -3184,6 +3210,23 @@ class SectorFormManager {
                 }
             }
         }
+    }
+
+    /**
+     * Handles end date logic for form submission
+     * In create mode, empty end dates will be set to MAX DATE by backend
+     * In edit mode, user-selected dates are preserved
+     */
+    handleEndDateLogic() {
+        if (!this.isEditMode) {
+            // Create mode: Clear all empty end dates so backend can set MAX DATE
+            $('input[type="date"][name*="EndDate"]').each(function() {
+                if (!$(this).val() || $(this).val().trim() === '') {
+                    $(this).val(''); // Ensure empty value for backend processing
+                }
+            });
+        }
+        // Edit mode: Keep user-selected values as-is
     }
 
     initializeDuplicateAccountChecker() {
