@@ -210,7 +210,7 @@ namespace CobanaEnergy.Project.Models.Dual
 
         // Brokerage Details
         [Required(ErrorMessage = "Brokerage is required")]
-        public int? BrokerageId { get; set; }
+        public int BrokerageId { get; set; }
         
         public string OfgemId { get; set; }
     }

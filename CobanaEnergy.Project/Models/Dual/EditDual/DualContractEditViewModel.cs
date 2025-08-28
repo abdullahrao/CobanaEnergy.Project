@@ -181,7 +181,7 @@ namespace CobanaEnergy.Project.Models.Dual.EditDual
 
         // Brokerage Details
         [Required(ErrorMessage = "Brokerage is required")]
-        public int? BrokerageId { get; set; }
+        public int BrokerageId { get; set; }
         
         public string OfgemId { get; set; }
     }

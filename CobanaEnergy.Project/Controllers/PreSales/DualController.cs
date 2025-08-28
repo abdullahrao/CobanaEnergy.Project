@@ -110,9 +110,19 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                         UpdatedAt = "000",
                         Type = "Dual",
                         // Brokerage Details
-                        //BrokerageId = model.BrokerageId,
-                        //OfgemId = model.OfgemId,
-                        //BrokerageDepartment = model.BrokerageDepartment
+                        BrokerageId = model.BrokerageId,
+                        OfgemId = model.OfgemId,
+                        
+                        // Dynamic Department-based fields
+                        CloserId = model.CloserId,
+                        ReferralPartnerId = model.ReferralPartnerId,
+                        SubReferralPartnerId = model.SubReferralPartnerId,
+                        BrokerageStaffId = model.BrokerageStaffId,
+                        IntroducerId = model.IntroducerId,
+                        SubIntroducerId = model.SubIntroducerId,
+                        SubBrokerageId = model.SubBrokerageId,
+                        Collaboration = model.Collaboration,
+                        LeadGeneratorId = model.LeadGeneratorId
                     };
 
                     _db.CE_ElectricContracts.Add(electric);
@@ -281,10 +291,21 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                         CreatedAt = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
                         UpdatedAt = "000",
                         Type = "Dual",
+                        
                         // Brokerage Details
-                        //BrokerageId = model.BrokerageId,
-                        //OfgemId = model.OfgemId,
-                        //BrokerageDepartment = model.BrokerageDepartment
+                        BrokerageId = model.BrokerageId,
+                        OfgemId = model.OfgemId,
+                        
+                        // Dynamic Department-based fields
+                        CloserId = model.CloserId,
+                        ReferralPartnerId = model.ReferralPartnerId,
+                        SubReferralPartnerId = model.SubReferralPartnerId,
+                        BrokerageStaffId = model.BrokerageStaffId,
+                        IntroducerId = model.IntroducerId,
+                        SubIntroducerId = model.SubIntroducerId,
+                        SubBrokerageId = model.SubBrokerageId,
+                        Collaboration = model.Collaboration,
+                        LeadGeneratorId = model.LeadGeneratorId
                     };
 
                     _db.CE_GasContracts.Add(gas);
@@ -616,9 +637,19 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                         }).ToList()
                     },
                     // Brokerage Details
-                    //BrokerageId = electric.BrokerageId,
-                    //OfgemId = electric.OfgemId,
-                    //BrokerageDepartment = electric.BrokerageDepartment
+                    BrokerageId = electric.BrokerageId,
+                    OfgemId = electric.OfgemId,
+
+                    // Dynamic Department-based fields
+                    CloserId = electric.CloserId,
+                    ReferralPartnerId = electric.ReferralPartnerId,
+                    SubReferralPartnerId = electric.SubReferralPartnerId,
+                    BrokerageStaffId = electric.BrokerageStaffId,
+                    IntroducerId = electric.IntroducerId,
+                    SubIntroducerId = electric.SubIntroducerId,
+                    SubBrokerageId = electric.SubBrokerageId,
+                    Collaboration = electric.Collaboration,
+                    LeadGeneratorId = electric.LeadGeneratorId
                 };
 
                 return View("EditDual", model);
@@ -718,6 +749,19 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     electric.ContractNotes = model.ContractNotes;
                     electric.UpdatedAt = now;
 
+                    // Update Electric contract dynamic fields (Electric-first priority for common fields)
+                    electric.BrokerageId = model.BrokerageId;
+                    electric.OfgemId = model.OfgemId;
+                    electric.CloserId = model.CloserId;
+                    electric.ReferralPartnerId = model.ReferralPartnerId;
+                    electric.SubReferralPartnerId = model.SubReferralPartnerId;
+                    electric.BrokerageStaffId = model.BrokerageStaffId;
+                    electric.IntroducerId = model.IntroducerId;
+                    electric.SubIntroducerId = model.SubIntroducerId;
+                    electric.SubBrokerageId = model.SubBrokerageId;
+                    electric.Collaboration = model.Collaboration;
+                    electric.LeadGeneratorId = model.LeadGeneratorId;
+
                     // InputDate trigger
                     var triggeringStatuses = new[] { "Meter Registration Submitted", "New Connection Submitted", "Overturned Contract", "Submitted" };
                     if (triggeringStatuses.Contains(model.ElectricPreSalesStatus))
@@ -769,6 +813,19 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     gas.Terminated = model.Terminated;
                     gas.ContractNotes = model.ContractNotes;
                     gas.UpdatedAt = now;
+
+                    // Update Gas contract dynamic fields (Electric-first priority for common fields)
+                    gas.BrokerageId = model.BrokerageId;
+                    gas.OfgemId = model.OfgemId;
+                    gas.CloserId = model.CloserId;
+                    gas.ReferralPartnerId = model.ReferralPartnerId;
+                    gas.SubReferralPartnerId = model.SubReferralPartnerId;
+                    gas.BrokerageStaffId = model.BrokerageStaffId;
+                    gas.IntroducerId = model.IntroducerId;
+                    gas.SubIntroducerId = model.SubIntroducerId;
+                    gas.SubBrokerageId = model.SubBrokerageId;
+                    gas.Collaboration = model.Collaboration;
+                    gas.LeadGeneratorId = model.LeadGeneratorId;
 
                     if (triggeringStatuses.Contains(model.GasPreSalesStatus))
                         gas.InputDate = DateTime.Now.ToString("dd/MM/yyyy");

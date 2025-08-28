@@ -379,10 +379,21 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     Terminated = contract.Terminated,
                     ContractNotes = contract.ContractNotes,
                     InputDate = contract.InputDate,
-                    //// Brokerage Details
-                    //BrokerageId = contract.BrokerageId,
-                    //OfgemId = contract.OfgemId,
-                    //BrokerageDepartment = contract.BrokerageDepartment,
+
+                    // Brokerage Details
+                    BrokerageId = contract.BrokerageId,
+                    OfgemId = contract.OfgemId,
+
+                    // Dynamic Department-based fields
+                    CloserId = contract.CloserId,
+                    ReferralPartnerId = contract.ReferralPartnerId,
+                    SubReferralPartnerId = contract.SubReferralPartnerId,
+                    BrokerageStaffId = contract.BrokerageStaffId,
+                    IntroducerId = contract.IntroducerId,
+                    SubIntroducerId = contract.SubIntroducerId,
+                    SubBrokerageId = contract.SubBrokerageId,
+                    Collaboration = contract.Collaboration,
+                    LeadGeneratorId = contract.LeadGeneratorId,
 
                     SupplierSnapshot = new ElectricSupplierSnapshotViewModel
                     {
@@ -497,6 +508,21 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     contract.ContractNotes = model.ContractNotes;
                     contract.UpdatedAt = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
                     contract.EMProcessor = model.EMProcessor;
+
+                    // Update Brokerage Details
+                    contract.BrokerageId = model.BrokerageId;
+                    contract.OfgemId = model.OfgemId;
+                    
+                    // Update Dynamic Department-based fields
+                    contract.CloserId = model.CloserId;
+                    contract.ReferralPartnerId = model.ReferralPartnerId;
+                    contract.SubReferralPartnerId = model.SubReferralPartnerId;
+                    contract.BrokerageStaffId = model.BrokerageStaffId;
+                    contract.IntroducerId = model.IntroducerId;
+                    contract.SubIntroducerId = model.SubIntroducerId;
+                    contract.SubBrokerageId = model.SubBrokerageId;
+                    contract.Collaboration = model.Collaboration;
+                    contract.LeadGeneratorId = model.LeadGeneratorId;
 
                     var triggeringStatuses = new[]
                     {

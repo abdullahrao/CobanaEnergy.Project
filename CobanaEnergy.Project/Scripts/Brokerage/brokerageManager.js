@@ -12,7 +12,10 @@ class BrokerageManager {
         this.isEditMode = options.isEditMode || false;
         this.currentBrokerageId = options.currentBrokerageId || null;
         this.currentDepartment = options.currentDepartment || null;
-        this.currentSource = null; // Track current source selection
+        this.currentSource = options.currentSource || null; // Track current source selection
+        
+        // NEW: Model values for edit mode
+        this.modelValues = options.modelValues || null;
         
         this.applyDisabledStyling();
         this.init();
@@ -22,9 +25,8 @@ class BrokerageManager {
         this.loadBrokerages();
         this.bindEvents();
         
-        if (this.isEditMode && this.currentBrokerageId) {
-            this.setCurrentBrokerage();
-        }
+        // Note: setCurrentBrokerage is now called in loadBrokerages() after options are loaded
+        // to ensure proper sequencing and avoid race conditions
     }
 
     /**
@@ -32,10 +34,15 @@ class BrokerageManager {
      */
     loadBrokerages() {
         const $brokerageSelect = $(`#${this.brokerageSelectId}`);
-        if (!$brokerageSelect.length) return;
+        if (!$brokerageSelect.length) {
+            console.warn('Brokerage select element not found:', this.brokerageSelectId);
+            return;
+        }
 
         // Clear existing options except the first one
         $brokerageSelect.find('option:not(:first)').remove();
+
+        console.log('Loading brokerages from server...');
 
         // Fetch brokerages from the server
         $.ajax({
@@ -43,8 +50,11 @@ class BrokerageManager {
             type: 'GET',
             data: { sectorType: 'Brokerage' },
             success: (response) => {
+                console.log('Brokerages loaded successfully:', response);
+                
                 if (response.success && response.Data && response.Data.Sectors) {
                     const brokerages = response.Data.Sectors;
+                    console.log(`Found ${brokerages.length} brokerages`);
                     
                     brokerages.forEach(brokerage => {
                         const $option = $('<option>', {
@@ -57,10 +67,22 @@ class BrokerageManager {
                         
                         $brokerageSelect.append($option);
                     });
+                    
+                    // Now that brokerages are loaded, set the current brokerage if in edit mode
+                    if (this.isEditMode && this.currentBrokerageId !== null && this.currentBrokerageId !== undefined) {
+                        console.log('Setting current brokerage:', this.currentBrokerageId);
+                        this.setCurrentBrokerage();
+                    } else {
+                        console.log('Not in edit mode or no current brokerage ID');
+                    }
+                } else {
+                    console.warn('Invalid response format:', response);
                 }
             },
             error: (xhr, status, error) => {
                 console.error('Failed to load brokerages:', error);
+                console.error('Status:', status);
+                console.error('Response:', xhr.responseText);
                 this.showError('Failed to load brokerages. Please refresh the page.');
             }
         });
@@ -162,25 +184,31 @@ class BrokerageManager {
         switch (newSource.toLowerCase()) {
             case 'data':
                 this.showDataSourceFields();
+                // Load closers for Data source and then populate model values
+                this.loadClosers(() => this.populateModelValues());
                 break;
             case 'referral partners':
                 this.showReferralSourceFields();
                 this.loadReferralPartners();
-                this.loadSubReferralPartners();
+                this.loadSubReferralPartners(() => this.populateModelValues());
                 break;
             case 'self-gen':
                 this.showSelfGenSourceFields();
+                // Load closers for Self-Gen source and then populate model values
+                this.loadClosers(() => this.populateModelValues());
                 break;
             case 'cobana rnw':
                 this.showCobanaRnwSourceFields();
+                // Load closers for Cobana RNW source and then populate model values
+                this.loadClosers(() => this.populateModelValues());
                 break;
             case 'sub broker':
                 this.showSubBrokerSourceFields();
-                this.loadSubBrokerages();
+                this.loadSubBrokerages(() => this.populateModelValues());
                 break;
             case 'sub introducer':
                 this.showSubIntroducerSourceFields();
-                this.loadSubIntroducers();
+                this.loadSubIntroducers(() => this.populateModelValues());
                 break;
         }
     }
@@ -203,7 +231,7 @@ class BrokerageManager {
             if (currentSource && currentSource.toLowerCase() === 'data') {
                 $leadGeneratorField.show();
                 $leadGenerator.prop('disabled', false);
-                this.loadLeadGenerators();
+                this.loadLeadGenerators(() => this.populateModelValues());
                 $referralPartnerField.hide();
                 $subReferralPartnerField.hide();
             }
@@ -215,7 +243,7 @@ class BrokerageManager {
                 $referralPartnerField.show();
                 $subReferralPartnerField.show();
                 this.loadReferralPartners();
-                this.loadSubReferralPartners();
+                this.loadSubReferralPartners(() => this.populateModelValues());
             }
         } else {
             // Hide all additional fields when N/A is selected
@@ -246,7 +274,7 @@ class BrokerageManager {
         $('#inHouseFields').hide();
         $('#introducersFields').hide();
         
-        this.loadBrokerageStaff();
+        this.loadBrokerageStaff(() => this.populateModelValues());
     }
 
     /**
@@ -257,7 +285,7 @@ class BrokerageManager {
         $('#inHouseFields').hide();
         $('#brokersFields').hide();
         
-        this.loadIntroducers();
+        this.loadIntroducers(() => this.populateModelValues());
     }
 
     /**
@@ -363,7 +391,7 @@ class BrokerageManager {
     /**
      * Load closers
      */
-    loadClosers() {
+    loadClosers(callback = null) {
         $.ajax({
             url: '/Sector/GetActiveSectors',
             type: 'GET',
@@ -380,6 +408,11 @@ class BrokerageManager {
                         });
                         $closerSelect.append($option);
                     });
+                    
+                    // Execute callback if provided
+                    if (callback && typeof callback === 'function') {
+                        callback();
+                    }
                 }
             }
         });
@@ -388,7 +421,7 @@ class BrokerageManager {
     /**
      * Load referral partners
      */
-    loadReferralPartners() {
+    loadReferralPartners(callback = null) {
         $.ajax({
             url: '/Sector/GetActiveSectors',
             type: 'GET',
@@ -405,6 +438,11 @@ class BrokerageManager {
                         });
                         $referralSelect.append($option);
                     });
+                    
+                    // Execute callback if provided
+                    if (callback && typeof callback === 'function') {
+                        callback();
+                    }
                 }
             }
         });
@@ -413,7 +451,7 @@ class BrokerageManager {
     /**
      * Load sub referral partners
      */
-    loadSubReferralPartners() {
+    loadSubReferralPartners(callback = null) {
         $.ajax({
             url: '/Sector/GetActiveSubSectors',
             type: 'GET',
@@ -430,6 +468,11 @@ class BrokerageManager {
                         });
                         $subReferralSelect.append($option);
                     });
+                    
+                    // Execute callback if provided
+                    if (callback && typeof callback === 'function') {
+                        callback();
+                    }
                 }
             }
         });
@@ -438,7 +481,7 @@ class BrokerageManager {
     /**
      * Load brokerage staff
      */
-    loadBrokerageStaff() {
+    loadBrokerageStaff(callback = null) {
         $.ajax({
             url: '/Sector/GetActiveSubSectors',
             type: 'GET',
@@ -455,6 +498,11 @@ class BrokerageManager {
                         });
                         $brokerageStaffSelect.append($option);
                     });
+                    
+                    // Execute callback if provided
+                    if (callback && typeof callback === 'function') {
+                        callback();
+                    }
                 }
             }
         });
@@ -463,7 +511,7 @@ class BrokerageManager {
     /**
      * Load introducers
      */
-    loadIntroducers() {
+    loadIntroducers(callback = null) {
         $.ajax({
             url: '/Sector/GetActiveSectors',
             type: 'GET',
@@ -480,6 +528,11 @@ class BrokerageManager {
                         });
                         $introducerSelect.append($option);
                     });
+                    
+                    // Execute callback if provided
+                    if (callback && typeof callback === 'function') {
+                        callback();
+                    }
                 }
             }
         });
@@ -488,7 +541,7 @@ class BrokerageManager {
     /**
      * Load sub brokerages
      */
-    loadSubBrokerages() {
+    loadSubBrokerages(callback = null) {
         $.ajax({
             url: '/Sector/GetActiveSubSectors',
             type: 'GET',
@@ -505,6 +558,11 @@ class BrokerageManager {
                         });
                         $subBrokerageSelect.append($option);
                     });
+                    
+                    // Execute callback if provided
+                    if (callback && typeof callback === 'function') {
+                        callback();
+                    }
                 }
             }
         });
@@ -513,7 +571,7 @@ class BrokerageManager {
     /**
      * Load sub introducers
      */
-    loadSubIntroducers() {
+    loadSubIntroducers(callback = null) {
         $.ajax({
             url: '/Sector/GetActiveSubSectors',
             type: 'GET',
@@ -530,6 +588,11 @@ class BrokerageManager {
                         });
                         $subIntroducerSelect.append($option);
                     });
+                    
+                    // Execute callback if provided
+                    if (callback && typeof callback === 'function') {
+                        callback();
+                    }
                 }
             }
         });
@@ -538,7 +601,7 @@ class BrokerageManager {
     /**
      * Load lead generators
      */
-    loadLeadGenerators() {
+    loadLeadGenerators(callback = null) {
         $.ajax({
             url: '/Sector/GetActiveSectors',
             type: 'GET',
@@ -555,6 +618,11 @@ class BrokerageManager {
                         });
                         $leadGeneratorSelect.append($option);
                     });
+                    
+                    // Execute callback if provided
+                    if (callback && typeof callback === 'function') {
+                        callback();
+                    }
                 }
             }
         });
@@ -753,17 +821,90 @@ class BrokerageManager {
     }
 
     /**
-     * Set current brokerage for edit mode
+     * Set the current brokerage selection (for edit mode)
      */
     setCurrentBrokerage() {
         const $brokerageSelect = $(`#${this.brokerageSelectId}`);
-        if (!$brokerageSelect.length || !this.currentBrokerageId) return;
+        
+        // Check if currentBrokerageId exists and is not null/undefined (0 is valid)
+        if (!$brokerageSelect.length) {
+            console.warn('Brokerage select element not found in setCurrentBrokerage');
+            return;
+        }
+        
+        if (this.currentBrokerageId === null || this.currentBrokerageId === undefined) {
+            console.warn('currentBrokerageId is null or undefined');
+            return;
+        }
+
+        console.log('Setting current brokerage ID:', this.currentBrokerageId);
+        
+        // Check if the option exists before setting it
+        const $option = $brokerageSelect.find(`option[value="${this.currentBrokerageId}"]`);
+        if (!$option.length) {
+            console.error(`Brokerage option with value ${this.currentBrokerageId} not found in dropdown`);
+            console.log('Available options:', $brokerageSelect.find('option').map(function() { 
+                return { value: $(this).val(), text: $(this).text() }; 
+            }).get());
+            return;
+        }
 
         // Set the selected brokerage
         $brokerageSelect.val(this.currentBrokerageId);
+        console.log('Brokerage dropdown value set to:', this.currentBrokerageId);
+        console.log('Selected option text:', $option.text());
 
         // Trigger change event to populate Ofgem ID and Department
+        console.log('Triggering change event on brokerage dropdown');
         $brokerageSelect.trigger('change');
+        
+        // In edit mode, after brokerage change triggers department population,
+        // we need to set the source value and trigger dynamic field loading
+        if (this.isEditMode && this.currentSource) {
+            console.log('Edit mode: Will set source to:', this.currentSource);
+            // Use setTimeout to ensure department change has completed
+            setTimeout(() => {
+                this.setCurrentSource();
+            }, 200);
+        }
+    }
+
+    /**
+     * Set the current source selection (for edit mode)
+     */
+    setCurrentSource() {
+        const $sourceSelect = $('#source');
+        
+        if (!$sourceSelect.length) {
+            console.warn('Source select element not found in setCurrentSource');
+            return;
+        }
+        
+        if (!this.currentSource) {
+            console.warn('currentSource is null or undefined');
+            return;
+        }
+
+        console.log('Setting current source:', this.currentSource);
+        
+        // Check if the option exists before setting it
+        const $option = $sourceSelect.find(`option[value="${this.currentSource}"]`);
+        if (!$option.length) {
+            console.error(`Source option with value "${this.currentSource}" not found in dropdown`);
+            console.log('Available options:', $sourceSelect.find('option').map(function() { 
+                return { value: $(this).val(), text: $(this).text() }; 
+            }).get());
+            return;
+        }
+
+        // Set the selected source
+        $sourceSelect.val(this.currentSource);
+        console.log('Source dropdown value set to:', this.currentSource);
+        console.log('Selected option text:', $option.text());
+
+        // Trigger change event to show appropriate dynamic fields
+        console.log('Triggering change event on source dropdown');
+        $sourceSelect.trigger('change');
     }
 
     /**
@@ -773,7 +914,8 @@ class BrokerageManager {
         const $brokerageSelect = $(`#${this.brokerageSelectId}`);
         const $selectedOption = $brokerageSelect.find('option:selected');
         
-        if (!$selectedOption.length || !$selectedOption.val()) {
+        // Check if selectedOption exists and has a value (0 is valid)
+        if (!$selectedOption.length || $selectedOption.val() === null || $selectedOption.val() === undefined || $selectedOption.val() === '') {
             return null;
         }
 
@@ -826,6 +968,61 @@ class BrokerageManager {
         $('#source').off('change');
         $('#collaboration').off('change');
     }
+
+    /**
+     * Populate dynamic fields with model values (for edit mode)
+     */
+    populateModelValues() {
+        if (!this.modelValues) {
+            console.log('No model values to populate');
+            return;
+        }
+
+        console.log('Populating dynamic fields with model values:', this.modelValues);
+
+        // Map model values to field IDs
+        const fieldMappings = {
+            closerId: '#closer',
+            referralPartnerId: '#referralPartner',
+            subReferralPartnerId: '#subReferralPartner',
+            brokerageStaffId: '#brokerageStaff',
+            introducerId: '#introducer',
+            subIntroducerId: '#subIntroducer',
+            subBrokerageId: '#subBrokerage',
+            collaboration: '#collaboration',
+            leadGeneratorId: '#leadGenerator'
+        };
+
+        // Populate each field if it has a value and the field exists
+        Object.entries(fieldMappings).forEach(([modelKey, fieldSelector]) => {
+            const modelValue = this.modelValues[modelKey];
+            const $field = $(fieldSelector);
+
+            if (modelValue && modelValue !== '' && $field.length) {
+                console.log(`Setting ${fieldSelector} to value: ${modelValue}`);
+                
+                // Check if the field is a select dropdown
+                if ($field.is('select')) {
+                    // Check if the option exists before setting
+                    const $option = $field.find(`option[value="${modelValue}"]`);
+                    if ($option.length) {
+                        $field.val(modelValue);
+                        console.log(`Successfully set ${fieldSelector} to ${modelValue}`);
+                    } else {
+                        console.log(`Option with value ${modelValue} not found in ${fieldSelector}, skipping`);
+                    }
+                } else {
+                    // For non-select fields (like collaboration text input)
+                    $field.val(modelValue);
+                    console.log(`Successfully set ${fieldSelector} to ${modelValue}`);
+                }
+            } else if (modelValue && modelValue !== '') {
+                console.log(`Field ${fieldSelector} not found, skipping value: ${modelValue}`);
+            }
+        });
+
+        console.log('Model values population completed');
+    }
 }
 
 // Auto-initialize for all contract forms
@@ -839,36 +1036,12 @@ $(document).ready(function() {
         });
     }
 
-    // Initialize for Edit Electric form
-    if ($('#editElectricForm').length) {
-        new BrokerageManager({
-            brokerageSelectId: 'brokerage',
-            ofgemIdInputId: 'ofgemId',
-            departmentSelectId: 'department',
-            isEditMode: true,
-            currentBrokerageId: $('#brokerage').attr('data-current'),
-            currentDepartment: $('#department').attr('data-current')
-        });
-    }
-
     // Initialize for Create Gas form
     if ($('#createGasForm').length) {
         new BrokerageManager({
             brokerageSelectId: 'brokerage',
             ofgemIdInputId: 'ofgemId',
             departmentSelectId: 'department'
-        });
-    }
-
-    // Initialize for Edit Gas form
-    if ($('#editGasForm').length) {
-        new BrokerageManager({
-            brokerageSelectId: 'brokerage',
-            ofgemIdInputId: 'ofgemId',
-            departmentSelectId: 'department',
-            isEditMode: true,
-            currentBrokerageId: $('#brokerage').attr('data-current'),
-            currentDepartment: $('#department').attr('data-current')
         });
     }
 
@@ -881,15 +1054,6 @@ $(document).ready(function() {
         });
     }
 
-    // Initialize for Edit Dual form
-    if ($('#editDualForm').length) {
-        new BrokerageManager({
-            brokerageSelectId: 'brokerage',
-            ofgemIdInputId: 'ofgemId',
-            departmentSelectId: 'department',
-            isEditMode: true,
-            currentBrokerageId: $('#brokerage').attr('data-current'),
-            currentDepartment: $('#department').attr('data-current')
-        });
-    }
+    // Note: Edit forms are now manually initialized in their respective JavaScript files
+    // to avoid conflicts and ensure proper data handling
 });

@@ -127,7 +127,7 @@ namespace CobanaEnergy.Project.Models.Gas.EditGas
 
         // Brokerage Details
         [Required(ErrorMessage = "Brokerage is required")]
-        public int? BrokerageId { get; set; }
+        public int BrokerageId { get; set; }
         
         public string OfgemId { get; set; }
     }

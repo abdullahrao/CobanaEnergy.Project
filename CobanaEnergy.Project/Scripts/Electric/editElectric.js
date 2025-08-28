@@ -8,6 +8,25 @@
         $.ajaxSetup({ headers: { 'RequestVerificationToken': token } });
     }
 
+    // Initialize BrokerageManager for edit mode
+    const brokerageManager = new BrokerageManager({
+        isEditMode: true,
+        currentBrokerageId: $('#brokerage').data('current'),
+        currentDepartment: $('#department').data('current'),
+        currentSource: $('#source').data('current'), // NEW: Pass current source value
+        modelValues: {
+            closerId: $('#closer').data('current'),
+            referralPartnerId: $('#referralPartner').data('current'),
+            subReferralPartnerId: $('#subReferralPartner').data('current'),
+            brokerageStaffId: $('#brokerageStaff').data('current'),
+            introducerId: $('#introducer').data('current'),
+            subIntroducerId: $('#subIntroducer').data('current'),
+            subBrokerageId: $('#subBrokerage').data('current'),
+            collaboration: $('#collaboration').data('current'),
+            leadGeneratorId: $('#leadGenerator').data('current')
+        }
+    });
+
     for (const id in DropdownOptions) {
         populateDropdown(id, DropdownOptions[id]);
     }
@@ -23,6 +42,9 @@
             $el.append(`<option value="${val}" ${selected}>${val}</option>`);
         });
     }
+
+    // Note: Dynamic field population is now handled automatically by BrokerageManager
+    // when modelValues are provided in edit mode
 
     $('#productSelect').on('change', function () {
         const selectedOption = $(this).find('option:selected');
@@ -68,10 +90,7 @@
         const model = {
             EId: $('#eid').val(),
             Department: $('#department').val(),
-            Agent: $('#agent').val(),
             Source: $('#source').val(),
-            Introducer: $('#introducer').val(),
-            SubIntroducer: $('#subIntroducer').val(),
             SalesType: $('#salesType').val(),
             SalesTypeStatus: $('#salesTypeStatus').val(),
             BusinessName: $('#businessName').val(),
@@ -107,7 +126,22 @@
             ContractChecked: $('#contractChecked').is(':checked'),
             ContractAudited: $('#contractAudited').is(':checked'),
             Terminated: $('#terminated').is(':checked'),
-            ContractNotes: $('#contractNotes').val()
+            ContractNotes: $('#contractNotes').val(),
+            
+            // Brokerage Details
+            BrokerageId: $('#brokerage').val() || null,
+            OfgemId: $('#ofgemId').val() || null,
+            
+            // Dynamic Department-based fields
+            CloserId: $('#closer').val() || null,
+            ReferralPartnerId: $('#referralPartner').val() || null,
+            SubReferralPartnerId: $('#subReferralPartner').val() || null,
+            BrokerageStaffId: $('#brokerageStaff').val() || null,
+            IntroducerId: $('#introducer').val() || null,
+            SubIntroducerId: $('#subIntroducer').val() || null,
+            SubBrokerageId: $('#subBrokerage').val() || null,
+            Collaboration: $('#collaboration').val() || null,
+            LeadGeneratorId: $('#leadGenerator').val() || null
         };
 
         const $btn = $(this).find('button[type="submit"]');
@@ -134,11 +168,8 @@
 
                     const d = res.Data;
 
-                    $('#agent').val(d.Agent);
                     $('#department').val(d.Department);
                     $('#source').val(d.Source);
-                    $('#introducer').val(d.Introducer);
-                    $('#subIntroducer').val(d.SubIntroducer);
                     $('#salesType').val(d.SalesType);
                     $('#salesTypeStatus').val(d.SalesTypeStatus);
                     $('#businessName').val(d.BusinessName);
@@ -173,6 +204,19 @@
                     $('#accountNumber').val(d.AccountNumber);
                     $('#inputDate').val(d.InputDate);
                     $('#emProcessor').val(d.EMProcessor);
+                    
+                    // Set new fields
+                    $('#brokerage').val(d.BrokerageId);
+                    $('#ofgemId').val(d.OfgemId);
+                    $('#closer').val(d.CloserId);
+                    $('#referralPartner').val(d.ReferralPartnerId);
+                    $('#subReferralPartner').val(d.SubReferralPartnerId);
+                    $('#brokerageStaff').val(d.BrokerageStaffId);
+                    $('#introducer').val(d.IntroducerId);
+                    $('#subIntroducer').val(d.SubIntroducerId);
+                    $('#subBrokerage').val(d.SubBrokerageId);
+                    $('#collaboration').val(d.Collaboration);
+                    $('#leadGenerator').val(d.LeadGeneratorId);
 
                     $('#contractChecked').prop('checked', d.ContractChecked);
                     $('#contractAudited').prop('checked', d.ContractAudited);
@@ -252,7 +296,7 @@
                     const d = res.Data;
                     $('#duplicateMpanModalEdit tbody').html(`
                     <tr>
-                        <td>${d.Agent}</td>
+                        <td>${d.BrokerageName || 'N/A'}</td>
                         <td>${d.BusinessName}</td>
                         <td>${d.CustomerName}</td>
                         <td>${d.InputDate}</td>
@@ -285,7 +329,7 @@
                     res.Data.forEach(r => {
                         tbody.append(`
                         <tr>
-                            <td>${r.Agent}</td>
+                            <td>${r.BrokerageName || 'N/A'}</td>
                             <td>${r.BusinessName}</td>
                             <td>${r.CustomerName}</td>
                             <td>${r.InputDate}</td>

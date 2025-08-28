@@ -144,10 +144,7 @@
 
         const model = {
             Department: $('#department').val(),
-            Agent: $('#agent').val(),
             Source: $('#source').val(),
-            Introducer: $('#introducer').val(),
-            SubIntroducer: $('#subIntroducer').val(),
             BusinessName: $('#businessName').val(),
             CustomerName: $('#customerName').val(),
             BusinessDoorNumber: $('#businessDoorNumber').val(),
@@ -205,7 +202,22 @@
             GasInitialStartDate: $('#gasInitialStartDate').val(),
             GasInputEAC: $('#gasInputEAC').val(),
             GasOtherRate: $('#gasOtherRate').val(),
-            ContractNotes: $('#contractNotes').val()
+            ContractNotes: $('#contractNotes').val(),
+            
+            // Brokerage Details
+            BrokerageId: $('#brokerage').val() || null,
+            OfgemId: $('#ofgemId').val() || null,
+            
+            // Dynamic Department-based fields
+            CloserId: $('#closer').val() || null,
+            ReferralPartnerId: $('#referralPartner').val() || null,
+            SubReferralPartnerId: $('#subReferralPartner').val() || null,
+            BrokerageStaffId: $('#brokerageStaff').val() || null,
+            IntroducerId: $('#introducer').val() || null,
+            SubIntroducerId: $('#subIntroducer').val() || null,
+            SubBrokerageId: $('#subBrokerage').val() || null,
+            Collaboration: $('#collaboration').val() || null,
+            LeadGeneratorId: $('#leadGenerator').val() || null
         };
 
         const $btn = $(this).find('button[type="submit"]');
@@ -265,7 +277,7 @@
                 if (res.success && res.Data) {
                     const d = res.Data;
                     $('#duplicateDualMpanModal tbody').html(`
-                        <tr><td>${d.Agent}</td><td>${d.BusinessName}</td><td>${d.CustomerName}</td><td>${d.InputDate}</td><td>${d.PreSalesStatus}</td><td>${d.Duration}</td></tr>
+                        <tr><td>${d.BrokerageName || 'N/A'}</td><td>${d.BusinessName}</td><td>${d.CustomerName}</td><td>${d.InputDate}</td><td>${d.PreSalesStatus}</td><td>${d.Duration}</td></tr>
                     `);
                     $('#duplicateDualMpanModal').modal('show');
                 }
@@ -285,7 +297,7 @@
                 if (res.success && res.Data) {
                     const d = res.Data;
                     $('#duplicateDualMprnModal tbody').html(`
-                        <tr><td>${d.Agent}</td><td>${d.BusinessName}</td><td>${d.CustomerName}</td><td>${d.InputDate}</td><td>${d.PreSalesStatus}</td><td>${d.Duration}</td></tr>
+                        <tr><td>${d.BrokerageName || 'N/A'}</td><td>${d.BusinessName}</td><td>${d.CustomerName}</td><td>${d.InputDate}</td><td>${d.PreSalesStatus}</td><td>${d.Duration}</td></tr>
                     `);
                     $('#duplicateDualMprnModal').modal('show');
                 }
@@ -307,7 +319,7 @@
                     tbody.empty();
                     res.Data.forEach(r => {
                         tbody.append(`
-                            <tr><td>${r.Agent}</td><td>${r.BusinessName}</td><td>${r.CustomerName}</td><td>${r.InputDate}</td><td>${r.PreSalesStatus}</td><td>${r.Duration}</td><td>${r.SortCode}</td><td>${r.AccountNumber}</td></tr>
+                            <tr><td>${r.BrokerageName || 'N/A'}</td><td>${r.BusinessName}</td><td>${r.CustomerName}</td><td>${r.InputDate}</td><td>${r.PreSalesStatus}</td><td>${r.Duration}</td><td>${r.SortCode}</td><td>${r.AccountNumber}</td></tr>
                         `);
                     });
                     $('#duplicateAccountModalDual').modal('show');

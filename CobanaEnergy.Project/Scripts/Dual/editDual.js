@@ -7,6 +7,87 @@
         $.ajaxSetup({ headers: { 'RequestVerificationToken': token } });
     }
 
+    // Initialize BrokerageManager for edit mode
+    const brokerageManager = new BrokerageManager({
+        isEditMode: true,
+        currentBrokerageId: $('#brokerage').data('current'),
+        currentDepartment: $('#department').data('current'),
+        currentSource: $('#source').data('current'), // NEW: Pass current source value
+        modelValues: {
+            closerId: $('#closer').data('current'),
+            referralPartnerId: $('#referralPartner').data('current'),
+            subReferralPartnerId: $('#subReferralPartner').data('current'),
+            brokerageStaffId: $('#brokerageStaff').data('current'),
+            introducerId: $('#introducer').data('current'),
+            subIntroducerId: $('#subIntroducer').data('current'),
+            subBrokerageId: $('#subBrokerage').data('current'),
+            collaboration: $('#collaboration').data('current'),
+            leadGeneratorId: $('#leadGenerator').data('current')
+        }
+    });
+
+    // Populate dropdowns with current values
+    populateDropdowns();
+
+    function populateDropdowns() {
+        // Populate Electric Sales Type
+        const $electricSalesType = $('#electricSalesType');
+        if ($electricSalesType.length) {
+            const currentValue = $electricSalesType.data('current');
+            if (currentValue) {
+                $electricSalesType.val(currentValue);
+            }
+        }
+
+        // Populate Electric Sales Type Status
+        const $electricSalesTypeStatus = $('#electricSalesTypeStatus');
+        if ($electricSalesTypeStatus.length) {
+            const currentValue = $electricSalesTypeStatus.data('current');
+            if (currentValue) {
+                $electricSalesTypeStatus.val(currentValue);
+            }
+        }
+
+        // Populate Gas Sales Type
+        const $gasSalesType = $('#gasSalesType');
+        if ($gasSalesType.length) {
+            const currentValue = $gasSalesType.data('current');
+            if (currentValue) {
+                $gasSalesType.val(currentValue);
+            }
+        }
+
+        // Populate Gas Sales Type Status
+        const $gasSalesTypeStatus = $('#gasSalesTypeStatus');
+        if ($gasSalesTypeStatus.length) {
+            const currentValue = $gasSalesTypeStatus.data('current');
+            if (currentValue) {
+                $gasSalesTypeStatus.val(currentValue);
+            }
+        }
+
+        // Populate Electric Comms Type
+        const $electricCommsType = $('#electricCommsType');
+        if ($electricCommsType.length) {
+            const currentValue = $electricCommsType.data('current');
+            if (currentValue) {
+                $electricCommsType.val(currentValue);
+            }
+        }
+
+        // Populate Gas Comms Type
+        const $gasCommsType = $('#gasCommsType');
+        if ($gasCommsType.length) {
+            const currentValue = $gasCommsType.data('current');
+            if (currentValue) {
+                $gasCommsType.val(currentValue);
+            }
+        }
+    }
+
+    // Note: Dynamic field population is now handled automatically by BrokerageManager
+    // when modelValues are provided in edit mode
+
     function populateDropdown(id, values, currentValue) {
         const $select = $('#' + id);
         $select.empty().append(`<option value="">Select ${id}</option>`);
@@ -228,10 +309,6 @@
         return {
             EId: $('#eid').val(),
             Department: $('#department').val(),
-            Agent: $('#agent').val(),
-            Source: $('#source').val(),
-            Introducer: $('#introducer').val(),
-            SubIntroducer: $('#subIntroducer').val(),
             BusinessName: $('#businessName').val(),
             CustomerName: $('#customerName').val(),
             BusinessDoorNumber: $('#businessDoorNumber').val(),
@@ -287,7 +364,23 @@
             ContractAudited: $('#contractAudited').is(':checked'),
             Terminated: $('#terminated').is(':checked'),
             EMProcessor: $('#emProcessor').val(),
-            ContractNotes: $('#contractNotes').val()
+            ContractNotes: $('#contractNotes').val(),
+            
+            // Brokerage Details
+            BrokerageId: $('#brokerage').val() || null,
+            OfgemId: $('#ofgemId').val() || null,
+            
+            // Dynamic Department-based fields
+            Source: $('#source').val(),
+            CloserId: $('#closer').val() || null,
+            ReferralPartnerId: $('#referralPartner').val() || null,
+            SubReferralPartnerId: $('#subReferralPartner').val() || null,
+            BrokerageStaffId: $('#brokerageStaff').val() || null,
+            IntroducerId: $('#introducer').val() || null,
+            SubIntroducerId: $('#subIntroducer').val() || null,
+            SubBrokerageId: $('#subBrokerage').val() || null,
+            Collaboration: $('#collaboration').val() || null,
+            LeadGeneratorId: $('#leadGenerator').val() || null
         };
     }
     function loadLogs(eid) {

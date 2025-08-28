@@ -413,6 +413,10 @@
     <Compile Include="Migrations\202508260930054_Faryal_Testing.Designer.cs">
       <DependentUpon>202508260930054_Faryal_Testing.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202508271656129_Faryal_ContractAdditions.cs" />
+    <Compile Include="Migrations\202508271656129_Faryal_ContractAdditions.Designer.cs">
+      <DependentUpon>202508271656129_Faryal_ContractAdditions.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\Accounts\AwaitingPaymentsDashboard\AwaitingPaymentsDashboard.cs" />
     <Compile Include="Models\Accounts\CalendarDashboard\CalendarDashboardViewModel.cs" />
     <Compile Include="Models\Accounts\ClawbacksDashboard\ClawbacksDashboardViewModel.cs" />
@@ -647,6 +651,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202508260930054_Faryal_Testing.resx">
       <DependentUpon>202508260930054_Faryal_Testing.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202508271656129_Faryal_ContractAdditions.resx">
+      <DependentUpon>202508271656129_Faryal_ContractAdditions.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

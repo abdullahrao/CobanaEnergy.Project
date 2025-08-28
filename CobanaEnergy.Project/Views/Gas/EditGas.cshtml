@@ -44,97 +44,90 @@
                                 <label for="department" class="form-label required">Department</label>
                                 <select id="department" class="form-select dropdown-arrow" required title="Please Select Department!" data-current="@Model.Department" readonly></select>
                             </div>
-                            
+
                             <!-- In House Department Fields -->
                             <div class="col-md-4" id="inHouseFields" style="display: none;">
                                 <label for="closer" class="form-label">Closer</label>
-                                <select id="closer" class="form-select dropdown-arrow" title="Please Select Closer!">
+                                <select id="closer" class="form-select dropdown-arrow" title="Please Select Closer!" data-current="@Model.CloserId">
                                     <option value="">Select Closer</option>
                                 </select>
                             </div>
-                            
+
                             <!-- Brokers Department Fields -->
                             <div class="col-md-4" id="brokersFields" style="display: none;">
                                 <label for="brokerageStaff" class="form-label">Brokerage Staff</label>
-                                <select id="brokerageStaff" class="form-select dropdown-arrow" title="Please Select Brokerage Staff!">
+                                <select id="brokerageStaff" class="form-select dropdown-arrow" title="Please Select Brokerage Staff!" data-current="@Model.BrokerageStaffId">
                                     <option value="">Select Brokerage Staff</option>
                                 </select>
                             </div>
-                            
+
                             <!-- Introducers Department Fields -->
                             <div class="col-md-4" id="introducersFields" style="display: none;">
                                 <label for="introducer" class="form-label">Introducer</label>
-                                <select id="introducer" class="form-select dropdown-arrow" title="Please Select Introducer!">
+                                <select id="introducer" class="form-select dropdown-arrow" title="Please Select Introducer!" data-current="@Model.IntroducerId">
                                     <option value="">Select Introducer</option>
                                 </select>
                             </div>
-                            
+
                             <div class="col-md-4">
                                 <label for="source" class="form-label required">Source</label>
                                 <select id="source" class="form-select dropdown-arrow" required title="Please Select Source!" data-current="@Model.Source"></select>
                             </div>
-                            
+
                             <!-- Data Source Fields -->
                             <div class="col-md-4" id="dataSourceFields" style="display: none;">
                                 <label for="collaboration" class="form-label">Collaboration</label>
-                                <select id="collaboration" class="form-select dropdown-arrow" title="Please Select Collaboration!">
+                                <select id="collaboration" class="form-select dropdown-arrow" title="Please Select Collaboration!" data-current="@Model.Collaboration">
                                     <option value="">Select Collaboration</option>
                                     <option value="Lead Generator">Lead Generator</option>
                                     <option value="N/A">N/A</option>
                                 </select>
                             </div>
-                            
+
                             <div class="col-md-4" id="leadGeneratorField" style="display: none;">
                                 <label for="leadGenerator" class="form-label">Lead Generator</label>
-                                <select id="leadGenerator" class="form-select dropdown-arrow" title="Please Select Lead Generator!" disabled>
+                                <select id="leadGenerator" class="form-select dropdown-arrow" title="Please Select Lead Generator!" disabled data-current="@Model.LeadGeneratorId">
                                     <option value="">Select Lead Generator</option>
                                 </select>
                             </div>
-                            
+
                             <!-- Referral Partners Source Fields -->
                             <div class="col-md-4" id="referralPartnerField" style="display: none;">
                                 <label for="referralPartner" class="form-label">Referral Partner</label>
-                                <select id="referralPartner" class="form-select dropdown-arrow" title="Please Select Referral Partner!">
+                                <select id="referralPartner" class="form-select dropdown-arrow" title="Please Select Referral Partner!" data-current="@Model.ReferralPartnerId">
                                     <option value="">Select Referral Partner</option>
                                 </select>
                             </div>
-                            
+
                             <div class="col-md-4" id="subReferralPartnerField" style="display: none;">
                                 <label for="subReferralPartner" class="form-label">Sub Referral Partner</label>
-                                <select id="subReferralPartner" class="form-select dropdown-arrow" title="Please Select Sub Referral Partner!">
+                                <select id="subReferralPartner" class="form-select dropdown-arrow" title="Please Select Sub Referral Partner!" data-current="@Model.SubReferralPartnerId">
                                     <option value="">Select Sub Referral Partner</option>
                                 </select>
                             </div>
-                            
+
                             <!-- Sub Broker Source Fields -->
                             <div class="col-md-4" id="subBrokerageField" style="display: none;">
                                 <label for="subBrokerage" class="form-label">Sub Brokerage</label>
-                                <select id="subBrokerage" class="form-select dropdown-arrow" title="Please Select Sub Brokerage!">
+                                <select id="subBrokerage" class="form-select dropdown-arrow" title="Please Select Sub Brokerage!" data-current="@Model.SubBrokerageId">
                                     <option value="">Select Sub Brokerage</option>
                                 </select>
                             </div>
-                            
+
                             <!-- Sub Introducer Source Fields -->
                             <div class="col-md-4" id="subIntroducerField" style="display: none;">
                                 <label for="subIntroducer" class="form-label">Sub Introducer</label>
-                                <select id="subIntroducer" class="form-select dropdown-arrow" title="Please Select Sub Introducer!">
+                                <select id="subIntroducer" class="form-select dropdown-arrow" title="Please Select Sub Introducer!" data-current="@Model.SubIntroducerId">
                                     <option value="">Select Sub Introducer</option>
                                 </select>
                             </div>
-                            
                             <div class="col-md-4">
                                 <label for="salesType" class="form-label required">Cobana Sales Type</label>
-                                <select id="salesType" class="form-select dropdown-arrow" required title="Please Select Sales Type!">
-                                    <option value="">Select Sales Type</option>
-                                    <option value="@Model.SalesType" selected>@Model.SalesType</option>
-                                </select>
+                                <select id="salesType" class="form-select dropdown-arrow" required title="Please Select Sales Type!" data-current="@Model.SalesType"></select>
                             </div>
                             <div class="col-md-4">
                                 <label for="salesTypeStatus" class="form-label required">Cobana Sales Type Status</label>
-                                <select id="salesTypeStatus" class="form-select dropdown-arrow" required title="Please Select Sales Type Status! or N/A">
-                                    <option value="">Select Sales Type Status</option>
-                                    <option value="@Model.SalesTypeStatus" selected>@Model.SalesTypeStatus</option>
-                                </select>
+                                <select id="salesTypeStatus" class="form-select dropdown-arrow" required title="Please Select Sales Type Status! or N/A" data-current="@Model.SalesTypeStatus"></select>
                             </div>
                         </div>
                     </div>

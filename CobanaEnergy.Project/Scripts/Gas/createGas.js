@@ -115,10 +115,7 @@
 
         const model = {
             Department: $('#department').val(),
-            Agent: $('#agent').val(),
             Source: $('#source').val(),
-            Introducer: $('#introducer').val(),
-            SubIntroducer: $('#subIntroducer').val(),
             SalesType: $('#salesType').val(),
             SalesTypeStatus: $('#salesTypeStatus').val(),
             BusinessName: $('#businessName').val(),
@@ -151,7 +148,22 @@
             ContractChecked: $('#contractChecked').is(':checked'),
             ContractAudited: $('#contractAudited').is(':checked'),
             Terminated: $('#terminated').is(':checked'),
-            ContractNotes: $('#contractNotes').val()
+            ContractNotes: $('#contractNotes').val(),
+            
+            // Brokerage Details
+            BrokerageId: $('#brokerage').val() || null,
+            OfgemId: $('#ofgemId').val() || null,
+            
+            // Dynamic Department-based fields
+            CloserId: $('#closer').val() || null,
+            ReferralPartnerId: $('#referralPartner').val() || null,
+            SubReferralPartnerId: $('#subReferralPartner').val() || null,
+            BrokerageStaffId: $('#brokerageStaff').val() || null,
+            IntroducerId: $('#introducer').val() || null,
+            SubIntroducerId: $('#subIntroducer').val() || null,
+            SubBrokerageId: $('#subBrokerage').val() || null,
+            Collaboration: $('#collaboration').val() || null,
+            LeadGeneratorId: $('#leadGenerator').val() || null
         };
 
         const $btn = $(this).find('button[type="submit"]');
@@ -210,16 +222,15 @@
                 if (res.success && res.Data) {
                     const d = res.Data;
                     $('#duplicateMprnModal tbody').html(`
-                    <tr>
-                        <td>${d.Agent}</td>
-                        <td>${d.BusinessName}</td>
-                        <td>${d.CustomerName}</td>
-                        <td>${d.InputDate}</td>
-                        <td>${d.PreSalesStatus}</td>
-                        <td>${d.Duration}</td>
-                    </tr>
-                `);
-
+                        <tr>
+                            <td>${d.BrokerageName || 'N/A'}</td>
+                            <td>${d.BusinessName}</td>
+                            <td>${d.CustomerName}</td>
+                            <td>${d.InputDate}</td>
+                            <td>${d.PreSalesStatus}</td>
+                            <td>${d.Duration}</td>
+                        </tr>
+                    `);
                     $('#duplicateMprnModal').modal('show');
                 }
             }).fail(function () {
@@ -244,7 +255,7 @@
                     res.Data.forEach(r => {
                         tbody.append(`
                         <tr>
-                            <td>${r.Agent}</td>
+                            <td>${r.BrokerageName || 'N/A'}</td>
                             <td>${r.BusinessName}</td>
                             <td>${r.CustomerName}</td>
                             <td>${r.InputDate}</td>
