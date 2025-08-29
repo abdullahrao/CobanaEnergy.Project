@@ -80,6 +80,17 @@
                             </select>
                         </div>
                     </div>
+                    <div class="row gx-4 gy-3 mt-3">
+                        <div class="col-md-6">
+                            @Html.DropDownList("SectorSuppliers", new SelectList(new List<SelectListItem>(), "Value", "Text"), new
+                            {
+                                @class = "form-control",
+                                multiple = "multiple",
+                                title = "Select suppliers",
+                                id = "sectorSuppliers"
+                            })
+                        </div>
+                    </div>
                 </div>
             </div>
 

@@ -411,7 +411,10 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     // Step 5: Add Staff and Sub-sections based on sector type
                     await AddStaffAndSubsections(sector.SectorID, model);
 
-                    // Step 6: Add Bank Details and Company Tax Info for sub-entities (MOVED to AddStaffAndSubsections to fix EntityID=1 bug)
+                    // Step 6: Handle Sector Suppliers (for Brokerage sector type)
+                    await HandleSectorSuppliers(sector.SectorID, model.SectorSuppliers);
+
+                    // Step 7: Add Bank Details and Company Tax Info for sub-entities (MOVED to AddStaffAndSubsections to fix EntityID=1 bug)
                     // await AddSubEntityBankDetailsAndTaxInfo(model);
 
                     await db.SaveChangesAsync();
@@ -827,6 +830,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     .Include(s => s.CE_SubBrokerages.Select(sb => sb.CE_SubBrokerageCommissionAndPayments))
                     .Include(s => s.CE_SubReferrals.Select(sr => sr.CE_SubReferralCommissionAndPayments))
                     .Include(s => s.CE_SubIntroducers.Select(si => si.CE_SubIntroducerCommissionAndPayments))
+                    .Include(s => s.SectorSuppliers)
                     .FirstOrDefault(s => s.SectorID == sectorId);
 
                 if (sector == null)
@@ -1177,6 +1181,12 @@ namespace CobanaEnergy.Project.Controllers.Sector
                 }).ToList();
             }
 
+            // Set Sector Suppliers
+            if (sector.SectorSuppliers != null && sector.SectorSuppliers.Any())
+            {
+                model.SectorSuppliers = sector.SectorSuppliers.Select(ss => ss.SupplierId).ToList();
+            }
+
             return model;
         }
 
@@ -1316,6 +1326,9 @@ namespace CobanaEnergy.Project.Controllers.Sector
 
                         // Step 5: Update Staff and Sub-sections
                         await UpdateStaffAndSubsections(sectorId, model);
+
+                        // Step 6: Handle Sector Suppliers (for Brokerage sector type)
+                        await HandleSectorSuppliers(sectorId, model.SectorSuppliers);
 
                         await db.SaveChangesAsync();
                         transaction.Commit();
@@ -2161,6 +2174,41 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         }
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Handles sector supplier relationships - removes existing and adds new ones
+        /// </summary>
+        private async Task HandleSectorSuppliers(int sectorId, List<long> supplierIds)
+        {
+            try
+            {
+                // Remove existing relationships
+                var existingSuppliers = await db.CE_SectorSupplier
+                    .Where(ss => ss.SectorId == sectorId)
+                    .ToListAsync();
+                
+                db.CE_SectorSupplier.RemoveRange(existingSuppliers);
+                
+                // Add new relationships
+                if (supplierIds != null && supplierIds.Any())
+                {
+                    var sectorSuppliers = supplierIds.Select(supplierId => new CE_SectorSupplier
+                    {
+                        SectorId = sectorId,
+                        SupplierId = supplierId
+                    }).ToList();
+                    
+                    db.CE_SectorSupplier.AddRange(sectorSuppliers);
+                }
+                
+                await db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Logic.Logger.Log($"HandleSectorSuppliers failed: {ex.Message}");
+                throw;
             }
         }
 

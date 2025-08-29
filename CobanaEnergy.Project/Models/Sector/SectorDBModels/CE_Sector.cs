@@ -20,6 +20,7 @@ namespace CobanaEnergy.Project.Models.Sector.SectorDBModels
             this.CE_IntroducerCommissionAndPayments = new List<CE_IntroducerCommissionAndPayment>();
             this.CE_ReferralPartnerCommissionAndPayments = new List<CE_ReferralPartnerCommissionAndPayment>();
             this.CE_LeadGeneratorCommissionAndPayments = new List<CE_LeadGeneratorCommissionAndPayment>();
+            this.SectorSuppliers = new List<CE_SectorSupplier>();
         }
 
         [Key]
@@ -66,5 +67,6 @@ namespace CobanaEnergy.Project.Models.Sector.SectorDBModels
         public virtual ICollection<CE_IntroducerCommissionAndPayment> CE_IntroducerCommissionAndPayments { get; set; }
         public virtual ICollection<CE_ReferralPartnerCommissionAndPayment> CE_ReferralPartnerCommissionAndPayments { get; set; }
         public virtual ICollection<CE_LeadGeneratorCommissionAndPayment> CE_LeadGeneratorCommissionAndPayments { get; set; }
+        public virtual ICollection<CE_SectorSupplier> SectorSuppliers { get; set; }
     }
 }

@@ -417,6 +417,10 @@
     <Compile Include="Migrations\202508271656129_Faryal_ContractAdditions.Designer.cs">
       <DependentUpon>202508271656129_Faryal_ContractAdditions.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202508290855118_Faryal_SectorSupplierMappings.cs" />
+    <Compile Include="Migrations\202508290855118_Faryal_SectorSupplierMappings.Designer.cs">
+      <DependentUpon>202508290855118_Faryal_SectorSupplierMappings.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\Accounts\AwaitingPaymentsDashboard\AwaitingPaymentsDashboard.cs" />
     <Compile Include="Models\Accounts\CalendarDashboard\CalendarDashboardViewModel.cs" />
     <Compile Include="Models\Accounts\ClawbacksDashboard\ClawbacksDashboardViewModel.cs" />
@@ -516,6 +520,7 @@
     <Compile Include="Models\Sector\SectorDBModels\CE_SubReferralCommissionAndPayment.cs" />
     <Compile Include="Models\Sector\SectorDBModels\CE_SubIntroducer.cs" />
     <Compile Include="Models\Sector\SectorDBModels\CE_SubIntroducerCommissionAndPayment.cs" />
+    <Compile Include="Models\Sector\SectorDBModels\CE_SectorSupplier.cs" />
     <Compile Include="Models\Supplier\SupplierDBModels\snapshot Electric\CE_ElectricSupplierContactSnapshots.cs" />
     <Compile Include="Models\Supplier\SupplierDBModels\snapshot Electric\CE_ElectricSupplierProductSnapshots.cs" />
     <Compile Include="Models\Supplier\SupplierDBModels\snapshot Electric\CE_ElectricSupplierSnapshots.cs" />
@@ -654,6 +659,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202508271656129_Faryal_ContractAdditions.resx">
       <DependentUpon>202508271656129_Faryal_ContractAdditions.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202508290855118_Faryal_SectorSupplierMappings.resx">
+      <DependentUpon>202508290855118_Faryal_SectorSupplierMappings.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

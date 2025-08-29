@@ -45,6 +45,9 @@ namespace CobanaEnergy.Project.Models.Sector
         [Display(Name = "Department")]
         public string Department { get; set; }
 
+        // Sector Suppliers (for Brokerage sector type)
+        public List<long> SectorSuppliers { get; set; } = new List<long>();
+
         // Common sections
         public BankDetailsViewModel BankDetails { get; set; } = new BankDetailsViewModel();
         public CompanyTaxInfoViewModel CompanyTaxInfo { get; set; } = new CompanyTaxInfoViewModel();

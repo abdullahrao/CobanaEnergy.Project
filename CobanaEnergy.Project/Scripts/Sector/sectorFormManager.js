@@ -18,6 +18,7 @@ class SectorFormManager {
         this.isEditMode = options.isEditMode || false;
         this.currentSectorType = '';
         this.modelData = options.modelData || null; // Store model data for edit mode
+        this.suppliers = []; // Store suppliers data
         this.init();
     }
 
@@ -35,6 +36,9 @@ class SectorFormManager {
         
         // Initialize duplicate account checker for all account number fields
         this.initializeDuplicateAccountChecker();
+        
+        // Initialize Select2 for all multiple select dropdowns
+        this.initializeSelect2();
     }
 
     initializeForm() {
@@ -45,7 +49,12 @@ class SectorFormManager {
         if (this.isEditMode) {
             const currentSectorType = $('#sectorType').val();
             if (currentSectorType) {
+                // IMPORTANT: Set currentSectorType for edit mode
+                this.currentSectorType = currentSectorType;
+                console.log('Edit mode initialized with sector type:', currentSectorType);
+                
                 this.loadDynamicSections(currentSectorType);
+                this.toggleConditionalFields(currentSectorType);
                 this.toggleBankAndTaxSections();
             }
         } else {
@@ -57,6 +66,10 @@ class SectorFormManager {
 
     handleSectorTypeChange(e) {
         const selectedType = $(e.target).val();
+        
+        // IMPORTANT: Set currentSectorType FIRST before any other operations
+        this.currentSectorType = selectedType;
+        console.log('Sector type changed to:', selectedType, 'currentSectorType set to:', this.currentSectorType);
         
         if (this.isEditMode) {
             // Edit mode: load sections and handle conditional fields
@@ -78,12 +91,25 @@ class SectorFormManager {
                     $('#department').val(selectedType);
                     // Make department required when visible
                     $('#department').prop('required', true);
+                    
+                    // Handle sector suppliers field for Brokerage
+                    if (selectedType === 'Brokerage') {
+                        $('#sectorSuppliers').closest('.row').show();
+                        // Now currentSectorType is set, so this will work
+                        this.populateSuppliersDropdown();
+                    } else {
+                        $('#sectorSuppliers').closest('.row').hide();
+                        $('#sectorSuppliers').val(null).trigger('change');
+                    }
                 } else {
                     $('#additionalFieldsSection').hide();
                     $('#department').val('');
                     $('#ofgemId').val('');
                     // Remove required attribute when hidden to prevent validation errors
                     $('#department').prop('required', false);
+                    // Hide sector suppliers field
+                    $('#sectorSuppliers').closest('.row').hide();
+                    $('#sectorSuppliers').val(null).trigger('change');
                 }
                 
                 this.loadDynamicSections(selectedType);
@@ -125,12 +151,22 @@ class SectorFormManager {
 
     // Toggle conditional fields based on sector type
     toggleConditionalFields(sectorType) {
+        this.currentSectorType = sectorType;
         const conditionalFields = $('#conditionalFields');
         
         if (sectorType === 'Introducer' || sectorType === 'Brokerage') {
             conditionalFields.removeClass('hide').addClass('show');
         } else {
             conditionalFields.removeClass('show').addClass('hide');
+        }
+        
+        // Handle sector suppliers field visibility
+        if (sectorType === 'Brokerage') {
+            $('#sectorSuppliers').closest('.row').show();
+            this.populateSuppliersDropdown();
+        } else {
+            $('#sectorSuppliers').closest('.row').hide();
+            $('#sectorSuppliers').val(null).trigger('change');
         }
     }
 
@@ -487,20 +523,20 @@ class SectorFormManager {
                         </div>
                     </div>
                 </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label small text-muted">Sub Brokerage Start Date</label>
-                                <input type="date" name="SubBrokerages[${index}].StartDate" class="form-control sub-start-date" placeholder="Start Date" />
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label small text-muted">Sub Brokerage End Date</label>
-                                <input type="date" name="SubBrokerages[${index}].EndDate" class="form-control sub-end-date" placeholder="End Date (Optional)" />
-                            </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label small text-muted">Sub Brokerage Start Date</label>
+                            <input type="date" name="SubBrokerages[${index}].StartDate" class="form-control sub-start-date" placeholder="Start Date" />
                         </div>
                     </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label small text-muted">Sub Brokerage End Date</label>
+                                <input type="date" name="SubBrokerages[${index}].EndDate" class="form-control sub-end-date" placeholder="End Date (Optional)" />
+                        </div>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -701,20 +737,20 @@ class SectorFormManager {
                         </div>
                     </div>
                 </div>
-                                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label small text-muted">Closer Commission Start Date</label>
-                                <input type="date" name="CloserCommissions[${index}].StartDate" class="form-control" placeholder="Start Date" />
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label small text-muted">Closer Commission End Date</label>
-                                <input type="date" name="CloserCommissions[${index}].EndDate" class="form-control" placeholder="End Date (Optional)" />
-                            </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label small text-muted">Closer Commission Start Date</label>
+                            <input type="date" name="CloserCommissions[${index}].StartDate" class="form-control" placeholder="Start Date" />
                         </div>
                     </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label small text-muted">Closer Commission End Date</label>
+                                <input type="date" name="CloserCommissions[${index}].EndDate" class="form-control" placeholder="End Date (Optional)" />
+                        </div>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -749,34 +785,34 @@ class SectorFormManager {
                         </div>
                     </div>
                 </div>
-                                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label small text-muted">Lead Generator Commission Start Date</label>
-                                <input type="date" name="LeadGeneratorCommissions[${index}].LeadGeneratorStartDate" class="form-control" placeholder="Lead Generator Start Date" />
-                            </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label small text-muted">Lead Generator Commission Start Date</label>
+                            <input type="date" name="LeadGeneratorCommissions[${index}].LeadGeneratorStartDate" class="form-control" placeholder="Lead Generator Start Date" />
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label small text-muted">Lead Generator Commission End Date</label>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label small text-muted">Lead Generator Commission End Date</label>
                                 <input type="date" name="LeadGeneratorCommissions[${index}].LeadGeneratorEndDate" class="form-control" placeholder="Lead Generator End Date (Optional)" />
-                            </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label small text-muted">Closer Commission Start Date</label>
-                                <input type="date" name="LeadGeneratorCommissions[${index}].CloserStartDate" class="form-control" placeholder="Closer Start Date" />
-                            </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label small text-muted">Closer Commission Start Date</label>
+                            <input type="date" name="LeadGeneratorCommissions[${index}].CloserStartDate" class="form-control" placeholder="Closer Start Date" />
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label small text-muted">Closer Commission End Date</label>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label small text-muted">Closer Commission End Date</label>
                                 <input type="date" name="LeadGeneratorCommissions[${index}].CloserEndDate" class="form-control" placeholder="Closer End Date (Optional)" />
-                            </div>
                         </div>
                     </div>
+                </div>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -820,34 +856,34 @@ class SectorFormManager {
                         </div>
                     </div>
                 </div>
-                                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label small text-muted">Referral Partner Commission Start Date</label>
-                                <input type="date" name="ReferralPartnerCommissions[${index}].ReferralPartnerStartDate" class="form-control" placeholder="Referral Partner Start Date" />
-                            </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label small text-muted">Referral Partner Commission Start Date</label>
+                            <input type="date" name="ReferralPartnerCommissions[${index}].ReferralPartnerStartDate" class="form-control" placeholder="Referral Partner Start Date" />
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label small text-muted">Referral Partner Commission End Date</label>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label small text-muted">Referral Partner Commission End Date</label>
                                 <input type="date" name="ReferralPartnerCommissions[${index}].ReferralPartnerEndDate" class="form-control" placeholder="Referral Partner End Date (Optional)" />
-                            </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label small text-muted">Brokerage Commission Start Date</label>
-                                <input type="date" name="ReferralPartnerCommissions[${index}].BrokerageStartDate" class="form-control" placeholder="Brokerage Start Date" />
-                            </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label small text-muted">Brokerage Commission Start Date</label>
+                            <input type="date" name="ReferralPartnerCommissions[${index}].BrokerageStartDate" class="form-control" placeholder="Brokerage Start Date" />
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label small text-muted">Brokerage Commission End Date</label>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label small text-muted">Brokerage Commission End Date</label>
                                 <input type="date" name="ReferralPartnerCommissions[${index}].BrokerageEndDate" class="form-control" placeholder="Brokerage End Date (Optional)" />
-                            </div>
                         </div>
                     </div>
+                </div>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -894,20 +930,20 @@ class SectorFormManager {
                         </div>
                     </div>
                 </div>
-                                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label small text-muted">Sub Referral Start Date</label>
-                                <input type="date" name="SubReferrals[${index}].StartDate" class="form-control sub-start-date" placeholder="Start Date" />
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label small text-muted">Sub Referral End Date</label>
-                                <input type="date" name="SubReferrals[${index}].EndDate" class="form-control sub-end-date" placeholder="End Date (Optional)" />
-                            </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label small text-muted">Sub Referral Start Date</label>
+                            <input type="date" name="SubReferrals[${index}].StartDate" class="form-control sub-start-date" placeholder="Start Date" />
                         </div>
                     </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label small text-muted">Sub Referral End Date</label>
+                                <input type="date" name="SubReferrals[${index}].EndDate" class="form-control sub-end-date" placeholder="End Date (Optional)" />
+                        </div>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -1251,20 +1287,20 @@ class SectorFormManager {
                         </div>
                     </div>
                 </div>
-                                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label small text-muted">Introducer Commission Start Date</label>
-                                <input type="date" name="IntroducerCommissions[${index}].StartDate" class="form-control" placeholder="Start Date" />
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label small text-muted">Introducer Commission End Date</label>
-                                <input type="date" name="IntroducerCommissions[${index}].EndDate" class="form-control" placeholder="End Date (Optional)" />
-                            </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label small text-muted">Introducer Commission Start Date</label>
+                            <input type="date" name="IntroducerCommissions[${index}].StartDate" class="form-control" placeholder="Start Date" />
                         </div>
                     </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label small text-muted">Introducer Commission End Date</label>
+                                <input type="date" name="IntroducerCommissions[${index}].EndDate" class="form-control" placeholder="End Date (Optional)" />
+                        </div>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -3210,6 +3246,71 @@ class SectorFormManager {
                 }
             }
         }
+    }
+
+    /**
+     * Populates the sector suppliers dropdown with active suppliers
+     * Only called when sector type is 'Brokerage'
+     */
+    populateSuppliersDropdown() {
+        // Add safety check and logging
+        console.log('populateSuppliersDropdown called, currentSectorType:', this.currentSectorType);
+        
+        if (this.currentSectorType === 'Brokerage') {
+            console.log('Fetching suppliers for Brokerage sector type');
+            
+            $.get('/Supplier/GetActiveSuppliersForDropdown', (res) => {
+                if (res.success && res.Data.length > 0) {
+                    this.suppliers = res.Data;
+                    const $supplierSelect = $('#sectorSuppliers');
+                    $supplierSelect.empty();
+                    
+                    // Create SelectList items for the dropdown
+                    const selectList = res.Data.map(supplier => 
+                        new Option(supplier.Name, supplier.Id, false, false)
+                    );
+                    
+                    // Add options to the dropdown
+                    $supplierSelect.append(selectList);
+                    
+                    // IMPORTANT: Reinitialize Select2 after adding options
+                    $supplierSelect.select2('destroy').select2({
+                        placeholder: "Select suppliers",
+                        allowClear: true,
+                        width: '100%',
+                        dropdownAutoWidth: true,
+                        dropdownParent: $('.sector-page-container')
+                    });
+                    
+                    // Set selected values in edit mode
+                    if (this.isEditMode && this.modelData && this.modelData.SectorSuppliers) {
+                        $supplierSelect.val(this.modelData.SectorSuppliers).trigger('change');
+                    }
+                    
+                    console.log('Suppliers dropdown populated successfully with', res.Data.length, 'suppliers');
+                } else {
+                    console.warn('No suppliers data received:', res);
+                }
+            }).fail((xhr, status, error) => {
+                console.error('Failed to fetch suppliers:', error);
+                console.error('Response:', xhr.responseText);
+            });
+        } else {
+            console.log('Not Brokerage sector type, skipping supplier population. Current type:', this.currentSectorType);
+        }
+    }
+
+    /**
+     * Initializes Select2 for all multiple select dropdowns
+     */
+    initializeSelect2() {
+        $('select[multiple]').select2({
+            placeholder: "Select option(s)",
+            allowClear: true,
+            width: '100%',
+            dropdownAutoWidth: true,
+            dropdownParent: $('.sector-page-container')
+        });
     }
 
     /**
