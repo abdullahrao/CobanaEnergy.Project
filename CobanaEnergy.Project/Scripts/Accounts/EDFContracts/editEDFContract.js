@@ -24,7 +24,12 @@
         populateDropdown("paymentStatus", AccountDropdownOptions.paymentStatusCorona, $('#paymentStatus').data('current'));
 
         if (supplierCommsType && supplierCommsType.toLowerCase() === "quarterly") {
-            
+
+            let awaitingInvoiceOption = document.createElement("option");
+            awaitingInvoiceOption.value = "EDF Awaiting Invoice";
+            awaitingInvoiceOption.textContent = "EDF Awaiting Invoice";
+            paymentStatus.appendChild(awaitingInvoiceOption);
+
             for (let year = 1; year <= duration; year++) {
                 let suffix;
                 if (year % 10 === 1 && year % 100 !== 11) suffix = "st";

@@ -81,7 +81,7 @@ namespace CobanaEnergy.Project.Common
         public static List<(string Label, string Status)> GetQuarterlyContractStatus()
         {
             return SupportedSuppliers._statusWaitDays
-                    .Where(x => x.Key.Contains("Qtr"))
+                    .Where(x => x.Key.Contains("Qtr") || x.Key.Contains("EDF"))
                     .OrderBy(x => x.Value) // Sort by wait days, so statuses come in sequence
                     .Select(kvp => ($"Contracts {kvp.Key}", kvp.Key))
                     .ToList();

@@ -92,6 +92,7 @@ namespace CobanaEnergy.Project.Common
                   { "Awaiting 59th Month Payment", 1805 },
                   { "Awaiting 60th Month Payment", 1836 },
                     // Quarterly EAC Payments
+                  { "EDF Awaiting Invoice", 105 },
                   { "Awaiting 1st Year - Qtr 1", 100 },
                   { "Awaiting 1st Year - Qtr 2", 190 },
                   { "Awaiting 1st Year - Qtr 3", 280 },
