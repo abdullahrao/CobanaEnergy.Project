@@ -138,8 +138,8 @@
                 counterList.forEach(item => {
                     container.append(`
                      <tr>
-                        <td>${item.Label}</td>
-                        <td>${item.Count}</td>
+                        <td>${item.Item1}</td>
+                        <td>${item.Item2}</td>
                      </tr>
                  `);
                 });
@@ -151,8 +151,22 @@
                 monthlyCounterList.forEach(item => {
                     monthlyContainer.append(`
                      <tr>
-                        <td>${item.Label}</td>
-                        <td>${item.Count}</td>
+                        <td>${item.Item1}</td>
+                        <td>${item.Item2}</td>
+                     </tr>
+                 `);
+                });
+
+
+                let quarterlyCounterList = res.Data.QuarterlyCounterList || [];
+                let quarterlyContainer = $("#awaitingInvoiceQuarterlyContainer");
+                quarterlyContainer.empty();
+
+                quarterlyCounterList.forEach(item => {
+                    quarterlyContainer.append(`
+                     <tr>
+                        <td>${item.Item1}</td>
+                        <td>${item.Item2}</td>
                      </tr>
                  `);
                 });
@@ -166,8 +180,11 @@
                 table.clear().draw();
                 let container = $("#awaitingInvoiceContainer");
                 container.empty();
-                let monthlyContainer = $("#awaitingInvoiceContainer");
+                let monthlyContainer = $("#awaitingInvoiceMonthlyContainer");
                 monthlyContainer.empty();
+                let quarterlyContainer = $("#awaitingInvoiceQuarterlyContainer");
+                quarterlyContainer.empty();
+
                 $('#awaitingInvoiceCount').text("0");
                 $('#saveBtn').prop('disabled', true);
                 $('#checkAll').prop('checked', false);

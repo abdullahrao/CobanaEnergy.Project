@@ -519,43 +519,23 @@ namespace CobanaEnergy.Project.Controllers.Accounts.EDFContracts
                         DateTime.TryParse(model.StartDate, out DateTime startDt) &&
                         DateTime.TryParse(model.CedCOT, out DateTime cedCOTDate))
                     {
-
                         liveDays = (cedCOTDate - startDt).TotalDays.ToString("F5");
-                        if (decimal.TryParse(model.CotLostConsumption, out decimal cotLostVal))
+                        if (decimal.TryParse(model.CotLostConsumption, out decimal cotLostVal) && decimal.TryParse(liveDays, out decimal live) && live !=0)
                         {
-                            cotLostReconciliation = (cotLostVal * upliftVal).ToString("F5");
+                            decimal totalAverage = ((cotLostVal / live) * 365); // TOTAL AVERAGE EAC
+                            cotLostReconciliation = ((totalAverage / 365) * live * upliftVal).ToString("F5");
+
                             foreach (var log in eacLogs)
                             {
                                 log.FinalEac = cotLostReconciliation;
                                 supplierEacFinal = log.FinalEac;
                             }
 
-                            if (upliftVal != 0 && decimal.TryParse(liveDays, out decimal live) && live != 0)
+                            if (upliftVal != 0)
                             {
-                                decimal totalAverage = ((cotLostVal / live) * 365);
-                                reconciliation.CobanaDueCommission = ((totalAverage / 365) * live * upliftVal).ToString("F5");
+                                reconciliation.CobanaDueCommission = cotLostReconciliation; //((totalAverage / 365) * live * upliftVal).ToString("F5");
                             }
                         }
-
-
-                        //liveDays = (cedCOTDate - startDt).TotalDays.ToString("F5");
-
-                        //if (decimal.TryParse(model.CotLostConsumption, out decimal cotLostVal))
-                        //{
-                        //    cotLostReconciliation = (cotLostVal * upliftVal).ToString("F5"); 
-                        //}
-
-                        //foreach (var log in eacLogs)
-                        //{
-                        //    log.FinalEac = cotLostReconciliation;
-                        //    supplierEacFinal = log.FinalEac;
-                        //}
-                        //if (decimal.TryParse(model.CotLostConsumption, out decimal cotLostConVal) &&
-                        //    upliftVal != 0)
-                        //{
-                        //    /// var tAverage = ((cotLostConVal / liveDays) * 365).ToString("F2");
-                        //    reconciliation.CobanaDueCommission = (cotLostConVal * upliftVal).ToString("F5"); // ([Total AVG EAC]/365) * Live Days * Uplift
-                        //}
                     }
                     else
                     {
@@ -626,7 +606,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.EDFContracts
                 }
                 else
                 {
-                    #region [DURATION]
+                    #region [DURATION AND ANNUAL]
 
                     decimal.TryParse(uplift, out decimal upliftVal);
                     decimal.TryParse(commission, out decimal supplierCommsVal);
@@ -875,7 +855,9 @@ namespace CobanaEnergy.Project.Controllers.Accounts.EDFContracts
                     if (!ModelState.IsValid)
                         return Json(JsonResponse.Fail("Please fill all required fields correctly."));
 
-                    if (!(model.SupplierCommsTypeElectric.Equals("ANNUAL", StringComparison.OrdinalIgnoreCase) || model.SupplierCommsTypeElectric.Equals("DURATION", StringComparison.OrdinalIgnoreCase) || model.SupplierCommsTypeElectric.Equals("QUARTERLY", StringComparison.OrdinalIgnoreCase)))
+                    if (!(model.SupplierCommsTypeElectric.Equals("ANNUAL", StringComparison.OrdinalIgnoreCase) ||
+                        model.SupplierCommsTypeElectric.Equals("DURATION", StringComparison.OrdinalIgnoreCase) || 
+                        model.SupplierCommsTypeElectric.Equals("QUARTERLY", StringComparison.OrdinalIgnoreCase)))
                         return JsonResponse.Fail("Invalid Supplier Comms Type for Corona. Only ANNUAL, QUARTERLY or DURATION are allowed.");
 
                     string durationStr = "1";
@@ -921,7 +903,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.EDFContracts
                         .ToListAsync();
 
                     decimal averageEac = 0;
-                    if (model.SupplierCommsType.Equals("QUARTERLY", StringComparison.OrdinalIgnoreCase)) // NEED TO CHANGE
+                    if (model.SupplierCommsType.Equals("QUARTERLY", StringComparison.OrdinalIgnoreCase)) 
                     {
                         var TotalEac = GetTotalEacValue(eacLogs, duration);
                         averageEac = TotalEac / duration;

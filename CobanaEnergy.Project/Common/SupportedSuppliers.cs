@@ -17,9 +17,9 @@ namespace CobanaEnergy.Project.Common
                 "edf i&c"
             };
 
-        public static readonly string[] MeterHeaders = { "meternum", "meterpoint", "mpancore", "mpr","mpan","meter point" };
+        public static readonly string[] MeterHeaders = { "meternum", "meterpoint", "mpancore", "mpr", "mpan", "meter point" };
 
-        public static readonly Dictionary<string, int> _statusWaitDays = new Dictionary<string, int> (StringComparer.OrdinalIgnoreCase)
+        public static readonly Dictionary<string, int> _statusWaitDays = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
               {
                   { "Awaiting Invoice", 42 },
                   { "Awaiting 1st Reconciliation", 395 },
@@ -90,7 +90,28 @@ namespace CobanaEnergy.Project.Common
                   { "Awaiting 57th Month Payment", 1744 },
                   { "Awaiting 58th Month Payment", 1775 },
                   { "Awaiting 59th Month Payment", 1805 },
-                  { "Awaiting 60th Month Payment", 1836 }
+                  { "Awaiting 60th Month Payment", 1836 },
+                    // Quarterly EAC Payments
+                  { "Awaiting 1st Year - Qtr 1", 100 },
+                  { "Awaiting 1st Year - Qtr 2", 190 },
+                  { "Awaiting 1st Year - Qtr 3", 280 },
+                  { "Awaiting 1st Year - Qtr 4", 375 },
+                  { "Awaiting 2nd Year - Qtr 1", 466 },
+                  { "Awaiting 2nd Year - Qtr 2", 558 },
+                  { "Awaiting 2nd Year - Qtr 3", 649 },
+                  { "Awaiting 2nd Year - Qtr 4", 740 },
+                  { "Awaiting 3rd Year - Qtr 1", 831 },
+                  { "Awaiting 3rd Year - Qtr 2", 923 },
+                  { "Awaiting 3rd Year - Qtr 3", 1014 },
+                  { "Awaiting 3rd Year - Qtr 4", 1105 },
+                  { "Awaiting 4th Year - Qtr 1", 1196 },
+                  { "Awaiting 4th Year - Qtr 2", 1288 },
+                  { "Awaiting 4th Year - Qtr 3", 1379 },
+                  { "Awaiting 4th Year - Qtr 4", 1470 },
+                  { "Awaiting 5th Year - Qtr 1", 1561 },
+                  { "Awaiting 5th Year - Qtr 2", 1653 },
+                  { "Awaiting 5th Year - Qtr 3", 1744 },
+                  { "Awaiting 5th Year - Qtr 4", 1835 },
                };
 
 
@@ -111,7 +132,7 @@ namespace CobanaEnergy.Project.Common
             { "Corona", Tuple.Create("CoronaContract", "EditCoronaContract") },
             { "Crown Gas and Power", Tuple.Create("CrownContract", "EditCrownContract") },
             { "SSE", Tuple.Create("SSEContract", "EditSEEContract") },
-            { "EDF I&C", Tuple.Create("", "") } // need to change
+            { "EDF I&C", Tuple.Create("EDFContract", "EditEDFContract") } // need to change
             // add more suppliers here later
         };
 

@@ -92,6 +92,7 @@
             ? $("#supplierCommsTypeGas").val()
             : $("#supplierCommsTypeElectric").val();
 
+        calculatePaymentDate();
         loadSupplierEAC(commsType);
         loadEacLogs();
     });
@@ -237,13 +238,11 @@
         const invoiceDate = new Date(invoiceDateStr);
         if (isNaN(invoiceDate.getTime())) return "";
 
+        // Add 30 days
         let targetDate = new Date(invoiceDate.getTime());
-        targetDate.setDate(targetDate.getDate() + 28);
+        targetDate.setDate(targetDate.getDate() + 30);
 
-        const day = targetDate.getDay();
-        let diffToFriday = (5 - day + 7) % 7;
-        targetDate.setDate(targetDate.getDate() + diffToFriday);
-
+        // Format as YYYY-MM-DD
         const yyyy = targetDate.getFullYear();
         const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
         const dd = String(targetDate.getDate()).padStart(2, '0');
