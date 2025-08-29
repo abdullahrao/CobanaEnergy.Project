@@ -16,7 +16,7 @@ namespace CobanaEnergy.Project.Models.Electric
         public string SubIntroducer { get; set; }
 
         [Required(ErrorMessage = "Top Line is required.")]
-        [StringLength(8, MinimumLength = 8, ErrorMessage = "Top Line must be exactly 8 characters.")]
+        [StringLength(9, MinimumLength = 8, ErrorMessage = "Top Line must be between 8 and 9 characters.")]
         [RegularExpression("^[a-zA-Z0-9]*$", ErrorMessage = "Top Line must be alphanumeric only.")]
         public string TopLine { get; set; }
 

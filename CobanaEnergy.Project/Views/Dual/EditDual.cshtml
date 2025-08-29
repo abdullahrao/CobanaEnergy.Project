@@ -48,7 +48,15 @@
                         <div class="subsection-box">
                             <h6 class="subsection-title">📦 Supply & Product Information</h6>
                             <div class="row gx-4 gy-3">
-                                <div class="col-md-4"><label class="form-label required" for="topLine">Electric Top Line</label><input type="text" id="topLine" class="form-control" required title="Top Line must be exactly 8 alphanumeric characters" pattern="^[a-zA-Z0-9]{8}$" maxlength="8" value="@Model.TopLine" autocomplete="off" /></div>
+                                <div class="col-md-4">
+                                    <label class="form-label required" for="topLine">Electric Top Line</label>
+
+                                    <input type="text" id="topLine" class="form-control" required
+                                           title="Top Line must be between 8 and 9 characters."
+                                           pattern="^[a-zA-Z0-9]{8,9}$" value="@Model.TopLine"
+                                           minlength="8" maxlength="9"
+                                           autocomplete="off" />
+                                </div>
                                 <div class="col-md-4">
                                     <label class="form-label required" for="mpan">MPAN</label>
                                     <div class="position-relative">
