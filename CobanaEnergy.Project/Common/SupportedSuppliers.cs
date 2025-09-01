@@ -202,7 +202,7 @@ namespace CobanaEnergy.Project.Common
             { "Crown Gas and Power", Tuple.Create("CrownContract", "EditCrownContract") },
             { "SSE", Tuple.Create("SSEContract", "EditSEEContract") },
             { "EDF I&C", Tuple.Create("EDFContract", "EditEDFContract") },
-            { "Total Gas and Power", Tuple.Create("TotalGasAndPowerContract", "EditTotalGasandPowerContract") } // need to change
+            { "Total Gas and Power", Tuple.Create("TotalGasAndPowerContract", "EditTotalGasandPowerContract") }
             // add more suppliers here later
         };
 
