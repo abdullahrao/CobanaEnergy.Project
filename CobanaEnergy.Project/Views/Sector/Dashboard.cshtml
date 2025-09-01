@@ -28,8 +28,7 @@
                         <th data-orderable="false">Action</th>
                         <th>Name</th>
                         <th>Active</th>
-                        <th>Start Date</th>
-                        <th>End Date</th>
+                        <th>Created Date</th>
                         <th>Mobile</th>
                         <th style="display: none;">Sector Type</th>
                     </tr>
@@ -51,8 +50,7 @@
                                     @(sector.Active ? "Active" : "Inactive")
                                 </span>
                             </td>
-                            <td>@(string.IsNullOrEmpty(sector.StartDate) ? "-" : sector.StartDate)</td>
-                            <td>@(string.IsNullOrEmpty(sector.EndDate) ? "-" : sector.EndDate)</td>
+                            <td>@(string.IsNullOrEmpty(sector.CreatedDate) ? "-" : sector.CreatedDate)</td>
                             <td>@(string.IsNullOrEmpty(sector.Mobile) ? "-" : sector.Mobile)</td>
                             <td style="display: none;">@sector.SectorType</td>
                         </tr>

@@ -600,6 +600,7 @@
     <Content Include="Views\Account\UpdateUser.cshtml" />
     <Content Include="Views\Account\UserProfileDashboard.cshtml" />
     <Content Include="Views\Account\UserProfile.cshtml" />
+    <Content Include="Views\Sector\AllDashboard.cshtml" />
     <Content Include="Views\Sector\Dashboard.cshtml" />
     <Content Include="Views\Sector\Create.cshtml" />
     <Content Include="Views\Sector\Edit.cshtml" />

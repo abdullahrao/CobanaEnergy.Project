@@ -51,8 +51,46 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     SectorId = s.SectorID.ToString(),
                     Name = s.Name,
                     Active = s.Active,
-                    StartDate = s.StartDate?.ToString("yyyy-MM-dd") ?? "",
-                    EndDate = s.EndDate?.ToString("yyyy-MM-dd") ?? "",
+                    CreatedDate = s.StartDate?.ToString("yyyy-MM-dd") ?? "",
+                    Mobile = s.Mobile ?? "",
+                    SectorType = s.SectorType
+                }).ToList();
+
+                var model = new SectorDashboardViewModel
+                {
+                    Sectors = sectorItems,
+                    TotalSectors = sectorItems.Count,
+                    ActiveSectors = sectorItems.Count(s => s.Active),
+                    InactiveSectors = sectorItems.Count(s => !s.Active)
+                };
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                TempData["ToastMessage"] = $"Failed to load sector dashboard: {ex.Message}";
+                TempData["ToastType"] = "error";
+                Logic.Logger.Log($"Sector Dashboard failed: {ex.Message}");
+                return RedirectToAction("Index", "Home");
+            }
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> AllDashboard()
+        {
+            try
+            {
+                // Load data once when page loads - more efficient than real-time
+                var sectors = await db.CE_Sector
+                    .OrderByDescending(s => s.SectorID)
+                    .ToListAsync();
+
+                var sectorItems = sectors.Select(s => new SectorItemViewModel
+                {
+                    SectorId = s.SectorID.ToString(),
+                    Name = s.Name,
+                    Active = s.Active,
+                    CreatedDate = s.StartDate?.ToString("yyyy-MM-dd") ?? "",
                     Mobile = s.Mobile ?? "",
                     SectorType = s.SectorType
                 }).ToList();
@@ -98,8 +136,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     SectorId = s.SectorID.ToString(),
                     Name = s.Name,
                     Active = s.Active,
-                    StartDate = s.StartDate?.ToString("yyyy-MM-dd") ?? "",
-                    EndDate = s.EndDate?.ToString("yyyy-MM-dd") ?? "",
+                    CreatedDate = s.StartDate?.ToString("yyyy-MM-dd") ?? "",
                     Mobile = s.Mobile ?? "",
                     SectorType = s.SectorType
                 }).ToList();
@@ -276,8 +313,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     SectorId = s.SectorID.ToString(),
                     Name = s.Name,
                     Active = s.Active,
-                    StartDate = s.StartDate?.ToString("yyyy-MM-dd") ?? "",
-                    EndDate = s.EndDate?.ToString("yyyy-MM-dd") ?? "",
+                    CreatedDate = s.StartDate?.ToString("yyyy-MM-dd") ?? "",
                     Mobile = s.Mobile ?? "",
                     SectorType = s.SectorType
                 }).ToList();

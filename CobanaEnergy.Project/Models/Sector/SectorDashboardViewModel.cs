@@ -36,11 +36,8 @@ namespace CobanaEnergy.Project.Models.Sector
         [Display(Name = "Active")]
         public bool Active { get; set; }
         
-        [Display(Name = "Start Date")]
-        public string StartDate { get; set; }
-        
-        [Display(Name = "End Date")]
-        public string EndDate { get; set; }
+        [Display(Name = "Created Date")]
+        public string CreatedDate { get; set; }
         
         [Display(Name = "Mobile")]
         public string Mobile { get; set; }
