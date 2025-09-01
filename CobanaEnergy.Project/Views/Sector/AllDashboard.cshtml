@@ -23,11 +23,11 @@
         <table id="sectorTable" class="table display table-bordered table-striped w-100">
             <thead>
                 <tr>
-                    <th data-orderable="false">Action</th>
                     <th>Name</th>
                     <th>Active</th>
                     <th>Created Date</th>
                     <th>Mobile</th>
+                    <th>Supplier</th>
                     <th style="display: none;">Sector Type</th>
                 </tr>
             </thead>
@@ -35,13 +35,6 @@
                 @foreach (var sector in Model.Sectors)
                 {
                     <tr>
-                        <td>
-                            <!-- Debug info -->
-                            <!-- SectorId: @sector.SectorId, Type: @sector.SectorId.GetType().Name -->
-                            <button class="btn btn-sm edit-btn" title="Edit Sector" data-sector-id="@sector.SectorId">
-                                <i class="fas fa-pencil-alt me-1"></i> Edit
-                            </button>
-                        </td>
                         <td>@sector.Name</td>
                         <td>
                             <span class="badge @(sector.Active ? "bg-success" : "bg-danger")">
@@ -50,6 +43,15 @@
                         </td>
                         <td>@(string.IsNullOrEmpty(sector.CreatedDate) ? "-" : sector.CreatedDate)</td>
                         <td>@(string.IsNullOrEmpty(sector.Mobile) ? "-" : sector.Mobile)</td>
+                        <td>
+                            @if (sector.Suppliers != null && sector.Suppliers.Any())
+                            {
+                                foreach (var supplier in sector.Suppliers)
+                                {
+                                    <span class="badge rounded-pill bg-primary me-2">@supplier</span>
+                                }
+                            }
+                        </td>
                         <td style="display: none;">@sector.SectorType</td>
                     </tr>
                 }

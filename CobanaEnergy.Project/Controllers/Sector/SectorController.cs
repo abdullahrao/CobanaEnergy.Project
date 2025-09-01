@@ -41,10 +41,10 @@ namespace CobanaEnergy.Project.Controllers.Sector
         {
             try
             {
-                // Load data once when page loads - more efficient than real-time
                 var sectors = await db.CE_Sector
-                    .OrderByDescending(s => s.SectorID)
-                    .ToListAsync();
+                  .Include("SectorSuppliers.Supplier")
+                  .OrderByDescending(s => s.SectorID)
+                  .ToListAsync();
 
                 var sectorItems = sectors.Select(s => new SectorItemViewModel
                 {
@@ -53,7 +53,8 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     Active = s.Active,
                     CreatedDate = s.StartDate?.ToString("yyyy-MM-dd") ?? "",
                     Mobile = s.Mobile ?? "",
-                    SectorType = s.SectorType
+                    SectorType = s.SectorType,
+                    Suppliers = s.SectorSuppliers?.Select(ss => ss.Supplier?.Name).Where(name => !string.IsNullOrEmpty(name)).ToList() ?? new List<string>()
                 }).ToList();
 
                 var model = new SectorDashboardViewModel
@@ -80,10 +81,10 @@ namespace CobanaEnergy.Project.Controllers.Sector
         {
             try
             {
-                // Load data once when page loads - more efficient than real-time
                 var sectors = await db.CE_Sector
-                    .OrderByDescending(s => s.SectorID)
-                    .ToListAsync();
+                   .Include("SectorSuppliers.Supplier")
+                   .OrderByDescending(s => s.SectorID)
+                   .ToListAsync();
 
                 var sectorItems = sectors.Select(s => new SectorItemViewModel
                 {
@@ -92,7 +93,8 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     Active = s.Active,
                     CreatedDate = s.StartDate?.ToString("yyyy-MM-dd") ?? "",
                     Mobile = s.Mobile ?? "",
-                    SectorType = s.SectorType
+                    SectorType = s.SectorType,
+                    Suppliers = s.SectorSuppliers?.Select(ss => ss.Supplier?.Name).Where(name => !string.IsNullOrEmpty(name)).ToList() ?? new List<string>()
                 }).ToList();
 
                 var model = new SectorDashboardViewModel
@@ -127,6 +129,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                 }
 
                 var sectors = await db.CE_Sector
+                    .Include("SectorSuppliers.Supplier")
                     .Where(s => s.SectorType == sectorType)
                     .OrderByDescending(s => s.SectorID)
                     .ToListAsync();
@@ -138,7 +141,8 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     Active = s.Active,
                     CreatedDate = s.StartDate?.ToString("yyyy-MM-dd") ?? "",
                     Mobile = s.Mobile ?? "",
-                    SectorType = s.SectorType
+                    SectorType = s.SectorType,
+                    Suppliers = s.SectorSuppliers?.Select(ss => ss.Supplier?.Name).Where(name => !string.IsNullOrEmpty(name)).ToList() ?? new List<string>()
                 }).ToList();
 
                 // Return just the filtered data, not the full model
@@ -170,8 +174,13 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     return JsonResponse.Fail("Sector type is required.");
                 }
 
+                var currentDate = DateTime.Today; // Get current date without time
+
                 var sectors = await db.CE_Sector
-                    .Where(s => s.SectorType == sectorType && s.Active)
+                    .Where(s => s.SectorType == sectorType && 
+                               s.Active && 
+                               s.StartDate <= currentDate && 
+                               (s.EndDate == null || s.EndDate > currentDate))
                     .OrderBy(s => s.Name)
                     .Select(s => new
                     {
@@ -204,13 +213,16 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     return JsonResponse.Fail("Sub-sector type is required.");
                 }
 
+                var currentDate = DateTime.Today; // Get current date without time
                 List<object> subSectors = new List<object>();
 
                 switch (subSectorType.ToLower())
                 {
                     case "subreferral":
                         var subReferrals = await db.CE_SubReferral
-                            .Where(s => s.Active)
+                            .Where(s => s.Active && 
+                                       s.StartDate <= currentDate && 
+                                       (s.EndDate == null || s.EndDate > currentDate))
                             .OrderBy(s => s.SubReferralPartnerName)
                             .Select(s => new { SubSectorId = s.SubReferralID, Name = s.SubReferralPartnerName })
                             .ToListAsync();
@@ -219,7 +231,9 @@ namespace CobanaEnergy.Project.Controllers.Sector
 
                     case "subintroducer":
                         var subIntroducers = await db.CE_SubIntroducer
-                            .Where(s => s.Active)
+                            .Where(s => s.Active && 
+                                       s.StartDate <= currentDate && 
+                                       (s.EndDate == null || s.EndDate > currentDate))
                             .OrderBy(s => s.SubIntroducerName)
                             .Select(s => new { SubSectorId = s.SubIntroducerID, Name = s.SubIntroducerName })
                             .ToListAsync();
@@ -228,7 +242,9 @@ namespace CobanaEnergy.Project.Controllers.Sector
 
                     case "subbrokerage":
                         var subBrokerages = await db.CE_SubBrokerage
-                            .Where(s => s.Active)
+                            .Where(s => s.Active && 
+                                       s.StartDate <= currentDate && 
+                                       (s.EndDate == null || s.EndDate > currentDate))
                             .OrderBy(s => s.SubBrokerageName)
                             .Select(s => new { SubSectorId = s.SubBrokerageID, Name = s.SubBrokerageName })
                             .ToListAsync();
@@ -237,7 +253,9 @@ namespace CobanaEnergy.Project.Controllers.Sector
 
                     case "brokeragestaff":
                         var brokerageStaff = await db.CE_BrokerageStaff
-                            .Where(s => s.Active)
+                            .Where(s => s.Active && 
+                                       s.StartDate <= currentDate && 
+                                       (s.EndDate == null || s.EndDate > currentDate))
                             .OrderBy(s => s.BrokerageStaffName)
                             .Select(s => new { SubSectorId = s.BrokerageStaffID, Name = s.BrokerageStaffName })
                             .ToListAsync();

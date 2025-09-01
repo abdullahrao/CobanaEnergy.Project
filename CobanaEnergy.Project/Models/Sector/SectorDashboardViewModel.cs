@@ -44,6 +44,9 @@ namespace CobanaEnergy.Project.Models.Sector
         
         [Display(Name = "Sector Type")]
         public string SectorType { get; set; }
+        
+        [Display(Name = "Suppliers")]
+        public List<string> Suppliers { get; set; } = new List<string>();
     }
     
     public class SectorTypeOption

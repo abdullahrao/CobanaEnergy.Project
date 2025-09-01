@@ -30,6 +30,7 @@
                         <th>Active</th>
                         <th>Created Date</th>
                         <th>Mobile</th>
+                        <th>Supplier</th>
                         <th style="display: none;">Sector Type</th>
                     </tr>
                 </thead>
@@ -52,6 +53,15 @@
                             </td>
                             <td>@(string.IsNullOrEmpty(sector.CreatedDate) ? "-" : sector.CreatedDate)</td>
                             <td>@(string.IsNullOrEmpty(sector.Mobile) ? "-" : sector.Mobile)</td>
+                            <td>
+                                @if (sector.Suppliers != null && sector.Suppliers.Any())
+                                {
+                                    foreach (var supplier in sector.Suppliers)
+                                    {
+                                        <span class="badge rounded-pill bg-primary me-2">@supplier</span>
+                                    }
+                                }
+                            </td>
                             <td style="display: none;">@sector.SectorType</td>
                         </tr>
                     }
