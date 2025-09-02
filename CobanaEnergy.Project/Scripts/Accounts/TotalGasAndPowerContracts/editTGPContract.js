@@ -23,39 +23,28 @@
 
         populateDropdown("paymentStatus", AccountDropdownOptions.paymentStatusCorona, $('#paymentStatus').data('current'));
 
-        if (supplierCommsType && supplierCommsType.toLowerCase() === "quarterly") {
+        if (supplierCommsType && supplierCommsType.toLowerCase() === "residual") {
+            let totalMonths = duration * 12;
 
-            let awaitingInvoiceOption = document.createElement("option");
-            awaitingInvoiceOption.value = "EDF Awaiting Invoice";
-            awaitingInvoiceOption.textContent = "EDF Awaiting Invoice";
-            paymentStatus.appendChild(awaitingInvoiceOption);
-
-            for (let year = 1; year <= duration; year++) {
+            for (let i = 1; i <= totalMonths; i++) {
                 let suffix;
-                if (year % 10 === 1 && year % 100 !== 11) suffix = "st";
-                else if (year % 10 === 2 && year % 100 !== 12) suffix = "nd";
-                else if (year % 10 === 3 && year % 100 !== 13) suffix = "rd";
+                if (i % 10 === 1 && i % 100 !== 11) suffix = "st";
+                else if (i % 10 === 2 && i % 100 !== 12) suffix = "nd";
+                else if (i % 10 === 3 && i % 100 !== 13) suffix = "rd";
                 else suffix = "th";
 
-                // 4 quarters per year
-                for (let qtr = 1; qtr <= 4; qtr++) {
-                    // Build the display text: "EAC 1st Year - Qtr 1"
-                    let text = `EAC ${year}${suffix} Year - Qtr ${qtr}`;
+                let text = `Awaiting ${i}${suffix} Month Payment`;
 
-                    // Create option for the first select
-                    let option1 = document.createElement("option");
-                    option1.value = text;
-                    option1.textContent = text;
-                    select.appendChild(option1);
+                let option1 = document.createElement("option");
+                option1.value = text;
+                option1.textContent = text;
+                select.appendChild(option1);
 
-                    // Create option for the second select
-                    let option2 = document.createElement("option");
-                    option2.value = text;
-                    option2.textContent = text;
-                    paymentStatus.appendChild(option2);
-                }
+                let option2 = document.createElement("option");
+                option2.value = text;
+                option2.textContent = text;
+                paymentStatus.appendChild(option2);
             }
-           
         } else {
             const eacOptions = [
                 "1ST YEAR EAC-INITIAL",
@@ -97,8 +86,9 @@
             ? $("#supplierCommsTypeGas").val()
             : $("#supplierCommsTypeElectric").val();
 
-        calculatePaymentDate();
         loadSupplierEAC(commsType);
+
+        updateDurationAndCed(true);
         loadEacLogs();
     });
 
@@ -136,7 +126,7 @@
         $btn.prop("disabled", true).html('<i class="fas fa-spinner fa-spin me-1"></i> Saving...');
 
         $.ajax({
-            url: '/EDFContract/SaveEacLog',
+            url: '/TotalGasAndPowerContract/SaveEacLog',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(payload),
@@ -172,7 +162,7 @@
 
     function loadEacLogs() {
         if (!eid) return;
-        $.get(`/EDFContract/GetEacLogs?eid=${eid}&contractType=${$("#contractType").val()}`, function (res) {
+        $.get(`/TotalGasAndPowerContract/GetEacLogs?eid=${eid}&contractType=${$("#contractType").val()}`, function (res) {
             if (!res.success || !res.Data || !res.Data.length) {
                 $("#bgbInvoiceLogsContainer").html('<span class="text-muted">No logs yet. Save EAC entries to view them here.</span>');
                 return;
@@ -206,7 +196,7 @@
     }
 
     $("#exportInvoiceLogsBtn").on("click", function () {
-        $.get(`/EDFContract/GetEacLogs?eid=${eid}&contractType=${$("#contractType").val()}`, function (res) {
+        $.get(`/TotalGasAndPowerContract/GetEacLogs?eid=${eid}&contractType=${$("#contractType").val()}`, function (res) {
             if (!res.success || !res.Data?.length) {
                 showToastWarning("No logs to export.");
                 return;
@@ -243,18 +233,20 @@
         const invoiceDate = new Date(invoiceDateStr);
         if (isNaN(invoiceDate.getTime())) return "";
 
-        // Add 30 days
         let targetDate = new Date(invoiceDate.getTime());
-        targetDate.setDate(targetDate.getDate() + 30);
+        targetDate.setDate(targetDate.getDate() + 28);
 
-        // Format as YYYY-MM-DD
+        const day = targetDate.getDay();
+        let diffToFriday = (5 - day + 7) % 7;
+        targetDate.setDate(targetDate.getDate() + diffToFriday);
+
         const yyyy = targetDate.getFullYear();
         const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
         const dd = String(targetDate.getDate()).padStart(2, '0');
         return `${yyyy}-${mm}-${dd}`;
     }
 
-    $("#editEDFContractForm").on("submit", async function (e) {
+    $("#editTotalGasAndPowerContractForm").on("submit", async function (e) {
         e.preventDefault();
         const $btn = $(this).find('button[type="submit"]');
         $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i> Updating...');
@@ -320,7 +312,7 @@
             };
      
             $.ajax({
-                url: '/EDFContract/UpdateContract',
+                url: '/TotalGasAndPowerContract/UpdateContract',
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify(payload),
@@ -366,10 +358,87 @@
         const dd = String(cedDate.getDate()).padStart(2, '0');
 
         $("#ced").val(`${yyyy}-${mm}-${dd}`);
+
+        // Call calculate Duration ---- 
+        updateDurationAndCed(false);
+    }
+
+    // === Helper functions ===
+    function readDate(selector) {
+        const v = $(selector).val();
+        if (!v) return null; // expects YYYY-MM-DD
+        const [y, m, d] = v.split("-").map(Number);
+        return new Date(Date.UTC(y, m - 1, d)); // Use UTC to avoid timezone issues
+    }
+
+    function setDateToInput(selector, dateUtc) {
+        const el = document.querySelector(selector);
+        if (el && el.type === "date" && "valueAsDate" in el) {
+            // Safely set the date to avoid timezone shifts
+            el.valueAsDate = new Date(Date.UTC(
+                dateUtc.getUTCFullYear(),
+                dateUtc.getUTCMonth(),
+                dateUtc.getUTCDate()
+            ));
+        } else {
+            // Fallback: format manually
+            const y = dateUtc.getUTCFullYear();
+            const m = String(dateUtc.getUTCMonth() + 1).padStart(2, "0");
+            const d = String(dateUtc.getUTCDate()).padStart(2, "0");
+            $(selector).val(`${y}-${m}-${d}`);
+        }
+    }
+
+    function updateDurationAndCed(onload = false) {
+
+        const startDate = readDate("#startDate");
+        const cedDate = readDate("#ced");
+
+        if (!onload) {
+            const supplierComms = $("#gasContract").val() === "true"
+                ? $("#supplierCommsTypeGas").val()
+                : $("#supplierCommsTypeElectric").val();
+
+            if (supplierComms.toLowerCase() == "residual") {
+                // Check valid dates
+                if (!startDate || !cedDate || isNaN(startDate) || isNaN(cedDate)) {
+                    $("#durationElectric, #durationGas").val("");
+                    return;
+                }
+
+                // Exact date calculation for duration
+                const diffMs = cedDate - startDate;
+                if (diffMs < 0) {
+                    $("#durationElectric, #durationGas").val("");
+                    showToastError("CED cannot be earlier than Start Date!");
+                    return;
+                }
+
+                const days = diffMs / 86400000; // ms -> days
+                const years = (days / 365).toFixed(4);
+                $("#durationElectric, #durationGas").val(years);
+
+                loadSupplierEAC(supplierComms)
+            }
+
+        }
+        // Always set CED to 1st day of that month after calculation
+        const isGasContract = $("#gasContract").val() === "true";
+        if (isGasContract) {
+            const cedFirstDayUtc = new Date(Date.UTC(
+                cedDate.getUTCFullYear(),
+                cedDate.getUTCMonth(),
+                1
+            ));
+            setDateToInput("#ced", cedFirstDayUtc);
+        }
     }
 
     // Run on change of Start Date or Duration
     $("#startDate").on("change keyup", calculateCED);
+    $("#ced").on("change", function () {
+        updateDurationAndCed(false);
+    });
 
     $("#supplierCommsTypeElectric, #supplierCommsTypeGas").on("change", function () {
         const commsType = $(this).val();

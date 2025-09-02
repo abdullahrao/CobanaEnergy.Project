@@ -98,9 +98,10 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
                          Status = db.CE_ContractStatuses
                              .FirstOrDefault(cs => cs.EId == e.EId && cs.Type == "Electric"),
                          Reconciliation = db.CE_CommissionAndReconciliation
-                             .FirstOrDefault(r => r.EId == e.EId && r.contractType == "Electric")
+                             .FirstOrDefault(r => r.EId == e.EId && r.contractType == "Electric"),
+                         SupplierName = db.CE_Supplier.Where(s => s.Id == e.SupplierId).Select(s => s.Name).FirstOrDefault()
                      })
-                    .Where(x => x.Status != null && ShouldShowOnAwaitingPaymentsDashboard(x.Status.PaymentStatus, x.Status.ModifyDate.ToString(), x.Reconciliation?.CED))
+                    .Where(x => x.Status != null && ShouldShowOnAwaitingPaymentsDashboard(x.Status.PaymentStatus, x.Status.ModifyDate.ToString(), x.Reconciliation?.CED, x.SupplierName))
                     .ToList();
 
 
@@ -111,9 +112,10 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
                         Status = db.CE_ContractStatuses
                             .FirstOrDefault(cs => cs.EId == g.EId && cs.Type == "Gas"),
                         Reconciliation = db.CE_CommissionAndReconciliation
-                            .FirstOrDefault(r => r.EId == g.EId && r.contractType == "Gas")
+                            .FirstOrDefault(r => r.EId == g.EId && r.contractType == "Gas"),
+                        SupplierName = db.CE_Supplier.Where(s => s.Id == g.SupplierId).Select(s => s.Name).FirstOrDefault()
                     })
-                    .Where(x => x.Status != null && ShouldShowOnAwaitingPaymentsDashboard(x.Status.PaymentStatus, x.Status.ModifyDate.ToString(), x.Reconciliation?.CED))
+                    .Where(x => x.Status != null && ShouldShowOnAwaitingPaymentsDashboard(x.Status.PaymentStatus, x.Status.ModifyDate.ToString(), x.Reconciliation?.CED, x.SupplierName))
                     .ToList();
 
                 var contracts = electricContractsRaw.Select(x => new AwaitingPaymentsRowViewModel
@@ -326,13 +328,13 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
             return current;
         }
 
-        private bool ShouldShowOnAwaitingPaymentsDashboard(string paymentStatus, string startDateStr, string endDateStr)
+        private bool ShouldShowOnAwaitingPaymentsDashboard(string paymentStatus, string startDateStr, string endDateStr, string supplierName)
         {
 
             if (string.IsNullOrWhiteSpace(paymentStatus))
                 return false;
 
-            if (!SupportedSuppliers.TryGetWaitDays(paymentStatus, out var waitDays))
+            if (!SupportedSuppliers.TryGetWaitDays(paymentStatus, out var waitDays, supplierName))
                 return false;
 
             DateTime now = DateTime.UtcNow.Date;
