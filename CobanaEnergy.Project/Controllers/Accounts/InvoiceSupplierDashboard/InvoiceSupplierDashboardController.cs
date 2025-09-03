@@ -346,7 +346,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                 var excludedKeys = ContractStatusHelper.ExcludedKeys;
 
                 var electricContractsRaw = await db.CE_ElectricContracts
-                    .Where(ec => mpans.Contains(ec.MPAN))
+                    .Where(ec => mpans.Contains(ec.MPAN) && ec.SupplierId == upload.SupplierId)
                     .GroupJoin(
                         db.CE_Supplier,
                         ec => ec.SupplierId,
@@ -410,7 +410,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                 }).ToList();
 
                 var gasContractsRaw = await db.CE_GasContracts
-                                    .Where(gc => mprns.Contains(gc.MPRN))
+                                    .Where(gc => mprns.Contains(gc.MPRN) && gc.SupplierId == upload.SupplierId)
                                     .GroupJoin(
                                         db.CE_Supplier,
                                         gc => gc.SupplierId,
