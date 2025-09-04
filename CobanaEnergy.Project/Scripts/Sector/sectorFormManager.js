@@ -154,6 +154,7 @@ class SectorFormManager {
         const conditionalFields = $('#conditionalFields');
         
         if (sectorType === 'Introducer' || sectorType === 'Brokerage') {
+            $('#additionalFieldsSection').show();
             conditionalFields.removeClass('hide').addClass('show');
         } else {
             conditionalFields.removeClass('show').addClass('hide');
@@ -2467,16 +2468,16 @@ class SectorFormManager {
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label small text-muted">Sub Introducer End Date</label>
-                                <input type="date" name="SubIntroducers[${index}].EndDate" value="${subIntroducer.EndDate || ''}" class="form-control" placeholder="End Date" />
-                            </div>
-                        </div>
                           <div class="col-md-6">
                             <div class="form-group">
                                 <label class="form-label small text-muted">Sub Introducer Start Date</label>
                                 <input type="date" name="SubIntroducers[${index}].StartDate" value="${subIntroducer.StartDate || ''}" class="form-control" placeholder="Start Date" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label small text-muted">Sub Introducer End Date</label>
+                                <input type="date" name="SubIntroducers[${index}].EndDate" value="${subIntroducer.EndDate || ''}" class="form-control" placeholder="End Date" />
                             </div>
                         </div>
                     </div>

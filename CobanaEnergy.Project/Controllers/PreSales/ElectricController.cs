@@ -106,10 +106,21 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                         SalesTypeStatus = model.SalesTypeStatus,
                         SupplierCommsType = model.SupplierCommsType,
                         PreSalesStatus = model.PreSalesStatus,
+
                         // Brokerage Details
-                        //BrokerageId = model.BrokerageId,
-                        //OfgemId = model.OfgemId,
-                        //BrokerageDepartment = model.BrokerageDepartment
+                        BrokerageId = model.BrokerageId,
+                        OfgemId = model.OfgemId,
+
+                        // Dynamic Department-based fields
+                        CloserId = model.CloserId,
+                        ReferralPartnerId = model.ReferralPartnerId,
+                        SubReferralPartnerId = model.SubReferralPartnerId,
+                        BrokerageStaffId = model.BrokerageStaffId,
+                        IntroducerId = model.IntroducerId,
+                        SubIntroducerId = model.SubIntroducerId,
+                        SubBrokerageId = model.SubBrokerageId,
+                        Collaboration = model.Collaboration,
+                        LeadGeneratorId = model.LeadGeneratorId
                     };
 
                     db.CE_ElectricContracts.Add(contract);

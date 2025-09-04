@@ -184,6 +184,7 @@ class BrokerageManager {
         switch (newSource.toLowerCase()) {
             case 'data':
                 this.showDataSourceFields();
+                this.loadLeadGenerators(() => this.populateModelValues());
                 // Load closers for Data source and then populate model values
                 this.loadClosers(() => this.populateModelValues());
                 break;
@@ -293,7 +294,7 @@ class BrokerageManager {
      */
     showDataSourceFields() {
         $('#dataSourceFields').show();
-        $('#leadGeneratorField').hide();
+        $('#leadGeneratorField').show();
         $('#referralPartnerField').hide();
         $('#subReferralPartnerField').hide();
         $('#subBrokerageField').hide();
@@ -605,7 +606,7 @@ class BrokerageManager {
         $.ajax({
             url: '/Sector/GetActiveSectors',
             type: 'GET',
-            data: { sectorType: 'Lead Generator' },
+            data: { sectorType: 'Leads Generator' },
             success: (response) => {
                 if (response.success && response.Data && response.Data.Sectors) {
                     const $leadGeneratorSelect = $('#leadGenerator');
