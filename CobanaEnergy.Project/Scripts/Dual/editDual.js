@@ -118,6 +118,61 @@
     handleCommsType('#electricProduct', '#electricCommsType');
     handleCommsType('#gasProduct', '#gasCommsType');
 
+    // Function to load suppliers based on selected sector (for edit mode)
+    function loadSuppliersBySectorEdit(sectorId) {
+        if (!sectorId) {
+            return;
+        }
+
+        $.get(`/Supplier/GetActiveSuppliersBySector?sectorId=${sectorId}`, function (res) {
+            if (res.success && res.Data.length > 0) {
+                // Store the suppliers for potential future use
+                window.currentSectorSuppliers = res.Data;
+                console.log('Suppliers loaded for sector:', res.Data.length);
+            } else {
+                window.currentSectorSuppliers = [];
+                console.log('No suppliers found for sector');
+            }
+        }).fail(function() {
+            window.currentSectorSuppliers = [];
+            console.log('Error loading suppliers for sector');
+        });
+    }
+
+    // Listen for brokerage (sector) selection changes in edit mode
+    $('#brokerage').on('change', function() {
+        const sectorId = $(this).val();
+        loadSuppliersBySectorEdit(sectorId);
+        
+        // Check if current suppliers are still valid for the new sector
+        const currentElectricSupplierId = $('#electricSupplier').val();
+        const currentGasSupplierId = $('#gasSupplier').val();
+        
+        if (window.currentSectorSuppliers) {
+            if (currentElectricSupplierId) {
+                const isElectricSupplierValid = window.currentSectorSuppliers.some(s => s.Id == currentElectricSupplierId);
+                if (!isElectricSupplierValid) {
+                    console.warn('Current electric supplier is not available in the selected sector');
+                    showToastWarning("Current electric supplier is not available in the selected sector. Please contact support if you need to change the supplier.");
+                }
+            }
+            
+            if (currentGasSupplierId) {
+                const isGasSupplierValid = window.currentSectorSuppliers.some(s => s.Id == currentGasSupplierId);
+                if (!isGasSupplierValid) {
+                    console.warn('Current gas supplier is not available in the selected sector');
+                    showToastWarning("Current gas supplier is not available in the selected sector. Please contact support if you need to change the supplier.");
+                }
+            }
+        }
+    });
+
+    // Load suppliers for the current sector on page load
+    const currentSectorId = $('#brokerage').val();
+    if (currentSectorId) {
+        loadSuppliersBySectorEdit(currentSectorId);
+    }
+
     $('#electricProduct').on('change', function () {
         handleCommsType('#electricProduct', '#electricCommsType');
     });

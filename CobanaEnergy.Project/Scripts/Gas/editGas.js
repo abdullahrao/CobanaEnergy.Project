@@ -49,6 +49,50 @@
     // Note: Dynamic field population is now handled automatically by BrokerageManager
     // when modelValues are provided in edit mode
 
+    // Function to load suppliers based on selected sector (for edit mode)
+    function loadSuppliersBySectorEdit(sectorId) {
+        if (!sectorId) {
+            return;
+        }
+
+        $.get(`/Supplier/GetActiveSuppliersBySector?sectorId=${sectorId}`, function (res) {
+            if (res.success && res.Data.length > 0) {
+                // Store the suppliers for potential future use
+                window.currentSectorSuppliers = res.Data;
+                console.log('Suppliers loaded for sector:', res.Data.length);
+            } else {
+                window.currentSectorSuppliers = [];
+                console.log('No suppliers found for sector');
+            }
+        }).fail(function() {
+            window.currentSectorSuppliers = [];
+            console.log('Error loading suppliers for sector');
+        });
+    }
+
+    // Listen for brokerage (sector) selection changes in edit mode
+    $('#brokerage').on('change', function() {
+        const sectorId = $(this).val();
+        loadSuppliersBySectorEdit(sectorId);
+        
+        // Check if current supplier is still valid for the new sector
+        const currentSupplierId = $('#supplierSelect').val();
+        if (currentSupplierId && window.currentSectorSuppliers) {
+            const isCurrentSupplierValid = window.currentSectorSuppliers.some(s => s.Id == currentSupplierId);
+            if (!isCurrentSupplierValid) {
+                console.warn('Current supplier is not available in the selected sector');
+                // Optionally show a warning to the user
+                showToastWarning("Current supplier is not available in the selected sector. Please contact support if you need to change the supplier.");
+            }
+        }
+    });
+
+    // Load suppliers for the current sector on page load
+    const currentSectorId = $('#brokerage').val();
+    if (currentSectorId) {
+        loadSuppliersBySectorEdit(currentSectorId);
+    }
+
     $('#productSelect').on('change', function () {
         const selectedOption = $(this).find('option:selected');
         const commsType = selectedOption.data('comms') ?? '';
@@ -273,7 +317,7 @@
                     const d = res.Data;
                     $('#duplicateMprnModalEdit tbody').html(`
                         <tr>
-                            <td>${d.BrokerageName || 'N/A'}</td>
+                            <td>${d.Agent || 'N/A'}</td>
                             <td>${d.BusinessName}</td>
                             <td>${d.CustomerName}</td>
                             <td>${d.InputDate}</td>
@@ -302,7 +346,7 @@
                     res.Data.forEach(r => {
                         tbody.append(`
                             <tr>
-                                <td>${r.BrokerageName || 'N/A'}</td>
+                                <td>${r.Agent || 'N/A'}</td>
                                 <td>${r.BusinessName}</td>
                                 <td>${r.CustomerName}</td>
                                 <td>${r.InputDate}</td>

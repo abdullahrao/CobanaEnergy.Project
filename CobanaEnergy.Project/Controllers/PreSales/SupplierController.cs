@@ -5,6 +5,7 @@ using CobanaEnergy.Project.Models.Supplier;
 using CobanaEnergy.Project.Models.Supplier.Edit_Supplier;
 using CobanaEnergy.Project.Models.Supplier.Supplier_Dashboard;
 using CobanaEnergy.Project.Models.Supplier.SupplierDBModels;
+using CobanaEnergy.Project.Models.Sector.SectorDBModels;
 using Logic;
 using Logic.ResponseModel.Helper;
 using System;
@@ -521,6 +522,51 @@ namespace CobanaEnergy.Project.Controllers.PreSales
             {
                 Logger.Log("GetActiveSuppliersForDropdown failed: " + ex.Message);
                 return JsonResponse.Fail("Unable to load active suppliers.");
+            }
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<JsonResult> GetActiveSuppliersBySector(int sectorId)
+        {
+            try
+            {
+                var today = DateTime.Today;
+
+                // Get suppliers linked to the specific sector
+                var sectorSuppliers = await db.CE_SectorSupplier
+                    .Where(ss => ss.SectorId == sectorId)
+                    .Include(ss => ss.Supplier)
+                    .ToListAsync();
+
+                // Get supplier IDs from sector suppliers
+                var supplierIds = sectorSuppliers.Select(ss => ss.SupplierId).ToList();
+
+                // Get suppliers with their products (similar to GetActiveSuppliersForDropdown)
+                var suppliers = await db.CE_Supplier
+                    .Where(s => s.Status && supplierIds.Contains(s.Id))
+                    .Include(s => s.CE_SupplierProducts)
+                    .ToListAsync();
+
+                // Filter suppliers that have active products
+                var filtered = suppliers
+                    .Where(s => s.CE_SupplierProducts.Any(p =>
+                        !string.IsNullOrWhiteSpace(p.EndDate) &&
+                        DateTime.TryParse(p.EndDate, out var endDate) &&
+                        endDate > today))
+                    .Select(s => new
+                    {
+                        s.Id,
+                        Name = s.Name
+                    })
+                    .ToList();
+
+                return JsonResponse.Ok(filtered);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("GetActiveSuppliersBySector failed: " + ex.Message);
+                return JsonResponse.Fail("Unable to load suppliers for the selected sector.");
             }
         }
 

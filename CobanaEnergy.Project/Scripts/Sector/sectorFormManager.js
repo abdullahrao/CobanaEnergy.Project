@@ -88,7 +88,6 @@ class SectorFormManager {
                 // Handle additional fields for Brokerage and Introducers
                 if (selectedType === 'Brokerage' || selectedType === 'Introducer') {
                     $('#additionalFieldsSection').show();
-                    $('#department').val(selectedType);
                     // Make department required when visible
                     $('#department').prop('required', true);
                     
@@ -2942,7 +2941,7 @@ class SectorFormManager {
 
     initializeDateValidation() {
         // Handle start date changes for main sector dates
-        $(document).on('change', '#startDate', function() {
+        $(document).on('blur', '#startDate', function() {
             const startDate = $(this).val();
             const endDateInput = $('#endDate');
             
@@ -2962,7 +2961,7 @@ class SectorFormManager {
         });
         
         // Handle end date changes for main sector dates
-        $(document).on('change', '#endDate', function() {
+        $(document).on('blur', '#endDate', function() {
             const startDate = $('#startDate').val();
             const endDate = $(this).val();
             
@@ -2975,7 +2974,7 @@ class SectorFormManager {
         });
 
         // Handle dynamic date fields for commissions and staff
-        $(document).on('change', 'input[type="date"]', function() {
+        $(document).on('blur', 'input[type="date"]', function() {
             const inputName = $(this).attr('name');
             
             // Check if this is a start date
@@ -3026,8 +3025,8 @@ class SectorFormManager {
             }
         });
 
-        // Add input event handlers to prevent invalid date selection
-        $(document).on('input', 'input[type="date"]', function() {
+        // Add blur event handlers to validate date selection after user finishes typing
+        $(document).on('blur', 'input[type="date"]', function() {
             const inputName = $(this).attr('name');
             
             if (inputName && inputName.includes('EndDate')) {
@@ -3057,7 +3056,7 @@ class SectorFormManager {
         });
 
         // Add keydown event to prevent manual typing of invalid dates
-        $(document).on('keydown', 'input[type="date"]', function(e) {
+        $(document).on('blur', 'input[type="date"]', function(e) {
             const inputName = $(this).attr('name');
             
             if (inputName && inputName.includes('EndDate')) {
@@ -3233,8 +3232,7 @@ class SectorFormManager {
                     // Edit mode: Set to existing department value
                     departmentSelect.val(this.modelData.Department);
                 } else {
-                    // Create mode: Select first option (Select Department *)
-                    departmentSelect.prop('selectedIndex', 0);
+                    departmentSelect.val('');
                 }
                 
                 // Set initial required state based on current sector type

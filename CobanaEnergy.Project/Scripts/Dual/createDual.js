@@ -31,18 +31,60 @@
     populateDropdown("electricPreSalesStatus", DropdownOptions.preSalesStatus);
     populateDropdown("gasPreSalesStatus", DropdownOptions.preSalesStatus);
 
-    $.get('/Supplier/GetActiveSuppliersForDropdown', function (res) {
-        const $electricSupplier = $('#electricSupplier');
-        const $gasSupplier = $('#gasSupplier');
-        $electricSupplier.empty().append('<option value="">Select Supplier</option>');
-        $gasSupplier.empty().append('<option value="">Select Supplier</option>');
+    // Initialize supplier dropdowns as disabled
+    const $electricSupplier = $('#electricSupplier');
+    const $gasSupplier = $('#gasSupplier');
+    $electricSupplier.empty().append('<option value="">Select Supplier</option>').prop('disabled', true);
+    $gasSupplier.empty().append('<option value="">Select Supplier</option>').prop('disabled', true);
 
-        if (res.success && res.Data.length > 0) {
-            res.Data.forEach(s => {
-                $electricSupplier.append(`<option value="${s.Id}">${s.Name}</option>`);
-                $gasSupplier.append(`<option value="${s.Id}">${s.Name}</option>`);
-            });
+    // Function to load suppliers based on selected sector
+    function loadSuppliersBySector(sectorId) {
+        if (!sectorId) {
+            $electricSupplier.empty().append('<option value="">Select Supplier</option>').prop('disabled', true);
+            $gasSupplier.empty().append('<option value="">Select Supplier</option>').prop('disabled', true);
+            return;
         }
+
+        $electricSupplier.prop('disabled', true).empty().append('<option>Loading suppliers...</option>');
+        $gasSupplier.prop('disabled', true).empty().append('<option>Loading suppliers...</option>');
+
+        $.get(`/Supplier/GetActiveSuppliersBySector?sectorId=${sectorId}`, function (res) {
+            $electricSupplier.empty().append('<option value="">Select Supplier</option>');
+            $gasSupplier.empty().append('<option value="">Select Supplier</option>');
+
+            if (res.success && res.Data.length > 0) {
+                res.Data.forEach(s => {
+                    $electricSupplier.append(`<option value="${s.Id}">${s.Name}</option>`);
+                    $gasSupplier.append(`<option value="${s.Id}">${s.Name}</option>`);
+                });
+                $electricSupplier.prop('disabled', false);
+                $gasSupplier.prop('disabled', false);
+            } else {
+                $electricSupplier.append('<option disabled>No Suppliers found</option>');
+                $gasSupplier.append('<option disabled>No Suppliers found</option>');
+                $electricSupplier.prop('disabled', true);
+                $gasSupplier.prop('disabled', true);
+            }
+        }).fail(function() {
+            $electricSupplier.empty().append('<option value="">Select Supplier</option>');
+            $gasSupplier.empty().append('<option value="">Select Supplier</option>');
+            $electricSupplier.append('<option disabled>Error loading suppliers</option>');
+            $gasSupplier.append('<option disabled>Error loading suppliers</option>');
+            $electricSupplier.prop('disabled', true);
+            $gasSupplier.prop('disabled', true);
+        });
+    }
+
+    // Listen for brokerage (sector) selection changes
+    $('#brokerage').on('change', function() {
+        const sectorId = $(this).val();
+        loadSuppliersBySector(sectorId);
+        
+        // Reset product and comms dropdowns when sector changes
+        $('#electricProduct').prop('disabled', true).empty().append('<option value="">Select Product</option>');
+        $('#gasProduct').prop('disabled', true).empty().append('<option value="">Select Product</option>');
+        $('#electricCommsType').prop('disabled', true).empty().append('<option value="">Select Comms Type</option>');
+        $('#gasCommsType').prop('disabled', true).empty().append('<option value="">Select Comms Type</option>');
     });
 
     $('#electricSupplier').change(function () {
@@ -277,7 +319,7 @@
                 if (res.success && res.Data) {
                     const d = res.Data;
                     $('#duplicateDualMpanModal tbody').html(`
-                        <tr><td>${d.BrokerageName || 'N/A'}</td><td>${d.BusinessName}</td><td>${d.CustomerName}</td><td>${d.InputDate}</td><td>${d.PreSalesStatus}</td><td>${d.Duration}</td></tr>
+                        <tr><td>${d.Agent || 'N/A'}</td><td>${d.BusinessName}</td><td>${d.CustomerName}</td><td>${d.InputDate}</td><td>${d.PreSalesStatus}</td><td>${d.Duration}</td></tr>
                     `);
                     $('#duplicateDualMpanModal').modal('show');
                 }
@@ -297,7 +339,7 @@
                 if (res.success && res.Data) {
                     const d = res.Data;
                     $('#duplicateDualMprnModal tbody').html(`
-                        <tr><td>${d.BrokerageName || 'N/A'}</td><td>${d.BusinessName}</td><td>${d.CustomerName}</td><td>${d.InputDate}</td><td>${d.PreSalesStatus}</td><td>${d.Duration}</td></tr>
+                        <tr><td>${d.Agent || 'N/A'}</td><td>${d.BusinessName}</td><td>${d.CustomerName}</td><td>${d.InputDate}</td><td>${d.PreSalesStatus}</td><td>${d.Duration}</td></tr>
                     `);
                     $('#duplicateDualMprnModal').modal('show');
                 }
@@ -319,7 +361,7 @@
                     tbody.empty();
                     res.Data.forEach(r => {
                         tbody.append(`
-                            <tr><td>${r.BrokerageName || 'N/A'}</td><td>${r.BusinessName}</td><td>${r.CustomerName}</td><td>${r.InputDate}</td><td>${r.PreSalesStatus}</td><td>${r.Duration}</td><td>${r.SortCode}</td><td>${r.AccountNumber}</td></tr>
+                            <tr><td>${r.Agent || 'N/A'}</td><td>${r.BusinessName}</td><td>${r.CustomerName}</td><td>${r.InputDate}</td><td>${r.PreSalesStatus}</td><td>${r.Duration}</td><td>${r.SortCode}</td><td>${r.AccountNumber}</td></tr>
                         `);
                     });
                     $('#duplicateAccountModalDual').modal('show');

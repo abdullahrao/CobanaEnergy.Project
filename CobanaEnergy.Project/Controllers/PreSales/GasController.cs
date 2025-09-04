@@ -276,6 +276,34 @@ namespace CobanaEnergy.Project.Controllers.PreSales
 
                 if (match != null)
                 {
+                    // Determine Agent based on department type
+                    string agentName = "-";
+                    
+                    if (match.Department == "In House" && match.CloserId.HasValue)
+                    {
+                        var closer = await db.CE_Sector
+                            .Where(s => s.SectorID == match.CloserId && s.SectorType == "closer")
+                            .Select(s => s.Name)
+                            .FirstOrDefaultAsync();
+                        agentName = closer ?? "-";
+                    }
+                    else if (match.Department == "Brokers" && match.BrokerageStaffId.HasValue)
+                    {
+                        var brokerageStaff = await db.CE_BrokerageStaff
+                            .Where(bs => bs.BrokerageStaffID == match.BrokerageStaffId)
+                            .Select(bs => bs.BrokerageStaffName)
+                            .FirstOrDefaultAsync();
+                        agentName = brokerageStaff ?? "-";
+                    }
+                    else if (match.Department == "Introducers" && match.SubIntroducerId.HasValue)
+                    {
+                        var subIntroducer = await db.CE_SubIntroducer
+                            .Where(si => si.SubIntroducerID == match.SubIntroducerId)
+                            .Select(si => si.SubIntroducerName)
+                            .FirstOrDefaultAsync();
+                        agentName = subIntroducer ?? "-";
+                    }
+
                     var result = new
                     {
                         match.BusinessName,
@@ -284,7 +312,8 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                                      ? parsedDate.ToString("dd/MM/yyyy")
                                      : match.InputDate,
                         match.PreSalesStatus,
-                        match.Duration
+                        match.Duration,
+                        Agent = agentName
                     };
 
                     return JsonResponse.Ok(result);

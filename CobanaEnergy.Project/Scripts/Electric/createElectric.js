@@ -21,17 +21,46 @@
     populateDropdown("supplierCommsType", DropdownOptions.supplierCommsType);
     populateDropdown("preSalesStatus", DropdownOptions.preSalesStatus);
 
-    $.get('/Supplier/GetActiveSuppliersForDropdown', function (res) {
-        const $supplier = $('#supplierSelect');
-        $supplier.empty().append('<option value="">Select Supplier</option>');
+    // Initialize supplier dropdown as disabled
+    const $supplier = $('#supplierSelect');
+    $supplier.empty().append('<option value="">Select Supplier</option>').prop('disabled', true);
 
-        if (res.success && res.Data.length > 0) {
-            res.Data.forEach(s => {
-                $supplier.append(`<option value="${s.Id}">${s.Name}</option>`);
-            });
-        } else {
-            $supplier.append('<option disabled>No suppliers found</option>');
+    // Function to load suppliers based on selected sector
+    function loadSuppliersBySector(sectorId) {
+        if (!sectorId) {
+            $supplier.empty().append('<option value="">Select Supplier</option>').prop('disabled', true);
+            return;
         }
+
+        $supplier.prop('disabled', true).empty().append('<option>Loading suppliers...</option>');
+
+        $.get(`/Supplier/GetActiveSuppliersBySector?sectorId=${sectorId}`, function (res) {
+            $supplier.empty().append('<option value="">Select Supplier</option>');
+
+            if (res.success && res.Data.length > 0) {
+                res.Data.forEach(s => {
+                    $supplier.append(`<option value="${s.Id}">${s.Name}</option>`);
+                });
+                $supplier.prop('disabled', false);
+            } else {
+                $supplier.append('<option disabled>No Suppliers found</option>');
+                $supplier.prop('disabled', true);
+            }
+        }).fail(function() {
+            $supplier.empty().append('<option value="">Select Supplier</option>');
+            $supplier.append('<option disabled>Error loading suppliers</option>');
+            $supplier.prop('disabled', true);
+        });
+    }
+
+    // Listen for brokerage (sector) selection changes
+    $('#brokerage').on('change', function() {
+        const sectorId = $(this).val();
+        loadSuppliersBySector(sectorId);
+        
+        // Reset product and comms dropdowns when sector changes
+        $('#productSelect').prop('disabled', true).empty().append('<option value="">Select Product</option>');
+        $('#supplierCommsType').prop('disabled', true).empty().append('<option value="">Select supplierCommsType</option>');
     });
 
 
@@ -229,7 +258,7 @@
                     const d = res.Data;
                     $('#duplicateMpanModal tbody').html(`
                         <tr>
-                            <td>${d.BrokerageName || 'N/A'}</td>
+                            <td>${d.Agent || 'N/A'}</td>
                             <td>${d.BusinessName}</td>
                             <td>${d.CustomerName}</td>
                             <td>${d.InputDate}</td>
@@ -262,7 +291,7 @@
                     res.Data.forEach(r => {
                         tbody.append(`
                         <tr>
-                            <td>${r.BrokerageName || 'N/A'}</td>
+                            <td>${r.Agent || 'N/A'}</td>
                             <td>${r.BusinessName}</td>
                             <td>${r.CustomerName}</td>
                             <td>${r.InputDate}</td>
