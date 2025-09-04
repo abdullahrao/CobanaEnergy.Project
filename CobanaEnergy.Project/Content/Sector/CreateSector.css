@@ -160,7 +160,8 @@
     color: #dc3545;
 }
 
-.btn-primary {
+/* Exclude modal buttons from CreateSector styling */
+.btn-primary:not(.invoice-supplier-modal .btn-primary) {
     color: white;
     padding: 12px 30px;
     font-size: 1rem;
@@ -170,7 +171,7 @@
     margin-top: 10px;
 }
 
-.btn-primary:hover {
+.btn-primary:hover:not(.invoice-supplier-modal .btn-primary) {
     background-color: #545b61;
     border-color: #545b61;
     color: white;
@@ -178,11 +179,11 @@
     box-shadow: 0 4px 12px rgba(107, 115, 122, 0.3);
 }
 
-.btn-primary:focus {
+.btn-primary:focus:not(.invoice-supplier-modal .btn-primary) {
     box-shadow: 0 0 0 0.2rem rgba(107, 115, 122, 0.25);
 }
 
-.btn-primary:disabled {
+.btn-primary:disabled:not(.invoice-supplier-modal .btn-primary) {
     background-color: #6c757d;
     border-color: #6c757d;
     cursor: not-allowed;
@@ -248,7 +249,8 @@
     margin-bottom: 15px;
 }
 
-.btn-secondary {
+/* Exclude modal buttons from CreateSector styling */
+.btn-secondary:not(.invoice-supplier-modal .btn-secondary) {
     background-color: #6c757d;
     border-color: #6c757d;
     color: white;
@@ -258,7 +260,7 @@
     transition: all 0.3s ease;
 }
 
-.btn-secondary:hover {
+.btn-secondary:hover:not(.invoice-supplier-modal .btn-secondary) {
     background-color: #5a6268;
     border-color: #5a6268;
     color: white;

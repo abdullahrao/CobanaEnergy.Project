@@ -178,8 +178,6 @@ class BrokerageManager {
             case 'data':
                 this.showDataSourceFields();
                 this.loadLeadGenerators(() => this.populateModelValues());
-                // Load closers for Data source and then populate model values
-                this.loadClosers(() => this.populateModelValues());
                 break;
             case 'referral partners':
                 this.showReferralSourceFields();
@@ -188,13 +186,9 @@ class BrokerageManager {
                 break;
             case 'self-gen':
                 this.showSelfGenSourceFields();
-                // Load closers for Self-Gen source and then populate model values
-                this.loadClosers(() => this.populateModelValues());
                 break;
             case 'cobana rnw':
                 this.showCobanaRnwSourceFields();
-                // Load closers for Cobana RNW source and then populate model values
-                this.loadClosers(() => this.populateModelValues());
                 break;
             case 'sub broker':
                 this.showSubBrokerSourceFields();
@@ -783,11 +777,6 @@ class BrokerageManager {
         const $subIntroducerSelect = $('#subIntroducer');
         if ($subIntroducerSelect.length) {
             $subIntroducerSelect.prop('selectedIndex', 0);
-        }
-        // Reset introducer dropdown
-        const $introducerSelect = $('#introducer');
-        if ($introducerSelect.length) {
-            $introducerSelect.prop('selectedIndex', 0);
         }
     }
 
