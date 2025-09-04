@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Sector Form Manager - Consolidated JavaScript for Create and Edit Sector pages
  * This file contains all shared functions to eliminate code duplication
  * 
@@ -51,7 +51,6 @@ class SectorFormManager {
             if (currentSectorType) {
                 // IMPORTANT: Set currentSectorType for edit mode
                 this.currentSectorType = currentSectorType;
-                console.log('Edit mode initialized with sector type:', currentSectorType);
                 
                 this.loadDynamicSections(currentSectorType);
                 this.toggleConditionalFields(currentSectorType);
@@ -69,7 +68,6 @@ class SectorFormManager {
         
         // IMPORTANT: Set currentSectorType FIRST before any other operations
         this.currentSectorType = selectedType;
-        console.log('Sector type changed to:', selectedType, 'currentSectorType set to:', this.currentSectorType);
         
         if (this.isEditMode) {
             // Edit mode: load sections and handle conditional fields
@@ -3253,11 +3251,8 @@ class SectorFormManager {
      */
     populateSuppliersDropdown() {
         // Add safety check and logging
-        console.log('populateSuppliersDropdown called, currentSectorType:', this.currentSectorType);
         
         if (this.currentSectorType === 'Brokerage') {
-            console.log('Fetching suppliers for Brokerage sector type');
-            
             $.get('/Supplier/GetActiveSuppliersForDropdown', (res) => {
                 if (res.success && res.Data.length > 0) {
                     this.suppliers = res.Data;
@@ -3286,7 +3281,6 @@ class SectorFormManager {
                         $supplierSelect.val(this.modelData.SectorSuppliers).trigger('change');
                     }
                     
-                    console.log('Suppliers dropdown populated successfully with', res.Data.length, 'suppliers');
                 } else {
                     console.warn('No suppliers data received:', res);
                 }
@@ -3294,8 +3288,6 @@ class SectorFormManager {
                 console.error('Failed to fetch suppliers:', error);
                 console.error('Response:', xhr.responseText);
             });
-        } else {
-            console.log('Not Brokerage sector type, skipping supplier population. Current type:', this.currentSectorType);
         }
     }
 

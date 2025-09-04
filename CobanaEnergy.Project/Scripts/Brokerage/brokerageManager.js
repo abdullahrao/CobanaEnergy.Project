@@ -42,19 +42,14 @@ class BrokerageManager {
         // Clear existing options except the first one
         $brokerageSelect.find('option:not(:first)').remove();
 
-        console.log('Loading brokerages from server...');
-
         // Fetch brokerages from the server
         $.ajax({
             url: '/Sector/GetActiveSectors',
             type: 'GET',
             data: { sectorType: 'Brokerage' },
             success: (response) => {
-                console.log('Brokerages loaded successfully:', response);
-                
                 if (response.success && response.Data && response.Data.Sectors) {
                     const brokerages = response.Data.Sectors;
-                    console.log(`Found ${brokerages.length} brokerages`);
                     
                     brokerages.forEach(brokerage => {
                         const $option = $('<option>', {
@@ -70,10 +65,8 @@ class BrokerageManager {
                     
                     // Now that brokerages are loaded, set the current brokerage if in edit mode
                     if (this.isEditMode && this.currentBrokerageId !== null && this.currentBrokerageId !== undefined) {
-                        console.log('Setting current brokerage:', this.currentBrokerageId);
                         this.setCurrentBrokerage();
                     } else {
-                        console.log('Not in edit mode or no current brokerage ID');
                     }
                 } else {
                     console.warn('Invalid response format:', response);
@@ -838,31 +831,22 @@ class BrokerageManager {
             return;
         }
 
-        console.log('Setting current brokerage ID:', this.currentBrokerageId);
-        
         // Check if the option exists before setting it
         const $option = $brokerageSelect.find(`option[value="${this.currentBrokerageId}"]`);
         if (!$option.length) {
             console.error(`Brokerage option with value ${this.currentBrokerageId} not found in dropdown`);
-            console.log('Available options:', $brokerageSelect.find('option').map(function() { 
-                return { value: $(this).val(), text: $(this).text() }; 
-            }).get());
             return;
         }
 
         // Set the selected brokerage
         $brokerageSelect.val(this.currentBrokerageId);
-        console.log('Brokerage dropdown value set to:', this.currentBrokerageId);
-        console.log('Selected option text:', $option.text());
 
         // Trigger change event to populate Ofgem ID and Department
-        console.log('Triggering change event on brokerage dropdown');
         $brokerageSelect.trigger('change');
         
         // In edit mode, after brokerage change triggers department population,
         // we need to set the source value and trigger dynamic field loading
         if (this.isEditMode && this.currentSource) {
-            console.log('Edit mode: Will set source to:', this.currentSource);
             // Use setTimeout to ensure department change has completed
             setTimeout(() => {
                 this.setCurrentSource();
@@ -886,25 +870,17 @@ class BrokerageManager {
             return;
         }
 
-        console.log('Setting current source:', this.currentSource);
-        
         // Check if the option exists before setting it
         const $option = $sourceSelect.find(`option[value="${this.currentSource}"]`);
         if (!$option.length) {
             console.error(`Source option with value "${this.currentSource}" not found in dropdown`);
-            console.log('Available options:', $sourceSelect.find('option').map(function() { 
-                return { value: $(this).val(), text: $(this).text() }; 
-            }).get());
             return;
         }
 
         // Set the selected source
         $sourceSelect.val(this.currentSource);
-        console.log('Source dropdown value set to:', this.currentSource);
-        console.log('Selected option text:', $option.text());
 
         // Trigger change event to show appropriate dynamic fields
-        console.log('Triggering change event on source dropdown');
         $sourceSelect.trigger('change');
     }
 
@@ -975,11 +951,8 @@ class BrokerageManager {
      */
     populateModelValues() {
         if (!this.modelValues) {
-            console.log('No model values to populate');
             return;
         }
-
-        console.log('Populating dynamic fields with model values:', this.modelValues);
 
         // Map model values to field IDs
         const fieldMappings = {
@@ -1000,29 +973,20 @@ class BrokerageManager {
             const $field = $(fieldSelector);
 
             if (modelValue && modelValue !== '' && $field.length) {
-                console.log(`Setting ${fieldSelector} to value: ${modelValue}`);
-                
                 // Check if the field is a select dropdown
                 if ($field.is('select')) {
                     // Check if the option exists before setting
                     const $option = $field.find(`option[value="${modelValue}"]`);
                     if ($option.length) {
                         $field.val(modelValue);
-                        console.log(`Successfully set ${fieldSelector} to ${modelValue}`);
-                    } else {
-                        console.log(`Option with value ${modelValue} not found in ${fieldSelector}, skipping`);
                     }
                 } else {
                     // For non-select fields (like collaboration text input)
                     $field.val(modelValue);
-                    console.log(`Successfully set ${fieldSelector} to ${modelValue}`);
                 }
-            } else if (modelValue && modelValue !== '') {
-                console.log(`Field ${fieldSelector} not found, skipping value: ${modelValue}`);
             }
         });
 
-        console.log('Model values population completed');
     }
 }
 
