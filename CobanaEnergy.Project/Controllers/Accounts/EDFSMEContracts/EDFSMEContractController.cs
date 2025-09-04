@@ -7,6 +7,7 @@ using CobanaEnergy.Project.Models.Accounts.SuppliersModels;
 using CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGB;
 using CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGB.DBModel;
 using CobanaEnergy.Project.Models.Accounts.SuppliersModels.EDFSME;
+using CobanaEnergy.Project.Models.Supplier.SupplierDBModels.snapshot;
 using Logic;
 using Logic.ResponseModel.Helper;
 using System;
@@ -651,7 +652,6 @@ namespace CobanaEnergy.Project.Controllers.Accounts.EDFSMEContracts
                         return JsonResponse.Fail("Invalid Supplier Comms Type for EDF SME. Only DURATION are allowed.");
 
 
-
                     string durationStr = "1";
                     if (model.ContractType.Equals("Electric", StringComparison.OrdinalIgnoreCase))
                     {
@@ -659,6 +659,31 @@ namespace CobanaEnergy.Project.Controllers.Accounts.EDFSMEContracts
                             .Where(x => x.EId == model.EId)
                             .Select(x => x.Duration)
                             .FirstOrDefaultAsync();
+
+
+                        #region [Uplift]
+
+                        var snapshot = _db.CE_ElectricSupplierSnapshots
+                             .Include(s => s.CE_ElectricSupplierUpliftSnapshots)
+                             .FirstOrDefault(s => s.EId == model.EId);
+
+                        if (snapshot == null)
+                            return JsonResponse.Fail("Snapshot not found.");
+
+                        var maxUplift = snapshot.CE_ElectricSupplierUpliftSnapshots
+                                                .Where(u => u.FuelType == "Electric")
+                                                .OrderByDescending(u => u.EndDate)
+                                                .FirstOrDefault();
+
+                        if (maxUplift == null)
+                            return JsonResponse.Ok(null);
+
+                        model.UpliftGas = maxUplift.Uplift;
+
+                        #endregion
+
+
+
                     }
                     else if (model.ContractType.Equals("Gas", StringComparison.OrdinalIgnoreCase))
                     {
@@ -666,6 +691,29 @@ namespace CobanaEnergy.Project.Controllers.Accounts.EDFSMEContracts
                             .Where(x => x.EId == model.EId)
                             .Select(x => x.Duration)
                             .FirstOrDefaultAsync();
+
+                        #region [Uplift]
+
+
+                        var snapshot = _db.CE_GasSupplierSnapshots
+                            .Include(s => s.CE_GasSupplierUpliftSnapshots)
+                            .FirstOrDefault(s => s.EId == model.EId);
+                        if (snapshot == null)
+                            return JsonResponse.Fail("Snapshot not found.");
+
+                        var maxUplift = snapshot.CE_GasSupplierUpliftSnapshots
+                                                .Where(u => u.FuelType == "Gas")
+                                                .OrderByDescending(u => u.EndDate)
+                                                .FirstOrDefault();
+
+                        if (maxUplift == null)
+                            return JsonResponse.Ok(null);
+                        
+                        model.UpliftGas = maxUplift.Uplift;
+
+                        #endregion
+
+
                     }
 
                     if (!int.TryParse(durationStr, out int duration) || duration <= 0)
