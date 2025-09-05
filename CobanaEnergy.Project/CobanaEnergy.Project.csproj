@@ -265,6 +265,7 @@
     <Content Include="Content\Accounts\CampaignDashboard\campaignDashboard.css" />
     <Content Include="Content\Accounts\ClawbacksDashboard\ClawbacksDashboard.css" />
     <Content Include="Content\Accounts\EDFContracts\edfContract.css" />
+    <Content Include="Content\Accounts\EDFSMEContracts\editEDFSMEContract.css" />
     <Content Include="Content\Accounts\InvoiceSupplierDashboard\ContractSelectListing.css" />
     <Content Include="Content\Accounts\InvoiceSupplierDashboard\EditContractsInvoiceSupplier.css" />
     <Content Include="Content\Accounts\ProblematicsDashboard\ProblematicsDashboard.css" />
@@ -305,6 +306,7 @@
     <Content Include="Scripts\Accounts\CampaignDashboard\campaignDashboard.js" />
     <Content Include="Scripts\Accounts\ClawbacksDashboard\clawbacksDashboard.js" />
     <Content Include="Scripts\Accounts\EDFContracts\editEDFContract.js" />
+    <Content Include="Scripts\Accounts\EDFSMEContracts\editEDFSmeContract.js" />
     <Content Include="Scripts\Accounts\InvoiceSupplierDashboard\contractSelectListing.js" />
     <Content Include="Scripts\Accounts\InvoiceSupplierDashboard\editContractsInvoiceSupplier.js" />
     <Content Include="Scripts\Accounts\ProblematicsDashboard\problematicsDashboard.js" />
@@ -367,6 +369,7 @@
     <Compile Include="Controllers\Accounts\CoronaContracts\CoronaContractController.cs" />
     <Compile Include="Controllers\Accounts\CrownContracts\CrownContractController.cs" />
     <Compile Include="Controllers\Accounts\EDFContracts\EDFContractController.cs" />
+    <Compile Include="Controllers\Accounts\EDFSMEContracts\EDFSMEContractController.cs" />
     <Compile Include="Controllers\Accounts\InvoiceSupplierDashboard\InvoiceSupplierDashboardController.cs" />
     <Compile Include="Controllers\Accounts\ProblematicsDashboard\ProblematicsDashboardController.cs" />
     <Compile Include="Controllers\Accounts\ReconciliationsDashboard\ReconciliationsDashboardController.cs" />
@@ -422,6 +425,10 @@
     <Compile Include="Migrations\202508260930054_Faryal_Testing.Designer.cs">
       <DependentUpon>202508260930054_Faryal_Testing.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202509031548518_EDFSME_86c59edwa.cs" />
+    <Compile Include="Migrations\202509031548518_EDFSME_86c59edwa.Designer.cs">
+      <DependentUpon>202509031548518_EDFSME_86c59edwa.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\202508271656129_Faryal_ContractAdditions.cs" />
     <Compile Include="Migrations\202508271656129_Faryal_ContractAdditions.Designer.cs">
       <DependentUpon>202508271656129_Faryal_ContractAdditions.cs</DependentUpon>
@@ -461,6 +468,8 @@
     <Compile Include="Models\Accounts\SuppliersModels\Corona\EditCoronaContractViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\Crown\CrownEacLogViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\Crown\EditCrownContractViewModel.cs" />
+    <Compile Include="Models\Accounts\SuppliersModels\EDFSME\EDFSmeEacLogViewModel.cs" />
+    <Compile Include="Models\Accounts\SuppliersModels\EDFSME\EditEDFSmeContractViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\EDF\EDFEacLogViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\EDF\EditEDFContractViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\PaymentAndNotesLogsViewModel.cs" />
@@ -626,6 +635,7 @@
     <Content Include="Views\Accounts\SSEContract\EditSSEContract.cshtml" />
     <Content Include="Views\Accounts\EDFContract\EditEDFContract.cshtml" />
     <Content Include="Views\Accounts\TotalGasAndPowerContract\EditTotalGasandPowerContract.cshtml" />
+    <Content Include="Views\Accounts\EDFSMEContract\EditEDFSMEContract.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -681,6 +691,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202508290855118_Faryal_SectorSupplierMappings.resx">
       <DependentUpon>202508290855118_Faryal_SectorSupplierMappings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202509031548518_EDFSME_86c59edwa.resx">
+      <DependentUpon>202509031548518_EDFSME_86c59edwa.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

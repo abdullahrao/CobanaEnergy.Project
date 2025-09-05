@@ -222,7 +222,7 @@
             const ws = XLSX.utils.aoa_to_sheet(data);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "InvoiceLogs");
-            XLSX.writeFile(wb, "BGB_InvoiceLogs.xlsx");
+            XLSX.writeFile(wb, "EDF_InvoiceLogs.xlsx");
         })
             .fail(function (xhr) {
                 showToastError("Error fetching logs for export.");

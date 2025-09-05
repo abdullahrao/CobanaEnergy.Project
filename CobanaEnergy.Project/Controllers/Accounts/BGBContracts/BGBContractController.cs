@@ -104,18 +104,32 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
                         }
                     }
 
-                    if (!string.IsNullOrWhiteSpace(electricContract.InitialStartDate) &&
-                        DateTime.TryParse(electricContract.InitialStartDate, out DateTime parsedStartDate))
-                    {
-                        model.InitialStartDate = parsedStartDate.ToString("yyyy-MM-dd");
+                    var commissionReconciliation = await _db.CE_CommissionAndReconciliation
+                      .FirstOrDefaultAsync(x => x.EId == id);
 
-                        if (!string.IsNullOrWhiteSpace(electricContract.Duration) &&
-                            int.TryParse(electricContract.Duration, out int durationYears))
+                    if (commissionReconciliation != null)
+                    {
+                        model.InitialStartDate = commissionReconciliation.StartDate;
+                        model.CED = commissionReconciliation.CED;
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrWhiteSpace(electricContract.InitialStartDate) &&
+                        DateTime.TryParse(electricContract.InitialStartDate, out DateTime parsedStartDate))
                         {
-                            var cedDate = parsedStartDate.AddYears(durationYears).AddDays(-1);
-                            model.CED = cedDate.ToString("yyyy-MM-dd");
+                            model.InitialStartDate = parsedStartDate.ToString("yyyy-MM-dd");
+
+                            if (!string.IsNullOrWhiteSpace(electricContract.Duration) &&
+                                int.TryParse(electricContract.Duration, out int durationYears))
+                            {
+                                var cedDate = parsedStartDate.AddYears(durationYears).AddDays(-1);
+                                model.CED = cedDate.ToString("yyyy-MM-dd");
+                            }
                         }
                     }
+
+
+                    
                     await ReconciliationAndCommsssionMetrics(id, model, "Electric");
                     model.PaymentNoteLogs = await _db.CE_PaymentAndNoteLogs
                                         .Where(x => x.EId == id && x.contracttype == "Electric")

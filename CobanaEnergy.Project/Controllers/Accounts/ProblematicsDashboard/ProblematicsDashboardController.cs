@@ -7,6 +7,7 @@ using CobanaEnergy.Project.Models.Accounts.ProblematicsDashboard;
 using CobanaEnergy.Project.Models.Accounts.SuppliersModels;
 using Logic;
 using Logic.ResponseModel.Helper;
+using NPOI.SS.Formula.Functions;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -190,36 +191,47 @@ namespace CobanaEnergy.Project.Controllers.Accounts.ProblematicsDashboard
 
                 foreach (var contract in contracts)
                 {
-                    string contractType = null;
+                    var reconciliation = await db.CE_CommissionAndReconciliation
+                                                 .FirstOrDefaultAsync(r => r.EId == contract.EId);
 
-                    if (!string.IsNullOrEmpty(contract.MPAN) && contract.MPAN.Length == 13)
-                        contractType = "Electric";
-                    else if (!string.IsNullOrEmpty(contract.MPRN) && contract.MPRN.Length >= 6 && contract.MPRN.Length <= 10)
-                        contractType = "Gas";
+                    if (reconciliation == null)
+                        continue;
 
-                    if (contractType != null)
+                    long supplierId = 0;
+                    if (reconciliation.contractType.Equals("Electric", StringComparison.OrdinalIgnoreCase))
                     {
-                        var reconciliation = await db.CE_CommissionAndReconciliation
-                            .FirstOrDefaultAsync(r => r.EId == contract.EId && r.contractType == contractType);
-
-                        if (reconciliation != null)
-                        {
-                            DateTime baseDate;
-
-                            if (!string.IsNullOrWhiteSpace(reconciliation.CommissionFollowUpDate) &&
-                                DateTime.TryParse(reconciliation.CommissionFollowUpDate, out var existingDate))
-                            {
-                                baseDate = existingDate;
-                            }
-                            else
-                            {
-                                baseDate = DateTime.Now;
-                            }
-                            var newDate = AddWorkingDays(baseDate, 5);
-
-                            reconciliation.CommissionFollowUpDate = newDate.ToString("yyyy-MM-dd");
-                        }
+                        supplierId = await db.CE_ElectricContracts
+                                             .Where(x => x.EId == contract.EId)
+                                             .Select(x => x.SupplierId)
+                                             .FirstOrDefaultAsync();
                     }
+                    else if (reconciliation.contractType.Equals("Gas", StringComparison.OrdinalIgnoreCase))
+                    {
+                        supplierId = await db.CE_GasContracts
+                                             .Where(x => x.EId == contract.EId)
+                                             .Select(x => x.SupplierId)
+                                             .FirstOrDefaultAsync();
+                    }
+
+                    var supplierName = await db.CE_Supplier
+                                               .Where(r => r.Id == supplierId)
+                                               .Select(r => r.Name)
+                                               .FirstOrDefaultAsync();
+
+                    if (string.IsNullOrWhiteSpace(supplierName) || !SupportedSuppliers.Names.Contains(supplierName))
+                        continue;
+
+                    int workingDays = supplierName.Equals("edf sme", StringComparison.OrdinalIgnoreCase) ? 9 : 5;
+
+                    DateTime baseDate = DateTime.Now;
+                    if (!string.IsNullOrWhiteSpace(reconciliation.CommissionFollowUpDate) &&
+                        DateTime.TryParse(reconciliation.CommissionFollowUpDate, out var existingDate))
+                    {
+                        baseDate = existingDate;
+                    }
+
+                    reconciliation.CommissionFollowUpDate = AddWorkingDays(baseDate, workingDays)
+                                                            .ToString("yyyy-MM-dd");
                 }
 
                 await db.SaveChangesAsync();
