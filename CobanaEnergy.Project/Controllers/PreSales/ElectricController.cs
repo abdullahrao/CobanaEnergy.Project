@@ -63,9 +63,6 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     var contract = new CE_ElectricContracts
                     {
                         EId = guid,
-                        Agent = model.Agent,
-                        Introducer = model.Introducer,
-                        SubIntroducer = model.SubIntroducer,
                         TopLine = model.TopLine,
                         MPAN = model.MPAN,
                         BusinessName = model.BusinessName,
@@ -108,7 +105,22 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                         SalesType = model.SalesType,
                         SalesTypeStatus = model.SalesTypeStatus,
                         SupplierCommsType = model.SupplierCommsType,
-                        PreSalesStatus = model.PreSalesStatus
+                        PreSalesStatus = model.PreSalesStatus,
+
+                        // Brokerage Details
+                        BrokerageId = model.BrokerageId,
+                        OfgemId = model.OfgemId,
+
+                        // Dynamic Department-based fields
+                        CloserId = model.CloserId,
+                        ReferralPartnerId = model.ReferralPartnerId,
+                        SubReferralPartnerId = model.SubReferralPartnerId,
+                        BrokerageStaffId = model.BrokerageStaffId,
+                        IntroducerId = model.IntroducerId,
+                        SubIntroducerId = model.SubIntroducerId,
+                        SubBrokerageId = model.SubBrokerageId,
+                        Collaboration = model.Collaboration,
+                        LeadGeneratorId = model.LeadGeneratorId
                     };
 
                     db.CE_ElectricContracts.Add(contract);
@@ -279,16 +291,44 @@ namespace CobanaEnergy.Project.Controllers.PreSales
 
                 if (match != null)
                 {
+                    // Determine Agent based on department type
+                    string agentName = "-";
+                    
+                    if (match.Department == "In House" && match.CloserId.HasValue)
+                    {
+                        var closer = await db.CE_Sector
+                            .Where(s => s.SectorID == match.CloserId && s.SectorType == "closer")
+                            .Select(s => s.Name)
+                            .FirstOrDefaultAsync();
+                        agentName = closer ?? "-";
+                    }
+                    else if (match.Department == "Brokers" && match.BrokerageStaffId.HasValue)
+                    {
+                        var brokerageStaff = await db.CE_BrokerageStaff
+                            .Where(bs => bs.BrokerageStaffID == match.BrokerageStaffId)
+                            .Select(bs => bs.BrokerageStaffName)
+                            .FirstOrDefaultAsync();
+                        agentName = brokerageStaff ?? "-";
+                    }
+                    else if (match.Department == "Introducers" && match.SubIntroducerId.HasValue)
+                    {
+                        var subIntroducer = await db.CE_SubIntroducer
+                            .Where(si => si.SubIntroducerID == match.SubIntroducerId)
+                            .Select(si => si.SubIntroducerName)
+                            .FirstOrDefaultAsync();
+                        agentName = subIntroducer ?? "-";
+                    }
+
                     var result = new
                     {
-                        match.Agent,
                         match.BusinessName,
                         match.CustomerName,
                         InputDate = DateTime.TryParse(match.InputDate, out DateTime parsedDate)
                                      ? parsedDate.ToString("dd/MM/yyyy")
                                      : match.InputDate,
                         match.PreSalesStatus,
-                        match.Duration
+                        match.Duration,
+                        Agent = agentName
                     };
 
                     return JsonResponse.Ok(result);
@@ -338,11 +378,8 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                 var model = new ElectricContractEditViewModel
                 {
                     EId = contract.EId,
-                    Agent = contract.Agent,
                     Department = contract.Department,
                     Source = contract.Source,
-                    Introducer = contract.Introducer,
-                    SubIntroducer = contract.SubIntroducer,
                     SalesType = contract.SalesType,
                     SalesTypeStatus = contract.SalesTypeStatus,
                     BusinessName = contract.BusinessName,
@@ -382,6 +419,21 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     Terminated = contract.Terminated,
                     ContractNotes = contract.ContractNotes,
                     InputDate = contract.InputDate,
+
+                    // Brokerage Details
+                    BrokerageId = contract.BrokerageId,
+                    OfgemId = contract.OfgemId,
+
+                    // Dynamic Department-based fields
+                    CloserId = contract.CloserId,
+                    ReferralPartnerId = contract.ReferralPartnerId,
+                    SubReferralPartnerId = contract.SubReferralPartnerId,
+                    BrokerageStaffId = contract.BrokerageStaffId,
+                    IntroducerId = contract.IntroducerId,
+                    SubIntroducerId = contract.SubIntroducerId,
+                    SubBrokerageId = contract.SubBrokerageId,
+                    Collaboration = contract.Collaboration,
+                    LeadGeneratorId = contract.LeadGeneratorId,
 
                     SupplierSnapshot = new ElectricSupplierSnapshotViewModel
                     {
@@ -448,11 +500,8 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     if (contract == null)
                         return JsonResponse.Fail("Electric Contract not found.");
 
-                    contract.Agent = model.Agent;
                     contract.Department = model.Department;
                     contract.Source = model.Source;
-                    contract.Introducer = model.Introducer;
-                    contract.SubIntroducer = model.SubIntroducer;
                     contract.SalesType = model.SalesType;
                     contract.SalesTypeStatus = model.SalesTypeStatus;
                     contract.BusinessName = model.BusinessName;
@@ -499,6 +548,21 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     contract.ContractNotes = model.ContractNotes;
                     contract.UpdatedAt = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
                     contract.EMProcessor = model.EMProcessor;
+
+                    // Update Brokerage Details
+                    contract.BrokerageId = model.BrokerageId;
+                    contract.OfgemId = model.OfgemId;
+                    
+                    // Update Dynamic Department-based fields
+                    contract.CloserId = model.CloserId;
+                    contract.ReferralPartnerId = model.ReferralPartnerId;
+                    contract.SubReferralPartnerId = model.SubReferralPartnerId;
+                    contract.BrokerageStaffId = model.BrokerageStaffId;
+                    contract.IntroducerId = model.IntroducerId;
+                    contract.SubIntroducerId = model.SubIntroducerId;
+                    contract.SubBrokerageId = model.SubBrokerageId;
+                    contract.Collaboration = model.Collaboration;
+                    contract.LeadGeneratorId = model.LeadGeneratorId;
 
                     var triggeringStatuses = new[]
                     {
@@ -570,11 +634,8 @@ namespace CobanaEnergy.Project.Controllers.PreSales
 
                     return JsonResponse.Ok(new
                     {
-                        contract.Agent,
                         contract.Department,
                         contract.Source,
-                        contract.Introducer,
-                        contract.SubIntroducer,
                         contract.SalesType,
                         contract.SalesTypeStatus,
                         contract.BusinessName,

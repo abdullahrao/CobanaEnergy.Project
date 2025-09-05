@@ -36,17 +36,17 @@ namespace CobanaEnergy.Project.Models.Sector
         [Display(Name = "Active")]
         public bool Active { get; set; }
         
-        [Display(Name = "Start Date")]
-        public string StartDate { get; set; }
-        
-        [Display(Name = "End Date")]
-        public string EndDate { get; set; }
+        [Display(Name = "Created Date")]
+        public string CreatedDate { get; set; }
         
         [Display(Name = "Mobile")]
         public string Mobile { get; set; }
         
         [Display(Name = "Sector Type")]
         public string SectorType { get; set; }
+        
+        [Display(Name = "Suppliers")]
+        public List<string> Suppliers { get; set; } = new List<string>();
     }
     
     public class SectorTypeOption

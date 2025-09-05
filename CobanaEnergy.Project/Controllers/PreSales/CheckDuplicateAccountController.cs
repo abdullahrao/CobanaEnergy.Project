@@ -39,14 +39,18 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                             elec.EId,
                             acc.SortCode,
                             acc.AccountNumber,
-                            Agent = elec.Agent,
                             BusinessName = elec.BusinessName,
                             CustomerName = elec.CustomerName,
                             InputDate = elec.InputDate,
                             PreSalesStatus = elec.PreSalesStatus,
                             Duration = elec.Duration,
                             acc.CreatedAt,
-                            Type = "Electric"
+                            Type = "Electric",
+                            // Fields needed for Agent logic
+                            Department = elec.Department,
+                            CloserId = elec.CloserId,
+                            BrokerageStaffId = elec.BrokerageStaffId,
+                            SubIntroducerId = elec.SubIntroducerId
                         });
 
                 var gasQuery = db.CE_Accounts
@@ -59,14 +63,18 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                             gas.EId,
                             acc.SortCode,
                             acc.AccountNumber,
-                            Agent = gas.Agent,
                             BusinessName = gas.BusinessName,
                             CustomerName = gas.CustomerName,
                             InputDate = gas.InputDate,
                             PreSalesStatus = gas.PreSalesStatus,
                             Duration = gas.Duration,
                             acc.CreatedAt,
-                            Type = "Gas"
+                            Type = "Gas",
+                            // Fields needed for Agent logic
+                            Department = gas.Department,
+                            CloserId = gas.CloserId,
+                            BrokerageStaffId = gas.BrokerageStaffId,
+                            SubIntroducerId = gas.SubIntroducerId
                         });
 
                 var rawList = await electricQuery.Concat(gasQuery).ToListAsync();
@@ -92,9 +100,41 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                         DateTime.TryParse(gas?.InputDate, out var gasDate);
                         DateTime sortable = elecDate > gasDate ? elecDate : gasDate;
 
+                        // Determine Agent based on department type (use electric data if available, otherwise gas)
+                        var contractData = elec ?? gas;
+                        string agentName = "-";
+                        
+                        if (contractData != null)
+                        {
+                            if (contractData.Department == "In House" && contractData.CloserId.HasValue)
+                            {
+                                var closer = db.CE_Sector
+                                    .Where(s => s.SectorID == contractData.CloserId && s.SectorType == "closer")
+                                    .Select(s => s.Name)
+                                    .FirstOrDefault();
+                                agentName = closer ?? "-";
+                            }
+                            else if (contractData.Department == "Brokers" && contractData.BrokerageStaffId.HasValue)
+                            {
+                                var brokerageStaff = db.CE_BrokerageStaff
+                                    .Where(bs => bs.BrokerageStaffID == contractData.BrokerageStaffId)
+                                    .Select(bs => bs.BrokerageStaffName)
+                                    .FirstOrDefault();
+                                agentName = brokerageStaff ?? "-";
+                            }
+                            else if (contractData.Department == "Introducers" && contractData.SubIntroducerId.HasValue)
+                            {
+                                var subIntroducer = db.CE_SubIntroducer
+                                    .Where(si => si.SubIntroducerID == contractData.SubIntroducerId)
+                                    .Select(si => si.SubIntroducerName)
+                                    .FirstOrDefault();
+                                agentName = subIntroducer ?? "-";
+                            }
+                        }
+
                         return new
                         {
-                            Agent = elec?.Agent ?? gas?.Agent ?? "-",
+                            Agent = agentName,
                             BusinessName = elec?.BusinessName ?? gas?.BusinessName ?? "-",
                             CustomerName = elec?.CustomerName ?? gas?.CustomerName ?? "-",
                             InputDate = mergedDate,

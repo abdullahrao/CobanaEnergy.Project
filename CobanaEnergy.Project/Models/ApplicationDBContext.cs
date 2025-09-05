@@ -73,6 +73,7 @@ namespace CobanaEnergy.Project.Models
         public DbSet<CE_SubReferralCommissionAndPayment> CE_SubReferralCommissionAndPayment { get; set; }
         public DbSet<CE_SubIntroducer> CE_SubIntroducer { get; set; }
         public DbSet<CE_SubIntroducerCommissionAndPayment> CE_SubIntroducerCommissionAndPayment { get; set; }
+        public DbSet<CE_SectorSupplier> CE_SectorSupplier { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

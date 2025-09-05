@@ -75,9 +75,19 @@
                             <input type="text" class="form-control" id="ofgemId" name="OfgemID" placeholder="Ofgem ID" autocomplete="off" />
                         </div>
                         <div class="col-md-6">
-                            <select class="form-select" id="department" name="Department" required>
-                                <option value="">Select Department *</option>
+                            <select class="form-select" id="department" name="Department" required placeholder="Select Department *">
                             </select>
+                        </div>
+                    </div>
+                    <div class="row gx-4 gy-3 mt-3">
+                        <div class="col-md-6">
+                            @Html.DropDownList("SectorSuppliers", new SelectList(new List<SelectListItem>(), "Value", "Text"), new
+                            {
+                                @class = "form-control",
+                                multiple = "multiple",
+                                title = "Select suppliers",
+                                id = "sectorSuppliers"
+                            })
                         </div>
                     </div>
                 </div>

@@ -48,7 +48,6 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     .Select(e => new
                     {
                         e.EId,
-                        e.Agent,
                         e.BusinessName,
                         e.CustomerName,
                         InputDate = e.InputDate,
@@ -56,14 +55,18 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                         e.ContractNotes,
                         MPAN = e.MPAN,
                         MPRN = "",
-                        Type = e.Type
+                        Type = e.Type,
+                        // Fields needed for Agent logic
+                        Department = e.Department,
+                        CloserId = e.CloserId,
+                        BrokerageStaffId = e.BrokerageStaffId,
+                        SubIntroducerId = e.SubIntroducerId
                     }).ToListAsync();
 
                 var gasContracts = await db.CE_GasContracts
                     .Select(g => new
                     {
                         g.EId,
-                        g.Agent,
                         g.BusinessName,
                         g.CustomerName,
                         InputDate = g.InputDate,
@@ -71,7 +74,12 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                         g.ContractNotes,
                         MPAN = "",
                         MPRN = g.MPRN,
-                        Type = g.Type
+                        Type = g.Type,
+                        // Fields needed for Agent logic
+                        Department = g.Department,
+                        CloserId = g.CloserId,
+                        BrokerageStaffId = g.BrokerageStaffId,
+                        SubIntroducerId = g.SubIntroducerId
                     }).ToListAsync();
 
                 var combined = electricContracts
@@ -138,10 +146,42 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                         DateTime gasDate = DateTime.TryParse(gas?.InputDate, out var gDate) ? gDate : DateTime.MinValue;
                         DateTime sortable = elecDate > gasDate ? elecDate : gasDate;
 
+                        // Determine Agent based on department type (use electric data if available, otherwise gas)
+                        var contractData = elec ?? gas;
+                        string agentName = "-";
+                        
+                        if (contractData != null)
+                        {
+                            if (contractData.Department == "In House" && contractData.CloserId.HasValue)
+                            {
+                                var closer = db.CE_Sector
+                                    .Where(s => s.SectorID == contractData.CloserId && s.SectorType == "closer")
+                                    .Select(s => s.Name)
+                                    .FirstOrDefault();
+                                agentName = closer ?? "-";
+                            }
+                            else if (contractData.Department == "Brokers" && contractData.BrokerageStaffId.HasValue)
+                            {
+                                var brokerageStaff = db.CE_BrokerageStaff
+                                    .Where(bs => bs.BrokerageStaffID == contractData.BrokerageStaffId)
+                                    .Select(bs => bs.BrokerageStaffName)
+                                    .FirstOrDefault();
+                                agentName = brokerageStaff ?? "-";
+                            }
+                            else if (contractData.Department == "Introducers" && contractData.SubIntroducerId.HasValue)
+                            {
+                                var subIntroducer = db.CE_SubIntroducer
+                                    .Where(si => si.SubIntroducerID == contractData.SubIntroducerId)
+                                    .Select(si => si.SubIntroducerName)
+                                    .FirstOrDefault();
+                                agentName = subIntroducer ?? "-";
+                            }
+                        }
+
                         return new
                         {
                             EId = g.Key,
-                            Agent = elec?.Agent ?? gas?.Agent ?? "-",
+                            Agent = agentName,
                             MPAN = !string.IsNullOrWhiteSpace(elec?.MPAN) && elec.MPAN != "N/A" ? elec.MPAN : "N/A",
                             MPRN = !string.IsNullOrWhiteSpace(gas?.MPRN) && gas.MPRN != "N/A" ? gas.MPRN : "N/A",
                             BusinessName = elec?.BusinessName ?? gas?.BusinessName ?? "-",

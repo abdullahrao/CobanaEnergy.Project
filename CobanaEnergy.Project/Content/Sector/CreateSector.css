@@ -98,6 +98,50 @@
     outline: none;
 }
 
+/* Select2 dropdown styling for supplier selection */
+.select2-container--default .select2-selection--multiple {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    min-height: 45px;
+    padding: 8px 12px;
+    background-color: #fff;
+}
+
+.select2-container--default .select2-selection--multiple:focus {
+    border-color: #6b737a;
+    box-shadow: 0 0 0 0.2rem rgba(107, 115, 122, 0.25);
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background-color: #6b737a;
+    border: 1px solid #5a6268;
+    border-radius: 4px;
+    color: white;
+    padding: 4px 8px;
+    margin: 2px 4px 2px 0;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+    color: white;
+    margin-right: 6px;
+    font-weight: bold;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+    color: #f8f9fa;
+}
+
+.select2-dropdown {
+    border: 2px solid #6b737a;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background-color: #6b737a;
+    color: white;
+}
+
 .form-control::placeholder {
     color: #6c757d;
     opacity: 0.7;
@@ -116,7 +160,8 @@
     color: #dc3545;
 }
 
-.btn-primary {
+/* Exclude modal buttons from CreateSector styling */
+.btn-primary:not(.invoice-supplier-modal .btn-primary) {
     color: white;
     padding: 12px 30px;
     font-size: 1rem;
@@ -126,7 +171,7 @@
     margin-top: 10px;
 }
 
-.btn-primary:hover {
+.btn-primary:hover:not(.invoice-supplier-modal .btn-primary) {
     background-color: #545b61;
     border-color: #545b61;
     color: white;
@@ -134,11 +179,11 @@
     box-shadow: 0 4px 12px rgba(107, 115, 122, 0.3);
 }
 
-.btn-primary:focus {
+.btn-primary:focus:not(.invoice-supplier-modal .btn-primary) {
     box-shadow: 0 0 0 0.2rem rgba(107, 115, 122, 0.25);
 }
 
-.btn-primary:disabled {
+.btn-primary:disabled:not(.invoice-supplier-modal .btn-primary) {
     background-color: #6c757d;
     border-color: #6c757d;
     cursor: not-allowed;
@@ -204,7 +249,8 @@
     margin-bottom: 15px;
 }
 
-.btn-secondary {
+/* Exclude modal buttons from CreateSector styling */
+.btn-secondary:not(.invoice-supplier-modal .btn-secondary) {
     background-color: #6c757d;
     border-color: #6c757d;
     color: white;
@@ -214,7 +260,7 @@
     transition: all 0.3s ease;
 }
 
-.btn-secondary:hover {
+.btn-secondary:hover:not(.invoice-supplier-modal .btn-secondary) {
     background-color: #5a6268;
     border-color: #5a6268;
     color: white;

@@ -1,4 +1,5 @@
 ﻿using CobanaEnergy.Project.Models.Supplier.SupplierDBModels;
+using CobanaEnergy.Project.Models.Sector.SectorDBModels;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -13,10 +14,8 @@ namespace CobanaEnergy.Project.Models.Electric.ElectricDBModels
     {
         public string EId { get; set; }
         public long Id { get; set; }
-
         public string Agent { get; set; }
-        public string Introducer { get; set; }
-        public string SubIntroducer { get; set; }
+
         public string TopLine { get; set; }
         public string MPAN { get; set; }
 
@@ -70,11 +69,30 @@ namespace CobanaEnergy.Project.Models.Electric.ElectricDBModels
         public string SupplierCommsType { get; set; }
         public string PreSalesStatus { get; set; }
 
+
+        public int BrokerageId { get; set; }
+        public string OfgemId { get; set; }
+
+        // New dynamic fields based on Department
+        public int? CloserId { get; set; }
+        public int? ReferralPartnerId { get; set; }
+        public int? SubReferralPartnerId { get; set; }
+        public int? BrokerageStaffId { get; set; }
+        public int? IntroducerId { get; set; }
+        public int? SubIntroducerId { get; set; }
+        public int? SubBrokerageId { get; set; }
+        public string Collaboration { get; set; }
+        public int? LeadGeneratorId { get; set; }
+
         // Navigation properties
         [ForeignKey("SupplierId")]
         public virtual CE_Supplier CE_Supplier { get; set; }
 
         [ForeignKey("ProductId")]
         public virtual CE_SupplierProducts CE_SupplierProducts { get; set; }
+
+        // Only add FK for BrokerageId
+        [ForeignKey("BrokerageId")]
+        public virtual CE_Sector CE_Brokerage { get; set; }
     }
 }

@@ -1,6 +1,16 @@
-/**
+﻿/**
  * Sector Form Manager - Consolidated JavaScript for Create and Edit Sector pages
  * This file contains all shared functions to eliminate code duplication
+ * 
+ * END DATE HANDLING:
+ * - Create Mode: All end dates are non-required. Backend will save MAX DATE value from database.
+ * - Edit Mode: Loads saved values, allows user selection, all end dates are non-required.
+ * - Business logic remains the same for edit mode, only required validation is removed.
+ * 
+ * BACKEND REQUIREMENT:
+ * - When creating sectors, if any end date field is empty/null, the backend should set it to 
+ *   the MAX DATE value from the database (e.g., '9999-12-31' or similar maximum date).
+ * - This ensures all sectors have valid end dates for business logic while keeping them optional for users.
  */
 
 class SectorFormManager {
@@ -8,6 +18,7 @@ class SectorFormManager {
         this.isEditMode = options.isEditMode || false;
         this.currentSectorType = '';
         this.modelData = options.modelData || null; // Store model data for edit mode
+        this.suppliers = []; // Store suppliers data
         this.init();
     }
 
@@ -25,6 +36,9 @@ class SectorFormManager {
         
         // Initialize duplicate account checker for all account number fields
         this.initializeDuplicateAccountChecker();
+        
+        // Initialize Select2 for all multiple select dropdowns
+        this.initializeSelect2();
     }
 
     initializeForm() {
@@ -35,17 +49,25 @@ class SectorFormManager {
         if (this.isEditMode) {
             const currentSectorType = $('#sectorType').val();
             if (currentSectorType) {
+                // IMPORTANT: Set currentSectorType for edit mode
+                this.currentSectorType = currentSectorType;
+                
                 this.loadDynamicSections(currentSectorType);
+                this.toggleConditionalFields(currentSectorType);
                 this.toggleBankAndTaxSections();
             }
         } else {
             // Create mode: ensure department is not required initially
             $('#department').prop('required', false);
+            $('#department').prop('selectedIndex', 0);
         }
     }
 
     handleSectorTypeChange(e) {
         const selectedType = $(e.target).val();
+        
+        // IMPORTANT: Set currentSectorType FIRST before any other operations
+        this.currentSectorType = selectedType;
         
         if (this.isEditMode) {
             // Edit mode: load sections and handle conditional fields
@@ -64,15 +86,27 @@ class SectorFormManager {
                 // Handle additional fields for Brokerage and Introducers
                 if (selectedType === 'Brokerage' || selectedType === 'Introducer') {
                     $('#additionalFieldsSection').show();
-                    $('#department').val(selectedType);
                     // Make department required when visible
                     $('#department').prop('required', true);
+                    
+                    // Handle sector suppliers field for Brokerage
+                    if (selectedType === 'Brokerage') {
+                        $('#sectorSuppliers').closest('.row').show();
+                        // Now currentSectorType is set, so this will work
+                        this.populateSuppliersDropdown();
+                    } else {
+                        $('#sectorSuppliers').closest('.row').hide();
+                        $('#sectorSuppliers').val(null).trigger('change');
+                    }
                 } else {
                     $('#additionalFieldsSection').hide();
                     $('#department').val('');
                     $('#ofgemId').val('');
                     // Remove required attribute when hidden to prevent validation errors
                     $('#department').prop('required', false);
+                    // Hide sector suppliers field
+                    $('#sectorSuppliers').closest('.row').hide();
+                    $('#sectorSuppliers').val(null).trigger('change');
                 }
                 
                 this.loadDynamicSections(selectedType);
@@ -114,12 +148,23 @@ class SectorFormManager {
 
     // Toggle conditional fields based on sector type
     toggleConditionalFields(sectorType) {
+        this.currentSectorType = sectorType;
         const conditionalFields = $('#conditionalFields');
         
         if (sectorType === 'Introducer' || sectorType === 'Brokerage') {
+            $('#additionalFieldsSection').show();
             conditionalFields.removeClass('hide').addClass('show');
         } else {
             conditionalFields.removeClass('show').addClass('hide');
+        }
+        
+        // Handle sector suppliers field visibility
+        if (sectorType === 'Brokerage') {
+            $('#sectorSuppliers').closest('.row').show();
+            this.populateSuppliersDropdown();
+        } else {
+            $('#sectorSuppliers').closest('.row').hide();
+            $('#sectorSuppliers').val(null).trigger('change');
         }
     }
 
@@ -362,7 +407,7 @@ class SectorFormManager {
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="form-label small text-muted">Brokerage Commission End Date</label>
-                            <input type="date" name="BrokerageCommissions[${index}].EndDate" class="form-control" placeholder="End Date" />
+                            <input type="date" name="BrokerageCommissions[${index}].EndDate" class="form-control" placeholder="End Date (Optional)" />
                         </div>
                     </div>
                 </div>
@@ -412,7 +457,7 @@ class SectorFormManager {
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="form-label small text-muted">Brokerage Staff End Date</label>
-                            <input type="date" name="BrokerageStaff[${index}].EndDate" class="form-control" placeholder="End Date" />
+                            <input type="date" name="BrokerageStaff[${index}].EndDate" class="form-control" placeholder="End Date (Optional)" />
                         </div>
                     </div>
                 </div>
@@ -486,7 +531,7 @@ class SectorFormManager {
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="form-label small text-muted">Sub Brokerage End Date</label>
-                            <input type="date" name="SubBrokerages[${index}].EndDate" class="form-control sub-end-date" placeholder="End Date" disabled />
+                                <input type="date" name="SubBrokerages[${index}].EndDate" class="form-control sub-end-date" placeholder="End Date (Optional)" />
                         </div>
                     </div>
                 </div>
@@ -700,7 +745,7 @@ class SectorFormManager {
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="form-label small text-muted">Closer Commission End Date</label>
-                            <input type="date" name="CloserCommissions[${index}].EndDate" class="form-control" placeholder="End Date" />
+                                <input type="date" name="CloserCommissions[${index}].EndDate" class="form-control" placeholder="End Date (Optional)" />
                         </div>
                     </div>
                 </div>
@@ -748,7 +793,7 @@ class SectorFormManager {
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="form-label small text-muted">Lead Generator Commission End Date</label>
-                            <input type="date" name="LeadGeneratorCommissions[${index}].LeadGeneratorEndDate" class="form-control" placeholder="Lead Generator End Date" />
+                                <input type="date" name="LeadGeneratorCommissions[${index}].LeadGeneratorEndDate" class="form-control" placeholder="Lead Generator End Date (Optional)" />
                         </div>
                     </div>
                 </div>
@@ -762,7 +807,7 @@ class SectorFormManager {
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="form-label small text-muted">Closer Commission End Date</label>
-                            <input type="date" name="LeadGeneratorCommissions[${index}].CloserEndDate" class="form-control" placeholder="Closer End Date" />
+                                <input type="date" name="LeadGeneratorCommissions[${index}].CloserEndDate" class="form-control" placeholder="Closer End Date (Optional)" />
                         </div>
                     </div>
                 </div>
@@ -819,7 +864,7 @@ class SectorFormManager {
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="form-label small text-muted">Referral Partner Commission End Date</label>
-                            <input type="date" name="ReferralPartnerCommissions[${index}].ReferralPartnerEndDate" class="form-control" placeholder="Referral Partner End Date" />
+                                <input type="date" name="ReferralPartnerCommissions[${index}].ReferralPartnerEndDate" class="form-control" placeholder="Referral Partner End Date (Optional)" />
                         </div>
                     </div>
                 </div>
@@ -833,7 +878,7 @@ class SectorFormManager {
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="form-label small text-muted">Brokerage Commission End Date</label>
-                            <input type="date" name="ReferralPartnerCommissions[${index}].BrokerageEndDate" class="form-control" placeholder="Brokerage End Date" />
+                                <input type="date" name="ReferralPartnerCommissions[${index}].BrokerageEndDate" class="form-control" placeholder="Brokerage End Date (Optional)" />
                         </div>
                     </div>
                 </div>
@@ -893,7 +938,7 @@ class SectorFormManager {
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="form-label small text-muted">Sub Referral End Date</label>
-                            <input type="date" name="SubReferrals[${index}].EndDate" class="form-control sub-end-date" placeholder="End Date" />
+                                <input type="date" name="SubReferrals[${index}].EndDate" class="form-control sub-end-date" placeholder="End Date (Optional)" />
                         </div>
                     </div>
                 </div>
@@ -1250,7 +1295,7 @@ class SectorFormManager {
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="form-label small text-muted">Introducer Commission End Date</label>
-                            <input type="date" name="IntroducerCommissions[${index}].EndDate" class="form-control" placeholder="End Date" />
+                                <input type="date" name="IntroducerCommissions[${index}].EndDate" class="form-control" placeholder="End Date (Optional)" />
                         </div>
                     </div>
                 </div>
@@ -1313,7 +1358,7 @@ class SectorFormManager {
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="form-label small text-muted">Sub Introducer End Date</label>
-                            <input type="date" name="SubIntroducers[${index}].EndDate" class="form-control sub-end-date" placeholder="End Date" disabled />
+                            <input type="date" name="SubIntroducers[${index}].EndDate" class="form-control sub-end-date" placeholder="End Date (Optional)" />
                         </div>
                     </div>
                 </div>
@@ -2421,16 +2466,16 @@ class SectorFormManager {
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="form-label small text-muted">Sub Introducer End Date</label>
-                                <input type="date" name="SubIntroducers[${index}].EndDate" value="${subIntroducer.EndDate || ''}" class="form-control" placeholder="End Date" />
-                            </div>
-                        </div>
                           <div class="col-md-6">
                             <div class="form-group">
                                 <label class="form-label small text-muted">Sub Introducer Start Date</label>
                                 <input type="date" name="SubIntroducers[${index}].StartDate" value="${subIntroducer.StartDate || ''}" class="form-control" placeholder="Start Date" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label small text-muted">Sub Introducer End Date</label>
+                                <input type="date" name="SubIntroducers[${index}].EndDate" value="${subIntroducer.EndDate || ''}" class="form-control" placeholder="End Date" />
                             </div>
                         </div>
                     </div>
@@ -2895,12 +2940,12 @@ class SectorFormManager {
 
     initializeDateValidation() {
         // Handle start date changes for main sector dates
-        $(document).on('change', '#startDate', function() {
+        $(document).on('blur', '#startDate', function() {
             const startDate = $(this).val();
             const endDateInput = $('#endDate');
             
             if (startDate) {
-                endDateInput.prop('disabled', false).attr('min', startDate);
+                endDateInput.attr('min', startDate);
                 
                 // Clear end date if it's now invalid
                 if (endDateInput.val() && new Date(endDateInput.val()) <= new Date(startDate)) {
@@ -2910,12 +2955,12 @@ class SectorFormManager {
                     }
                 }
             } else {
-                endDateInput.prop('disabled', true).val('').removeAttr('min');
+                endDateInput.val('').removeAttr('min');
             }
         });
         
         // Handle end date changes for main sector dates
-        $(document).on('change', '#endDate', function() {
+        $(document).on('blur', '#endDate', function() {
             const startDate = $('#startDate').val();
             const endDate = $(this).val();
             
@@ -2928,7 +2973,7 @@ class SectorFormManager {
         });
 
         // Handle dynamic date fields for commissions and staff
-        $(document).on('change', 'input[type="date"]', function() {
+        $(document).on('blur', 'input[type="date"]', function() {
             const inputName = $(this).attr('name');
             
             // Check if this is a start date
@@ -2944,7 +2989,7 @@ class SectorFormManager {
                 });
                 
                 if (endDateInput.length && startDate) {
-                    endDateInput.prop('disabled', false).attr('min', startDate);
+                    endDateInput.attr('min', startDate);
                     
                     // Clear end date if it's now invalid
                     if (endDateInput.val() && new Date(endDateInput.val()) <= new Date(startDate)) {
@@ -2979,8 +3024,8 @@ class SectorFormManager {
             }
         });
 
-        // Add input event handlers to prevent invalid date selection
-        $(document).on('input', 'input[type="date"]', function() {
+        // Add blur event handlers to validate date selection after user finishes typing
+        $(document).on('blur', 'input[type="date"]', function() {
             const inputName = $(this).attr('name');
             
             if (inputName && inputName.includes('EndDate')) {
@@ -3010,7 +3055,7 @@ class SectorFormManager {
         });
 
         // Add keydown event to prevent manual typing of invalid dates
-        $(document).on('keydown', 'input[type="date"]', function(e) {
+        $(document).on('blur', 'input[type="date"]', function(e) {
             const inputName = $(this).attr('name');
             
             if (inputName && inputName.includes('EndDate')) {
@@ -3038,6 +3083,11 @@ class SectorFormManager {
         $(document).on('submit', '#editSectorForm, #createSectorForm', function (e) {
 
             e.preventDefault(); // Always prevent default form submission
+            
+            // Handle end date logic before form submission
+            if (window.sectorFormManager) {
+                window.sectorFormManager.handleEndDateLogic();
+            }
             
             // Temporarily remove required attribute from hidden fields to prevent validation errors
             const hiddenRequiredFields = $('#additionalFieldsSection:hidden [required]');
@@ -3162,17 +3212,26 @@ class SectorFormManager {
         if (typeof DropdownOptions !== 'undefined' && DropdownOptions.department) {
             const departmentSelect = $('#department');
             if (departmentSelect.length > 0) {
-                // Clear existing options except the first one (placeholder)
-                departmentSelect.find('option:not(:first)').remove();
+                // Clear all existing options
+                departmentSelect.empty();
                 
-                // Add options from DropdownOptions.department
-                DropdownOptions.department.forEach(dept => {
-                    departmentSelect.append(`<option value="${dept}">${dept}</option>`);
+                // Create array with initial option and department options
+                const allOptions = [
+                    { value: '', text: 'Select Department *' },
+                    ...DropdownOptions.department.map(dept => ({ value: dept, text: dept }))
+                ];
+                
+                // Add all options to the dropdown
+                allOptions.forEach(option => {
+                    departmentSelect.append(`<option value="${option.value}">${option.text}</option>`);
                 });
                 
-                // For edit mode, set the selected value from model data
+                // Handle selection based on mode and data availability
                 if (this.isEditMode && this.modelData && this.modelData.Department) {
+                    // Edit mode: Set to existing department value
                     departmentSelect.val(this.modelData.Department);
+                } else {
+                    departmentSelect.val('');
                 }
                 
                 // Set initial required state based on current sector type
@@ -3184,6 +3243,82 @@ class SectorFormManager {
                 }
             }
         }
+    }
+
+    /**
+     * Populates the sector suppliers dropdown with active suppliers
+     * Only called when sector type is 'Brokerage'
+     */
+    populateSuppliersDropdown() {
+        // Add safety check and logging
+        
+        if (this.currentSectorType === 'Brokerage') {
+            $.get('/Supplier/GetActiveSuppliersForDropdown', (res) => {
+                if (res.success && res.Data.length > 0) {
+                    this.suppliers = res.Data;
+                    const $supplierSelect = $('#sectorSuppliers');
+                    $supplierSelect.empty();
+                    
+                    // Create SelectList items for the dropdown
+                    const selectList = res.Data.map(supplier => 
+                        new Option(supplier.Name, supplier.Id, false, false)
+                    );
+                    
+                    // Add options to the dropdown
+                    $supplierSelect.append(selectList);
+                    
+                    // IMPORTANT: Reinitialize Select2 after adding options
+                    $supplierSelect.select2('destroy').select2({
+                        placeholder: "Select suppliers",
+                        allowClear: true,
+                        width: '100%',
+                        dropdownAutoWidth: true,
+                        dropdownParent: $('.sector-page-container')
+                    });
+                    
+                    // Set selected values in edit mode
+                    if (this.isEditMode && this.modelData && this.modelData.SectorSuppliers) {
+                        $supplierSelect.val(this.modelData.SectorSuppliers).trigger('change');
+                    }
+                    
+                } else {
+                    console.warn('No suppliers data received:', res);
+                }
+            }).fail((xhr, status, error) => {
+                console.error('Failed to fetch suppliers:', error);
+                console.error('Response:', xhr.responseText);
+            });
+        }
+    }
+
+    /**
+     * Initializes Select2 for all multiple select dropdowns
+     */
+    initializeSelect2() {
+        $('select[multiple]').select2({
+            placeholder: "Select option(s)",
+            allowClear: true,
+            width: '100%',
+            dropdownAutoWidth: true,
+            dropdownParent: $('.sector-page-container')
+        });
+    }
+
+    /**
+     * Handles end date logic for form submission
+     * In create mode, empty end dates will be set to MAX DATE by backend
+     * In edit mode, user-selected dates are preserved
+     */
+    handleEndDateLogic() {
+        if (!this.isEditMode) {
+            // Create mode: Clear all empty end dates so backend can set MAX DATE
+            $('input[type="date"][name*="EndDate"]').each(function() {
+                if (!$(this).val() || $(this).val().trim() === '') {
+                    $(this).val(''); // Ensure empty value for backend processing
+                }
+            });
+        }
+        // Edit mode: Keep user-selected values as-is
     }
 
     initializeDuplicateAccountChecker() {

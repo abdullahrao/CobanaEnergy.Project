@@ -181,6 +181,55 @@
     border-radius: 4px;
 }
 
+/* Supplier Column Width Fix - Force pills to wrap to new lines */
+#sectorTable th:nth-child(6), /* Supplier column header */
+#sectorTable td:nth-child(6) { /* Supplier column data */
+    width: 200px;
+    max-width: 200px;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow: hidden;
+}
+
+/* For AllDashboard view (without Action column) - Supplier is 5th column */
+#sectorTable th:nth-child(5), /* Supplier column header */
+#sectorTable td:nth-child(5) { /* Supplier column data */
+    width: 200px;
+    max-width: 200px;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow: hidden;
+}
+
+/* Supplier Pills Styling */
+.badge.rounded-pill.bg-primary {
+    display: inline-block;
+    margin-bottom: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 4px 10px;
+}
+
+/* Ensure supplier column content doesn't overflow */
+#sectorTable td:nth-child(6),
+#sectorTable td:nth-child(5) {
+    vertical-align: top;
+    text-align: left;
+    padding: 8px 12px;
+}
+
+/* Mobile Column Centering - Dashboard view (with Action column) */
+#sectorTable td:nth-child(5) { /* Mobile column */
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* Mobile Column Centering - AllDashboard view (without Action column) */
+#sectorTable td:nth-child(4) { /* Mobile column */
+    text-align: center;
+    vertical-align: middle;
+}
+
 
 
 

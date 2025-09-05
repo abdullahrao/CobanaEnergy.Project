@@ -1,13 +1,21 @@
 $(document).ready(function () {
+    // Get the actual number of columns in the table
+    var columnCount = $('#sectorTable thead th').length;
+    var hasActionColumn = $('#sectorTable thead th:first').text().trim() === 'Action';
+    
+    // Calculate column indices dynamically
+    var sectorTypeColumnIndex = columnCount - 1; // Last column is always Sector Type
+    var supplierColumnIndex = hasActionColumn ? 5 : 4; // Supplier column position depends on Action column
+    
     // Initialize DataTable with ReconciliationsDashboard-style configuration
     var sectorTable = $('#sectorTable').DataTable({
         responsive: true,
         paging: true,
         ordering: true,
         searching: true,
-        order: [[1, 'asc']], // Sort by Name column
+        order: [[hasActionColumn ? 1 : 0, 'asc']], // Sort by Name column (adjust index based on Action column)
         columnDefs: [
-            { targets: 6, visible: false } // Hide Sector Type column
+            { targets: sectorTypeColumnIndex, visible: false } // Hide Sector Type column
         ],
         autoWidth: false,
         dom: 'lfrtip'
@@ -17,6 +25,7 @@ $(document).ready(function () {
     $('#sectorTypeFilter').on('change', function () {
         var selectedType = $(this).val();
         filterSectorsByType(selectedType);
+        toggleSupplierColumn(selectedType);
     });
 
     // Handle edit button clicks using event delegation (more reliable than inline onclick)
@@ -26,6 +35,17 @@ $(document).ready(function () {
         editSector(sectorId);
     });
 
+    // Toggle Supplier column visibility based on sector type
+    function toggleSupplierColumn(sectorType) {
+        if (sectorType === "Brokerage") {
+            // Show Supplier column
+            sectorTable.column(supplierColumnIndex).visible(true);
+        } else {
+            // Hide Supplier column
+            sectorTable.column(supplierColumnIndex).visible(false);
+        }
+    }
+
     // Filter sectors by sector type
     function filterSectorsByType(sectorType) {
         if (sectorType === "") {
@@ -34,7 +54,7 @@ $(document).ready(function () {
         } else {
             // Filter by sector type using custom filter function
             $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-                var sectorTypeInRow = data[6]; // Sector Type is in the 7th column (index 6) - hidden column
+                var sectorTypeInRow = data[sectorTypeColumnIndex]; // Sector Type column index
                 if (sectorType === "" || sectorTypeInRow === sectorType) {
                     return true;
                 }
@@ -82,6 +102,7 @@ $(document).ready(function () {
     // Initialize with "All Sectors" selected
     $('#sectorTypeFilter').val('');
     
-    // Apply initial filter
+    // Apply initial filter and hide Supplier column by default
     filterSectorsByType("");
+    toggleSupplierColumn(""); // Hide Supplier column initially
 });

@@ -41,20 +41,60 @@ namespace CobanaEnergy.Project.Controllers.Sector
         {
             try
             {
-                // Load data once when page loads - more efficient than real-time
                 var sectors = await db.CE_Sector
-                    .OrderByDescending(s => s.SectorID)
-                    .ToListAsync();
+                  .Include("SectorSuppliers.Supplier")
+                  .OrderByDescending(s => s.SectorID)
+                  .ToListAsync();
 
                 var sectorItems = sectors.Select(s => new SectorItemViewModel
                 {
                     SectorId = s.SectorID.ToString(),
                     Name = s.Name,
                     Active = s.Active,
-                    StartDate = s.StartDate?.ToString("yyyy-MM-dd") ?? "",
-                    EndDate = s.EndDate?.ToString("yyyy-MM-dd") ?? "",
+                    CreatedDate = s.StartDate?.ToString("yyyy-MM-dd") ?? "",
                     Mobile = s.Mobile ?? "",
-                    SectorType = s.SectorType
+                    SectorType = s.SectorType,
+                    Suppliers = s.SectorSuppliers?.Select(ss => ss.Supplier?.Name).Where(name => !string.IsNullOrEmpty(name)).ToList() ?? new List<string>()
+                }).ToList();
+
+                var model = new SectorDashboardViewModel
+                {
+                    Sectors = sectorItems,
+                    TotalSectors = sectorItems.Count,
+                    ActiveSectors = sectorItems.Count(s => s.Active),
+                    InactiveSectors = sectorItems.Count(s => !s.Active)
+                };
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                TempData["ToastMessage"] = $"Failed to load sector dashboard: {ex.Message}";
+                TempData["ToastType"] = "error";
+                Logic.Logger.Log($"Sector Dashboard failed: {ex.Message}");
+                return RedirectToAction("Index", "Home");
+            }
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> AllDashboard()
+        {
+            try
+            {
+                var sectors = await db.CE_Sector
+                   .Include("SectorSuppliers.Supplier")
+                   .OrderByDescending(s => s.SectorID)
+                   .ToListAsync();
+
+                var sectorItems = sectors.Select(s => new SectorItemViewModel
+                {
+                    SectorId = s.SectorID.ToString(),
+                    Name = s.Name,
+                    Active = s.Active,
+                    CreatedDate = s.StartDate?.ToString("yyyy-MM-dd") ?? "",
+                    Mobile = s.Mobile ?? "",
+                    SectorType = s.SectorType,
+                    Suppliers = s.SectorSuppliers?.Select(ss => ss.Supplier?.Name).Where(name => !string.IsNullOrEmpty(name)).ToList() ?? new List<string>()
                 }).ToList();
 
                 var model = new SectorDashboardViewModel
@@ -89,6 +129,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                 }
 
                 var sectors = await db.CE_Sector
+                    .Include("SectorSuppliers.Supplier")
                     .Where(s => s.SectorType == sectorType)
                     .OrderByDescending(s => s.SectorID)
                     .ToListAsync();
@@ -98,10 +139,10 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     SectorId = s.SectorID.ToString(),
                     Name = s.Name,
                     Active = s.Active,
-                    StartDate = s.StartDate?.ToString("yyyy-MM-dd") ?? "",
-                    EndDate = s.EndDate?.ToString("yyyy-MM-dd") ?? "",
+                    CreatedDate = s.StartDate?.ToString("yyyy-MM-dd") ?? "",
                     Mobile = s.Mobile ?? "",
-                    SectorType = s.SectorType
+                    SectorType = s.SectorType,
+                    Suppliers = s.SectorSuppliers?.Select(ss => ss.Supplier?.Name).Where(name => !string.IsNullOrEmpty(name)).ToList() ?? new List<string>()
                 }).ToList();
 
                 // Return just the filtered data, not the full model
@@ -117,6 +158,123 @@ namespace CobanaEnergy.Project.Controllers.Sector
             {
                 Logic.Logger.Log($"Failed to load sectors by type: {ex.Message}");
                 return JsonResponse.Fail("Failed to load sectors.");
+            }
+        }
+
+        /// <summary>
+        /// Get active sectors by type for contract forms (public access)
+        /// </summary>
+        [HttpGet]
+        public async Task<JsonResult> GetActiveSectors(string sectorType)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(sectorType))
+                {
+                    return JsonResponse.Fail("Sector type is required.");
+                }
+
+                var currentDate = DateTime.Today; // Get current date without time
+
+                var sectors = await db.CE_Sector
+                    .Where(s => s.SectorType == sectorType && 
+                               s.Active && 
+                               s.StartDate <= currentDate && 
+                               (s.EndDate == null || s.EndDate > currentDate))
+                    .OrderBy(s => s.Name)
+                    .Select(s => new
+                    {
+                        SectorId = s.SectorID,
+                        Name = s.Name,
+                        OfgemID = s.OfgemID,
+                        Department = s.Department
+                    })
+                    .ToListAsync();
+
+                return JsonResponse.Ok(new { Sectors = sectors });
+            }
+            catch (Exception ex)
+            {
+                Logic.Logger.Log($"Failed to load active sectors of type {sectorType}: {ex.Message}");
+                return JsonResponse.Fail($"Failed to load {sectorType} sectors.");
+            }
+        }
+
+        /// <summary>
+        /// Get active sub-sectors by type for contract forms (public access)
+        /// </summary>
+        [HttpGet]
+        public async Task<JsonResult> GetActiveSubSectors(string subSectorType)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(subSectorType))
+                {
+                    return JsonResponse.Fail("Sub-sector type is required.");
+                }
+
+                var currentDate = DateTime.Today; // Get current date without time
+                List<object> subSectors = new List<object>();
+
+                switch (subSectorType.ToLower())
+                {
+                    case "subreferral":
+                        var subReferrals = await db.CE_SubReferral
+                            .Where(s => s.Active && 
+                                       s.StartDate <= currentDate && 
+                                       (s.EndDate == null || s.EndDate > currentDate))
+                            .OrderBy(s => s.SubReferralPartnerName)
+                            .Select(s => new { SubSectorId = s.SubReferralID, Name = s.SubReferralPartnerName })
+                            .ToListAsync();
+                        subSectors.AddRange(subReferrals);
+                        break;
+
+                    case "subintroducer":
+                        var subIntroducers = await db.CE_SubIntroducer
+                            .Where(s => s.Active && 
+                                       s.StartDate <= currentDate && 
+                                       (s.EndDate == null || s.EndDate > currentDate))
+                            .OrderBy(s => s.SubIntroducerName)
+                            .Select(s => new { SubSectorId = s.SubIntroducerID, Name = s.SubIntroducerName })
+                            .ToListAsync();
+                        subSectors.AddRange(subIntroducers);
+                        break;
+
+                    case "subbrokerage":
+                        var subBrokerages = await db.CE_SubBrokerage
+                            .Where(s => s.Active && 
+                                       s.StartDate <= currentDate && 
+                                       (s.EndDate == null || s.EndDate > currentDate))
+                            .OrderBy(s => s.SubBrokerageName)
+                            .Select(s => new { SubSectorId = s.SubBrokerageID, Name = s.SubBrokerageName })
+                            .ToListAsync();
+                        subSectors.AddRange(subBrokerages);
+                        break;
+
+                    case "brokeragestaff":
+                        var brokerageStaff = await db.CE_BrokerageStaff
+                            .Where(s => s.Active && 
+                                       s.StartDate <= currentDate && 
+                                       (s.EndDate == null || s.EndDate > currentDate))
+                            .OrderBy(s => s.BrokerageStaffName)
+                            .Select(s => new { SubSectorId = s.BrokerageStaffID, Name = s.BrokerageStaffName })
+                            .ToListAsync();
+                        subSectors.AddRange(brokerageStaff);
+                        break;
+
+                    default:
+                        return JsonResponse.Fail($"Unknown sub-sector type: {subSectorType}");
+                }
+
+                // Add N/A option for sub-sectors
+                subSectors.Insert(0, new { SubSectorId = 0, Name = "N/A" });
+
+                return JsonResponse.Ok(new { SubSectors = subSectors });
+            }
+            catch (Exception ex)
+            {
+                Logic.Logger.Log($"Failed to load active sub-sectors of type {subSectorType}: {ex.Message}");
+                return JsonResponse.Fail($"Failed to load {subSectorType} sub-sectors.");
             }
         }
 
@@ -173,8 +331,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     SectorId = s.SectorID.ToString(),
                     Name = s.Name,
                     Active = s.Active,
-                    StartDate = s.StartDate?.ToString("yyyy-MM-dd") ?? "",
-                    EndDate = s.EndDate?.ToString("yyyy-MM-dd") ?? "",
+                    CreatedDate = s.StartDate?.ToString("yyyy-MM-dd") ?? "",
                     Mobile = s.Mobile ?? "",
                     SectorType = s.SectorType
                 }).ToList();
@@ -253,7 +410,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         Name = model.Name,
                         Active = model.Active,
                         StartDate = !string.IsNullOrEmpty(model.StartDate) ? DateTime.Parse(model.StartDate) : (DateTime?)null,
-                        EndDate = !string.IsNullOrEmpty(model.EndDate) ? DateTime.Parse(model.EndDate) : (DateTime?)null,
+                        EndDate = DateTime.MaxValue,
                         Email = model.Email,
                         Landline = model.Landline,
                         Mobile = model.Mobile,
@@ -308,7 +465,10 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     // Step 5: Add Staff and Sub-sections based on sector type
                     await AddStaffAndSubsections(sector.SectorID, model);
 
-                    // Step 6: Add Bank Details and Company Tax Info for sub-entities (MOVED to AddStaffAndSubsections to fix EntityID=1 bug)
+                    // Step 6: Handle Sector Suppliers (for Brokerage sector type)
+                    await HandleSectorSuppliers(sector.SectorID, model.SectorSuppliers);
+
+                    // Step 7: Add Bank Details and Company Tax Info for sub-entities (MOVED to AddStaffAndSubsections to fix EntityID=1 bug)
                     // await AddSubEntityBankDetailsAndTaxInfo(model);
 
                     await db.SaveChangesAsync();
@@ -348,7 +508,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         SectorID = sectorId,
                         Commission = commission.Commission,  // ViewModel.Commission -> DBModel.Commission
                         StartDate = !string.IsNullOrEmpty(commission.StartDate) ? DateTime.Parse(commission.StartDate) : DateTime.Now,
-                        EndDate = !string.IsNullOrEmpty(commission.EndDate) ? DateTime.Parse(commission.EndDate) : (DateTime?)null,
+                        EndDate = DateTime.MaxValue,
                         PaymentTerms = commission.PaymentTerms ?? "",
                         CommissionType = commission.CommissionType ?? ""
                     };
@@ -366,7 +526,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         SectorID = sectorId,
                         Commission = commission.Commission,  
                         StartDate = !string.IsNullOrEmpty(commission.StartDate) ? DateTime.Parse(commission.StartDate) : DateTime.Now,
-                        EndDate = !string.IsNullOrEmpty(commission.EndDate) ? DateTime.Parse(commission.EndDate) : (DateTime?)null,
+                        EndDate = DateTime.MaxValue,
                         PaymentTerms = commission.PaymentTerms ?? "",
                         CommissionType = commission.CommissionType ?? ""
                     };
@@ -384,7 +544,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         SectorID = sectorId,
                         CommissionPercent = commission.Commission, 
                         StartDate = !string.IsNullOrEmpty(commission.StartDate) ? DateTime.Parse(commission.StartDate) : DateTime.Now,
-                        EndDate = !string.IsNullOrEmpty(commission.EndDate) ? DateTime.Parse(commission.EndDate) : (DateTime?)null,
+                        EndDate = DateTime.MaxValue,
                         PaymentTerms = commission.PaymentTerms,
                         CommissionType = commission.CommissionType
                     };
@@ -402,10 +562,10 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         SectorID = sectorId,
                         ReferralPartnerCommission = commission.ReferralPartnerCommission,
                         ReferralPartnerStartDate = !string.IsNullOrEmpty(commission.ReferralPartnerStartDate) ? DateTime.Parse(commission.ReferralPartnerStartDate) : (DateTime?)null,
-                        ReferralPartnerEndDate = !string.IsNullOrEmpty(commission.ReferralPartnerEndDate) ? DateTime.Parse(commission.ReferralPartnerEndDate) : (DateTime?)null,
+                        ReferralPartnerEndDate = DateTime.MaxValue,
                         BrokerageCommission = commission.BrokerageCommission,
                         BrokerageStartDate = !string.IsNullOrEmpty(commission.BrokerageStartDate) ? DateTime.Parse(commission.BrokerageStartDate) : (DateTime?)null,
-                        BrokerageEndDate = !string.IsNullOrEmpty(commission.BrokerageEndDate) ? DateTime.Parse(commission.BrokerageEndDate) : (DateTime?)null,
+                        BrokerageEndDate = DateTime.MaxValue,
                         PaymentTerms = commission.PaymentTerms,
                         CommissionType = commission.CommissionType
                     };
@@ -423,10 +583,10 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         SectorID = sectorId,
                         LeadGeneratorCommissionPercent = commission.LeadGeneratorCommission,
                         LeadGeneratorStartDate = !string.IsNullOrEmpty(commission.LeadGeneratorStartDate) ? DateTime.Parse(commission.LeadGeneratorStartDate) : (DateTime?)null,
-                        LeadGeneratorEndDate = !string.IsNullOrEmpty(commission.LeadGeneratorEndDate) ? DateTime.Parse(commission.LeadGeneratorEndDate) : (DateTime?)null,
+                        LeadGeneratorEndDate = DateTime.MaxValue,
                         CloserCommissionPercent = commission.CloserCommission,
                         CloserStartDate = !string.IsNullOrEmpty(commission.CloserStartDate) ? DateTime.Parse(commission.CloserStartDate) : (DateTime?)null,
-                        CloserEndDate = !string.IsNullOrEmpty(commission.CloserEndDate) ? DateTime.Parse(commission.CloserEndDate) : (DateTime?)null,
+                        CloserEndDate = DateTime.MaxValue,
                         PaymentTerms = commission.PaymentTerms,
                         CommissionType = commission.CommissionType
                     };
@@ -448,7 +608,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         BrokerageStaffName = staff.BrokerageStaffName,
                         Active = staff.Active,
                         StartDate = !string.IsNullOrEmpty(staff.StartDate) ? DateTime.Parse(staff.StartDate) : (DateTime?)null,
-                        EndDate = !string.IsNullOrEmpty(staff.EndDate) ? DateTime.Parse(staff.EndDate) : (DateTime?)null,
+                        EndDate = DateTime.MaxValue,
                         Email = staff.Email ?? "",
                         Landline = staff.Landline ?? "",
                         Mobile = staff.Mobile ?? "",
@@ -470,7 +630,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         OfgemID = subBrokerage.OfgemID ?? "",
                         Active = subBrokerage.Active,
                         StartDate = !string.IsNullOrEmpty(subBrokerage.StartDate) ? DateTime.Parse(subBrokerage.StartDate) : (DateTime?)null,
-                        EndDate = !string.IsNullOrEmpty(subBrokerage.EndDate) ? DateTime.Parse(subBrokerage.EndDate) : (DateTime?)null,
+                        EndDate = DateTime.MaxValue,
                         Email = subBrokerage.Email ?? "",
                         Landline = subBrokerage.Landline ?? "",
                         Mobile = subBrokerage.Mobile ?? ""
@@ -490,10 +650,10 @@ namespace CobanaEnergy.Project.Controllers.Sector
                                 SubBrokerageID = subBrokerageEntity.SubBrokerageID, // Use actual ID, not 0
                                 SubBrokerageCommissionPercent = commission.SubBrokerageCommission,
                                 SubBrokerageStartDate = !string.IsNullOrEmpty(commission.SubBrokerageStartDate) ? DateTime.Parse(commission.SubBrokerageStartDate) : (DateTime?)null,
-                                SubBrokerageEndDate = !string.IsNullOrEmpty(commission.SubBrokerageEndDate) ? DateTime.Parse(commission.SubBrokerageEndDate) : (DateTime?)null,
+                                SubBrokerageEndDate = DateTime.MaxValue,
                                 BrokerageCommissionPercent = commission.BrokerageCommission,
                                 BrokerageStartDate = !string.IsNullOrEmpty(commission.BrokerageStartDate) ? DateTime.Parse(commission.BrokerageStartDate) : (DateTime?)null,
-                                BrokerageEndDate = !string.IsNullOrEmpty(commission.BrokerageEndDate) ? DateTime.Parse(commission.BrokerageEndDate) : (DateTime?)null,
+                                BrokerageEndDate = DateTime.MaxValue,
                                 PaymentTerms = commission.PaymentTerms ?? "",
                                 CommissionType = commission.CommissionType ?? ""
                             };
@@ -547,7 +707,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         SubReferralPartnerName = subReferral.SubReferralPartnerName,
                         Active = subReferral.Active,
                         StartDate = !string.IsNullOrEmpty(subReferral.StartDate) ? DateTime.Parse(subReferral.StartDate) : (DateTime?)null,
-                        EndDate = !string.IsNullOrEmpty(subReferral.EndDate) ? DateTime.Parse(subReferral.EndDate) : (DateTime?)null,
+                        EndDate = DateTime.MaxValue,
                         SubReferralPartnerEmail = subReferral.Email ?? "",
                         SubReferralPartnerLandline = subReferral.Landline ?? "",
                         SubReferralPartnerMobile = subReferral.Mobile ?? ""
@@ -567,10 +727,10 @@ namespace CobanaEnergy.Project.Controllers.Sector
                                 SubReferralID = subReferralEntity.SubReferralID, // Use actual ID, not 0
                                 SubIntroducerCommission = commission.SubReferralCommission,
                                 SubIntroducerStartDate = !string.IsNullOrEmpty(commission.SubReferralStartDate) ? DateTime.Parse(commission.SubReferralStartDate) : (DateTime?)null,
-                                SubIntroducerEndDate = !string.IsNullOrEmpty(commission.SubReferralEndDate) ? DateTime.Parse(commission.SubReferralEndDate) : (DateTime?)null,
+                                SubIntroducerEndDate = DateTime.MaxValue,
                                 IntroducerCommission = commission.ReferralPartnerCommission,
                                 IntroducerStartDate = !string.IsNullOrEmpty(commission.ReferralPartnerStartDate) ? DateTime.Parse(commission.ReferralPartnerStartDate) : (DateTime?)null,
-                                IntroducerEndDate = !string.IsNullOrEmpty(commission.ReferralPartnerEndDate) ? DateTime.Parse(commission.ReferralPartnerEndDate) : (DateTime?)null,
+                                IntroducerEndDate = DateTime.MaxValue,
                                 PaymentTerms = commission.PaymentTerms ?? "",
                                 CommissionType = commission.CommissionType ?? ""
                             };
@@ -625,7 +785,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         OfgemID = subIntroducer.OfgemID ?? "",
                         Active = subIntroducer.Active,
                         StartDate = !string.IsNullOrEmpty(subIntroducer.StartDate) ? DateTime.Parse(subIntroducer.StartDate) : (DateTime?)null,
-                        EndDate = !string.IsNullOrEmpty(subIntroducer.EndDate) ? DateTime.Parse(subIntroducer.EndDate) : (DateTime?)null,
+                        EndDate = DateTime.MaxValue,
                         SubIntroducerEmail = subIntroducer.Email ?? "",
                         SubIntroducerLandline = subIntroducer.Landline ?? "",
                         SubIntroducerMobile = subIntroducer.Mobile ?? ""
@@ -645,10 +805,10 @@ namespace CobanaEnergy.Project.Controllers.Sector
                                 SubIntroducerID = subIntroducerEntity.SubIntroducerID, // Use actual ID, not 0
                                 SubIntroducerCommission = commission.SubIntroducerCommission,
                                 SubIntroducerCommissionStartDate = !string.IsNullOrEmpty(commission.SubIntroducerStartDate) ? DateTime.Parse(commission.SubIntroducerStartDate) : (DateTime?)null,
-                                SubIntroducerCommissionEndDate = !string.IsNullOrEmpty(commission.SubIntroducerEndDate) ? DateTime.Parse(commission.SubIntroducerEndDate) : (DateTime?)null,
+                                SubIntroducerCommissionEndDate = DateTime.MaxValue,
                                 IntroducerCommission = commission.IntroducerCommission,
                                 IntroducerCommissionStartDate = !string.IsNullOrEmpty(commission.IntroducerStartDate) ? DateTime.Parse(commission.IntroducerStartDate) : (DateTime?)null,
-                                IntroducerCommissionEndDate = !string.IsNullOrEmpty(commission.IntroducerEndDate) ? DateTime.Parse(commission.IntroducerEndDate) : (DateTime?)null,
+                                IntroducerCommissionEndDate =  DateTime.MaxValue, 
                                 PaymentTerms = commission.PaymentTerms ?? "",
                                 CommissionType = commission.CommissionType ?? ""
                             };
@@ -724,6 +884,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     .Include(s => s.CE_SubBrokerages.Select(sb => sb.CE_SubBrokerageCommissionAndPayments))
                     .Include(s => s.CE_SubReferrals.Select(sr => sr.CE_SubReferralCommissionAndPayments))
                     .Include(s => s.CE_SubIntroducers.Select(si => si.CE_SubIntroducerCommissionAndPayments))
+                    .Include(s => s.SectorSuppliers)
                     .FirstOrDefault(s => s.SectorID == sectorId);
 
                 if (sector == null)
@@ -1074,6 +1235,12 @@ namespace CobanaEnergy.Project.Controllers.Sector
                 }).ToList();
             }
 
+            // Set Sector Suppliers
+            if (sector.SectorSuppliers != null && sector.SectorSuppliers.Any())
+            {
+                model.SectorSuppliers = sector.SectorSuppliers.Select(ss => ss.SupplierId).ToList();
+            }
+
             return model;
         }
 
@@ -1213,6 +1380,9 @@ namespace CobanaEnergy.Project.Controllers.Sector
 
                         // Step 5: Update Staff and Sub-sections
                         await UpdateStaffAndSubsections(sectorId, model);
+
+                        // Step 6: Handle Sector Suppliers (for Brokerage sector type)
+                        await HandleSectorSuppliers(sectorId, model.SectorSuppliers);
 
                         await db.SaveChangesAsync();
                         transaction.Commit();
@@ -2058,6 +2228,41 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         }
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Handles sector supplier relationships - removes existing and adds new ones
+        /// </summary>
+        private async Task HandleSectorSuppliers(int sectorId, List<long> supplierIds)
+        {
+            try
+            {
+                // Remove existing relationships
+                var existingSuppliers = await db.CE_SectorSupplier
+                    .Where(ss => ss.SectorId == sectorId)
+                    .ToListAsync();
+                
+                db.CE_SectorSupplier.RemoveRange(existingSuppliers);
+                
+                // Add new relationships
+                if (supplierIds != null && supplierIds.Any())
+                {
+                    var sectorSuppliers = supplierIds.Select(supplierId => new CE_SectorSupplier
+                    {
+                        SectorId = sectorId,
+                        SupplierId = supplierId
+                    }).ToList();
+                    
+                    db.CE_SectorSupplier.AddRange(sectorSuppliers);
+                }
+                
+                await db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Logic.Logger.Log($"HandleSectorSuppliers failed: {ex.Message}");
+                throw;
             }
         }
 
