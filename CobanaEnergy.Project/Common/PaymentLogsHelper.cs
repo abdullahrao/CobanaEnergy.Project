@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace CobanaEnergy.Project.Common
@@ -30,6 +31,23 @@ namespace CobanaEnergy.Project.Common
                 db.CE_PaymentAndNoteLogs.Add(log);
             }
         }
+
+        public static async Task<List<(string Label, int Count)>> GetCounterAsync(
+                 List<(string Label, string Status)> statuses,
+                 ApplicationDBContext dbContext)
+        {
+            var statusKeys = statuses.Select(s => s.Status).ToList();
+
+            var dbCounts = await dbContext.CE_ContractStatuses
+                .Where(cs => statusKeys.Contains(cs.PaymentStatus))
+                .GroupBy(cs => cs.PaymentStatus)
+                .Select(g => new { Status = g.Key, Count = g.Count() })
+                .ToListAsync();
+
+            return statuses
+                .Select(s => (s.Label, dbCounts.FirstOrDefault(dc => dc.Status == s.Status)?.Count ?? 0))
+                .ToList();
+        }
     }
 
     public static class HelperUtility
@@ -51,7 +69,7 @@ namespace CobanaEnergy.Project.Common
         };
         }
 
-        public static List<(string Label, string Status)> GetMonthlyStatus()
+        public static List<(string Label, string Status)> GetContractStatus()
         {
             return SupportedSuppliers._statusWaitDays
                     .Where(x => x.Key.Contains("Month Payment"))
@@ -59,5 +77,16 @@ namespace CobanaEnergy.Project.Common
                     .Select(kvp => ($"Contracts {kvp.Key}", kvp.Key))
                     .ToList();
         }
+
+        public static List<(string Label, string Status)> GetQuarterlyContractStatus()
+        {
+            return SupportedSuppliers._statusWaitDays
+                    .Where(x => x.Key.Contains("Qtr") || x.Key.Contains("EDF"))
+                    .OrderBy(x => x.Value) // Sort by wait days, so statuses come in sequence
+                    .Select(kvp => ($"Contracts {kvp.Key}", kvp.Key))
+                    .ToList();
+        }
+
+
     }
 }

@@ -7,7 +7,7 @@ using CobanaEnergy.Project.Models.Accounts.SuppliersModels;
 using CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGB;
 using CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGB.DBModel;
 using CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGLite;
-using CobanaEnergy.Project.Models.Accounts.SuppliersModels.Crown;
+using CobanaEnergy.Project.Models.Accounts.SuppliersModels.TotalGasAndPower;
 using Logic;
 using Logic.ResponseModel.Helper;
 using System;
@@ -21,21 +21,21 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 
-namespace CobanaEnergy.Project.Controllers.Accounts.CrownContracts
+namespace CobanaEnergy.Project.Controllers.Accounts.TotalGasAndPowerContracts
 {
-    public class CrownContractController : BaseController
+    public class TotalGasAndPowerContractController : BaseController
     {
         private readonly ApplicationDBContext _db;
-        public CrownContractController(ApplicationDBContext db)
+        public TotalGasAndPowerContractController(ApplicationDBContext db)
         {
             _db = db;
         }
 
-        #region CrownContract 
+        #region Total Gas and PowerContract 
 
         [HttpGet]
         [Authorize(Roles = "Accounts,Controls")]
-        public async Task<ActionResult> EditCrownContract(string id, string supplierId, string type)
+        public async Task<ActionResult> EditTotalGasandPowerContract(string id, string supplierId, string type)
         {
             try
             {
@@ -46,7 +46,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CrownContracts
                     return HttpNotFound("Invalid ID, SupplierId, or Type.");
                 }
 
-                var model = new EditCrownContractViewModel
+                var model = new EditTotalGasAndPowerViewModel
                 {
                     Id = id,
                     SupplierId = supplierId
@@ -226,15 +226,15 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CrownContracts
 
                 model.PaymentDate = CalculatePaymentDate(model.InvoiceDate);
 
-                return View("~/Views/Accounts/CrownContract/EditCrownContract.cshtml", model);
+                return View("~/Views/Accounts/TotalGasAndPowerContract/EditTotalGasandPowerContract.cshtml", model);
             }
             catch (Exception ex)
             {
-                Logger.Log($"EditCrownContract failed for id={id}, supplierId={supplierId}, type={type}: {ex}");
+                Logger.Log($"TotalGasAndPowerContract failed for id={id}, supplierId={supplierId}, type={type}: {ex}");
                 return RedirectToAction("NotFound", "Error");
             }
         }
-        private async Task ReconciliationAndCommsssionMetrics(string id, EditCrownContractViewModel model, string contractType)
+        private async Task ReconciliationAndCommsssionMetrics(string id, EditTotalGasAndPowerViewModel model, string contractType)
         {
             var reconciliation = await _db.CE_CommissionAndReconciliation
                 .AsNoTracking()
@@ -303,7 +303,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CrownContracts
                         if (model.HasElectricDetails)
                         {
                             if (!(model.SupplierCommsTypeElectric.Equals("RESIDUAL", StringComparison.OrdinalIgnoreCase)))
-                                return JsonResponse.Fail("Invalid Supplier Comms Type for Crown. Only RESIDUAL are allowed.");
+                                return JsonResponse.Fail("Invalid Supplier Comms Type for TotalGasandPower. Only RESIDUAL are allowed.");
 
 
                             electricContract.Uplift = model.UpliftElectric;
@@ -358,7 +358,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CrownContracts
                         {
 
                             if (!(model.SupplierCommsTypeGas.Equals("RESIDUAL", StringComparison.OrdinalIgnoreCase)))
-                                return JsonResponse.Fail("Invalid Supplier Comms Type for Crown. Only RESIDUAL are allowed.");
+                                return JsonResponse.Fail("Invalid Supplier Comms Type for TotalGasandPower. Only RESIDUAL are allowed.");
 
                             gasContract.Uplift = model.UpliftGas;
                             gasContract.SupplierCommsType = model.SupplierCommsTypeGas;
@@ -426,7 +426,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CrownContracts
                 PaymentStatus = model.paymentStatus,
                 EId = model.EId,
                 ContractType = contracttype,
-                Dashboard = "CrownContracts",
+                Dashboard = "TotalGasAndPowerContract",
                 Username = User?.Identity?.Name ?? "Unknown User"
             };
             PaymentLogsHelper.InsertPaymentAndNotesLogs(_db, notesModel);
@@ -515,24 +515,23 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CrownContracts
                     DateTime.TryParse(model.StartDate, out DateTime startDt) &&
                     DateTime.TryParse(model.CedCOT, out DateTime cedCOTDate))
                 {
-
                     liveDays = (cedCOTDate - startDt).TotalDays.ToString("F5");
+
                     if (decimal.TryParse(model.CotLostConsumption, out decimal cotLostVal))
                     {
-                        cotLostReconciliation = (cotLostVal * upliftVal).ToString("F5");
-                        foreach (var log in eacLogs)
-                        {
-                            log.FinalEac = cotLostReconciliation;
-                            supplierEacFinal = log.FinalEac;
-                        }
-
-                        if (upliftVal != 0 && decimal.TryParse(liveDays, out decimal live) && live != 0)
-                        {
-                            decimal totalAverage = ((cotLostVal / live) * 365);
-                            reconciliation.CobanaDueCommission = ((totalAverage / 365) * live * upliftVal).ToString("F5");
-                        }
+                        cotLostReconciliation = (cotLostVal * upliftVal).ToString("F5"); // same --
                     }
 
+                    foreach (var log in eacLogs)
+                    {
+                        log.FinalEac = cotLostReconciliation;
+                        supplierEacFinal = log.FinalEac;
+                    }
+                    if (decimal.TryParse(model.CotLostConsumption, out decimal cotLostConVal) &&
+                        upliftVal != 0)
+                    {
+                        reconciliation.CobanaDueCommission = (cotLostConVal * upliftVal).ToString("F5");
+                    }
                 }
                 else
                 {
@@ -566,7 +565,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CrownContracts
                     if (decimal.TryParse(model.CotLostConsumption, out decimal cotLostVal) &&
                         decimal.TryParse(liveDays, out decimal live) && live != 0)
                     {
-                        totalAverageEAC = ((cotLostVal / live) * 365).ToString("F2"); // >> (COT/LOST Consumption/Live Days) *365
+                        totalAverageEAC = ((cotLostVal / live) * 365).ToString("F2"); 
                     }
                 }
                 else
@@ -599,6 +598,8 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CrownContracts
                         contractType = contractType
                     });
                 }
+
+
             }
             catch (Exception ex)
             {
@@ -617,7 +618,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CrownContracts
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
         [Authorize(Roles = "Accounts,Controls")]
-        public async Task<JsonResult> SaveEacLog(CrownEacLogViewModel model)
+        public async Task<JsonResult> SaveEacLog(TotalGasAndPowerEacLogViewModel model)
         {
             using (var transaction = _db.Database.BeginTransaction())
             {
@@ -627,7 +628,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CrownContracts
                         return Json(JsonResponse.Fail("Please fill all required fields correctly."));
 
                     if (!(model.SupplierCommsType.Equals("RESIDUAL", StringComparison.OrdinalIgnoreCase)))
-                        return JsonResponse.Fail("Invalid Supplier Comms Type for Crown. Only RESIDUAL are allowed.");
+                        return JsonResponse.Fail("Invalid Supplier Comms Type for Total Gas and Power. Only RESIDUAL are allowed.");
 
                     string durationStr = "1";
                     if (model.ContractType.Equals("Electric", StringComparison.OrdinalIgnoreCase))
@@ -671,8 +672,22 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CrownContracts
                         .ToListAsync();
 
                     decimal averageEac = 0;
-                    var TotalEac = GetTotalEacValue(eacLogs, duration);
-                    averageEac = TotalEac / duration;
+                    if (model.SupplierCommsType.Equals("RESIDUAL", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var TotalEac = GetTotalEacValue(eacLogs, duration);
+                        averageEac = TotalEac / duration;
+                    }
+                    else
+                    {
+                        var year1 = GetLatestEac(eacLogs, "1ST YEAR EAC-FINAL", "1ST YEAR EAC-INITIAL");
+                        var year2 = GetLatestEac(eacLogs, "2ND YEAR EAC-FINAL", "2ND YEAR EAC-INITIAL");
+                        var year3 = GetLatestEac(eacLogs, "3RD YEAR EAC-FINAL", "3RD YEAR EAC-INITIAL");
+                        var year4 = GetLatestEac(eacLogs, "4TH YEAR EAC-FINAL", "4TH YEAR EAC-INITIAL");
+                        var year5 = GetLatestEac(eacLogs, "5TH YEAR EAC-FINAL", "5TH YEAR EAC-INITIAL");
+
+                        var eacValues = new List<decimal> { year1.Value, year2.Value, year3.Value, year4.Value, year5.Value };
+                        averageEac = CalculateAverageEac(eacValues, duration);
+                    }
 
                     log.FinalEac = averageEac.ToString("F2");
                     await _db.SaveChangesAsync();

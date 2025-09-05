@@ -5,6 +5,81 @@
         return segments[segments.length - 1];
     }
 
+    function loadSupplierEAC(supplierCommsType) {
+
+        var duration = $("#durationElectric").val() || $("#durationGas").val();
+
+        if (duration) {
+            duration = Math.ceil(parseFloat(duration));
+        } else {
+            duration = 0;
+        }
+
+        const select = document.getElementById("eacYear");
+        select.innerHTML = '<option value="">Select Option</option>';
+
+        const paymentStatus = document.getElementById("paymentStatus");
+        paymentStatus.innerHTML = '<option value="">Select Option</option>';
+
+        populateDropdown("paymentStatus", AccountDropdownOptions.paymentStatusCorona, $('#paymentStatus').data('current'));
+
+        if (supplierCommsType && supplierCommsType.toLowerCase() === "quarterly") {
+
+            let awaitingInvoiceOption = document.createElement("option");
+            awaitingInvoiceOption.value = "EDF Awaiting Invoice";
+            awaitingInvoiceOption.textContent = "EDF Awaiting Invoice";
+            paymentStatus.appendChild(awaitingInvoiceOption);
+
+            for (let year = 1; year <= duration; year++) {
+                let suffix;
+                if (year % 10 === 1 && year % 100 !== 11) suffix = "st";
+                else if (year % 10 === 2 && year % 100 !== 12) suffix = "nd";
+                else if (year % 10 === 3 && year % 100 !== 13) suffix = "rd";
+                else suffix = "th";
+
+                // 4 quarters per year
+                for (let qtr = 1; qtr <= 4; qtr++) {
+                    // Build the display text: "EAC 1st Year - Qtr 1"
+                    let text = `EAC ${year}${suffix} Year - Qtr ${qtr}`;
+
+                    // Create option for the first select
+                    let option1 = document.createElement("option");
+                    option1.value = text;
+                    option1.textContent = text;
+                    select.appendChild(option1);
+
+                    // Create option for the second select
+                    let option2 = document.createElement("option");
+                    option2.value = text;
+                    option2.textContent = text;
+                    paymentStatus.appendChild(option2);
+                }
+            }
+           
+        } else {
+            const eacOptions = [
+                "1ST YEAR EAC-INITIAL",
+                "1ST YEAR EAC-FINAL",
+                "2ND YEAR EAC-INITIAL",
+                "2ND YEAR EAC-FINAL",
+                "3RD YEAR EAC-INITIAL",
+                "3RD YEAR EAC-FINAL",
+                "4TH YEAR EAC-INITIAL",
+                "4TH YEAR EAC-FINAL",
+                "5TH YEAR EAC-INITIAL",
+                "5TH YEAR EAC-FINAL"
+            ];
+            eacOptions.forEach(optionText => {
+                let option = document.createElement("option");
+                option.value = optionText;
+                option.textContent = optionText;
+                select.appendChild(option);
+            });
+
+        }
+
+    }
+
     const eid = getEIdFromUrl();
     $("#eid").val(eid);
 
@@ -15,7 +90,15 @@
         populateDropdown("supplierCommsTypeElectric", DropdownOptions.supplierCommsType, $('#supplierCommsTypeElectric').data('current'));
         populateDropdown("supplierCommsTypeGas", DropdownOptions.supplierCommsType, $('#supplierCommsTypeGas').data('current'));
         populateDropdown("contractStatus", AccountDropdownOptions.contractStatus, $('#contractStatus').data('current'));
-        populateDropdown("paymentStatus", AccountDropdownOptions.paymentStatus, $('#paymentStatus').data('current'));
+        populateDropdown("paymentStatus", AccountDropdownOptions.paymentStatusCorona, $('#paymentStatus').data('current'));
+
+        // Comms Type
+        const commsType = $("#gasContract").val() === "true"
+            ? $("#supplierCommsTypeGas").val()
+            : $("#supplierCommsTypeElectric").val();
+
+        calculatePaymentDate();
+        loadSupplierEAC(commsType);
         loadEacLogs();
     });
 
@@ -53,7 +136,7 @@
         $btn.prop("disabled", true).html('<i class="fas fa-spinner fa-spin me-1"></i> Saving...');
 
         $.ajax({
-            url: '/BGLiteContract/SaveEacLog',
+            url: '/EDFContract/SaveEacLog',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(payload),
@@ -61,7 +144,7 @@
                 if (res.success) {
                     showToastSuccess("EAC Log saved successfully.");
                     $("#eacLogForm")[0].reset();
-                    // Set Final Eac Value 
+
                     let finalEac = res.Data?.[0]?.FinalEac ?? 0;
                     let decimalPart = finalEac.toString().split('.')[1];
                     if (decimalPart) {
@@ -72,6 +155,7 @@
                         finalEac = Number(finalEac).toFixed(2);
                     }
                     $("#finalEac").val(finalEac);
+
                     renderEacLogs(res.Data);
                 } else {
                     showToastError(res.message || "Failed to save EAC Log.");
@@ -88,7 +172,7 @@
 
     function loadEacLogs() {
         if (!eid) return;
-        $.get(`/BGLiteContract/GetEacLogs?eid=${eid}&contractType=${$("#contractType").val()}`, function (res) {
+        $.get(`/EDFContract/GetEacLogs?eid=${eid}&contractType=${$("#contractType").val()}`, function (res) {
             if (!res.success || !res.Data || !res.Data.length) {
                 $("#bgbInvoiceLogsContainer").html('<span class="text-muted">No logs yet. Save EAC entries to view them here.</span>');
                 return;
@@ -122,7 +206,7 @@
     }
 
     $("#exportInvoiceLogsBtn").on("click", function () {
-        $.get(`/BGLiteContract/GetEacLogs?eid=${eid}&contractType=${$("#contractType").val()}`, function (res) {
+        $.get(`/EDFContract/GetEacLogs?eid=${eid}&contractType=${$("#contractType").val()}`, function (res) {
             if (!res.success || !res.Data?.length) {
                 showToastWarning("No logs to export.");
                 return;
@@ -159,20 +243,18 @@
         const invoiceDate = new Date(invoiceDateStr);
         if (isNaN(invoiceDate.getTime())) return "";
 
+        // Add 30 days
         let targetDate = new Date(invoiceDate.getTime());
-        targetDate.setDate(targetDate.getDate() + 28);
+        targetDate.setDate(targetDate.getDate() + 30);
 
-        const day = targetDate.getDay();
-        let diffToFriday = (5 - day + 7) % 7;
-        targetDate.setDate(targetDate.getDate() + diffToFriday);
-
+        // Format as YYYY-MM-DD
         const yyyy = targetDate.getFullYear();
         const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
         const dd = String(targetDate.getDate()).padStart(2, '0');
         return `${yyyy}-${mm}-${dd}`;
     }
 
-    $("#editBGLiteContractForm").on("submit", async function (e) {
+    $("#editEDFContractForm").on("submit", async function (e) {
         e.preventDefault();
         const $btn = $(this).find('button[type="submit"]');
         $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i> Updating...');
@@ -211,7 +293,6 @@
             }
 
             const token = $('input[name="__RequestVerificationToken"]').val();
-
             const payload = {
                 EId: $('#eid').val(),
                 HasElectricDetails: $('#upliftElectric').length > 0,
@@ -223,6 +304,8 @@
                 SupplierCommsTypeGas: $('#supplierCommsTypeGas').val(),
                 CommissionGas: $('#CommissionGas').val(),
                 ContractNotes: $('#contractNotes').val(),
+                DurationElectric: $('#durationElectric').val(),
+                DurationGas: $('#durationGas').val(),
                 contractStatus: $('#contractStatus').val(),
                 paymentStatus: $('#paymentStatus').val(),
                 OtherAmount: $('#otherAmount').val(),
@@ -235,9 +318,9 @@
                 CommissionFollowUpDate: $('#commissionFollowUpDate').val(),
                 SupplierCobanaInvoiceNotes: $('#supplierCobanaInvoiceNotes').val()
             };
-
+     
             $.ajax({
-                url: '/BGLiteContract/UpdateContract',
+                url: '/EDFContract/UpdateContract',
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify(payload),
@@ -286,7 +369,12 @@
     }
 
     // Run on change of Start Date or Duration
-    $("#startDate, #durationElectric, #durationGas").on("change keyup", calculateCED);
+    $("#startDate").on("change keyup", calculateCED);
+
+    $("#supplierCommsTypeElectric, #supplierCommsTypeGas").on("change", function () {
+        const commsType = $(this).val();
+        loadSupplierEAC(commsType);
+    });
 
     function validateForm($form) {
         let valid = true;
@@ -327,6 +415,8 @@
             InvoiceNo: $("#invoiceNo").val(),
             InvoiceDate: $("#invoiceDate").val(),
             PaymentDate: $("#paymentDate").val(),
+            SupplierCommsTypeElectric: $("#supplierCommsTypeElectric").val(),
+            SupplierCommsTypeGas: $("#supplierCommsTypeGas").val(),
             InvoiceAmount: $("#invoiceAmount").val(),
             __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
         };

@@ -1,14 +1,14 @@
-﻿@model CobanaEnergy.Project.Models.Accounts.SuppliersModels.Crown.EditCrownContractViewModel
+﻿@model CobanaEnergy.Project.Models.Accounts.SuppliersModels.TotalGasAndPower.EditTotalGasAndPowerViewModel
 @using CobanaEnergy.Project.Service.ExtensionService;
 
 @{
-    ViewBag.Title = "Edit Crown Contract";
+    ViewBag.Title = "Edit Total Gas And Power Contract";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="container-fluid px-4">
     <div class="text-center mb-4">
-        <h2 class="fw-bold">Crown Gas and Power Contract</h2>
+        <h2 class="fw-bold">Total Gas And Power Contract</h2>
     </div>
 
     <div class="edit-bgb-container d-flex flex-wrap gap-4">
@@ -62,9 +62,11 @@
             </div>
 
             <!-- Contract & Presales -->
-            <form id="editCrownContractForm" method="post" novalidate>
+            <form id="editTotalGasAndPowerContractForm" method="post" novalidate>
+
                 <input type="hidden" id="electricContract" name="HasElectricDetails" value="@(Model.HasElectricDetails ? "true" : "false")" />
                 <input type="hidden" id="gasContract" name="HasGasDetails" value="@(Model.HasGasDetails ? "true" : "false")" />
+
                 @Html.AntiForgeryToken()
                 <input type="hidden" id="eid" name="eid" value="@Model.Id" />
                 <div class="form-section">
@@ -101,7 +103,7 @@
                                 </div>
                                 <div class="col-md-6 col-lg-4">
                                     <label class="form-label" for="durationElectric">Duration</label>
-                                    <input type="text" id="durationElectric" class="form-control" value="@Model.DurationElectric" autocomplete="off" disabled />
+                                    <input type="text" id="durationElectric" class="form-control" value="@Model.DurationElectric" autocomplete="off" />
                                 </div>
                                 <div class="col-md-6 col-lg-4">
                                     <label class="form-label" for="productElectric">Product</label>
@@ -146,7 +148,7 @@
                                 </div>
                                 <div class="col-md-6 col-lg-4">
                                     <label class="form-label" for="durationGas">Duration</label>
-                                    <input type="text" id="durationGas" class="form-control" value="@Model.DurationGas" autocomplete="off" disabled />
+                                    <input type="text" id="durationGas" class="form-control" value="@Model.DurationGas" autocomplete="off" />
                                 </div>
                                 <div class="col-md-6 col-lg-4">
                                     <label class="form-label" for="productGas">Product</label>
@@ -330,11 +332,11 @@
 </div>
 
 @section styles {
-    <link href="~/Content/Accounts/CrownContracts/crownContract.css" rel="stylesheet" />
+    <link href="~/Content/Accounts/TotalGasAndPower/totalGasAndPowerContract.css" rel="stylesheet" />
 }
 
 @section scripts {
     <script src="~/Scripts/Dropdown/dropdowns.js"></script>
-    <script src="~/Scripts/Accounts/CrownContracts/editCrownContract.js"></script>
+    <script src="~/Scripts/Accounts/TotalGasAndPowerContracts/editTGPContract.js"></script>
 }
 

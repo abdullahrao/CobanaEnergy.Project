@@ -98,9 +98,10 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
                          Status = db.CE_ContractStatuses
                              .FirstOrDefault(cs => cs.EId == e.EId && cs.Type == "Electric"),
                          Reconciliation = db.CE_CommissionAndReconciliation
-                             .FirstOrDefault(r => r.EId == e.EId && r.contractType == "Electric")
+                             .FirstOrDefault(r => r.EId == e.EId && r.contractType == "Electric"),
+                         SupplierName = db.CE_Supplier.Where(s => s.Id == e.SupplierId).Select(s => s.Name).FirstOrDefault()
                      })
-                    .Where(x => x.Status != null && ShouldShowOnAwaitingPaymentsDashboard(x.Status.PaymentStatus, x.Status.ModifyDate.ToString(), x.Reconciliation?.CED))
+                    .Where(x => x.Status != null && ShouldShowOnAwaitingPaymentsDashboard(x.Status.PaymentStatus, x.Status.ModifyDate.ToString(), x.Reconciliation?.CED, x.SupplierName))
                     .ToList();
 
 
@@ -111,9 +112,10 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
                         Status = db.CE_ContractStatuses
                             .FirstOrDefault(cs => cs.EId == g.EId && cs.Type == "Gas"),
                         Reconciliation = db.CE_CommissionAndReconciliation
-                            .FirstOrDefault(r => r.EId == g.EId && r.contractType == "Gas")
+                            .FirstOrDefault(r => r.EId == g.EId && r.contractType == "Gas"),
+                        SupplierName = db.CE_Supplier.Where(s => s.Id == g.SupplierId).Select(s => s.Name).FirstOrDefault()
                     })
-                    .Where(x => x.Status != null && ShouldShowOnAwaitingPaymentsDashboard(x.Status.PaymentStatus, x.Status.ModifyDate.ToString(), x.Reconciliation?.CED))
+                    .Where(x => x.Status != null && ShouldShowOnAwaitingPaymentsDashboard(x.Status.PaymentStatus, x.Status.ModifyDate.ToString(), x.Reconciliation?.CED, x.SupplierName))
                     .ToList();
 
                 var contracts = electricContractsRaw.Select(x => new AwaitingPaymentsRowViewModel
@@ -163,55 +165,25 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
                 }));
 
 
-                #region [Status Count]
+                #region [Counter]
 
-                var statuses = HelperUtility.GetStatuses();
-                var statusKeys = statuses.Select(s => s.Status).ToList();
+                var statuses = HelperUtility.GetStatuses(); 
+                var monthlyStatus = HelperUtility.GetContractStatus();
+                var quarterlyStatus = HelperUtility.GetQuarterlyContractStatus(); 
 
-                var dbCounts = await db.CE_ContractStatuses
-                    .Where(cs => statusKeys.Contains(cs.PaymentStatus))
-                    .GroupBy(cs => cs.PaymentStatus)
-                    .Select(g => new { Status = g.Key, Count = g.Count() })
-                    .ToListAsync();
-
-                var result = statuses
-                    .Select(s => new
-                    {
-                        Label = s.Label,
-                        Count = dbCounts.FirstOrDefault(dc => dc.Status == s.Status)?.Count ?? 0
-                    })
-                    .ToList();
-                #endregion
-
-                #region [Monthly Counter]
-
-
-                var monthlyStatus = HelperUtility.GetMonthlyStatus();
-                var monthlyStatusKeys = statuses.Select(s => s.Status).ToList();
-
-                var monthlyCounterList = await db.CE_ContractStatuses
-                    .Where(cs => statusKeys.Contains(cs.PaymentStatus))
-                    .GroupBy(cs => cs.PaymentStatus)
-                    .Select(g => new { Status = g.Key, Count = g.Count() })
-                    .ToListAsync();
-
-                var resultantCounter = monthlyStatus
-                    .Select(s => new
-                    {
-                        Label = s.Label,
-                        Count = dbCounts.FirstOrDefault(dc => dc.Status == s.Status)?.Count ?? 0
-                    })
-                    .ToList();
+                var statusCounters = await PaymentLogsHelper.GetCounterAsync(statuses, db);
+                var monthlyCounters = await PaymentLogsHelper.GetCounterAsync(monthlyStatus, db);
+                var quarterlyCounters = await PaymentLogsHelper.GetCounterAsync(quarterlyStatus, db);
 
 
                 #endregion
-
 
                 return JsonResponse.Ok(new
                 {
                     Contracts = contracts,
-                    MonthlyCounterList = resultantCounter,
-                    CounterList = result
+                    MonthlyCounterList = monthlyCounters,
+                    QuarterlyCounterList = quarterlyCounters,
+                    CounterList = statusCounters
                 });
             }
             catch (Exception ex)
@@ -315,7 +287,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
                 result.SupplierCobanaInvoiceNotes = model.SupplierCobanaInvoiceNotes;
 
                 #region [INSERT PAYMENT LOGS]
-                
+
                 var notesModel = new PaymentAndNotesLogsViewModel
                 {
                     CobanaInvoiceNotes = model.SupplierCobanaInvoiceNotes,
@@ -327,7 +299,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
                 };
                 PaymentLogsHelper.InsertPaymentAndNotesLogs(db, notesModel);
 
-                
+
                 #endregion
 
                 await db.SaveChangesAsync();
@@ -356,13 +328,13 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
             return current;
         }
 
-        private bool ShouldShowOnAwaitingPaymentsDashboard(string paymentStatus, string startDateStr, string endDateStr)
+        private bool ShouldShowOnAwaitingPaymentsDashboard(string paymentStatus, string startDateStr, string endDateStr, string supplierName)
         {
-            
+
             if (string.IsNullOrWhiteSpace(paymentStatus))
                 return false;
 
-            if (!SupportedSuppliers.TryGetWaitDays(paymentStatus, out var waitDays))
+            if (!SupportedSuppliers.TryGetWaitDays(paymentStatus, out var waitDays, supplierName))
                 return false;
 
             DateTime now = DateTime.UtcNow.Date;
