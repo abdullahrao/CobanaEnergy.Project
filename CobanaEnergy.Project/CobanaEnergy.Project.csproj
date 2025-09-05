@@ -437,6 +437,10 @@
     <Compile Include="Migrations\202508290855118_Faryal_SectorSupplierMappings.Designer.cs">
       <DependentUpon>202508290855118_Faryal_SectorSupplierMappings.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202509051053196_testing-Abdullah-InitialMapping.cs" />
+    <Compile Include="Migrations\202509051053196_testing-Abdullah-InitialMapping.Designer.cs">
+      <DependentUpon>202509051053196_testing-Abdullah-InitialMapping.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\Accounts\AwaitingPaymentsDashboard\AwaitingPaymentsDashboard.cs" />
     <Compile Include="Models\Accounts\CalendarDashboard\CalendarDashboardViewModel.cs" />
     <Compile Include="Models\Accounts\ClawbacksDashboard\ClawbacksDashboardViewModel.cs" />
@@ -694,6 +698,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202509031548518_EDFSME_86c59edwa.resx">
       <DependentUpon>202509031548518_EDFSME_86c59edwa.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202509051053196_testing-Abdullah-InitialMapping.resx">
+      <DependentUpon>202509051053196_testing-Abdullah-InitialMapping.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
