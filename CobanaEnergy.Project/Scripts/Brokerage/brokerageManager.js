@@ -262,7 +262,10 @@ class BrokerageManager {
         $('#inHouseFields').hide();
         $('#introducersFields').hide();
         
-        this.loadBrokerageStaff(() => this.populateModelValues());
+        // Get the selected brokerage (SectorID) and load only its staff
+        const sel = this.getSelectedBrokerageData();
+        const sectorId = sel ? parseInt(sel.sectorId, 10) : 0;
+        this.loadBrokerageStaff(sectorId, () => this.populateModelValues());
     }
 
     /**
@@ -469,11 +472,20 @@ class BrokerageManager {
     /**
      * Load brokerage staff
      */
-    loadBrokerageStaff(callback = null) {
+    loadBrokerageStaff(sectorId, callback = null) {
+
+        const $brokerageStaffSelect = $('#brokerageStaff');
+        $brokerageStaffSelect.find('option:not(:first)').remove();
+
+        if (!sectorId || sectorId <= 0) {
+            return; 
+        }
+
+
         $.ajax({
             url: '/Sector/GetActiveSubSectors',
             type: 'GET',
-            data: { subSectorType: 'BrokerageStaff' },
+            data: { subSectorType: 'BrokerageStaff', sectorId: sectorId },
             success: (response) => {
                 if (response.success && response.Data && response.Data.SubSectors) {
                     const $brokerageStaffSelect = $('#brokerageStaff');
@@ -492,6 +504,9 @@ class BrokerageManager {
                         callback();
                     }
                 }
+            },
+            error: (xhr, status, error) => {
+                console.error('Failed to load brokerage staff:', error);
             }
         });
     }
