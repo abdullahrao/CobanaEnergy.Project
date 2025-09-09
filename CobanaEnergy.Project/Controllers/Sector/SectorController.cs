@@ -174,12 +174,17 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     return JsonResponse.Fail("Sector type is required.");
                 }
 
+                if (sectorType == "Referral")
+                {
+                    sectorType = "Referral Partner";
+                }
+
                 var currentDate = DateTime.Today; // Get current date without time
 
                 var sectors = await db.CE_Sector
-                    .Where(s => s.SectorType == sectorType && 
-                               s.Active && 
-                               s.StartDate <= currentDate && 
+                    .Where(s => s.SectorType == sectorType &&
+                               s.Active &&
+                               s.StartDate <= currentDate &&
                                (s.EndDate == null || s.EndDate > currentDate))
                     .OrderBy(s => s.Name)
                     .Select(s => new
@@ -204,7 +209,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
         /// Get active sub-sectors by type for contract forms (public access)
         /// </summary>
         [HttpGet]
-        public async Task<JsonResult> GetActiveSubSectors(string subSectorType)
+        public async Task<JsonResult> GetActiveSubSectors(string subSectorType, int? sectorId = null)
         {
             try
             {
@@ -220,8 +225,8 @@ namespace CobanaEnergy.Project.Controllers.Sector
                 {
                     case "subreferral":
                         var subReferrals = await db.CE_SubReferral
-                            .Where(s => s.Active && 
-                                       s.StartDate <= currentDate && 
+                            .Where(s => s.Active &&
+                                       s.StartDate <= currentDate &&
                                        (s.EndDate == null || s.EndDate > currentDate))
                             .OrderBy(s => s.SubReferralPartnerName)
                             .Select(s => new { SubSectorId = s.SubReferralID, Name = s.SubReferralPartnerName })
@@ -231,8 +236,8 @@ namespace CobanaEnergy.Project.Controllers.Sector
 
                     case "subintroducer":
                         var subIntroducers = await db.CE_SubIntroducer
-                            .Where(s => s.Active && 
-                                       s.StartDate <= currentDate && 
+                            .Where(s => s.Active &&
+                                       s.StartDate <= currentDate &&
                                        (s.EndDate == null || s.EndDate > currentDate))
                             .OrderBy(s => s.SubIntroducerName)
                             .Select(s => new { SubSectorId = s.SubIntroducerID, Name = s.SubIntroducerName })
@@ -242,8 +247,8 @@ namespace CobanaEnergy.Project.Controllers.Sector
 
                     case "subbrokerage":
                         var subBrokerages = await db.CE_SubBrokerage
-                            .Where(s => s.Active && 
-                                       s.StartDate <= currentDate && 
+                            .Where(s => s.Active &&
+                                       s.StartDate <= currentDate &&
                                        (s.EndDate == null || s.EndDate > currentDate))
                             .OrderBy(s => s.SubBrokerageName)
                             .Select(s => new { SubSectorId = s.SubBrokerageID, Name = s.SubBrokerageName })
@@ -253,8 +258,9 @@ namespace CobanaEnergy.Project.Controllers.Sector
 
                     case "brokeragestaff":
                         var brokerageStaff = await db.CE_BrokerageStaff
-                            .Where(s => s.Active && 
-                                       s.StartDate <= currentDate && 
+                            .Where(s => s.Active &&
+                                       (sectorId == null || s.SectorID == sectorId.Value) &&
+                                       s.StartDate <= currentDate &&
                                        (s.EndDate == null || s.EndDate > currentDate))
                             .OrderBy(s => s.BrokerageStaffName)
                             .Select(s => new { SubSectorId = s.BrokerageStaffID, Name = s.BrokerageStaffName })
@@ -382,19 +388,21 @@ namespace CobanaEnergy.Project.Controllers.Sector
             if (!ModelState.IsValid)
             {
                 var errors = ModelState.Values.SelectMany(x => x.Errors).Select(e => e.ErrorMessage).ToList();
-                return Json(new { 
-                    success = false, 
+                return Json(new
+                {
+                    success = false,
                     message = "Validation failed. Please check your input.",
                     errors = errors
                 }, JsonRequestBehavior.AllowGet);
             }
 
             // Additional validation for Brokerage and Introducers
-            if ((model.SectorType == "Brokerage" || model.SectorType == "Introducer") && 
+            if ((model.SectorType == "Brokerage" || model.SectorType == "Introducer") &&
                 string.IsNullOrWhiteSpace(model.OfgemID))
             {
-                return Json(new { 
-                    success = false, 
+                return Json(new
+                {
+                    success = false,
                     message = "Ofgem ID is required for Brokerage and Introducer sectors.",
                     errors = new[] { "Ofgem ID is required for Brokerage and Introducer sectors." }
                 }, JsonRequestBehavior.AllowGet);
@@ -475,8 +483,9 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     transaction.Commit();
 
                     // Return JSON for immediate toast notification
-                    return Json(new { 
-                        success = true, 
+                    return Json(new
+                    {
+                        success = true,
                         message = "Sector created successfully!",
                         redirectUrl = Url.Action("Dashboard", "Sector")
                     }, JsonRequestBehavior.AllowGet);
@@ -485,10 +494,11 @@ namespace CobanaEnergy.Project.Controllers.Sector
                 {
                     transaction.Rollback();
                     Logic.Logger.Log($"Sector creation failed: {ex.Message}");
-                    
+
                     // Return JSON error for immediate toast notification
-                    return Json(new { 
-                        success = false, 
+                    return Json(new
+                    {
+                        success = false,
                         message = "An unexpected error occurred while saving sector.",
                         errors = new[] { ex.Message }
                     }, JsonRequestBehavior.AllowGet);
@@ -524,7 +534,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     var closerCommission = new CE_CloserCommissionAndPayment
                     {
                         SectorID = sectorId,
-                        Commission = commission.Commission,  
+                        Commission = commission.Commission,
                         StartDate = !string.IsNullOrEmpty(commission.StartDate) ? DateTime.Parse(commission.StartDate) : DateTime.Now,
                         EndDate = DateTime.MaxValue,
                         PaymentTerms = commission.PaymentTerms ?? "",
@@ -542,7 +552,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     var introducerCommission = new CE_IntroducerCommissionAndPayment
                     {
                         SectorID = sectorId,
-                        CommissionPercent = commission.Commission, 
+                        CommissionPercent = commission.Commission,
                         StartDate = !string.IsNullOrEmpty(commission.StartDate) ? DateTime.Parse(commission.StartDate) : DateTime.Now,
                         EndDate = DateTime.MaxValue,
                         PaymentTerms = commission.PaymentTerms,
@@ -636,10 +646,10 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         Mobile = subBrokerage.Mobile ?? ""
                     };
                     db.CE_SubBrokerage.Add(subBrokerageEntity);
-                    
+
                     // Save immediately to get the ID for commission records
                     await db.SaveChangesAsync();
-                    
+
                     // Add Sub Brokerage Commissions using the actual ID
                     if (subBrokerage.Commissions != null && subBrokerage.Commissions.Any(c => !string.IsNullOrEmpty(c.SubBrokerageCommission.ToString())))
                     {
@@ -713,10 +723,10 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         SubReferralPartnerMobile = subReferral.Mobile ?? ""
                     };
                     db.CE_SubReferral.Add(subReferralEntity);
-                    
+
                     // Save immediately to get the ID for commission records
                     await db.SaveChangesAsync();
-                    
+
                     // Add Sub Referral Commissions using the actual ID
                     if (subReferral.Commissions != null && subReferral.Commissions.Any(c => !string.IsNullOrEmpty(c.SubReferralCommission.ToString())))
                     {
@@ -791,10 +801,10 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         SubIntroducerMobile = subIntroducer.Mobile ?? ""
                     };
                     db.CE_SubIntroducer.Add(subIntroducerEntity);
-                    
+
                     // Save immediately to get the ID for commission records
                     await db.SaveChangesAsync();
-                    
+
                     // Add Sub Introducer Commissions using the actual ID
                     if (subIntroducer.Commissions != null && subIntroducer.Commissions.Any(c => !string.IsNullOrEmpty(c.SubIntroducerCommission.ToString())))
                     {
@@ -808,7 +818,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                                 SubIntroducerCommissionEndDate = DateTime.MaxValue,
                                 IntroducerCommission = commission.IntroducerCommission,
                                 IntroducerCommissionStartDate = !string.IsNullOrEmpty(commission.IntroducerStartDate) ? DateTime.Parse(commission.IntroducerStartDate) : (DateTime?)null,
-                                IntroducerCommissionEndDate =  DateTime.MaxValue, 
+                                IntroducerCommissionEndDate = DateTime.MaxValue,
                                 PaymentTerms = commission.PaymentTerms ?? "",
                                 CommissionType = commission.CommissionType ?? ""
                             };
@@ -876,7 +886,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     TempData["ToastType"] = "error";
                     return RedirectToAction("Dashboard", "Sector");
                 }
-                
+
                 Logic.Logger.Log($"Successfully parsed id '{id}' to int: {sectorId}");
 
                 var sector = db.CE_Sector
@@ -894,7 +904,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     TempData["ToastType"] = "error";
                     return RedirectToAction("Dashboard", "Sector");
                 }
-                
+
                 Logic.Logger.Log($"Found sector: {sector.Name} (ID: {sector.SectorID})");
 
                 // Get Bank Details
@@ -929,8 +939,8 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     .ToList();
 
                 // Build the complete EditSectorViewModel
-                var model = BuildEditSectorViewModel(sector, bankDetails, companyTaxInfo, 
-                    brokerageCommissions, closerCommissions, introducerCommissions, 
+                var model = BuildEditSectorViewModel(sector, bankDetails, companyTaxInfo,
+                    brokerageCommissions, closerCommissions, introducerCommissions,
                     referralPartnerCommissions, leadGeneratorCommissions, db);
 
                 Logic.Logger.Log($"Successfully built EditSectorViewModel for sector {sector.SectorID}");
@@ -945,7 +955,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
             }
         }
 
-        private EditSectorViewModel BuildEditSectorViewModel(CE_Sector sector, 
+        private EditSectorViewModel BuildEditSectorViewModel(CE_Sector sector,
             CE_BankDetails bankDetails, CE_CompanyTaxInfo companyTaxInfo,
             List<CE_BrokerageCommissionAndPayment> brokerageCommissions,
             List<CE_CloserCommissionAndPayment> closerCommissions,
@@ -1092,7 +1102,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     StartDate = s.StartDate?.ToString("yyyy-MM-dd") ?? "",
                     EndDate = s.EndDate?.ToString("yyyy-MM-dd") ?? "",
                     Active = s.Active,
-                    
+
                     BankDetails = db.CE_BankDetails
                         .Where(b => b.EntityType == "SubBrokerage" && b.EntityID == s.SubBrokerageID)
                         .Select(b => new BankDetailsViewModel
@@ -1106,7 +1116,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                             IBAN = b.IBAN ?? "",
                             SwiftCode = b.SwiftCode ?? ""
                         }).FirstOrDefault() ?? new BankDetailsViewModel(),
-                    
+
                     // Company Tax Info - CORRECTED: Query by EntityType and EntityID
                     CompanyTaxInfo = db.CE_CompanyTaxInfo
                         .Where(c => c.EntityType == "SubBrokerage" && c.EntityID == s.SubBrokerageID)
@@ -1116,8 +1126,8 @@ namespace CobanaEnergy.Project.Controllers.Sector
                             VATNumber = c.VATNumber ?? "",
                             Notes = c.Notes ?? ""
                         }).FirstOrDefault() ?? new CompanyTaxInfoViewModel(),
-                    
-                    
+
+
                     Commissions = s.CE_SubBrokerageCommissionAndPayments?.Select(c => new SubBrokerageCommissionAndPaymentViewModel
                     {
                         SubBrokerageCommission = c.SubBrokerageCommissionPercent,
@@ -1143,7 +1153,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     StartDate = s.StartDate?.ToString("yyyy-MM-dd") ?? "",
                     EndDate = s.EndDate?.ToString("yyyy-MM-dd") ?? "",
                     Active = s.Active,
-                    
+
                     // Bank Details - CORRECTED: Query by EntityType and EntityID
                     BankDetails = db.CE_BankDetails
                         .Where(b => b.EntityType == "SubReferral" && b.EntityID == s.SubReferralID)
@@ -1158,7 +1168,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                             IBAN = b.IBAN ?? "",
                             SwiftCode = b.SwiftCode ?? ""
                         }).FirstOrDefault() ?? new BankDetailsViewModel(),
-                    
+
                     CompanyTaxInfo = db.CE_CompanyTaxInfo
                         .Where(c => c.EntityType == "SubReferral" && c.EntityID == s.SubReferralID)
                         .Select(c => new CompanyTaxInfoViewModel
@@ -1167,7 +1177,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                             VATNumber = c.VATNumber ?? "",
                             Notes = c.Notes ?? ""
                         }).FirstOrDefault() ?? new CompanyTaxInfoViewModel(),
-                    
+
                     Commissions = s.CE_SubReferralCommissionAndPayments?.Select(c => new SubReferralCommissionAndPaymentViewModel
                     {
                         SubReferralCommission = c.SubIntroducerCommission, // DB.SubIntroducerCommission -> ViewModel.SubReferralCommission
@@ -1194,7 +1204,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     StartDate = s.StartDate?.ToString("yyyy-MM-dd") ?? "",
                     EndDate = s.EndDate?.ToString("yyyy-MM-dd") ?? "",
                     Active = s.Active,
-                    
+
                     // Bank Details - CORRECTED: Query by EntityType and EntityID
                     BankDetails = db.CE_BankDetails
                         .Where(b => b.EntityType == "SubIntroducer" && b.EntityID == s.SubIntroducerID)
@@ -1209,7 +1219,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                             IBAN = b.IBAN ?? "",
                             SwiftCode = b.SwiftCode ?? ""
                         }).FirstOrDefault() ?? new BankDetailsViewModel(),
-                    
+
                     // Company Tax Info - CORRECTED: Query by EntityType and EntityID
                     CompanyTaxInfo = db.CE_CompanyTaxInfo
                         .Where(c => c.EntityType == "SubIntroducer" && c.EntityID == s.SubIntroducerID)
@@ -1219,7 +1229,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                             VATNumber = c.VATNumber ?? "",
                             Notes = c.Notes ?? ""
                         }).FirstOrDefault() ?? new CompanyTaxInfoViewModel(),
-                    
+
                     // Commissions - CORRECTED: Fixed field names to match DB model and ViewModel
                     Commissions = s.CE_SubIntroducerCommissionAndPayments?.Select(c => new SubIntroducerCommissionAndPaymentViewModel
                     {
@@ -1259,19 +1269,21 @@ namespace CobanaEnergy.Project.Controllers.Sector
                                  .Select(e => e.ErrorMessage)
                                  .ToList();
 
-                    return Json(new { 
-                        success = false, 
+                    return Json(new
+                    {
+                        success = false,
                         message = "Validation failed. Please check your input.",
                         errors = errors
                     }, JsonRequestBehavior.AllowGet);
                 }
 
                 // Additional validation for Brokerage and Introducers
-                if ((model.SectorType == "Brokerage" || model.SectorType == "Introducer") && 
+                if ((model.SectorType == "Brokerage" || model.SectorType == "Introducer") &&
                     string.IsNullOrWhiteSpace(model.OfgemID))
                 {
-                    return Json(new { 
-                        success = false, 
+                    return Json(new
+                    {
+                        success = false,
                         message = "Ofgem ID is required for Brokerage and Introducer sectors.",
                         errors = new[] { "Ofgem ID is required for Brokerage and Introducer sectors." }
                     }, JsonRequestBehavior.AllowGet);
@@ -1279,8 +1291,9 @@ namespace CobanaEnergy.Project.Controllers.Sector
 
                 if (!int.TryParse(model.SectorId, out int sectorId))
                 {
-                    return Json(new { 
-                        success = false, 
+                    return Json(new
+                    {
+                        success = false,
                         message = "Invalid sector ID.",
                         errors = new[] { "Invalid sector ID." }
                     }, JsonRequestBehavior.AllowGet);
@@ -1294,8 +1307,9 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         var sector = await db.CE_Sector.FindAsync(sectorId);
                         if (sector == null)
                         {
-                            return Json(new { 
-                                success = false, 
+                            return Json(new
+                            {
+                                success = false,
                                 message = "Sector not found.",
                                 errors = new[] { "Sector not found." }
                             }, JsonRequestBehavior.AllowGet);
@@ -1388,8 +1402,9 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         transaction.Commit();
 
                         // Return JSON for immediate toast notification
-                        return Json(new { 
-                            success = true, 
+                        return Json(new
+                        {
+                            success = true,
                             message = "Sector updated successfully!",
                             redirectUrl = Url.Action("Dashboard", "Sector")
                         }, JsonRequestBehavior.AllowGet);
@@ -1412,17 +1427,18 @@ namespace CobanaEnergy.Project.Controllers.Sector
             catch (Exception ex)
             {
                 Logic.Logger.Log($"Sector update failed!! {ex.Message}");
-                
+
                 // Return JSON error for immediate toast notification
-                return Json(new { 
-                    success = false, 
+                return Json(new
+                {
+                    success = false,
                     message = $"An error occurred: {ex.Message}",
                     errors = new[] { ex.Message }
                 }, JsonRequestBehavior.AllowGet);
             }
         }
 
-  
+
 
         #endregion
 
@@ -1716,48 +1732,48 @@ namespace CobanaEnergy.Project.Controllers.Sector
                 var existingSubBrokerages = await db.CE_SubBrokerage
                     .Where(s => s.SectorID == sectorId)
                     .ToListAsync();
-                
+
                 var submittedNames = model.SubBrokerages
                     .Where(s => !string.IsNullOrEmpty(s.SubBrokerageName))
                     .Select(s => s.SubBrokerageName)
                     .ToList();
-                
+
                 // Remove SubBrokerages that are no longer present in the submission
                 var subBrokeragesToRemove = existingSubBrokerages
                     .Where(existing => !submittedNames.Contains(existing.SubBrokerageName))
                     .ToList();
-                
+
                 if (subBrokeragesToRemove.Any())
                 {
                     var removeIds = subBrokeragesToRemove.Select(s => s.SubBrokerageID).ToList();
-                    
+
                     // Remove related data for truly deleted SubBrokerages
                     var bankDetailsToRemove = await db.CE_BankDetails
                         .Where(b => b.EntityType == "SubBrokerage" && removeIds.Contains(b.EntityID))
                         .ToListAsync();
                     db.CE_BankDetails.RemoveRange(bankDetailsToRemove);
-                    
+
                     var companyTaxToRemove = await db.CE_CompanyTaxInfo
                         .Where(c => c.EntityType == "SubBrokerage" && removeIds.Contains(c.EntityID))
                         .ToListAsync();
                     db.CE_CompanyTaxInfo.RemoveRange(companyTaxToRemove);
-                    
+
                     var commissionsToRemove = await db.CE_SubBrokerageCommissionAndPayment
                         .Where(c => removeIds.Contains(c.SubBrokerageID))
                         .ToListAsync();
                     db.CE_SubBrokerageCommissionAndPayment.RemoveRange(commissionsToRemove);
-                    
+
                     db.CE_SubBrokerage.RemoveRange(subBrokeragesToRemove);
                 }
-                
+
                 // Process each submitted SubBrokerage
                 foreach (var subBrokerage in model.SubBrokerages.Where(s => s != null && !string.IsNullOrEmpty(s.SubBrokerageName)))
                 {
                     var existingSubBrokerage = existingSubBrokerages
                         .FirstOrDefault(e => e.SubBrokerageName == subBrokerage.SubBrokerageName);
-                    
+
                     CE_SubBrokerage subBrokerageEntity;
-                    
+
                     if (existingSubBrokerage != null)
                     {
                         // Update existing SubBrokerage
@@ -1769,7 +1785,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         existingSubBrokerage.Landline = subBrokerage.Landline ?? "";
                         existingSubBrokerage.Mobile = subBrokerage.Mobile ?? "";
                         subBrokerageEntity = existingSubBrokerage;
-                        
+
                         // Update commissions (replace all)
                         var existingCommissions = await db.CE_SubBrokerageCommissionAndPayment
                             .Where(c => c.SubBrokerageID == existingSubBrokerage.SubBrokerageID)
@@ -1794,13 +1810,13 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         db.CE_SubBrokerage.Add(subBrokerageEntity);
                         await db.SaveChangesAsync(); // Save to get ID for new entity
                     }
-                    
+
                     // Update/Create Bank Details if provided
                     if (subBrokerage.BankDetails != null && !string.IsNullOrEmpty(subBrokerage.BankDetails.BankName))
                     {
                         var existingBankDetails = await db.CE_BankDetails
                             .FirstOrDefaultAsync(b => b.EntityType == "SubBrokerage" && b.EntityID == subBrokerageEntity.SubBrokerageID);
-                        
+
                         if (existingBankDetails != null)
                         {
                             // Update existing bank details
@@ -1832,13 +1848,13 @@ namespace CobanaEnergy.Project.Controllers.Sector
                             db.CE_BankDetails.Add(subBrokerageBankDetails);
                         }
                     }
-                    
+
                     // Update/Create Company Tax Info if provided
                     if (subBrokerage.CompanyTaxInfo != null && !string.IsNullOrEmpty(subBrokerage.CompanyTaxInfo.CompanyRegistration))
                     {
                         var existingCompanyTaxInfo = await db.CE_CompanyTaxInfo
                             .FirstOrDefaultAsync(c => c.EntityType == "SubBrokerage" && c.EntityID == subBrokerageEntity.SubBrokerageID);
-                        
+
                         if (existingCompanyTaxInfo != null)
                         {
                             // Update existing company tax info
@@ -1860,7 +1876,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                             db.CE_CompanyTaxInfo.Add(subBrokerageCompanyTaxInfo);
                         }
                     }
-                    
+
                     // Add new commissions
                     if (subBrokerage.Commissions != null && subBrokerage.Commissions.Any())
                     {
@@ -1890,48 +1906,48 @@ namespace CobanaEnergy.Project.Controllers.Sector
                 var existingSubReferrals = await db.CE_SubReferral
                     .Where(s => s.SectorID == sectorId)
                     .ToListAsync();
-                
+
                 var submittedNames = model.SubReferrals
                     .Where(s => !string.IsNullOrEmpty(s.SubReferralPartnerName))
                     .Select(s => s.SubReferralPartnerName)
                     .ToList();
-                
+
                 // Remove SubReferrals that are no longer present in the submission
                 var subReferralsToRemove = existingSubReferrals
                     .Where(existing => !submittedNames.Contains(existing.SubReferralPartnerName))
                     .ToList();
-                
+
                 if (subReferralsToRemove.Any())
                 {
                     var removeIds = subReferralsToRemove.Select(s => s.SubReferralID).ToList();
-                    
+
                     // Remove related data for truly deleted SubReferrals
                     var bankDetailsToRemove = await db.CE_BankDetails
                         .Where(b => b.EntityType == "SubReferral" && removeIds.Contains(b.EntityID))
                         .ToListAsync();
                     db.CE_BankDetails.RemoveRange(bankDetailsToRemove);
-                    
+
                     var companyTaxToRemove = await db.CE_CompanyTaxInfo
                         .Where(c => c.EntityType == "SubReferral" && removeIds.Contains(c.EntityID))
                         .ToListAsync();
                     db.CE_CompanyTaxInfo.RemoveRange(companyTaxToRemove);
-                    
+
                     var commissionsToRemove = await db.CE_SubReferralCommissionAndPayment
                         .Where(c => removeIds.Contains(c.SubReferralID))
                         .ToListAsync();
                     db.CE_SubReferralCommissionAndPayment.RemoveRange(commissionsToRemove);
-                    
+
                     db.CE_SubReferral.RemoveRange(subReferralsToRemove);
                 }
-                
+
                 // Process each submitted SubReferral
                 foreach (var subReferral in model.SubReferrals.Where(s => s != null && !string.IsNullOrEmpty(s.SubReferralPartnerName)))
                 {
                     var existingSubReferral = existingSubReferrals
                         .FirstOrDefault(e => e.SubReferralPartnerName == subReferral.SubReferralPartnerName);
-                    
+
                     CE_SubReferral subReferralEntity;
-                    
+
                     if (existingSubReferral != null)
                     {
                         // Update existing SubReferral
@@ -1942,7 +1958,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         existingSubReferral.SubReferralPartnerLandline = subReferral.Landline ?? "";
                         existingSubReferral.SubReferralPartnerMobile = subReferral.Mobile ?? "";
                         subReferralEntity = existingSubReferral;
-                        
+
                         // Update commissions (replace all)
                         var existingCommissions = await db.CE_SubReferralCommissionAndPayment
                             .Where(c => c.SubReferralID == existingSubReferral.SubReferralID)
@@ -1966,13 +1982,13 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         db.CE_SubReferral.Add(subReferralEntity);
                         await db.SaveChangesAsync(); // Save to get ID for new entity
                     }
-                    
+
                     // Update/Create Bank Details if provided
                     if (subReferral.BankDetails != null && !string.IsNullOrEmpty(subReferral.BankDetails.BankName))
                     {
                         var existingBankDetails = await db.CE_BankDetails
                             .FirstOrDefaultAsync(b => b.EntityType == "SubReferral" && b.EntityID == subReferralEntity.SubReferralID);
-                        
+
                         if (existingBankDetails != null)
                         {
                             // Update existing bank details
@@ -2004,13 +2020,13 @@ namespace CobanaEnergy.Project.Controllers.Sector
                             db.CE_BankDetails.Add(subReferralBankDetails);
                         }
                     }
-                    
+
                     // Update/Create Company Tax Info if provided
                     if (subReferral.CompanyTaxInfo != null && !string.IsNullOrEmpty(subReferral.CompanyTaxInfo.CompanyRegistration))
                     {
                         var existingCompanyTaxInfo = await db.CE_CompanyTaxInfo
                             .FirstOrDefaultAsync(c => c.EntityType == "SubReferral" && c.EntityID == subReferralEntity.SubReferralID);
-                        
+
                         if (existingCompanyTaxInfo != null)
                         {
                             // Update existing company tax info
@@ -2032,7 +2048,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                             db.CE_CompanyTaxInfo.Add(subReferralCompanyTaxInfo);
                         }
                     }
-                    
+
                     // Add new commissions
                     if (subReferral.Commissions != null && subReferral.Commissions.Any())
                     {
@@ -2062,48 +2078,48 @@ namespace CobanaEnergy.Project.Controllers.Sector
                 var existingSubIntroducers = await db.CE_SubIntroducer
                     .Where(s => s.SectorID == sectorId)
                     .ToListAsync();
-                
+
                 var submittedNames = model.SubIntroducers
                     .Where(s => !string.IsNullOrEmpty(s.SubIntroducerName))
                     .Select(s => s.SubIntroducerName)
                     .ToList();
-                
+
                 // Remove SubIntroducers that are no longer present in the submission
                 var subIntroducersToRemove = existingSubIntroducers
                     .Where(existing => !submittedNames.Contains(existing.SubIntroducerName))
                     .ToList();
-                
+
                 if (subIntroducersToRemove.Any())
                 {
                     var removeIds = subIntroducersToRemove.Select(s => s.SubIntroducerID).ToList();
-                    
+
                     // Remove related data for truly deleted SubIntroducers
                     var bankDetailsToRemove = await db.CE_BankDetails
                         .Where(b => b.EntityType == "SubIntroducer" && removeIds.Contains(b.EntityID))
                         .ToListAsync();
                     db.CE_BankDetails.RemoveRange(bankDetailsToRemove);
-                    
+
                     var companyTaxToRemove = await db.CE_CompanyTaxInfo
                         .Where(c => c.EntityType == "SubIntroducer" && removeIds.Contains(c.EntityID))
                         .ToListAsync();
                     db.CE_CompanyTaxInfo.RemoveRange(companyTaxToRemove);
-                    
+
                     var commissionsToRemove = await db.CE_SubIntroducerCommissionAndPayment
                         .Where(c => removeIds.Contains(c.SubIntroducerID))
                         .ToListAsync();
                     db.CE_SubIntroducerCommissionAndPayment.RemoveRange(commissionsToRemove);
-                    
+
                     db.CE_SubIntroducer.RemoveRange(subIntroducersToRemove);
                 }
-                
+
                 // Process each submitted SubIntroducer
                 foreach (var subIntroducer in model.SubIntroducers.Where(s => s != null && !string.IsNullOrEmpty(s.SubIntroducerName)))
                 {
                     var existingSubIntroducer = existingSubIntroducers
                         .FirstOrDefault(e => e.SubIntroducerName == subIntroducer.SubIntroducerName);
-                    
+
                     CE_SubIntroducer subIntroducerEntity;
-                    
+
                     if (existingSubIntroducer != null)
                     {
                         // Update existing SubIntroducer
@@ -2115,7 +2131,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         existingSubIntroducer.SubIntroducerLandline = subIntroducer.Landline ?? "";
                         existingSubIntroducer.SubIntroducerMobile = subIntroducer.Mobile ?? "";
                         subIntroducerEntity = existingSubIntroducer;
-                        
+
                         // Update commissions (replace all)
                         var existingCommissions = await db.CE_SubIntroducerCommissionAndPayment
                             .Where(c => c.SubIntroducerID == existingSubIntroducer.SubIntroducerID)
@@ -2140,13 +2156,13 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         db.CE_SubIntroducer.Add(subIntroducerEntity);
                         await db.SaveChangesAsync(); // Save to get ID for new entity
                     }
-                    
+
                     // Update/Create Bank Details if provided
                     if (subIntroducer.BankDetails != null && !string.IsNullOrEmpty(subIntroducer.BankDetails.BankName))
                     {
                         var existingBankDetails = await db.CE_BankDetails
                             .FirstOrDefaultAsync(b => b.EntityType == "SubIntroducer" && b.EntityID == subIntroducerEntity.SubIntroducerID);
-                        
+
                         if (existingBankDetails != null)
                         {
                             // Update existing bank details
@@ -2178,13 +2194,13 @@ namespace CobanaEnergy.Project.Controllers.Sector
                             db.CE_BankDetails.Add(subIntroducerBankDetails);
                         }
                     }
-                    
+
                     // Update/Create Company Tax Info if provided
                     if (subIntroducer.CompanyTaxInfo != null && !string.IsNullOrEmpty(subIntroducer.CompanyTaxInfo.CompanyRegistration))
                     {
                         var existingCompanyTaxInfo = await db.CE_CompanyTaxInfo
                             .FirstOrDefaultAsync(c => c.EntityType == "SubIntroducer" && c.EntityID == subIntroducerEntity.SubIntroducerID);
-                        
+
                         if (existingCompanyTaxInfo != null)
                         {
                             // Update existing company tax info
@@ -2206,7 +2222,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                             db.CE_CompanyTaxInfo.Add(subIntroducerCompanyTaxInfo);
                         }
                     }
-                    
+
                     // Add new commissions
                     if (subIntroducer.Commissions != null && subIntroducer.Commissions.Any())
                     {
@@ -2242,9 +2258,9 @@ namespace CobanaEnergy.Project.Controllers.Sector
                 var existingSuppliers = await db.CE_SectorSupplier
                     .Where(ss => ss.SectorId == sectorId)
                     .ToListAsync();
-                
+
                 db.CE_SectorSupplier.RemoveRange(existingSuppliers);
-                
+
                 // Add new relationships
                 if (supplierIds != null && supplierIds.Any())
                 {
@@ -2253,10 +2269,10 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         SectorId = sectorId,
                         SupplierId = supplierId
                     }).ToList();
-                    
+
                     db.CE_SectorSupplier.AddRange(sectorSuppliers);
                 }
-                
+
                 await db.SaveChangesAsync();
             }
             catch (Exception ex)
