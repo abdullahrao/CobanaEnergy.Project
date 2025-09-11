@@ -356,14 +356,8 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
                 if (!inputDate.HasValue)
                     return false;
 
+                waitDays = supplierName != null && supplierName.Trim().ToLower() == "scottish power" ? 14 : 7;
                 var effectiveDate = inputDate.Value.AddDays(waitDays);
-
-                if (effectiveDate.DayOfWeek != DayOfWeek.Sunday)
-                {
-                    int daysUntilSunday = ((int)DayOfWeek.Sunday - (int)effectiveDate.DayOfWeek + 7) % 7;
-                    effectiveDate = effectiveDate.AddDays(daysUntilSunday);
-                }
-
                 return now >= effectiveDate;
             }
             return startDate.HasValue && now >= startDate.Value.AddDays(waitDays);

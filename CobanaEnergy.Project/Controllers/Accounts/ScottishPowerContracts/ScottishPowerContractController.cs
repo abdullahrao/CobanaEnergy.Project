@@ -7,7 +7,7 @@ using CobanaEnergy.Project.Models.Accounts.SuppliersModels;
 using CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGB;
 using CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGB.DBModel;
 using CobanaEnergy.Project.Models.Accounts.SuppliersModels.EDFSME;
-using CobanaEnergy.Project.Models.Supplier.SupplierDBModels.snapshot;
+using CobanaEnergy.Project.Models.Accounts.SuppliersModels.ScottishPower;
 using Logic;
 using Logic.ResponseModel.Helper;
 using System;
@@ -21,21 +21,21 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 
-namespace CobanaEnergy.Project.Controllers.Accounts.EDFSMEContracts
+namespace CobanaEnergy.Project.Controllers.Accounts.ScottishPowerContracts
 {
-    public class EDFSMEContractController : BaseController
+    public class ScottishPowerContractController : BaseController
     {
         private readonly ApplicationDBContext _db;
-        public EDFSMEContractController(ApplicationDBContext db)
+        public ScottishPowerContractController(ApplicationDBContext db)
         {
             _db = db;
         }
 
-        #region EDFSMEContract 
+        #region ScottishPowerContract 
 
         [HttpGet]
         [Authorize(Roles = "Accounts,Controls")]
-        public async Task<ActionResult> EditEDFSMEContract(string id, string supplierId, string type)
+        public async Task<ActionResult> EditScottishPowerContract(string id, string supplierId, string type)
         {
             try
             {
@@ -46,7 +46,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.EDFSMEContracts
                     return HttpNotFound("Invalid ID, SupplierId, or Type.");
                 }
 
-                var model = new EditEDFSmeContractViewModel
+                var model = new EditScottishPowerContractViewModel
                 {
                     Id = id,
                     SupplierId = supplierId
@@ -231,7 +231,8 @@ namespace CobanaEnergy.Project.Controllers.Accounts.EDFSMEContracts
                             DateTime.TryParseExact(parts[1], "dd.MM.yyyy",
                                 CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime invoiceDate))
                         {
-                            model.InvoiceNo = parts[0];
+                            string invoiceNo = Regex.Replace(parts[0], "[A-Za-z]+$", "");
+                            model.InvoiceNo = invoiceNo;
                             model.InvoiceDate = invoiceDate.ToString("yyyy-MM-dd");
                         }
                     }
@@ -239,15 +240,15 @@ namespace CobanaEnergy.Project.Controllers.Accounts.EDFSMEContracts
 
                 model.PaymentDate = CalculatePaymentDate(model.InvoiceDate);
 
-                return View("~/Views/Accounts/EDFSMEContract/EditEDFSMEContract.cshtml", model);
+                return View("~/Views/Accounts/ScottishPowerContract/EditScottishPowerContract.cshtml", model);
             }
             catch (Exception ex)
             {
-                Logger.Log($"EditEDFSMEContract failed for id={id}, supplierId={supplierId}, type={type}: {ex}");
+                Logger.Log($"EditScottishPowerContract failed for id={id}, supplierId={supplierId}, type={type}: {ex}");
                 return RedirectToAction("NotFound", "Error");
             }
         }
-        private async Task ReconciliationAndCommsssionMetrics(string id, EditEDFSmeContractViewModel model, string contractType)
+        private async Task ReconciliationAndCommsssionMetrics(string id, EditScottishPowerContractViewModel model, string contractType)
         {
             var reconciliation = await _db.CE_CommissionAndReconciliation
                 .AsNoTracking()
@@ -652,7 +653,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.EDFSMEContracts
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
         [Authorize(Roles = "Accounts,Controls")]
-        public async Task<JsonResult> SaveEacLog(EDFSmeEacLogViewModel model)
+        public async Task<JsonResult> SaveEacLog(ScottishPowerEacLogViewModel model)
         {
             using (var transaction = _db.Database.BeginTransaction())
             {
@@ -973,6 +974,5 @@ namespace CobanaEnergy.Project.Controllers.Accounts.EDFSMEContracts
 
 
         #endregion
-
     }
 }

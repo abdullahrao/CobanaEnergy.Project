@@ -281,7 +281,9 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                     "80%upfrontcommissionppkwh",
                     "20%reconciliationfixed",
                     "20%reconciliationppkwh",
-                    "sheet1"
+                    "sheet1",
+                    "cobana energy",
+                    "self_bill_data"
                 };
 
             var matchingSheets = new List<ISheet>();
