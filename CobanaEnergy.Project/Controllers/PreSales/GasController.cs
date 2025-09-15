@@ -102,6 +102,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                         SalesTypeStatus = model.SalesTypeStatus,
                         SupplierCommsType = model.SupplierCommsType,
                         PreSalesStatus = model.PreSalesStatus,
+                        PreSalesFollowUpDate = DateTime.TryParse(model.PreSalesFollowUpDate, out DateTime presalesDate) ? presalesDate : (DateTime?)null,
 
                         // Brokerage Details
                         BrokerageId = model.BrokerageId,
@@ -412,6 +413,8 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     SalesType = contract.SalesType,
                     SalesTypeStatus = contract.SalesTypeStatus,
                     PreSalesStatus = contract.PreSalesStatus,
+                    PreSalesFollowUpDate = contract.PreSalesFollowUpDate?.ToString("yyyy-MM-dd"),
+
                     // Brokerage Details
                     BrokerageId = contract.BrokerageId,
                     OfgemId = contract.OfgemId,
@@ -544,6 +547,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     contract.SalesTypeStatus = model.SalesTypeStatus;
                     contract.SupplierCommsType = model.SupplierCommsType;
                     contract.PreSalesStatus = model.PreSalesStatus;
+                    contract.PreSalesFollowUpDate = DateTime.TryParse(model.PreSalesFollowUpDate, out DateTime presalesDate) ? presalesDate : (DateTime?)null;
                     contract.UpdatedAt = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
                     
                     // Update Brokerage Details

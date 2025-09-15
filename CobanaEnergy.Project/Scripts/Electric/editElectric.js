@@ -166,6 +166,7 @@
             ProductId: $('#productSelect').val(),
             SupplierCommsType: $('#supplierCommsType').val(),
             PreSalesStatus: $('#preSalesStatus').val(),
+            PreSalesFollowUpDate: $('#preSalesFollowUpDate').val() || null,
             EMProcessor: $('#emProcessor').val(),
             ContractChecked: $('#contractChecked').is(':checked'),
             ContractAudited: $('#contractAudited').is(':checked'),
@@ -243,6 +244,7 @@
                     $('#productId').val(d.ProductId);
                     $('#supplierCommsType').val(d.SupplierCommsType);
                     $('#preSalesStatus').val(d.PreSalesStatus);
+                    $('#preSalesFollowUpDate').val(d.PreSalesFollowUpDate);
                     $('#contractNotes').val(d.ContractNotes);
                     $('#sortCode').val(d.SortCode);
                     $('#accountNumber').val(d.AccountNumber);

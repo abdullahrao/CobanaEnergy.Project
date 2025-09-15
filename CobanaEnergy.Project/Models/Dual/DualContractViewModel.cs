@@ -122,7 +122,6 @@ namespace CobanaEnergy.Project.Models.Dual
         public string GasInitialStartDate { get; set; }
 
         [Required(ErrorMessage = "Electric Duration required.")]
-        [Range(1, 10, ErrorMessage = "Electric Duration must be 1–10 years.")]
         public string ElectricDuration { get; set; }
 
         [Required(ErrorMessage = "Gas Duration required.")]
@@ -155,7 +154,6 @@ namespace CobanaEnergy.Project.Models.Dual
         public decimal ElectricOtherRate { get; set; }
 
         [Required(ErrorMessage = "Electric Standing Charge is required")]
-       // [Range(0.00, 100.00, ErrorMessage = "Electric Standing Charge must be a valid decimal between 0.00 and 100")]
         public decimal ElectricStandingCharge { get; set; }
 
         [Required(ErrorMessage = "Gas Uplift is required")]
@@ -175,7 +173,6 @@ namespace CobanaEnergy.Project.Models.Dual
         public decimal GasOtherRate { get; set; }
 
         [Required(ErrorMessage = "Gas Standing Charge is required")]
-        //[Range(0.00, 100.00, ErrorMessage = "Gas Standing Charge must be a valid decimal between 0.00 and 100")]
         public decimal GasStandingCharge { get; set; }
 
         [Required]
@@ -188,9 +185,13 @@ namespace CobanaEnergy.Project.Models.Dual
 
         [Required]
         public string ElectricPreSalesStatus { get; set; }
+        
+        public string ElectricPreSalesFollowUpDate { get; set; }
 
         [Required]
         public string GasPreSalesStatus { get; set; }
+        
+        public string GasPreSalesFollowUpDate { get; set; }
 
         public string EMProcessor { get; set; }
 

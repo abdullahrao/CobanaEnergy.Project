@@ -68,6 +68,7 @@ namespace CobanaEnergy.Project.Models.Electric.ElectricDBModels
         public string SalesTypeStatus { get; set; }
         public string SupplierCommsType { get; set; }
         public string PreSalesStatus { get; set; }
+        public DateTime? PreSalesFollowUpDate { get; set; }
 
 
         public int BrokerageId { get; set; }

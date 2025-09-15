@@ -430,6 +430,18 @@
     <Compile Include="Migrations\202508290855118_Faryal_SectorSupplierMappings.Designer.cs">
       <DependentUpon>202508290855118_Faryal_SectorSupplierMappings.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202509051053196_testing-Abdullah-InitialMapping.cs" />
+    <Compile Include="Migrations\202509051053196_testing-Abdullah-InitialMapping.Designer.cs">
+      <DependentUpon>202509051053196_testing-Abdullah-InitialMapping.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202509101403173_Renaming-Column-86c5adwhx.cs" />
+    <Compile Include="Migrations\202509101403173_Renaming-Column-86c5adwhx.Designer.cs">
+      <DependentUpon>202509101403173_Renaming-Column-86c5adwhx.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202509151115000_Faryal_PresalesFollowupDateAdded.cs" />
+    <Compile Include="Migrations\202509151115000_Faryal_PresalesFollowupDateAdded.Designer.cs">
+      <DependentUpon>202509151115000_Faryal_PresalesFollowupDateAdded.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\Accounts\AwaitingPaymentsDashboard\AwaitingPaymentsDashboard.cs" />
     <Compile Include="Models\Accounts\CalendarDashboard\CalendarDashboardViewModel.cs" />
     <Compile Include="Models\Accounts\ClawbacksDashboard\ClawbacksDashboardViewModel.cs" />
@@ -461,9 +473,13 @@
     <Compile Include="Models\Accounts\SuppliersModels\Corona\EditCoronaContractViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\Crown\CrownEacLogViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\Crown\EditCrownContractViewModel.cs" />
+    <Compile Include="Models\Accounts\SuppliersModels\EDFSME\EDFSmeEacLogViewModel.cs" />
+    <Compile Include="Models\Accounts\SuppliersModels\EDFSME\EditEDFSmeContractViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\EDF\EDFEacLogViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\EDF\EditEDFContractViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\PaymentAndNotesLogsViewModel.cs" />
+    <Compile Include="Models\Accounts\SuppliersModels\ScottishPower\EditScottishPowerContractViewModel.cs" />
+    <Compile Include="Models\Accounts\SuppliersModels\ScottishPower\ScottishPowerEacLogViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\SSE\EditSSEContractViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\SSE\SSEEacLogViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\TotalGasAndPower\EditTotalGasAndPowerViewModel.cs" />
@@ -626,6 +642,8 @@
     <Content Include="Views\Accounts\SSEContract\EditSSEContract.cshtml" />
     <Content Include="Views\Accounts\EDFContract\EditEDFContract.cshtml" />
     <Content Include="Views\Accounts\TotalGasAndPowerContract\EditTotalGasandPowerContract.cshtml" />
+    <Content Include="Views\Accounts\EDFSMEContract\EditEDFSMEContract.cshtml" />
+    <Content Include="Views\Accounts\ScottishPowerContract\EditScottishPowerContract.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -681,6 +699,18 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202508290855118_Faryal_SectorSupplierMappings.resx">
       <DependentUpon>202508290855118_Faryal_SectorSupplierMappings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202509031548518_EDFSME_86c59edwa.resx">
+      <DependentUpon>202509031548518_EDFSME_86c59edwa.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202509051053196_testing-Abdullah-InitialMapping.resx">
+      <DependentUpon>202509051053196_testing-Abdullah-InitialMapping.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202509101403173_Renaming-Column-86c5adwhx.resx">
+      <DependentUpon>202509101403173_Renaming-Column-86c5adwhx.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202509151115000_Faryal_PresalesFollowupDateAdded.resx">
+      <DependentUpon>202509151115000_Faryal_PresalesFollowupDateAdded.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

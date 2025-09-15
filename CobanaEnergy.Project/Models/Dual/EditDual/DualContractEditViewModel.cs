@@ -77,7 +77,7 @@ namespace CobanaEnergy.Project.Models.Dual.EditDual
         public string BusinessStreet { get; set; }
         [Required]
         public string BusinessTown { get; set; }
-        
+
         public string BusinessCounty { get; set; }
         [Required]
         public string PostCode { get; set; }
@@ -152,7 +152,6 @@ namespace CobanaEnergy.Project.Models.Dual.EditDual
         public decimal GasOtherRate { get; set; }
 
         [Required(ErrorMessage = "Gas Standing Charge is required")]
-       // [Range(0.00, 100.00, ErrorMessage = "Gas Standing Charge must be a valid decimal between 0.00 and 100")]
         public decimal GasStandingCharge { get; set; }
 
         [Required]
@@ -165,8 +164,13 @@ namespace CobanaEnergy.Project.Models.Dual.EditDual
 
         [Required]
         public string ElectricPreSalesStatus { get; set; }
+        
+        public string ElectricPreSalesFollowUpDate { get; set; }
+        
         [Required]
         public string GasPreSalesStatus { get; set; }
+        
+        public string GasPreSalesFollowUpDate { get; set; }
 
         public string EMProcessor { get; set; }
         public bool ContractChecked { get; set; }

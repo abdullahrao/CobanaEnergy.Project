@@ -222,6 +222,7 @@
             ElectricProductId: $('#electricProduct').val(),
             ElectricSupplierCommsType: $('#electricCommsType').val(),
             ElectricPreSalesStatus: $('#electricPreSalesStatus').val(),
+            ElectricPreSalesFollowUpDate: $('#electricPreSalesFollowUpDate').val() || null,
 
             GasCurrentSupplier: $('#gasCurrentSupplier').val(),
             GasSalesType: $('#gasSalesType').val(),
@@ -235,6 +236,7 @@
             GasProductId: $('#gasProduct').val(),
             GasSupplierCommsType: $('#gasCommsType').val(),
             GasPreSalesStatus: $('#gasPreSalesStatus').val(),
+            GasPreSalesFollowUpDate: $('#gasPreSalesFollowUpDate').val() || null,
 
             ContractChecked: $('#contractChecked').is(':checked'),
             ContractAudited: $('#contractAudited').is(':checked'),
