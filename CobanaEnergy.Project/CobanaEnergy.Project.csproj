@@ -265,11 +265,13 @@
     <Content Include="Content\Accounts\CampaignDashboard\campaignDashboard.css" />
     <Content Include="Content\Accounts\ClawbacksDashboard\ClawbacksDashboard.css" />
     <Content Include="Content\Accounts\EDFContracts\edfContract.css" />
+    <Content Include="Content\Accounts\EDFSMEContracts\editEDFSMEContract.css" />
     <Content Include="Content\Accounts\InvoiceSupplierDashboard\ContractSelectListing.css" />
     <Content Include="Content\Accounts\InvoiceSupplierDashboard\EditContractsInvoiceSupplier.css" />
     <Content Include="Content\Accounts\ProblematicsDashboard\ProblematicsDashboard.css" />
     <Content Include="Content\Accounts\ReconciliationsDashboard\ReconciliationsDashboard.css" />
     <Content Include="Content\Accounts\ResolveContractsDashboard\ResolveContractsDashboard.css" />
+    <Content Include="Content\Accounts\ScottishPower\editScottishPowerContract.css" />
     <Content Include="Content\Accounts\SSEContracts\EditSSEContract.css" />
     <Content Include="Content\Accounts\TotalGasAndPower\totalGasAndPowerContract.css" />
     <Content Include="Content\Signup\userDashboard.css" />
@@ -305,11 +307,13 @@
     <Content Include="Scripts\Accounts\CampaignDashboard\campaignDashboard.js" />
     <Content Include="Scripts\Accounts\ClawbacksDashboard\clawbacksDashboard.js" />
     <Content Include="Scripts\Accounts\EDFContracts\editEDFContract.js" />
+    <Content Include="Scripts\Accounts\EDFSMEContracts\editEDFSmeContract.js" />
     <Content Include="Scripts\Accounts\InvoiceSupplierDashboard\contractSelectListing.js" />
     <Content Include="Scripts\Accounts\InvoiceSupplierDashboard\editContractsInvoiceSupplier.js" />
     <Content Include="Scripts\Accounts\ProblematicsDashboard\problematicsDashboard.js" />
     <Content Include="Scripts\Accounts\ReconciliationsDashboard\reconciliationsDashboard.js" />
     <Content Include="Scripts\Accounts\ResolveContractsDashboard\resolveContractsDashboard.js" />
+    <Content Include="Scripts\Accounts\ScottishPowerContracts\editScottishPowerContract.js" />
     <Content Include="Scripts\Accounts\SSEContracts\editSSEContract.js" />
     <Content Include="Scripts\Accounts\TotalGasAndPowerContracts\editTGPContract.js" />
     <Content Include="Scripts\Dropdown\dropdowns.js" />
@@ -367,10 +371,12 @@
     <Compile Include="Controllers\Accounts\CoronaContracts\CoronaContractController.cs" />
     <Compile Include="Controllers\Accounts\CrownContracts\CrownContractController.cs" />
     <Compile Include="Controllers\Accounts\EDFContracts\EDFContractController.cs" />
+    <Compile Include="Controllers\Accounts\EDFSMEContracts\EDFSMEContractController.cs" />
     <Compile Include="Controllers\Accounts\InvoiceSupplierDashboard\InvoiceSupplierDashboardController.cs" />
     <Compile Include="Controllers\Accounts\ProblematicsDashboard\ProblematicsDashboardController.cs" />
     <Compile Include="Controllers\Accounts\ReconciliationsDashboard\ReconciliationsDashboardController.cs" />
     <Compile Include="Controllers\Accounts\ResolveContractsDashboard\ResolveContractsDashboardController.cs" />
+    <Compile Include="Controllers\Accounts\ScottishPowerContracts\ScottishPowerContractController.cs" />
     <Compile Include="Controllers\Accounts\SSEContracts\SSEContractController.cs" />
     <Compile Include="Controllers\Accounts\TotalGasAndPowerContracts\TotalGasAndPowerContractController.cs" />
     <Compile Include="Controllers\Base\BaseController.cs" />
@@ -421,6 +427,10 @@
     <Compile Include="Migrations\202508260930054_Faryal_Testing.cs" />
     <Compile Include="Migrations\202508260930054_Faryal_Testing.Designer.cs">
       <DependentUpon>202508260930054_Faryal_Testing.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202509031548518_EDFSME_86c59edwa.cs" />
+    <Compile Include="Migrations\202509031548518_EDFSME_86c59edwa.Designer.cs">
+      <DependentUpon>202509031548518_EDFSME_86c59edwa.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\202508271656129_Faryal_ContractAdditions.cs" />
     <Compile Include="Migrations\202508271656129_Faryal_ContractAdditions.Designer.cs">

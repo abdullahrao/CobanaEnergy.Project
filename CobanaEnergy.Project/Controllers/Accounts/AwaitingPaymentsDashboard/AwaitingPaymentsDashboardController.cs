@@ -64,6 +64,10 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
                     gasContractsQuery = gasContractsQuery.Where(g => g.SupplierId == supplierId);
                 }
 
+                var supplier = await db.CE_Supplier.FirstOrDefaultAsync(x => x.Id == supplierId);
+
+
+
                 var electricContractsList = await electricContractsQuery.ToListAsync();
                 var gasContractsList = await gasContractsQuery.ToListAsync();
 
@@ -101,7 +105,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
                              .FirstOrDefault(r => r.EId == e.EId && r.contractType == "Electric"),
                          SupplierName = db.CE_Supplier.Where(s => s.Id == e.SupplierId).Select(s => s.Name).FirstOrDefault()
                      })
-                    .Where(x => x.Status != null && ShouldShowOnAwaitingPaymentsDashboard(x.Status.PaymentStatus, x.Status.ModifyDate.ToString(), x.Reconciliation?.CED, x.SupplierName))
+                    .Where(x => x.Status != null && ShouldShowOnAwaitingPaymentsDashboard(x.Status.PaymentStatus, x.Contract.InputDate, x.Status.ModifyDate.ToString(), x.Reconciliation?.CED, x.SupplierName))
                     .ToList();
 
 
@@ -115,7 +119,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
                             .FirstOrDefault(r => r.EId == g.EId && r.contractType == "Gas"),
                         SupplierName = db.CE_Supplier.Where(s => s.Id == g.SupplierId).Select(s => s.Name).FirstOrDefault()
                     })
-                    .Where(x => x.Status != null && ShouldShowOnAwaitingPaymentsDashboard(x.Status.PaymentStatus, x.Status.ModifyDate.ToString(), x.Reconciliation?.CED, x.SupplierName))
+                    .Where(x => x.Status != null && ShouldShowOnAwaitingPaymentsDashboard(x.Status.PaymentStatus, x.Contract.InputDate, x.Status.ModifyDate.ToString(), x.Reconciliation?.CED, x.SupplierName))
                     .ToList();
 
                 var contracts = electricContractsRaw.Select(x => new AwaitingPaymentsRowViewModel
@@ -167,9 +171,9 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
 
                 #region [Counter]
 
-                var statuses = HelperUtility.GetStatuses(); 
+                var statuses = HelperUtility.GetStatuses();
                 var monthlyStatus = HelperUtility.GetContractStatus();
-                var quarterlyStatus = HelperUtility.GetQuarterlyContractStatus(); 
+                var quarterlyStatus = HelperUtility.GetQuarterlyContractStatus();
 
                 var statusCounters = await PaymentLogsHelper.GetCounterAsync(statuses, db);
                 var monthlyCounters = await PaymentLogsHelper.GetCounterAsync(monthlyStatus, db);
@@ -328,7 +332,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
             return current;
         }
 
-        private bool ShouldShowOnAwaitingPaymentsDashboard(string paymentStatus, string startDateStr, string endDateStr, string supplierName)
+        private bool ShouldShowOnAwaitingPaymentsDashboard(string paymentStatus, string inputDateStr, string startDateStr, string endDateStr, string supplierName)
         {
 
             if (string.IsNullOrWhiteSpace(paymentStatus))
@@ -340,16 +344,23 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
             DateTime now = DateTime.UtcNow.Date;
             DateTime? startDate = DateTime.TryParse(startDateStr, out var sdt) ? sdt.Date : (DateTime?)null;
             DateTime? endDate = DateTime.TryParse(endDateStr, out var edt) ? edt.Date : (DateTime?)null;
+            DateTime? inputDate = DateTime.TryParse(inputDateStr, out var idt) ? idt.Date : (DateTime?)null;
 
             if (paymentStatus.Equals("Awaiting Final Reconciliation", StringComparison.OrdinalIgnoreCase))
             {
                 return endDate.HasValue && now >= endDate.Value.AddDays(waitDays);
             }
-            else
-            {
-                return startDate.HasValue && now >= startDate.Value.AddDays(waitDays);
-            }
-        }
 
+            if (paymentStatus.Equals("Contract Pending", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!inputDate.HasValue)
+                    return false;
+
+                waitDays = supplierName != null && supplierName.Trim().ToLower() == "scottish power" ? 14 : 7;
+                var effectiveDate = inputDate.Value.AddDays(waitDays);
+                return now >= effectiveDate;
+            }
+            return startDate.HasValue && now >= startDate.Value.AddDays(waitDays);
+        }
     }
 }
