@@ -517,6 +517,7 @@
     <Compile Include="Models\ApplicationUser.cs" />
     <Compile Include="Models\Dual\DualContractViewModel.cs" />
     <Compile Include="Models\PreSales\PreSalesCalendarRowViewModel.cs" />
+    <Compile Include="Models\PreSales\EditContractNotesPopupViewModel.cs" />
     <Compile Include="Models\Electric\ElectricContractCreateViewModel.cs" />
     <Compile Include="Models\Electric\ElectricDBModels\CE_ElectricContractLogs.cs" />
     <Compile Include="Models\Electric\ElectricDBModels\CE_ElectricContracts.cs" />
@@ -618,6 +619,7 @@
     <Content Include="Views\Account\Login.cshtml" />
     <Content Include="Views\PreSales\Dashboard.cshtml" />
     <Content Include="Views\PreSales\PreSalesCalendar.cshtml" />
+    <Content Include="Views\PreSales\EditContractNotesPopup.cshtml" />
     <Content Include="Views\Supplier\SupplierCreation.cshtml" />
     <Content Include="Views\Supplier\SupplierDashboard.cshtml" />
     <Content Include="Views\Supplier\EditSupplier.cshtml" />

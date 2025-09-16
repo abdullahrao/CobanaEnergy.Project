@@ -29,13 +29,7 @@ $(document).ready(function () {
                 data: 'EId',
                 render: function (data, type, row) {
                     if (type === 'display') {
-                        let editUrl = '';
-                        if (row.Type === 'Electric') {
-                            editUrl = `/Electric/ElectricEdit?eid=${data}`;
-                        } else if (row.Type === 'Gas') {
-                            editUrl = `/Gas/EditGas?eid=${data}`;
-                        }
-                        return `<a href="${editUrl}" class="btn btn-sm btn-primary">Edit</a>`;
+                        return `<button class="btn btn-sm btn-primary edit-contract-btn" data-eid="${data}" data-type="${row.Type}">Edit</button>`;
                     }
                     return data;
                 }
@@ -50,6 +44,79 @@ $(document).ready(function () {
     });
 
     loadFollowUpDatesAndInitCalendar();
+
+    // Event handler for edit buttons
+    $(document).on('click', '.edit-contract-btn', function() {
+        const eId = $(this).data('eid');
+        const contractType = $(this).data('type');
+        openEditContractNotesPopup(eId, contractType);
+    });
+
+    // Event handler for form submission
+    $(document).on('submit', '#editContractNotesForm', function(e) {
+        e.preventDefault();
+        updateContractNotes();
+    });
+
+    function openEditContractNotesPopup(eId, contractType) {
+        // Load the popup content
+        $.ajax({
+            url: '/PreSalesCalendar/GetContractNotes',
+            type: 'POST',
+            data: {
+                eId: eId,
+                contractType: contractType,
+                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+            },
+            success: function(res) {
+                if (res.success) {
+                    // Populate the modal with data
+                    $('#eid').val(res.Data.EId);
+                    $('#contractType').val(res.Data.ContractType);
+                    $('#contractNotes').val(res.Data.ContractNotes);
+                    $('#preSalesFollowUpDate').val(res.Data.PreSalesFollowUpDate);
+                    
+                    // Show the modal
+                    $('#editContractNotesModal').modal('show');
+                } else {
+                    showToastError(res.message || 'Failed to load contract data.');
+                }
+            },
+            error: function() {
+                showToastError('Failed to load contract data.');
+            }
+        });
+    }
+
+    function updateContractNotes() {
+        const formData = {
+            EId: $('#eid').val(),
+            ContractType: $('#contractType').val(),
+            ContractNotes: $('#contractNotes').val(),
+            PreSalesFollowUpDate: $('#preSalesFollowUpDate').val(),
+            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+        };
+
+        $.ajax({
+            url: '/PreSalesCalendar/UpdateContractNotes',
+            type: 'POST',
+            data: formData,
+            success: function(res) {
+                if (res.success) {
+                    showToastSuccess('Contract notes and follow-up date updated successfully.');
+                    $('#editContractNotesModal').modal('hide');
+                    // Refresh the calendar to reflect the new follow-up date
+                    refreshCalendar();
+                    table.ajax.reload(); // Refresh the table
+                } else {
+                    showToastError(res.message || 'Failed to update contract notes.');
+                }
+            },
+            error: function() {
+                showToastError('Failed to update contract notes.');
+            }
+        });
+    }
 
     function loadFollowUpDatesAndInitCalendar() {
         $.ajax({
@@ -101,5 +168,10 @@ $(document).ready(function () {
                 }
             }
         });
+    }
+
+    function refreshCalendar() {
+        // Reload the follow-up dates and reinitialize the calendar
+        loadFollowUpDatesAndInitCalendar();
     }
 });

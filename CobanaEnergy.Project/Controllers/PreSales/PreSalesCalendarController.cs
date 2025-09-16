@@ -54,8 +54,8 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     DateTime selectedDateTime;
                     if (DateTime.TryParse(selectedDate, out selectedDateTime))
                     {
-                        electricQuery = electricQuery.Where(c => c.PreSalesFollowUpDate.Value.Date == selectedDateTime.Date);
-                        gasQuery = gasQuery.Where(c => c.PreSalesFollowUpDate.Value.Date == selectedDateTime.Date);
+                        electricQuery = electricQuery.Where(c => DbFunctions.TruncateTime(c.PreSalesFollowUpDate.Value) == selectedDateTime.Date);
+                        gasQuery = gasQuery.Where(c => DbFunctions.TruncateTime(c.PreSalesFollowUpDate.Value) == selectedDateTime.Date);
                     }
                 }
 
@@ -232,6 +232,96 @@ namespace CobanaEnergy.Project.Controllers.PreSales
             {
                 Logger.Log("GetPreSalesFollowUpDates error: " + ex);
                 return JsonResponse.Fail("Could not fetch pre-sales follow-up dates.");
+            }
+        }
+
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        public async Task<JsonResult> GetContractNotes(string eId, string contractType)
+        {
+            try
+            {
+                var model = new EditContractNotesPopupViewModel
+                {
+                    EId = eId,
+                    ContractType = contractType,
+                    ContractNotes = "",
+                    PreSalesFollowUpDate = ""
+                };
+
+                if (contractType == "Electric")
+                {
+                    var electricContract = await db.CE_ElectricContracts
+                        .Where(c => c.EId == eId)
+                        .FirstOrDefaultAsync();
+
+                    if (electricContract != null)
+                    {
+                        model.ContractNotes = electricContract.ContractNotes ?? "";
+                        model.PreSalesFollowUpDate = electricContract.PreSalesFollowUpDate?.ToString("yyyy-MM-dd") ?? "";
+                    }
+                }
+                else if (contractType == "Gas")
+                {
+                    var gasContract = await db.CE_GasContracts
+                        .Where(c => c.EId == eId)
+                        .FirstOrDefaultAsync();
+
+                    if (gasContract != null)
+                    {
+                        model.ContractNotes = gasContract.ContractNotes ?? "";
+                        model.PreSalesFollowUpDate = gasContract.PreSalesFollowUpDate?.ToString("yyyy-MM-dd") ?? "";
+                    }
+                }
+
+                return JsonResponse.Ok(model);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("GetContractNotes error: " + ex);
+                return JsonResponse.Fail("Could not fetch contract notes.");
+            }
+        }
+
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        public async Task<JsonResult> UpdateContractNotes(EditContractNotesPopupViewModel model)
+        {
+            try
+            {
+                if (model.ContractType == "Electric")
+                {
+                    var electricContract = await db.CE_ElectricContracts
+                        .Where(c => c.EId == model.EId)
+                        .FirstOrDefaultAsync();
+
+                    if (electricContract != null)
+                    {
+                        electricContract.ContractNotes = model.ContractNotes;
+                        electricContract.PreSalesFollowUpDate = DateTime.TryParse(model.PreSalesFollowUpDate, out DateTime presalesDate) ? presalesDate : (DateTime?)null;
+                        await db.SaveChangesAsync();
+                    }
+                }
+                else if (model.ContractType == "Gas")
+                {
+                    var gasContract = await db.CE_GasContracts
+                        .Where(c => c.EId == model.EId)
+                        .FirstOrDefaultAsync();
+
+                    if (gasContract != null)
+                    {
+                        gasContract.ContractNotes = model.ContractNotes;
+                        gasContract.PreSalesFollowUpDate = DateTime.TryParse(model.PreSalesFollowUpDate, out DateTime presalesDate) ? presalesDate : (DateTime?)null;
+                        await db.SaveChangesAsync();
+                    }
+                }
+
+                return JsonResponse.Ok("Contract notes and follow-up date updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("UpdateContractNotes error: " + ex);
+                return JsonResponse.Fail("Could not update contract notes.");
             }
         }
     }
