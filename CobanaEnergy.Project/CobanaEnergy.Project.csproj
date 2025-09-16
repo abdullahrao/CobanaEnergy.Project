@@ -284,6 +284,7 @@
     <Content Include="Content\Icons\favicon.png" />
     <Content Include="Content\Accounts\InvoiceSupplierDashboard\InvoiceSupplierDashboard.css" />
     <Content Include="Content\PreSales\Dashboard.css" />
+    <Content Include="Content\PreSales\PreSalesCalendar\PreSalesCalendar.css" />
     <Content Include="Content\Signup\ChangePassword.css" />
     <Content Include="Content\Signup\CreateUser.css" />
     <Content Include="Content\Signup\UserProfileDashboard.css" />
@@ -337,6 +338,7 @@
     <Content Include="Scripts\SignalR\jquery.signalR-2.4.3.js" />
     <Content Include="Scripts\SignalR\jquery.signalR-2.4.3.min.js" />
     <Content Include="Scripts\PreSales\dashboard.js" />
+    <Content Include="Scripts\PreSales\PreSalesCalendar\preSalesCalendar.js" />
     <Content Include="Scripts\SignalR\signalr-notification.js" />
     <Content Include="Scripts\Signup\userDashboard.js" />
     <Content Include="Scripts\Signup\changePassword.js" />
@@ -500,6 +502,7 @@
     <Compile Include="Controllers\PreSales\ElectricController.cs" />
     <Compile Include="Controllers\PreSales\GasController.cs" />
     <Compile Include="Controllers\PreSales\PreSalesController.cs" />
+    <Compile Include="Controllers\PreSales\PreSalesCalendarController.cs" />
     <Compile Include="Controllers\PreSales\SupplierController.cs" />
     <Compile Include="Controllers\Sector\SectorController.cs" />
     <Compile Include="Controllers\Signup\AccountController.cs" />
@@ -513,6 +516,7 @@
     <Compile Include="Models\ApplicationDBContext.cs" />
     <Compile Include="Models\ApplicationUser.cs" />
     <Compile Include="Models\Dual\DualContractViewModel.cs" />
+    <Compile Include="Models\PreSales\PreSalesCalendarRowViewModel.cs" />
     <Compile Include="Models\Electric\ElectricContractCreateViewModel.cs" />
     <Compile Include="Models\Electric\ElectricDBModels\CE_ElectricContractLogs.cs" />
     <Compile Include="Models\Electric\ElectricDBModels\CE_ElectricContracts.cs" />
@@ -613,6 +617,7 @@
     <Content Include="Views\Account\ChangePassword.cshtml" />
     <Content Include="Views\Account\Login.cshtml" />
     <Content Include="Views\PreSales\Dashboard.cshtml" />
+    <Content Include="Views\PreSales\PreSalesCalendar.cshtml" />
     <Content Include="Views\Supplier\SupplierCreation.cshtml" />
     <Content Include="Views\Supplier\SupplierDashboard.cshtml" />
     <Content Include="Views\Supplier\EditSupplier.cshtml" />
