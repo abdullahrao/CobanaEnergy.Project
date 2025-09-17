@@ -246,7 +246,8 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     EId = eId,
                     ContractType = contractType,
                     ContractNotes = "",
-                    PreSalesFollowUpDate = ""
+                    PreSalesFollowUpDate = "",
+                    IsDualContract = false
                 };
 
                 if (contractType == "Electric")
@@ -259,7 +260,13 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     {
                         model.ContractNotes = electricContract.ContractNotes ?? "";
                         model.PreSalesFollowUpDate = electricContract.PreSalesFollowUpDate?.ToString("yyyy-MM-dd") ?? "";
+
+                        //Check if it is also a dual contract
+                        var gasContract = await db.CE_GasContracts.Where(c => c.EId == eId).FirstOrDefaultAsync();
+                        model.IsDualContract = gasContract != null;
                     }
+
+                    
                 }
                 else if (contractType == "Gas")
                 {
@@ -271,6 +278,10 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     {
                         model.ContractNotes = gasContract.ContractNotes ?? "";
                         model.PreSalesFollowUpDate = gasContract.PreSalesFollowUpDate?.ToString("yyyy-MM-dd") ?? "";
+
+                        //Check if it is also a dual contract
+                        var electricalContract = await db.CE_ElectricContracts.Where(c => c.EId == eId).FirstOrDefaultAsync();
+                        model.IsDualContract = electricalContract != null;
                     }
                 }
 

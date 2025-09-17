@@ -29,7 +29,7 @@ $(document).ready(function () {
                 data: 'EId',
                 render: function (data, type, row) {
                     if (type === 'display') {
-                        return `<button class="btn btn-sm btn-primary edit-contract-btn" data-eid="${data}" data-type="${row.Type}">Edit</button>`;
+                        return `<a class="btn btn-sm edit-btn edit-contract-btn" target="_blank" title="Edit" data-eid="${data}" data-type="${row.Type}" ><i class='fas fa-pencil-alt me-1'></i>Edit</a>`;
                     }
                     return data;
                 }
@@ -76,6 +76,12 @@ $(document).ready(function () {
                     $('#contractNotes').val(res.Data.ContractNotes);
                     $('#preSalesFollowUpDate').val(res.Data.PreSalesFollowUpDate);
                     
+                    if (res.Data.IsDualContract) {
+                        $('.dual-contract-message').removeClass('d-none');
+                    } else {
+                        $('.dual-contract-message').addClass('d-none');
+                    }
+                
                     // Show the modal
                     $('#editContractNotesModal').modal('show');
                 } else {

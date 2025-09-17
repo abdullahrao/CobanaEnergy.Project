@@ -8,5 +8,6 @@ namespace CobanaEnergy.Project.Models.PreSales
         public string ContractType { get; set; }
         public string ContractNotes { get; set; }
         public string PreSalesFollowUpDate { get; set; }
+        public bool IsDualContract { get; set; }
     }
 }
