@@ -106,6 +106,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                         SalesTypeStatus = model.SalesTypeStatus,
                         SupplierCommsType = model.SupplierCommsType,
                         PreSalesStatus = model.PreSalesStatus,
+                        PreSalesFollowUpDate = DateTime.TryParse(model.PreSalesFollowUpDate, out DateTime presalesDate) ? presalesDate : (DateTime?)null,
 
                         // Brokerage Details
                         BrokerageId = model.BrokerageId,
@@ -413,6 +414,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     SupplierCommsType = savedProductSnapshot?.SupplierCommsType ?? contract.SupplierCommsType,
 
                     PreSalesStatus = contract.PreSalesStatus,
+                    PreSalesFollowUpDate = contract.PreSalesFollowUpDate?.ToString("yyyy-MM-dd"),
                     EMProcessor = contract.EMProcessor,
                     ContractChecked = contract.ContractChecked,
                     ContractAudited = contract.ContractAudited,
@@ -542,6 +544,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                    // contract.ProductId = model.ProductId;
                     contract.SupplierCommsType = model.SupplierCommsType;
                     contract.PreSalesStatus = model.PreSalesStatus;
+                    contract.PreSalesFollowUpDate = DateTime.TryParse(model.PreSalesFollowUpDate, out DateTime presalesDate) ? presalesDate : (DateTime?)null;
                     contract.ContractChecked = model.ContractChecked;
                     contract.ContractAudited = model.ContractAudited;
                     contract.Terminated = model.Terminated;

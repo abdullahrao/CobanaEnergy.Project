@@ -173,6 +173,7 @@
             ProductId: $('#productSelect').val(),
             SupplierCommsType: $('#supplierCommsType').val(),
             PreSalesStatus: $('#preSalesStatus').val(),
+            PreSalesFollowUpDate: $('#preSalesFollowUpDate').val() || null,
             EMProcessor: $('#emProcessor').val(),
             ContractChecked: $('#contractChecked').is(':checked'),
             ContractAudited: $('#contractAudited').is(':checked'),

@@ -1,5 +1,4 @@
-﻿using CobanaEnergy.Project.Models.Supplier.SupplierSnapshots;
-using CobanaEnergy.Project.Models.Supplier.SupplierSnapshots_Gas;
+﻿using CobanaEnergy.Project.Models.Supplier.SupplierSnapshots_Gas;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -85,7 +84,6 @@ namespace CobanaEnergy.Project.Models.Gas.EditGas
 
         [Required]
         public string CurrentSupplier { get; set; }
-
         [Required]
         public long SupplierId { get; set; }
         [Required]
@@ -123,6 +121,9 @@ namespace CobanaEnergy.Project.Models.Gas.EditGas
         public string SupplierCommsType { get; set; }
         [Required]
         public string PreSalesStatus { get; set; }
+        
+        public string PreSalesFollowUpDate { get; set; }
+        
         public GasSupplierSnapshotViewModel SupplierSnapshot { get; set; }
 
         // Brokerage Details
