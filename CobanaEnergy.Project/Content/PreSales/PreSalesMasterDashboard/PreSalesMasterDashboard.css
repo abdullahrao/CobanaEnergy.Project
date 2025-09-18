@@ -1,0 +1,204 @@
+.pre-sales-master-dashboard {
+    padding: 40px 20px 20px 20px;
+    background-color: #f9f9f9;
+    font-family: 'Raleway', sans-serif;
+    min-height: 92vh;
+    width: 99vw;
+    margin-left: calc(-49vw + 49%);
+    max-width: none;
+}
+
+.pre-sales-master-dashboard .dashboard-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 32px;
+    text-align: center;
+    letter-spacing: 0.5px;
+    font-family: 'Raleway', sans-serif;
+}
+
+.pre-sales-master-dashboard .filters {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 4px 28px rgba(80, 94, 128, 0.11);
+    padding: 16px 20px;
+    margin-bottom: 24px;
+}
+
+.pre-sales-master-dashboard .filters .form-label {
+    font-size: 1rem;
+    font-family: 'Raleway', sans-serif;
+    margin-bottom: 6px;
+}
+
+.pre-sales-master-dashboard .table-container {
+    overflow-x: auto;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 4px 28px 0 rgba(80,94,128,0.11);
+    padding: 24px 20px 20px 20px;
+}
+
+#preSalesMasterTable {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.94rem;
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    margin-bottom: 0;
+}
+
+#preSalesMasterTable th,
+#preSalesMasterTable td {
+    text-align: center;
+    vertical-align: middle;
+    padding: 12px 14px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 1rem;
+}
+
+#preSalesMasterTable thead th {
+    font-family: 'Raleway', sans-serif;
+    font-size: 1.03rem;
+    font-weight: 700;
+    background: #fafbfc;
+    color: #232949;
+    border-bottom: 2px solid #ececec;
+}
+
+#preSalesMasterTable tbody tr {
+    transition: background 0.15s;
+}
+
+#preSalesMasterTable tbody tr:hover {
+    background: #f4f6fc;
+}
+
+.edit-btn {
+    background-color: #6b737a;
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 4px;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.edit-btn i {
+    font-size: 0.85rem;
+}
+
+.edit-btn:hover {
+    background-color: #545b61;
+    color: #fff;
+}
+
+
+/* DataTable customizations */
+.dataTables_wrapper {
+    padding: 20px;
+}
+
+.dataTables_length,
+.dataTables_filter {
+    margin-bottom: 15px;
+}
+
+.dataTables_length select,
+.dataTables_filter input {
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    padding: 6px 12px;
+}
+
+.dataTables_info {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.dataTables_paginate .paginate_button {
+    border-radius: 6px !important;
+    margin: 0 2px;
+    border: 1px solid #dee2e6 !important;
+}
+
+.dataTables_paginate .paginate_button.current {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    border-color: #667eea !important;
+    color: white !important;
+}
+
+.dataTables_paginate .paginate_button:hover {
+    background-color: #f8f9fa !important;
+    border-color: #adb5bd !important;
+}
+
+/* Loading spinner */
+.loading-spinner {
+    display: none;
+    text-align: center;
+    padding: 40px;
+}
+
+.loading-spinner .spinner-border {
+    width: 3rem;
+    height: 3rem;
+    color: #667eea;
+}
+
+/* DataTable customizations */
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_length {
+    margin-bottom: 20px !important;
+}
+
+
+.table-actions .btn-success {
+    min-width: 150px;
+    border-radius: 0.65rem;
+    font-size: 1rem;
+    font-family: 'Raleway', sans-serif;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .pre-sales-master-dashboard {
+        padding: 16px 2px;
+    }
+
+    .table-container {
+        padding: 8px 2px 4px 2px;
+    }
+
+    .dashboard-title {
+        font-size: 1.22rem;
+        margin-bottom: 16px;
+    }
+
+    #preSalesMasterTable th,
+    #preSalesMasterTable td {
+        font-size: 0.94rem;
+    }
+}
+
+/* Custom scrollbar for table */
+.table-responsive::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
