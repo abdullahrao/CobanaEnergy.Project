@@ -96,7 +96,8 @@ $(document).ready(function () {
         
         // Redirect to edit page
         var editUrl = '/Sector/Edit/' + encodeURIComponent(sectorId);
-        window.location.href = editUrl;
+        //window.location.href = editUrl;
+        window.open(editUrl, '_blank');
     };
 
     // Initialize with "All Sectors" selected

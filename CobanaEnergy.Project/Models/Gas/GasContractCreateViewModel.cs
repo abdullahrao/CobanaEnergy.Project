@@ -119,6 +119,8 @@ namespace CobanaEnergy.Project.Models.Gas
         public string SupplierCommsType { get; set; }
         [Required]
         public string PreSalesStatus { get; set; }
+        
+        public string PreSalesFollowUpDate { get; set; }
 
         // Brokerage Details
         [Required(ErrorMessage = "Brokerage is required")]

@@ -319,6 +319,7 @@
                     $('#electricProduct').val(d.ElectricProductId);
                     $('#electricCommsType').val(d.ElectricSupplierCommsType);
                     $('#electricPreSalesStatus').val(d.ElectricPreSalesStatus);
+                    $('#electricPreSalesFollowUpDate').val(d.ElectricPreSalesFollowUpDate);
 
                     $('#gasCurrentSupplier').val(d.GasCurrentSupplier);
                     $('#gasSalesType').val(d.GasSalesType);
@@ -332,6 +333,7 @@
                     $('#gasProduct').val(d.GasProductId);
                     $('#gasCommsType').val(d.GasSupplierCommsType);
                     $('#gasPreSalesStatus').val(d.GasPreSalesStatus);
+                    $('#gasPreSalesFollowUpDate').val(d.GasPreSalesFollowUpDate);
 
                     $('#contractChecked').prop('checked', d.ContractChecked);
                     $('#contractAudited').prop('checked', d.ContractAudited);
@@ -405,6 +407,7 @@
             ElectricSalesTypeStatus: $('#electricSalesStatus').val(),
             ElectricSupplierCommsType: $('#electricCommsType').val(),
             ElectricPreSalesStatus: $('#electricPreSalesStatus').val(),
+            ElectricPreSalesFollowUpDate: $('#electricPreSalesFollowUpDate').val() || null,
             ElectricCurrentSupplier: $('#electricCurrentSupplier').val(),
             GasCurrentSupplier: $('#gasCurrentSupplier').val(),
             ElectricDayRate: $('#dayRate').val(),
@@ -415,6 +418,7 @@
             GasSalesTypeStatus: $('#gasSalesStatus').val(),
             GasSupplierCommsType: $('#gasCommsType').val(),
             GasPreSalesStatus: $('#gasPreSalesStatus').val(),
+            GasPreSalesFollowUpDate: $('#gasPreSalesFollowUpDate').val() || null,
             ContractChecked: $('#contractChecked').is(':checked'),
             ContractAudited: $('#contractAudited').is(':checked'),
             Terminated: $('#terminated').is(':checked'),

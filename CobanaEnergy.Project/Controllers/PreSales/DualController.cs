@@ -101,6 +101,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                         ProductId = model.ElectricProductId,
                         SupplierCommsType = model.ElectricSupplierCommsType,
                         PreSalesStatus = model.ElectricPreSalesStatus,
+                        PreSalesFollowUpDate = DateTime.TryParse(model.ElectricPreSalesFollowUpDate, out DateTime electricPresalesDate) ? electricPresalesDate : (DateTime?)null,
                         EMProcessor = model.EMProcessor,
                         ContractChecked = model.ContractChecked,
                         ContractAudited = model.ContractAudited,
@@ -283,6 +284,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                         ProductId = model.GasProductId,
                         SupplierCommsType = model.GasSupplierCommsType,
                         PreSalesStatus = model.GasPreSalesStatus,
+                        PreSalesFollowUpDate = DateTime.TryParse(model.GasPreSalesFollowUpDate, out DateTime gasPresalesDate) ? gasPresalesDate : (DateTime?)null,
                         EMProcessor = model.EMProcessor,
                         ContractChecked = model.ContractChecked,
                         ContractAudited = model.ContractAudited,
@@ -546,6 +548,8 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     ElectricStandingCharge = Convert.ToDecimal(electric.StandingCharge),
                     ElectricSupplierCommsType = savedElectricProductSnapshot?.SupplierCommsType ?? electric.SupplierCommsType,
                     ElectricPreSalesStatus = electric.PreSalesStatus,
+                    ElectricPreSalesFollowUpDate = electric.PreSalesFollowUpDate?.ToString("yyyy-MM-dd"),
+
                     // Electric Snapshot
                     ElectricSupplierSnapshot = new ElectricSupplierSnapshotViewModel
                     {
@@ -600,6 +604,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     GasStandingCharge = Convert.ToDecimal(gas.StandingCharge),
                     GasSupplierCommsType = savedGasProductSnapshot?.SupplierCommsType ?? gas.SupplierCommsType,
                     GasPreSalesStatus = gas.PreSalesStatus,
+                    GasPreSalesFollowUpDate = gas.PreSalesFollowUpDate?.ToString("yyyy-MM-dd"),
                     // Gas Snapshot
                     GasSupplierSnapshot = new GasSupplierSnapshotViewModel
                     {
@@ -742,6 +747,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     electric.PhoneNumber2 = model.PhoneNumber2;
                     electric.EmailAddress = model.EmailAddress;
                     electric.PreSalesStatus = model.ElectricPreSalesStatus;
+                    electric.PreSalesFollowUpDate = DateTime.TryParse(model.ElectricPreSalesFollowUpDate, out DateTime electricPresalesDate) ? electricPresalesDate : (DateTime?)null;
                     electric.EMProcessor = model.EMProcessor;
                     electric.ContractChecked = model.ContractChecked;
                     electric.ContractAudited = model.ContractAudited;
@@ -807,6 +813,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     gas.PhoneNumber2 = model.PhoneNumber2;
                     gas.EmailAddress = model.EmailAddress;
                     gas.PreSalesStatus = model.GasPreSalesStatus;
+                    gas.PreSalesFollowUpDate = DateTime.TryParse(model.GasPreSalesFollowUpDate, out DateTime gasPresalesDate) ? gasPresalesDate : (DateTime?)null;
                     gas.EMProcessor = model.EMProcessor;
                     gas.ContractChecked = model.ContractChecked;
                     gas.ContractAudited = model.ContractAudited;
