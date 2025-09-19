@@ -102,10 +102,9 @@ $(document).ready(function () {
                 {
                     data: 'ContractNotes',
                     render: function (data, type, row) {
-                        if (data && data.length > 50) {
-                            return `<span title="${data}">${data.substring(0, 50)}...</span>`;
-                        }
-                        return data || '-';
+                        return `<span class="truncate-cell">
+                                    ${(data && data.length > 50) ? data.substring(0, 50) + '…' : (data || '-')}
+                                </span>`;
                     }
                 },
                 {

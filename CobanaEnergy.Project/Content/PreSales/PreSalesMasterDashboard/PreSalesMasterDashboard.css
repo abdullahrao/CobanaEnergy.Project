@@ -119,22 +119,6 @@
     font-size: 0.9rem;
 }
 
-.dataTables_paginate .paginate_button {
-    border-radius: 6px !important;
-    margin: 0 2px;
-    border: 1px solid #dee2e6 !important;
-}
-
-.dataTables_paginate .paginate_button.current {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-    border-color: #667eea !important;
-    color: white !important;
-}
-
-.dataTables_paginate .paginate_button:hover {
-    background-color: #f8f9fa !important;
-    border-color: #adb5bd !important;
-}
 
 /* Loading spinner */
 .loading-spinner {
@@ -238,4 +222,25 @@
     border-radius: 4px;
     min-width: 30px;
     text-align: center;
+}
+
+/* Truncate cell for contract notes */
+.truncate-cell {
+    display: inline-block;
+    max-width: 220px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+}
+
+.truncate-cell:hover {
+    white-space: normal;
+    word-break: break-word;
+    background-color: #f1f1f1;
+    padding: 2px 4px;
+    z-index: 99;
+    position: relative;
+    border-radius: 3px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
