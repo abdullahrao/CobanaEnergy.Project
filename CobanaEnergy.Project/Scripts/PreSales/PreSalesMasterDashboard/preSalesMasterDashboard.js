@@ -1,5 +1,6 @@
 $(document).ready(function () {
     let masterTable;
+    let statusCountRefreshTimeout;
 
     // Initialize the dashboard
     initializeDashboard();
@@ -134,6 +135,11 @@ $(document).ready(function () {
             responsive: true,
             autoWidth: false
         });
+
+        // Add event handler to refresh counts after table is drawn
+        masterTable.on('draw.dt', function() {
+            refreshStatusCounts();
+        });
     }
 
 
@@ -155,6 +161,52 @@ $(document).ready(function () {
                 masterTable.ajax.reload();
             }
         });
+    }
+
+    function refreshStatusCounts() {
+        // Clear any existing timeout to prevent multiple rapid calls
+        if (statusCountRefreshTimeout) {
+            clearTimeout(statusCountRefreshTimeout);
+        }
+
+        // Add a small delay to prevent too many rapid AJAX calls
+        statusCountRefreshTimeout = setTimeout(function() {
+            // Show loading indicator
+            $('#submittedCount').html('<i class="fas fa-spinner fa-spin"></i>');
+            $('#rejectedCount').html('<i class="fas fa-spinner fa-spin"></i>');
+            $('#pendingCount').html('<i class="fas fa-spinner fa-spin"></i>');
+
+            $.ajax({
+                url: '/PreSalesMasterDashboard/GetFilteredContractStatusCounts',
+                type: 'POST',
+                data: {
+                    inputDateFrom: $('#inputDateFrom').val(),
+                    inputDateTo: $('#inputDateTo').val(),
+                    supplierId: $('#supplierFilter').val(),
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function (response) {
+                    if (response.success) {
+                        $('#submittedCount').text(response.submittedCount);
+                        $('#rejectedCount').text(response.rejectedCount);
+                        $('#pendingCount').text(response.pendingCount);
+                    } else {
+                        console.error('Error refreshing status counts:', response.message);
+                        // Reset to previous values on error
+                        $('#submittedCount').text('0');
+                        $('#rejectedCount').text('0');
+                        $('#pendingCount').text('0');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('AJAX error refreshing status counts:', error);
+                    // Reset to previous values on error
+                    $('#submittedCount').text('0');
+                    $('#rejectedCount').text('0');
+                    $('#pendingCount').text('0');
+                }
+            });
+        }, 300); // 300ms delay
     }
 
     function validateDateRange() {

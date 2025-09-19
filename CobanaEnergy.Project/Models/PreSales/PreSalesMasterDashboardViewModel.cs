@@ -6,5 +6,8 @@ namespace CobanaEnergy.Project.Models.PreSales
     public class PreSalesMasterDashboardViewModel
     {
         public List<SelectListItem> Suppliers { get; set; }
+        public int SubmittedCount { get; set; }
+        public int RejectedCount { get; set; }
+        public int PendingCount { get; set; }
     }
 }

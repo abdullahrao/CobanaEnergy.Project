@@ -35,9 +35,15 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                 })
                 .ToListAsync();
 
+            // Get contract status counts
+            var statusCounts = await GetContractStatusCounts();
+
             var model = new PreSalesMasterDashboardViewModel
             {
-                Suppliers = suppliers
+                Suppliers = suppliers,
+                SubmittedCount = statusCounts.SubmittedCount,
+                RejectedCount = statusCounts.RejectedCount,
+                PendingCount = statusCounts.PendingCount
             };
 
             return View("~/Views/PreSales/PreSalesMasterDashboard.cshtml", model);
@@ -71,45 +77,35 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                 if (!string.IsNullOrWhiteSpace(supplierId) && long.TryParse(supplierId, out long supplierIdLong))
                     supplierFilter = supplierIdLong;
 
-                // Get Electric contracts
-                var electricQuery = db.CE_ElectricContracts.AsQueryable();
+                // Build optimized queries with database-level filtering
+                var electricQuery = BuildElectricQuery(supplierFilter, fromDate, toDate, searchValue);
+                var gasQuery = BuildGasQuery(supplierFilter, fromDate, toDate, searchValue);
+
+                // Get total counts for each table (for accurate pagination)
+                var electricTotal = await electricQuery.CountAsync();
+                var gasTotal = await gasQuery.CountAsync();
+
+                // Calculate how many records to fetch from each table
+                // We need to account for dual contracts, so fetch more records
+                var fetchLimit = Math.Max(length * 2, 1000); // Fetch at least 2x the page size or 1000 records
                 
-                // Get Gas contracts
-                var gasQuery = db.CE_GasContracts.AsQueryable();
+                // Get electric contracts with pagination
+                var electricContracts = await electricQuery
+                    .OrderByDescending(e => e.InputDate)
+                    .Take(fetchLimit)
+                    .ToListAsync();
 
-                // Apply supplier filter
-                if (supplierFilter.HasValue)
-                {
-                    electricQuery = electricQuery.Where(c => c.SupplierId == supplierFilter.Value);
-                    gasQuery = gasQuery.Where(c => c.SupplierId == supplierFilter.Value);
-                }
+                // Get gas contracts with pagination
+                var gasContracts = await gasQuery
+                    .OrderByDescending(g => g.InputDate)
+                    .Take(fetchLimit)
+                    .ToListAsync();
 
-                // Get all contracts for processing
-                var electricContracts = await electricQuery.ToListAsync();
-                var gasContracts = await gasQuery.ToListAsync();
+                // Process contracts to handle dual contracts efficiently
+                var combinedContracts = await ProcessCombinedContractsOptimized(electricContracts, gasContracts);
 
-                // Apply date range filter after loading data
-                if (fromDate.HasValue && toDate.HasValue)
-                {
-                    var startDate = fromDate.Value.Date;
-                    var end = toDate.Value.Date;
-
-                    electricContracts = electricContracts
-                        .Where(e => DateTime.TryParse(e.InputDate, out var dt) &&
-                                    dt.Date >= startDate && dt.Date <= end)
-                        .ToList();
-
-                    gasContracts = gasContracts
-                        .Where(g => DateTime.TryParse(g.InputDate, out var dt) &&
-                                    dt.Date >= startDate && dt.Date <= end)
-                        .ToList();
-                }
-
-                // Combine and process contracts for dual handling
-                var combinedContracts = await ProcessCombinedContracts(electricContracts, gasContracts);
-
-                // Apply search filter
-                if (!string.IsNullOrWhiteSpace(searchValue))
+                // Apply final search filter if not already applied at database level
+                if (!string.IsNullOrWhiteSpace(searchValue) && !IsDatabaseSearchSupported(searchValue))
                 {
                     combinedContracts = combinedContracts.Where(c =>
                         c.BusinessName.Contains(searchValue) ||
@@ -122,10 +118,10 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                         c.MPRN.Contains(searchValue)).ToList();
                 }
 
-                // Get total count
+                // Get total count for filtered results
                 int totalRecords = combinedContracts.Count;
 
-                // Apply pagination
+                // Apply final pagination
                 var paginatedContracts = combinedContracts
                     .OrderByDescending(c => c.SortableDate)
                     .Skip(start)
@@ -135,8 +131,8 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                 return Json(new
                 {
                     draw = Request.Form["draw"],
-                    recordsTotal = totalRecords,
-                    recordsFiltered = totalRecords,
+                    recordsTotal = electricTotal + gasTotal, // Total records in both tables
+                    recordsFiltered = totalRecords, // Filtered count
                     data = paginatedContracts
                 });
             }
@@ -144,6 +140,510 @@ namespace CobanaEnergy.Project.Controllers.PreSales
             {
                 Logger.Log("GetPreSalesMasterContracts: " + ex);
                 return JsonResponse.Fail("Error fetching pre-sales master contracts.");
+            }
+        }
+
+        private IQueryable<Models.Electric.ElectricDBModels.CE_ElectricContracts> BuildElectricQuery(long? supplierFilter, DateTime? fromDate, DateTime? toDate, string searchValue)
+        {
+            var query = db.CE_ElectricContracts.AsQueryable();
+
+            // Apply supplier filter
+            if (supplierFilter.HasValue)
+            {
+                query = query.Where(c => c.SupplierId == supplierFilter.Value);
+            }
+
+            // Apply date range filter at database level
+            if (fromDate.HasValue && toDate.HasValue)
+            {
+                // Convert dates to strings for database comparison
+                string fromDateStr = fromDate.Value.ToString("yyyy-MM-dd");
+                string toDateStr = toDate.Value.ToString("yyyy-MM-dd");
+                
+                // Filter by date string comparison (assuming InputDate is stored as yyyy-MM-dd format)
+                query = query.Where(e => e.InputDate != null && 
+                    string.Compare(e.InputDate, fromDateStr) >= 0 && 
+                    string.Compare(e.InputDate, toDateStr) <= 0);
+            }
+
+            // Apply search filter at database level for better performance
+            if (!string.IsNullOrWhiteSpace(searchValue) && IsDatabaseSearchSupported(searchValue))
+            {
+                query = query.Where(e => 
+                    e.BusinessName.Contains(searchValue) ||
+                    e.CustomerName.Contains(searchValue) ||
+                    e.PostCode.Contains(searchValue) ||
+                    e.EmailAddress.Contains(searchValue) ||
+                    e.ContractNotes.Contains(searchValue) ||
+                    e.MPAN.Contains(searchValue));
+            }
+
+            return query;
+        }
+
+        private IQueryable<Models.Gas.GasDBModels.CE_GasContracts> BuildGasQuery(long? supplierFilter, DateTime? fromDate, DateTime? toDate, string searchValue)
+        {
+            var query = db.CE_GasContracts.AsQueryable();
+
+            // Apply supplier filter
+            if (supplierFilter.HasValue)
+            {
+                query = query.Where(c => c.SupplierId == supplierFilter.Value);
+            }
+
+            // Apply date range filter at database level
+            if (fromDate.HasValue && toDate.HasValue)
+            {
+                // Convert dates to strings for database comparison
+                string fromDateStr = fromDate.Value.ToString("yyyy-MM-dd");
+                string toDateStr = toDate.Value.ToString("yyyy-MM-dd");
+                
+                // Filter by date string comparison (assuming InputDate is stored as yyyy-MM-dd format)
+                query = query.Where(g => g.InputDate != null && 
+                    string.Compare(g.InputDate, fromDateStr) >= 0 && 
+                    string.Compare(g.InputDate, toDateStr) <= 0);
+            }
+
+            // Apply search filter at database level for better performance
+            if (!string.IsNullOrWhiteSpace(searchValue) && IsDatabaseSearchSupported(searchValue))
+            {
+                query = query.Where(g => 
+                    g.BusinessName.Contains(searchValue) ||
+                    g.CustomerName.Contains(searchValue) ||
+                    g.PostCode.Contains(searchValue) ||
+                    g.EmailAddress.Contains(searchValue) ||
+                    g.ContractNotes.Contains(searchValue) ||
+                    g.MPRN.Contains(searchValue));
+            }
+
+            return query;
+        }
+
+        private bool IsDatabaseSearchSupported(string searchValue)
+        {
+            // Only apply database-level search for simple text searches
+            // Complex searches with special characters should be done in memory
+            return !string.IsNullOrWhiteSpace(searchValue) && 
+                   searchValue.Length > 2 && 
+                   !searchValue.Contains("%") && 
+                   !searchValue.Contains("_") &&
+                   !searchValue.Contains("*");
+        }
+
+        private async Task<List<PreSalesMasterDashboardRowViewModel>> ProcessCombinedContractsOptimized(List<Models.Electric.ElectricDBModels.CE_ElectricContracts> electricContracts, List<Models.Gas.GasDBModels.CE_GasContracts> gasContracts)
+        {
+            var result = new List<PreSalesMasterDashboardRowViewModel>();
+
+            // Pre-load all required lookup data to avoid N+1 queries
+            var supplierIds = electricContracts.Select(e => e.SupplierId)
+                .Union(gasContracts.Select(g => g.SupplierId))
+                .Distinct()
+                .ToList();
+
+            var suppliers = await db.CE_Supplier
+                .Where(s => supplierIds.Contains(s.Id))
+                .ToDictionaryAsync(s => s.Id, s => s.Name);
+
+            // Pre-load agent data
+            var allAgentIds = electricContracts.SelectMany(e => new[] { e.CloserId, e.BrokerageStaffId, e.SubIntroducerId })
+                .Union(gasContracts.SelectMany(g => new[] { g.CloserId, g.BrokerageStaffId, g.SubIntroducerId }))
+                .Where(id => id.HasValue)
+                .Distinct()
+                .ToList();
+
+            var closers = await db.CE_Sector
+                .Where(s => allAgentIds.Contains(s.SectorID) && s.SectorType == "closer")
+                .ToDictionaryAsync(s => s.SectorID, s => s.Name);
+
+            var brokerageStaff = await db.CE_BrokerageStaff
+                .Where(bs => allAgentIds.Contains(bs.BrokerageStaffID))
+                .ToDictionaryAsync(bs => bs.BrokerageStaffID, bs => bs.BrokerageStaffName);
+
+            var introducers = await db.CE_SubIntroducer
+                .Where(si => allAgentIds.Contains(si.SubIntroducerID))
+                .ToDictionaryAsync(si => si.SubIntroducerID, si => si.SubIntroducerName);
+
+            // Group by EId to handle dual contracts efficiently
+            var allEIds = electricContracts.Select(e => e.EId).Union(gasContracts.Select(g => g.EId)).Distinct().ToList();
+
+            foreach (var eId in allEIds)
+            {
+                var electricContract = electricContracts.FirstOrDefault(e => e.EId == eId);
+                var gasContract = gasContracts.FirstOrDefault(g => g.EId == eId);
+
+                bool isDual = electricContract != null && gasContract != null;
+
+                if (isDual)
+                {
+                    // Create dual contract entry
+                    var dualContract = CreateDualContractViewModelOptimized(electricContract, gasContract, suppliers, closers, brokerageStaff, introducers);
+                    result.Add(dualContract);
+                }
+                else
+                {
+                    // Create single contract entry
+                    if (electricContract != null)
+                    {
+                        var electricViewModel = CreateSingleContractViewModelOptimized(electricContract, "Electric", suppliers, closers, brokerageStaff, introducers);
+                        result.Add(electricViewModel);
+                    }
+                    if (gasContract != null)
+                    {
+                        var gasViewModel = CreateSingleContractViewModelOptimized(gasContract, "Gas", suppliers, closers, brokerageStaff, introducers);
+                        result.Add(gasViewModel);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        private PreSalesMasterDashboardRowViewModel CreateDualContractViewModelOptimized(
+            Models.Electric.ElectricDBModels.CE_ElectricContracts electricContract, 
+            Models.Gas.GasDBModels.CE_GasContracts gasContract,
+            Dictionary<long, string> suppliers,
+            Dictionary<int, string> closers,
+            Dictionary<int, string> brokerageStaff,
+            Dictionary<int, string> introducers)
+        {
+            // Get agent information (use electric contract data as primary)
+            string agentName = GetAgentNameOptimized(electricContract.Department, electricContract.CloserId, electricContract.BrokerageStaffId, electricContract.SubIntroducerId, closers, brokerageStaff, introducers);
+
+            // Get supplier names
+            string electricSupplier = suppliers.TryGetValue(electricContract.SupplierId, out string electricSupplierName) ? electricSupplierName : "N/A";
+            string gasSupplier = suppliers.TryGetValue(gasContract.SupplierId, out string gasSupplierName) ? gasSupplierName : "N/A";
+
+            // Format dates
+            string electricInputDate = electricContract.InputDate ?? "N/A";
+            string gasInputDate = gasContract.InputDate ?? "N/A";
+
+            // Parse dates for sorting
+            DateTime electricDate = DateTime.TryParse(electricInputDate, out DateTime eDate) ? eDate : DateTime.MinValue;
+            DateTime gasDate = DateTime.TryParse(gasInputDate, out DateTime gDate) ? gDate : DateTime.MinValue;
+            DateTime sortableDate = electricDate > gasDate ? electricDate : gasDate;
+
+            return new PreSalesMasterDashboardRowViewModel
+            {
+                EId = electricContract.EId,
+                Agent = agentName,
+                BusinessName = electricContract.BusinessName ?? gasContract.BusinessName ?? "N/A",
+                CustomerName = electricContract.CustomerName ?? gasContract.CustomerName ?? "N/A",
+                PostCode = electricContract.PostCode ?? gasContract.PostCode ?? "N/A",
+                InputDate = $"Electric: {electricInputDate}<br>Gas: {gasInputDate}",
+                Duration = $"Electric: {electricContract.Duration ?? "N/A"}<br>Gas: {gasContract.Duration ?? "N/A"}",
+                Uplift = $"Electric: {electricContract.Uplift ?? "N/A"}<br>Gas: {gasContract.Uplift ?? "N/A"}",
+                InputEAC = $"Electric: {electricContract.InputEAC ?? "N/A"}<br>Gas: {gasContract.InputEAC ?? "N/A"}",
+                Email = electricContract.EmailAddress ?? gasContract.EmailAddress ?? "N/A",
+                Supplier = $"Electric: {electricSupplier}<br>Gas: {gasSupplier}",
+                ContractNotes = electricContract.ContractNotes ?? gasContract.ContractNotes ?? "N/A",
+                Type = "Dual",
+                SortableDate = sortableDate,
+                MPAN = electricContract.MPAN ?? "N/A",
+                MPRN = gasContract.MPRN ?? "N/A"
+            };
+        }
+
+        private PreSalesMasterDashboardRowViewModel CreateSingleContractViewModelOptimized(
+            dynamic contract, 
+            string contractType,
+            Dictionary<long, string> suppliers,
+            Dictionary<int, string> closers,
+            Dictionary<int, string> brokerageStaff,
+            Dictionary<int, string> introducers)
+        {
+            string agentName = GetAgentNameOptimized(contract.Department, contract.CloserId, contract.BrokerageStaffId, contract.SubIntroducerId, closers, brokerageStaff, introducers);
+            string supplierName = suppliers.TryGetValue(contract.SupplierId, out string supplierNameValue) ? supplierNameValue : "N/A";
+            string inputDate = contract.InputDate ?? "N/A";
+
+            DateTime sortableDate = DateTime.TryParse(inputDate, out DateTime date) ? date : DateTime.MinValue;
+
+            return new PreSalesMasterDashboardRowViewModel
+            {
+                EId = contract.EId,
+                Agent = agentName,
+                BusinessName = contract.BusinessName ?? "N/A",
+                CustomerName = contract.CustomerName ?? "N/A",
+                PostCode = contract.PostCode ?? "N/A",
+                InputDate = inputDate,
+                Duration = contract.Duration ?? "N/A",
+                Uplift = contract.Uplift ?? "N/A",
+                InputEAC = contract.InputEAC ?? "N/A",
+                Email = contract.EmailAddress ?? "N/A",
+                Supplier = supplierName,
+                ContractNotes = contract.ContractNotes ?? "N/A",
+                Type = contractType,
+                SortableDate = sortableDate,
+                MPAN = contractType == "Electric" ? (contract.MPAN ?? "N/A") : "N/A",
+                MPRN = contractType == "Gas" ? (contract.MPRN ?? "N/A") : "N/A"
+            };
+        }
+
+        private string GetAgentNameOptimized(string department, int? closerId, int? brokerageStaffId, int? subIntroducerId, 
+            Dictionary<int, string> closers, Dictionary<int, string> brokerageStaff, Dictionary<int, string> introducers)
+        {
+            if (department == "In House" && closerId.HasValue)
+            {
+                return closers.TryGetValue(closerId.Value, out string closerName) ? closerName : "-";
+            }
+            else if (department == "Brokers" && brokerageStaffId.HasValue)
+            {
+                return brokerageStaff.TryGetValue(brokerageStaffId.Value, out string staffName) ? staffName : "-";
+            }
+            else if (department == "Introducers" && subIntroducerId.HasValue)
+            {
+                return introducers.TryGetValue(subIntroducerId.Value, out string introducerName) ? introducerName : "-";
+            }
+
+            return "-";
+        }
+
+        private async Task<ContractStatusCounts> GetContractStatusCounts()
+        {
+            try
+            {
+                // Get all unique EIds to avoid counting dual contracts twice
+                var allEIds = await db.CE_ElectricContracts
+                    .Select(e => e.EId)
+                    .Union(db.CE_GasContracts.Select(g => g.EId))
+                    .ToListAsync();
+
+                // Get electric contracts with their statuses
+                var electricStatuses = await db.CE_ElectricContracts
+                    .Where(e => allEIds.Contains(e.EId))
+                    .Select(e => new { e.EId, e.PreSalesStatus })
+                    .ToListAsync();
+
+                // Get gas contracts with their statuses
+                var gasStatuses = await db.CE_GasContracts
+                    .Where(g => allEIds.Contains(g.EId))
+                    .Select(g => new { g.EId, g.PreSalesStatus })
+                    .ToListAsync();
+
+                // Combine statuses for each EId (prioritize electric status if both exist)
+                var contractStatuses = new Dictionary<string, string>();
+                
+                foreach (var electric in electricStatuses)
+                {
+                    contractStatuses[electric.EId] = electric.PreSalesStatus ?? "";
+                }
+                
+                foreach (var gas in gasStatuses)
+                {
+                    if (!contractStatuses.ContainsKey(gas.EId))
+                    {
+                        contractStatuses[gas.EId] = gas.PreSalesStatus ?? "";
+                    }
+                }
+
+                // Count statuses using optimized string matching
+                int submittedCount = 0;
+                int rejectedCount = 0;
+                int pendingCount = 0;
+
+                foreach (var status in contractStatuses.Values)
+                {
+                    if (string.IsNullOrWhiteSpace(status))
+                        continue;
+
+                    string statusLower = status.ToLowerInvariant();
+
+                    // Submitted: Contains "submitted" or "overturned"
+                    if (statusLower.Contains("submitted") || statusLower.Contains("overturned"))
+                    {
+                        submittedCount++;
+                    }
+                    // Rejected: Contains "duplicate contract", "fail", "incorrect", "not supported", "rejected", or "failed"
+                    else if (statusLower.Contains("duplicate contract") || 
+                             statusLower.Contains("fail") || 
+                             statusLower.Contains("incorrect") || 
+                             statusLower.Contains("not supported") || 
+                             statusLower.Contains("rejected") || 
+                             statusLower.Contains("failed"))
+                    {
+                        rejectedCount++;
+                    }
+                    // Pending: Contains "contract to be checked", "ready to submit", or "awaiting"
+                    else if (statusLower.Contains("contract to be checked") || 
+                             statusLower.Contains("ready to submit") || 
+                             statusLower.Contains("awaiting"))
+                    {
+                        pendingCount++;
+                    }
+                }
+
+                return new ContractStatusCounts
+                {
+                    SubmittedCount = submittedCount,
+                    RejectedCount = rejectedCount,
+                    PendingCount = pendingCount
+                };
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("GetContractStatusCounts error: " + ex);
+                return new ContractStatusCounts
+                {
+                    SubmittedCount = 0,
+                    RejectedCount = 0,
+                    PendingCount = 0
+                };
+            }
+        }
+
+        private class ContractStatusCounts
+        {
+            public int SubmittedCount { get; set; }
+            public int RejectedCount { get; set; }
+            public int PendingCount { get; set; }
+        }
+
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        public async Task<JsonResult> GetFilteredContractStatusCounts()
+        {
+            try
+            {
+                string inputDateFrom = Request.Form["inputDateFrom"];
+                string inputDateTo = Request.Form["inputDateTo"];
+                string supplierId = Request.Form["supplierId"];
+
+                DateTime? fromDate = null;
+                DateTime? toDate = null;
+                
+                if (!string.IsNullOrWhiteSpace(inputDateFrom) && DateTime.TryParse(inputDateFrom, out DateTime from))
+                    fromDate = from.Date;
+                
+                if (!string.IsNullOrWhiteSpace(inputDateTo) && DateTime.TryParse(inputDateTo, out DateTime to))
+                    toDate = to.Date.AddDays(1).AddTicks(-1);
+
+                long? supplierFilter = null;
+                if (!string.IsNullOrWhiteSpace(supplierId) && long.TryParse(supplierId, out long supplierIdLong))
+                    supplierFilter = supplierIdLong;
+
+                var statusCounts = await GetContractStatusCountsWithFilters(supplierFilter, fromDate, toDate);
+
+                return Json(new
+                {
+                    success = true,
+                    submittedCount = statusCounts.SubmittedCount,
+                    rejectedCount = statusCounts.RejectedCount,
+                    pendingCount = statusCounts.PendingCount
+                });
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("GetFilteredContractStatusCounts error: " + ex);
+                return Json(new
+                {
+                    success = false,
+                    message = "Error fetching filtered contract status counts."
+                });
+            }
+        }
+
+        private async Task<ContractStatusCounts> GetContractStatusCountsWithFilters(long? supplierFilter, DateTime? fromDate, DateTime? toDate)
+        {
+            try
+            {
+                // Build filtered queries for both electric and gas contracts
+                var electricQuery = BuildElectricQuery(supplierFilter, fromDate, toDate, null);
+                var gasQuery = BuildGasQuery(supplierFilter, fromDate, toDate, null);
+
+                // Get all unique EIds from filtered results to avoid counting dual contracts twice
+                var electricEIds = await electricQuery.Select(e => e.EId).ToListAsync();
+                var gasEIds = await gasQuery.Select(g => g.EId).ToListAsync();
+                var allEIds = electricEIds.Union(gasEIds).ToList();
+
+                if (!allEIds.Any())
+                {
+                    return new ContractStatusCounts
+                    {
+                        SubmittedCount = 0,
+                        RejectedCount = 0,
+                        PendingCount = 0
+                    };
+                }
+
+                // Get electric contracts with their statuses (filtered)
+                var electricStatuses = await electricQuery
+                    .Where(e => allEIds.Contains(e.EId))
+                    .Select(e => new { e.EId, e.PreSalesStatus })
+                    .ToListAsync();
+
+                // Get gas contracts with their statuses (filtered)
+                var gasStatuses = await gasQuery
+                    .Where(g => allEIds.Contains(g.EId))
+                    .Select(g => new { g.EId, g.PreSalesStatus })
+                    .ToListAsync();
+
+                // Combine statuses for each EId (prioritize electric status if both exist)
+                var contractStatuses = new Dictionary<string, string>();
+                
+                foreach (var electric in electricStatuses)
+                {
+                    contractStatuses[electric.EId] = electric.PreSalesStatus ?? "";
+                }
+                
+                foreach (var gas in gasStatuses)
+                {
+                    if (!contractStatuses.ContainsKey(gas.EId))
+                    {
+                        contractStatuses[gas.EId] = gas.PreSalesStatus ?? "";
+                    }
+                }
+
+                // Count statuses using optimized string matching
+                int submittedCount = 0;
+                int rejectedCount = 0;
+                int pendingCount = 0;
+
+                foreach (var status in contractStatuses.Values)
+                {
+                    if (string.IsNullOrWhiteSpace(status))
+                        continue;
+
+                    string statusLower = status.ToLowerInvariant();
+
+                    // Submitted: Contains "submitted" or "overturned"
+                    if (statusLower.Contains("submitted") || statusLower.Contains("overturned"))
+                    {
+                        submittedCount++;
+                    }
+                    // Rejected: Contains "duplicate contract", "fail", "incorrect", "not supported", "rejected", or "failed"
+                    else if (statusLower.Contains("duplicate contract") || 
+                             statusLower.Contains("fail") || 
+                             statusLower.Contains("incorrect") || 
+                             statusLower.Contains("not supported") || 
+                             statusLower.Contains("rejected") || 
+                             statusLower.Contains("failed"))
+                    {
+                        rejectedCount++;
+                    }
+                    // Pending: Contains "contract to be checked", "ready to submit", or "awaiting"
+                    else if (statusLower.Contains("contract to be checked") || 
+                             statusLower.Contains("ready to submit") || 
+                             statusLower.Contains("awaiting"))
+                    {
+                        pendingCount++;
+                    }
+                }
+
+                return new ContractStatusCounts
+                {
+                    SubmittedCount = submittedCount,
+                    RejectedCount = rejectedCount,
+                    PendingCount = pendingCount
+                };
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("GetContractStatusCountsWithFilters error: " + ex);
+                return new ContractStatusCounts
+                {
+                    SubmittedCount = 0,
+                    RejectedCount = 0,
+                    PendingCount = 0
+                };
             }
         }
 
@@ -285,153 +785,5 @@ namespace CobanaEnergy.Project.Controllers.PreSales
             }
         }
 
-        private async Task<List<PreSalesMasterDashboardRowViewModel>> ProcessCombinedContracts(List<Models.Electric.ElectricDBModels.CE_ElectricContracts> electricContracts, List<Models.Gas.GasDBModels.CE_GasContracts> gasContracts)
-        {
-            var result = new List<PreSalesMasterDashboardRowViewModel>();
-
-            // Group by EId to handle dual contracts
-            var allEIds = electricContracts.Select(e => e.EId).Union(gasContracts.Select(g => g.EId)).Distinct().ToList();
-
-            foreach (var eId in allEIds)
-            {
-                var electricContract = electricContracts.FirstOrDefault(e => e.EId == eId);
-                var gasContract = gasContracts.FirstOrDefault(g => g.EId == eId);
-
-                bool isDual = electricContract != null && gasContract != null;
-
-                if (isDual)
-                {
-                    // Create dual contract entry
-                    var dualContract = await CreateDualContractViewModel(electricContract, gasContract);
-                    result.Add(dualContract);
-                }
-                else
-                {
-                    // Create single contract entry
-                    if (electricContract != null)
-                    {
-                        var electricViewModel = await CreateSingleContractViewModel(electricContract, "Electric");
-                        result.Add(electricViewModel);
-                    }
-                    if (gasContract != null)
-                    {
-                        var gasViewModel = await CreateSingleContractViewModel(gasContract, "Gas");
-                        result.Add(gasViewModel);
-                    }
-                }
-            }
-
-            return result;
-        }
-
-        private async Task<PreSalesMasterDashboardRowViewModel> CreateDualContractViewModel(Models.Electric.ElectricDBModels.CE_ElectricContracts electricContract, Models.Gas.GasDBModels.CE_GasContracts gasContract)
-        {
-            // Get agent information (use electric contract data as primary)
-            string agentName = await GetAgentName(electricContract.Department, electricContract.CloserId, electricContract.BrokerageStaffId, electricContract.SubIntroducerId);
-
-            // Get supplier names
-            string electricSupplier = await GetSupplierName(electricContract.SupplierId);
-            string gasSupplier = await GetSupplierName(gasContract.SupplierId);
-
-            // Format dates
-            string electricInputDate = electricContract.InputDate ?? "N/A";
-            string gasInputDate = gasContract.InputDate ?? "N/A";
-
-            // Parse dates for sorting
-            DateTime electricDate = DateTime.TryParse(electricInputDate, out DateTime eDate) ? eDate : DateTime.MinValue;
-            DateTime gasDate = DateTime.TryParse(gasInputDate, out DateTime gDate) ? gDate : DateTime.MinValue;
-            DateTime sortableDate = electricDate > gasDate ? electricDate : gasDate;
-
-            return new PreSalesMasterDashboardRowViewModel
-            {
-                EId = electricContract.EId,
-                Agent = agentName,
-                BusinessName = electricContract.BusinessName ?? gasContract.BusinessName ?? "N/A",
-                CustomerName = electricContract.CustomerName ?? gasContract.CustomerName ?? "N/A",
-                PostCode = electricContract.PostCode ?? gasContract.PostCode ?? "N/A",
-                InputDate = $"Electric: {electricInputDate}<br>Gas: {gasInputDate}",
-                Duration = $"Electric: {electricContract.Duration ?? "N/A"}<br>Gas: {gasContract.Duration ?? "N/A"}",
-                Uplift = $"Electric: {electricContract.Uplift ?? "N/A"}<br>Gas: {gasContract.Uplift ?? "N/A"}",
-                InputEAC = $"Electric: {electricContract.InputEAC ?? "N/A"}<br>Gas: {gasContract.InputEAC ?? "N/A"}",
-                Email = electricContract.EmailAddress ?? gasContract.EmailAddress ?? "N/A",
-                Supplier = $"Electric: {electricSupplier}<br>Gas: {gasSupplier}",
-                ContractNotes = electricContract.ContractNotes ?? gasContract.ContractNotes ?? "N/A",
-                Type = "Dual",
-                SortableDate = sortableDate,
-                MPAN = electricContract.MPAN ?? "N/A",
-                MPRN = gasContract.MPRN ?? "N/A"
-            };
-        }
-
-        private async Task<PreSalesMasterDashboardRowViewModel> CreateSingleContractViewModel(dynamic contract, string contractType)
-        {
-            string agentName = await GetAgentName(contract.Department, contract.CloserId, contract.BrokerageStaffId, contract.SubIntroducerId);
-            string supplierName = await GetSupplierName(contract.SupplierId);
-            string inputDate = contract.InputDate ?? "N/A";
-
-            DateTime sortableDate = DateTime.TryParse(inputDate, out DateTime date) ? date : DateTime.MinValue;
-
-            return new PreSalesMasterDashboardRowViewModel
-            {
-                EId = contract.EId,
-                Agent = agentName,
-                BusinessName = contract.BusinessName ?? "N/A",
-                CustomerName = contract.CustomerName ?? "N/A",
-                PostCode = contract.PostCode ?? "N/A",
-                InputDate = inputDate,
-                Duration = contract.Duration ?? "N/A",
-                Uplift = contract.Uplift ?? "N/A",
-                InputEAC = contract.InputEAC ?? "N/A",
-                Email = contract.EmailAddress ?? "N/A",
-                Supplier = supplierName,
-                ContractNotes = contract.ContractNotes ?? "N/A",
-                Type = contractType,
-                SortableDate = sortableDate,
-                MPAN = contractType == "Electric" ? (contract.MPAN ?? "N/A") : "N/A",
-                MPRN = contractType == "Gas" ? (contract.MPRN ?? "N/A") : "N/A"
-            };
-        }
-
-        private async Task<string> GetAgentName(string department, int? closerId, int? brokerageStaffId, int? subIntroducerId)
-        {
-            if (department == "In House" && closerId.HasValue)
-            {
-                var closer = await db.CE_Sector
-                    .Where(s => s.SectorID == closerId && s.SectorType == "closer")
-                    .Select(s => s.Name)
-                    .FirstOrDefaultAsync();
-                return closer ?? "-";
-            }
-            else if (department == "Brokers" && brokerageStaffId.HasValue)
-            {
-                var brokerageStaff = await db.CE_BrokerageStaff
-                    .Where(bs => bs.BrokerageStaffID == brokerageStaffId)
-                    .Select(bs => bs.BrokerageStaffName)
-                    .FirstOrDefaultAsync();
-                return brokerageStaff ?? "-";
-            }
-            else if (department == "Introducers" && subIntroducerId.HasValue)
-            {
-                var subIntroducer = await db.CE_SubIntroducer
-                    .Where(si => si.SubIntroducerID == subIntroducerId)
-                    .Select(si => si.SubIntroducerName)
-                    .FirstOrDefaultAsync();
-                return subIntroducer ?? "-";
-            }
-
-            return "-";
-        }
-
-        private async Task<string> GetSupplierName(long? supplierId)
-        {
-            if (!supplierId.HasValue) return "N/A";
-
-            var supplier = await db.CE_Supplier
-                .Where(s => s.Id == supplierId.Value)
-                .Select(s => s.Name)
-                .FirstOrDefaultAsync();
-
-            return supplier ?? "N/A";
-        }
     }
 }
