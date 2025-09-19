@@ -52,9 +52,21 @@
 #preSalesMasterTable td {
     text-align: center;
     vertical-align: middle;
+    white-space: nowrap;
     padding: 12px 14px;
     font-family: 'Roboto Mono', monospace;
     font-size: 1rem;
+}
+
+/* Contract Notes Column - Header only no wrap, data cells can wrap */
+#preSalesMasterTable th:nth-child(12) {
+    white-space: nowrap;
+}
+
+#preSalesMasterTable td:nth-child(12) {
+    white-space: normal;
+    word-break: break-word;
+    max-width: 220px;
 }
 
 #preSalesMasterTable thead th {
@@ -189,10 +201,19 @@
 
 /* Contract Status Summary */
 .contract-status-summary {
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
     padding: 15px 20px;
     margin-top: 20px;
+    width: 100%;
+    min-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Ensure contract status summary spans full table width when table has horizontal scroll */
+.table-container .contract-status-summary {
+    width: max-content;
+    min-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
 }
 
 .status-count-box {
@@ -208,15 +229,13 @@
 }
 
 .status-label {
-    font-weight: 600;
-    color: #495057;
+    font-weight: bold;
     font-size: 14px;
 }
 
 .status-count {
-    font-weight: 700;
+    font-weight: bold;
     font-size: 16px;
-    color: #212529;
     background-color: #e9ecef;
     padding: 4px 8px;
     border-radius: 4px;
