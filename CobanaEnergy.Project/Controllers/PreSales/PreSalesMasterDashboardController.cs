@@ -1,7 +1,9 @@
 using CobanaEnergy.Project.Controllers.Base;
+using CobanaEnergy.Project.Extensions;
 using CobanaEnergy.Project.Filters;
 using CobanaEnergy.Project.Models;
 using CobanaEnergy.Project.Models.PreSales;
+using CobanaEnergy.Project.Service;
 using Logic;
 using Logic.ResponseModel.Helper;
 using System;
@@ -55,9 +57,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
         {
             try
             {
-                int start = Convert.ToInt32(Request.Form["start"]);
-                int length = Convert.ToInt32(Request.Form["length"]);
-                string searchValue = Request.Form["search[value]"];
+                var dataTableRequest = DataTableHelperService.ParseDataTableRequest(Request.Form);
                 string inputDateFrom = Request.Form["inputDateFrom"];
                 string inputDateTo = Request.Form["inputDateTo"];
                 string supplierId = Request.Form["supplierId"];
@@ -78,8 +78,8 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     supplierFilter = supplierIdLong;
 
                 // Build optimized queries with database-level filtering
-                var electricQuery = BuildElectricQuery(supplierFilter, fromDate, toDate, searchValue);
-                var gasQuery = BuildGasQuery(supplierFilter, fromDate, toDate, searchValue);
+                var electricQuery = BuildElectricQuery(supplierFilter, fromDate, toDate, dataTableRequest.SearchValue);
+                var gasQuery = BuildGasQuery(supplierFilter, fromDate, toDate, dataTableRequest.SearchValue);
 
                 // Get total counts for each table (for accurate pagination)
                 var electricTotal = await electricQuery.CountAsync();
@@ -87,8 +87,8 @@ namespace CobanaEnergy.Project.Controllers.PreSales
 
                 // Calculate how many records to fetch from each table
                 // We need to account for dual contracts, so fetch more records
-                var fetchLimit = Math.Max(length * 2, 1000); // Fetch at least 2x the page size or 1000 records
-                
+                var fetchLimit = Math.Max(dataTableRequest.Length * 2, 1000); // Fetch at least 2x the page size or 1000 records
+
                 // Get electric contracts with pagination
                 var electricContracts = await electricQuery
                     .OrderByDescending(e => e.InputDate)
@@ -101,36 +101,41 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     .Take(fetchLimit)
                     .ToListAsync();
 
+
                 // Process contracts to handle dual contracts efficiently
                 var combinedContracts = await ProcessCombinedContractsOptimized(electricContracts, gasContracts);
 
                 // Apply final search filter if not already applied at database level
-                if (!string.IsNullOrWhiteSpace(searchValue) && !IsDatabaseSearchSupported(searchValue))
+                if (!string.IsNullOrWhiteSpace(dataTableRequest.SearchValue) && !IsDatabaseSearchSupported(dataTableRequest.SearchValue))
                 {
                     combinedContracts = combinedContracts.Where(c =>
-                        c.BusinessName.Contains(searchValue) ||
-                        c.CustomerName.Contains(searchValue) ||
-                        c.PostCode.Contains(searchValue) ||
-                        c.Email.Contains(searchValue) ||
-                        c.Supplier.Contains(searchValue) ||
-                        c.ContractNotes.Contains(searchValue) ||
-                        c.MPAN.Contains(searchValue) ||
-                        c.MPRN.Contains(searchValue)).ToList();
+                        c.BusinessName.Contains(dataTableRequest.SearchValue) ||
+                        c.CustomerName.Contains(dataTableRequest.SearchValue) ||
+                        c.PostCode.Contains(dataTableRequest.SearchValue) ||
+                        c.Email.Contains(dataTableRequest.SearchValue) ||
+                        c.Supplier.Contains(dataTableRequest.SearchValue) ||
+                        c.ContractNotes.Contains(dataTableRequest.SearchValue) ||
+                        c.MPAN.Contains(dataTableRequest.SearchValue) ||
+                        c.MPRN.Contains(dataTableRequest.SearchValue)).ToList();
                 }
 
                 // Get total count for filtered results
                 int totalRecords = combinedContracts.Count;
 
-                // Apply final pagination
-                var paginatedContracts = combinedContracts
-                    .OrderByDescending(c => c.SortableDate)
-                    .Skip(start)
-                    .Take(length)
+                // Apply DataTable sorting and pagination
+                var columnMappings = GetColumnMappings();
+                var columnNames = GetColumnNames(); // Get column names in correct order
+                var queryableContracts = combinedContracts.AsQueryable();
+                var sortedContracts = queryableContracts.ApplyDataTableSorting(dataTableRequest, columnMappings, columnNames, "InputDate", false);
+                
+                var paginatedContracts = sortedContracts
+                    .Skip(dataTableRequest.Start)
+                    .Take(dataTableRequest.Length)
                     .ToList();
 
-                return Json(new
+                return Json(new DataTableHelperService.DataTableResponse<PreSalesMasterDashboardRowViewModel>
                 {
-                    draw = Request.Form["draw"],
+                    draw = dataTableRequest.Draw,
                     recordsTotal = electricTotal + gasTotal, // Total records in both tables
                     recordsFiltered = totalRecords, // Filtered count
                     data = paginatedContracts
@@ -143,6 +148,25 @@ namespace CobanaEnergy.Project.Controllers.PreSales
             }
         }
 
+        private Dictionary<string, Func<IQueryable<PreSalesMasterDashboardRowViewModel>, bool, IQueryable<PreSalesMasterDashboardRowViewModel>>> GetColumnMappings()
+        {
+            return new Dictionary<string, Func<IQueryable<PreSalesMasterDashboardRowViewModel>, bool, IQueryable<PreSalesMasterDashboardRowViewModel>>>
+            {
+                // Column order: Action(0), Agent(1), BusinessName(2), CustomerName(3), PostCode(4), InputDate(5), Duration(6), Uplift(7), InputEAC(8), Email(9), Supplier(10), ContractNotes(11), SortableDate(12)
+                ["Agent"] = (query, ascending) => ascending ? query.OrderBy(x => x.Agent) : query.OrderByDescending(x => x.Agent),
+                ["BusinessName"] = (query, ascending) => ascending ? query.OrderBy(x => x.BusinessName) : query.OrderByDescending(x => x.BusinessName),
+                ["CustomerName"] = (query, ascending) => ascending ? query.OrderBy(x => x.CustomerName) : query.OrderByDescending(x => x.CustomerName),
+                ["PostCode"] = (query, ascending) => ascending ? query.OrderBy(x => x.PostCode) : query.OrderByDescending(x => x.PostCode),
+                ["InputDate"] = (query, ascending) => ascending ? query.OrderBy(x => x.SortableDate) : query.OrderByDescending(x => x.SortableDate),
+                ["Duration"] = (query, ascending) => ascending ? query.OrderBy(x => x.Duration) : query.OrderByDescending(x => x.Duration),
+                ["Uplift"] = (query, ascending) => ascending ? query.OrderBy(x => x.Uplift) : query.OrderByDescending(x => x.Uplift),
+                ["InputEAC"] = (query, ascending) => ascending ? query.OrderBy(x => x.InputEAC) : query.OrderByDescending(x => x.InputEAC),
+                ["Email"] = (query, ascending) => ascending ? query.OrderBy(x => x.Email) : query.OrderByDescending(x => x.Email),
+                ["Supplier"] = (query, ascending) => ascending ? query.OrderBy(x => x.Supplier) : query.OrderByDescending(x => x.Supplier),
+                ["ContractNotes"] = (query, ascending) => ascending ? query.OrderBy(x => x.ContractNotes) : query.OrderByDescending(x => x.ContractNotes),
+                ["SortableDate"] = (query, ascending) => ascending ? query.OrderBy(x => x.SortableDate) : query.OrderByDescending(x => x.SortableDate)
+            };
+        }        
         private IQueryable<Models.Electric.ElectricDBModels.CE_ElectricContracts> BuildElectricQuery(long? supplierFilter, DateTime? fromDate, DateTime? toDate, string searchValue)
         {
             var query = db.CE_ElectricContracts.AsQueryable();
@@ -156,14 +180,19 @@ namespace CobanaEnergy.Project.Controllers.PreSales
             // Apply date range filter at database level
             if (fromDate.HasValue && toDate.HasValue)
             {
-                // Convert dates to strings for database comparison
-                string fromDateStr = fromDate.Value.ToString("yyyy-MM-dd");
-                string toDateStr = toDate.Value.ToString("yyyy-MM-dd");
+                // Convert dates to strings for database comparison (dd/MM/yyyy format)
+                string fromDateStr = fromDate.Value.ToString("dd/MM/yyyy");
+                string toDateStr = toDate.Value.ToString("dd/MM/yyyy");
                 
-                // Filter by date string comparison (assuming InputDate is stored as yyyy-MM-dd format)
+                // For dd/MM/yyyy format, we need to convert to yyyyMMdd for proper string comparison
+                string fromDateComparable = fromDate.Value.ToString("yyyyMMdd");
+                string toDateComparable = toDate.Value.ToString("yyyyMMdd");
+                
+                // Filter by converting InputDate to comparable format for proper date range filtering
                 query = query.Where(e => e.InputDate != null && 
-                    string.Compare(e.InputDate, fromDateStr) >= 0 && 
-                    string.Compare(e.InputDate, toDateStr) <= 0);
+                    e.InputDate.Length == 10 && // Ensure it's in dd/MM/yyyy format
+                    string.Compare(e.InputDate.Substring(6, 4) + e.InputDate.Substring(3, 2) + e.InputDate.Substring(0, 2), fromDateComparable) >= 0 &&
+                    string.Compare(e.InputDate.Substring(6, 4) + e.InputDate.Substring(3, 2) + e.InputDate.Substring(0, 2), toDateComparable) <= 0);
             }
 
             // Apply search filter at database level for better performance
@@ -194,14 +223,19 @@ namespace CobanaEnergy.Project.Controllers.PreSales
             // Apply date range filter at database level
             if (fromDate.HasValue && toDate.HasValue)
             {
-                // Convert dates to strings for database comparison
-                string fromDateStr = fromDate.Value.ToString("yyyy-MM-dd");
-                string toDateStr = toDate.Value.ToString("yyyy-MM-dd");
+                // Convert dates to strings for database comparison (dd/MM/yyyy format)
+                string fromDateStr = fromDate.Value.ToString("dd/MM/yyyy");
+                string toDateStr = toDate.Value.ToString("dd/MM/yyyy");
                 
-                // Filter by date string comparison (assuming InputDate is stored as yyyy-MM-dd format)
+                // For dd/MM/yyyy format, we need to convert to yyyyMMdd for proper string comparison
+                string fromDateComparable = fromDate.Value.ToString("yyyyMMdd");
+                string toDateComparable = toDate.Value.ToString("yyyyMMdd");
+                
+                // Filter by converting InputDate to comparable format for proper date range filtering
                 query = query.Where(g => g.InputDate != null && 
-                    string.Compare(g.InputDate, fromDateStr) >= 0 && 
-                    string.Compare(g.InputDate, toDateStr) <= 0);
+                    g.InputDate.Length == 10 && // Ensure it's in dd/MM/yyyy format
+                    string.Compare(g.InputDate.Substring(6, 4) + g.InputDate.Substring(3, 2) + g.InputDate.Substring(0, 2), fromDateComparable) >= 0 &&
+                    string.Compare(g.InputDate.Substring(6, 4) + g.InputDate.Substring(3, 2) + g.InputDate.Substring(0, 2), toDateComparable) <= 0);
             }
 
             // Apply search filter at database level for better performance
@@ -228,6 +262,20 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                    !searchValue.Contains("%") && 
                    !searchValue.Contains("_") &&
                    !searchValue.Contains("*");
+        }
+
+        /// <summary>
+        /// Parse date string in dd/MM/yyyy format to DateTime for sorting
+        /// </summary>
+        private DateTime ParseDateForSorting(string dateString)
+        {
+            if (string.IsNullOrWhiteSpace(dateString) || dateString == "N/A")
+                return DateTime.MinValue;
+
+            if (DateTime.TryParseExact(dateString, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateTime result))
+                return result;
+
+            return DateTime.MinValue;
         }
 
         private async Task<List<PreSalesMasterDashboardRowViewModel>> ProcessCombinedContractsOptimized(List<Models.Electric.ElectricDBModels.CE_ElectricContracts> electricContracts, List<Models.Gas.GasDBModels.CE_GasContracts> gasContracts)
@@ -317,9 +365,9 @@ namespace CobanaEnergy.Project.Controllers.PreSales
             string electricInputDate = electricContract.InputDate ?? "N/A";
             string gasInputDate = gasContract.InputDate ?? "N/A";
 
-            // Parse dates for sorting
-            DateTime electricDate = DateTime.TryParse(electricInputDate, out DateTime eDate) ? eDate : DateTime.MinValue;
-            DateTime gasDate = DateTime.TryParse(gasInputDate, out DateTime gDate) ? gDate : DateTime.MinValue;
+            // Parse dates for sorting (dd/MM/yyyy format)
+            DateTime electricDate = ParseDateForSorting(electricInputDate);
+            DateTime gasDate = ParseDateForSorting(gasInputDate);
             DateTime sortableDate = electricDate > gasDate ? electricDate : gasDate;
 
             return new PreSalesMasterDashboardRowViewModel
@@ -355,7 +403,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
             string supplierName = suppliers.TryGetValue(contract.SupplierId, out string supplierNameValue) ? supplierNameValue : "N/A";
             string inputDate = contract.InputDate ?? "N/A";
 
-            DateTime sortableDate = DateTime.TryParse(inputDate, out DateTime date) ? date : DateTime.MinValue;
+            DateTime sortableDate = ParseDateForSorting(inputDate);
 
             return new PreSalesMasterDashboardRowViewModel
             {
@@ -785,5 +833,20 @@ namespace CobanaEnergy.Project.Controllers.PreSales
             }
         }
 
+        /// <summary>
+        /// Get column names in the exact order they appear in the DataTable
+        /// </summary>
+        private string[] GetColumnNames()
+        {
+            return new[] { 
+                "Action", "Agent", "BusinessName", "CustomerName", "PostCode", 
+                "InputDate", "Duration", "Uplift", "InputEAC", "Email", 
+                "Supplier", "ContractNotes", "SortableDate" 
+            };
+        }
+
+
     }
 }
+
+
