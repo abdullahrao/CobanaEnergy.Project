@@ -2,8 +2,10 @@
 using CobanaEnergy.Project.Controllers.Base;
 using CobanaEnergy.Project.Filters;
 using CobanaEnergy.Project.Models;
+using CobanaEnergy.Project.Models.Accounts;
 using CobanaEnergy.Project.Models.Accounts.MasterDashboard.AccountMasterDashboard;
 using CobanaEnergy.Project.Models.Accounts.ProblematicsDashboard;
+using CobanaEnergy.Project.Service.ExtensionService;
 using Logic.ResponseModel.Helper;
 using NPOI.POIFS.Crypt.Dsig;
 using System;
@@ -197,8 +199,10 @@ namespace CobanaEnergy.Project.Controllers.Accounts.MasterDashboard
             if (!string.IsNullOrEmpty(q.SubIntroducerId) && int.TryParse(q.SubIntroducerId, out var subIntroId))
                 combined = combined.Where(x => x.SubIntroducerId == subIntroId);
 
-            var ordered = combined.OrderByDescending(x => x.InputDate);
-            var allContracts = await ordered.ToListAsync();
+            var orderedContracts = combined.ApplyOrdering(q);
+            if (q.Order == null || !q.Order.Any())
+                orderedContracts = orderedContracts.OrderByDescending(x => x.InputDate);
+            var allContracts = await orderedContracts.ToListAsync();
 
             // Apply Date filters
             if (q.DateFrom.HasValue)
@@ -212,13 +216,16 @@ namespace CobanaEnergy.Project.Controllers.Accounts.MasterDashboard
                     .ToList();
 
             // Get all statuses for these contracts
-            var allIds = allContracts.Select(c => c.EId).ToList();
-
-            var allStatuses = await _db.CE_ContractStatuses
-                .Where(s => allIds.Contains(s.EId))
-                .GroupBy(s => s.EId)
-                .Select(g => g.OrderByDescending(x => x.ModifyDate).FirstOrDefault())
-                .ToListAsync();
+            var allIds = allContracts.Select(c => c.EId).Distinct().ToList();
+            var allStatuses = new List<CE_ContractStatuses>(); 
+            if (allIds.Any())
+            {
+                allStatuses = await _db.CE_ContractStatuses
+                    .Where(s => allIds.Contains(s.EId))
+                    .GroupBy(s => s.EId)
+                    .Select(g => g.OrderByDescending(x => x.ModifyDate).FirstOrDefault())
+                    .ToListAsync();
+            }
 
             // ContractStatus filter
             if (!string.IsNullOrEmpty(q.ContractStatus))
@@ -238,10 +245,8 @@ namespace CobanaEnergy.Project.Controllers.Accounts.MasterDashboard
             var page = allContracts.Skip(q.Start).Take(q.Length).ToList();
             var ids = page.Select(x => x.EId).ToList();
 
-            // Restrict statuses to current page only
             var statuses = allStatuses.Where(s => ids.Contains(s.EId)).ToList();
 
-            // Fetch dependent data for current page
             var eacGroups = await _db.CE_EacLogs
                 .Where(l => ids.Contains(l.EId))
                 .GroupBy(l => l.EId)
@@ -262,7 +267,6 @@ namespace CobanaEnergy.Project.Controllers.Accounts.MasterDashboard
                 .Where(m => reconciliationIds.Contains(m.ReconciliationId))
                 .ToListAsync();
 
-            // ---- BUILD RESULT ----
             var data = page.Select(x =>
             {
                 var eacGroup = eacGroups.FirstOrDefault(e => e.EId == x.EId);

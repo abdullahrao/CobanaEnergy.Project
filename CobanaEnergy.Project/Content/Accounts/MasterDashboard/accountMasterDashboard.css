@@ -270,3 +270,8 @@
         z-index: 99;
         position: relative;
     }
+
+div.dt-buttons {
+    float: right;
+    margin-bottom: 5px; /* thoda spacing neeche */
+}
