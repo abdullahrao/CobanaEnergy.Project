@@ -99,7 +99,7 @@ function loadSupplierStats() {
                 <h6 class="supplier-name">${supplier}</h6>`;
             grouped[supplier].forEach(stat => {
                 html += `<div class="status-line">
-                    <strong>Status: ${stat.PreSalesStatus}</strong>
+                    <strong class="supplier-status">Status: <span class="badge bg-warning"> ${stat.PreSalesStatus} </span></strong>
                     <div class="badge-group">
                         <span class="badge bg-success">Gas: ${stat.GasCount}</span>
                         <span class="badge bg-primary">Electric: ${stat.ElectricCount}</span>

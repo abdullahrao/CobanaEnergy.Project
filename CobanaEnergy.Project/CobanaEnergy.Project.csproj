@@ -268,6 +268,7 @@
     <Content Include="Content\Accounts\EDFSMEContracts\editEDFSMEContract.css" />
     <Content Include="Content\Accounts\InvoiceSupplierDashboard\ContractSelectListing.css" />
     <Content Include="Content\Accounts\InvoiceSupplierDashboard\EditContractsInvoiceSupplier.css" />
+    <Content Include="Content\Accounts\MasterDashboard\accountMasterDashboard.css" />
     <Content Include="Content\Accounts\ProblematicsDashboard\ProblematicsDashboard.css" />
     <Content Include="Content\Accounts\ReconciliationsDashboard\ReconciliationsDashboard.css" />
     <Content Include="Content\Accounts\ResolveContractsDashboard\ResolveContractsDashboard.css" />
@@ -311,12 +312,14 @@
     <Content Include="Scripts\Accounts\EDFSMEContracts\editEDFSmeContract.js" />
     <Content Include="Scripts\Accounts\InvoiceSupplierDashboard\contractSelectListing.js" />
     <Content Include="Scripts\Accounts\InvoiceSupplierDashboard\editContractsInvoiceSupplier.js" />
+    <Content Include="Scripts\Accounts\MasterDashboard\accountMasterDashboard.js" />
     <Content Include="Scripts\Accounts\ProblematicsDashboard\problematicsDashboard.js" />
     <Content Include="Scripts\Accounts\ReconciliationsDashboard\reconciliationsDashboard.js" />
     <Content Include="Scripts\Accounts\ResolveContractsDashboard\resolveContractsDashboard.js" />
     <Content Include="Scripts\Accounts\ScottishPowerContracts\editScottishPowerContract.js" />
     <Content Include="Scripts\Accounts\SSEContracts\editSSEContract.js" />
     <Content Include="Scripts\Accounts\TotalGasAndPowerContracts\editTGPContract.js" />
+    <Content Include="Scripts\Common\filters.js" />
     <Content Include="Scripts\Dropdown\dropdowns.js" />
     <Content Include="Scripts\Dual\createDual.js" />
     <Content Include="Scripts\Dual\editDual.js" />
@@ -375,6 +378,7 @@
     <Compile Include="Controllers\Accounts\EDFContracts\EDFContractController.cs" />
     <Compile Include="Controllers\Accounts\EDFSMEContracts\EDFSMEContractController.cs" />
     <Compile Include="Controllers\Accounts\InvoiceSupplierDashboard\InvoiceSupplierDashboardController.cs" />
+    <Compile Include="Controllers\Accounts\MasterDashboard\AccountMasterDashboardController.cs" />
     <Compile Include="Controllers\Accounts\ProblematicsDashboard\ProblematicsDashboardController.cs" />
     <Compile Include="Controllers\Accounts\ReconciliationsDashboard\ReconciliationsDashboardController.cs" />
     <Compile Include="Controllers\Accounts\ResolveContractsDashboard\ResolveContractsDashboardController.cs" />
@@ -382,6 +386,7 @@
     <Compile Include="Controllers\Accounts\SSEContracts\SSEContractController.cs" />
     <Compile Include="Controllers\Accounts\TotalGasAndPowerContracts\TotalGasAndPowerContractController.cs" />
     <Compile Include="Controllers\Base\BaseController.cs" />
+    <Compile Include="Controllers\Common\CommonController.cs" />
     <Compile Include="Controllers\Error\ErrorController.cs" />
     <Compile Include="Controllers\PreSales\CheckDuplicateAccountController.cs" />
     <Compile Include="Controllers\PreSales\DualController.cs" />
@@ -468,6 +473,8 @@
     <Compile Include="Models\Accounts\MainCampaign\DBModel\CE_CampaignNotification.cs" />
     <Compile Include="Models\Accounts\MainCampaign\DBModel\CE_UserNotificationStatus.cs" />
     <Compile Include="Models\Accounts\MainCampaign\UserNotificationStatusViewModel.cs" />
+    <Compile Include="Models\Accounts\MasterDashboard\AccountMasterDashboard\AccountMasterViewModel.cs" />
+    <Compile Include="Models\Accounts\MasterDashboard\AccountMasterDashboard\ContractQueryParams.cs" />
     <Compile Include="Models\Accounts\ProblematicsDashboard\ProblematicsDashboardViewModel.cs" />
     <Compile Include="Models\Accounts\ReconciliationsDashboard\ReconciliationsRowViewModel.cs" />
     <Compile Include="Models\Accounts\ResolveContractsDashboard\ResolveContractsDashboardViewModel.cs" />
@@ -661,6 +668,8 @@
     <Content Include="Views\Accounts\TotalGasAndPowerContract\EditTotalGasandPowerContract.cshtml" />
     <Content Include="Views\Accounts\EDFSMEContract\EditEDFSMEContract.cshtml" />
     <Content Include="Views\Accounts\ScottishPowerContract\EditScottishPowerContract.cshtml" />
+    <Content Include="Views\Accounts\MasterDashboard\AccountMasterDashboard.cshtml" />
+    <Content Include="Views\Shared\_FiltersPartial.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

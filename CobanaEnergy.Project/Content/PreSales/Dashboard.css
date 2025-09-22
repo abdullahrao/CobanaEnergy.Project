@@ -299,3 +299,8 @@
         border-radius: 6px;
         white-space: nowrap;
     }
+
+
+.supplier-status {
+    text-align: left !important;
+}
