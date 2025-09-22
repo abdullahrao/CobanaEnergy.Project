@@ -54,7 +54,10 @@
             },
             pageLength: 25,
             order: [[6, 'desc']],
-            dom: 'Bfrtip',
+            dom:
+                '<"row mb-2"<"col-sm-12 text-end"B>>' +
+                '<"row mb-2"<"col-sm-6"l><"col-sm-6"f>>' +
+                'rtip',
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -89,10 +92,34 @@
                 { data: 'MPXN' },
                 { data: 'InputEAC' },
                 { data: 'SupplierEAC' },
-                { data: 'InputDate', render: d => d ? new Date(d).toLocaleDateString() : '-' },
-                { data: 'StartDate', render: d => d ? new Date(d).toLocaleDateString() : '-' },
-                { data: 'CED', render: d => d ? new Date(d).toLocaleDateString() : '-' },
-                { data: 'COTDate', render: d => d ? new Date(d).toLocaleDateString() : '-' },
+                {
+                    data: 'InputDate',
+                    render: function (d) {
+                        const dateObj = parseDateString(d);
+                        return dateObj ? dateObj.toLocaleDateString() : "-";
+                    }
+                },
+                {
+                    data: 'StartDate',
+                    render: function (d) {
+                        const dateObj = parseDateString(d);
+                        return dateObj ? dateObj.toLocaleDateString() : "-";
+                    }
+                },
+                {
+                    data: 'CED',
+                    render: function (d) {
+                        const dateObj = parseDateString(d);
+                        return dateObj ? dateObj.toLocaleDateString() : "-";
+                    }
+                },
+                {
+                    data: 'COTDate',
+                    render: function (d) {
+                        const dateObj = parseDateString(d);
+                        return dateObj ? dateObj.toLocaleDateString() : "-";
+                    }
+                },
                 { data: 'ContractStatus' },
                 { data: 'PaymentStatus' },
                 { data: 'PreviousInvoiceNumbers' },
@@ -117,6 +144,28 @@
                 });
             }
         });
+    }
+
+    function parseDateString(dateStr) {
+        if (!dateStr || dateStr.trim() === "") return null;
+
+        // yyyy-MM-dd
+        const isoMatch = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (isoMatch) {
+            const [_, y, m, d] = isoMatch;
+            return new Date(y, m - 1, d);
+        }
+
+        // dd/MM/yyyy
+        const ukMatch = dateStr.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+        if (ukMatch) {
+            const [_, d, m, y] = ukMatch;
+            return new Date(y, m - 1, d);
+        }
+
+        // fallback → try browser parser
+        const fallback = new Date(dateStr);
+        return isNaN(fallback.getTime()) ? null : fallback;
     }
 
     $(function () {

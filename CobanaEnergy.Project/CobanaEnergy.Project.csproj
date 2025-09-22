@@ -503,6 +503,7 @@
     <Compile Include="Models\Accounts\SuppliersModels\SSE\SSEEacLogViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\TotalGasAndPower\EditTotalGasAndPowerViewModel.cs" />
     <Compile Include="Models\Accounts\SuppliersModels\TotalGasAndPower\TotalGasAndPowerEacLogViewModel.cs" />
+    <Compile Include="Models\Common\DataTable\DataTableQuery.cs" />
     <Compile Include="Models\Dual\EditDual\DualContractEditViewModel.cs" />
     <Compile Include="Models\Dual\LogsHelperClass\LogEntry.cs" />
     <Compile Include="Models\Electric\EditElectric\ElectricContractEditViewModel.cs" />
@@ -606,6 +607,7 @@
     <Compile Include="Service\BackgroundServices\CampaignMonitorService.cs" />
     <Compile Include="Service\BackgroundServices\UserSessionMonitorRunner.cs" />
     <Compile Include="Service\BackgroundServices\UserSessionMonitorService.cs" />
+    <Compile Include="Service\ExtensionService\DataTableExtensions.cs" />
     <Compile Include="Service\ExtensionService\StringExtensions.cs" />
     <Compile Include="Service\NotificationHub\NotificationHub.cs" />
     <Compile Include="Service\UserService\ConnectedUserStore.cs" />

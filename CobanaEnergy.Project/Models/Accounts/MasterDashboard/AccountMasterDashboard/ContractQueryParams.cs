@@ -1,16 +1,13 @@
-﻿using System;
+﻿using CobanaEnergy.Project.Models.Common.DataTable;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
 namespace CobanaEnergy.Project.Models.Accounts.MasterDashboard.AccountMasterDashboard
 {
-    public class ContractQueryParams
+    public class ContractQueryParams :  DataTableQuery
     {
-        public int Draw { get; set; }
-        public int Start { get; set; } = 0;
-        public int Length { get; set; } = 25;
-
         // filters
         public string Supplier { get; set; }
         public DateTime? DateFrom { get; set; }
