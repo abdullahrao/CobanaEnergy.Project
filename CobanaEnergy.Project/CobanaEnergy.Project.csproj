@@ -609,6 +609,8 @@
     <Compile Include="Service\NotificationHub\NotificationHub.cs" />
     <Compile Include="Service\UserService\ConnectedUserStore.cs" />
     <Compile Include="Service\UserService\CustomUserIdProvider.cs" />
+    <Compile Include="Service\DataTableHelperService.cs" />
+    <Compile Include="Extensions\QueryableExtensions.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
