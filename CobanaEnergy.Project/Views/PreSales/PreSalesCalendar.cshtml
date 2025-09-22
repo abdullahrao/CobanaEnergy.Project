@@ -1,5 +1,5 @@
  @{
-    ViewBag.Title = "Pre-sales Calendar";
+    ViewBag.Title = "PreSales Calendar";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @Html.AntiForgeryToken()
@@ -14,7 +14,7 @@
             <table id="preSalesCalendarTable" class="table table-bordered table-striped w-100">
                 <thead class="table-light">
                     <tr>
-                        <th>Action</th>
+                        <th data-orderable="false">Action</th>
                         <th>Agent</th>
                         <th>MPAN</th>
                         <th>MPRN</th>

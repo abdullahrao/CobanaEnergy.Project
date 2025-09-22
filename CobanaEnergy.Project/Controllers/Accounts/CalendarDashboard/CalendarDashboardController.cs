@@ -1,7 +1,9 @@
 ﻿using CobanaEnergy.Project.Controllers.Base;
+using CobanaEnergy.Project.Extensions;
 using CobanaEnergy.Project.Filters;
 using CobanaEnergy.Project.Models;
 using CobanaEnergy.Project.Models.Accounts.CalendarDashboard;
+using CobanaEnergy.Project.Service;
 using Logic;
 using Logic.ResponseModel.Helper;
 using System;
@@ -37,9 +39,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CalendarDashboard
         {
             try
             {
-                int start = Convert.ToInt32(Request.Form["start"]);
-                int length = Convert.ToInt32(Request.Form["length"]);
-                string searchValue = Request.Form["search[value]"];
+                var dataTableRequest = DataTableHelperService.ParseDataTableRequest(Request.Form);
                 string selectedDate = Request.Form["SelectedDate"];
 
                 var query = db.CE_CommissionAndReconciliation
@@ -52,35 +52,33 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CalendarDashboard
 
                 int totalRecords = await query.CountAsync();
 
-                if (!string.IsNullOrWhiteSpace(searchValue))
+                if (!string.IsNullOrWhiteSpace(dataTableRequest.SearchValue))
                 {
                     var matchingElectricIds = db.CE_ElectricContracts
-                        .Where(c => c.InputDate.Contains(searchValue))
+                        .Where(c => c.InputDate.Contains(dataTableRequest.SearchValue))
                         .Select(c => c.EId);
 
                     var matchingGasIds = db.CE_GasContracts
-                        .Where(c => c.InputDate.Contains(searchValue))
+                        .Where(c => c.InputDate.Contains(dataTableRequest.SearchValue))
                         .Select(c => c.EId);
 
                     query = query.Where(r =>
-                        r.SupplierCobanaInvoiceNotes.Contains(searchValue) ||
-                        r.EId.Contains(searchValue) ||
+                        r.SupplierCobanaInvoiceNotes.Contains(dataTableRequest.SearchValue) ||
+                        r.EId.Contains(dataTableRequest.SearchValue) ||
                         matchingElectricIds.Contains(r.EId) ||
                         matchingGasIds.Contains(r.EId) ||
-                        db.CE_ElectricContracts.Any(c => c.EId == r.EId && c.ContractNotes.Contains(searchValue)) ||
-                        db.CE_GasContracts.Any(c => c.EId == r.EId && c.ContractNotes.Contains(searchValue)) ||
-                        db.CE_ContractStatuses.Any(cs => cs.EId == r.EId && cs.PaymentStatus.Contains(searchValue)) ||
-                        db.CE_ContractStatuses.Any(cs => cs.EId == r.EId && cs.ContractStatus.Contains(searchValue)) ||
-                        r.CommissionFollowUpDate.Contains(searchValue) ||
-                        r.contractType.Contains(searchValue));
+                        db.CE_ElectricContracts.Any(c => c.EId == r.EId && c.ContractNotes.Contains(dataTableRequest.SearchValue)) ||
+                        db.CE_GasContracts.Any(c => c.EId == r.EId && c.ContractNotes.Contains(dataTableRequest.SearchValue)) ||
+                        db.CE_ContractStatuses.Any(cs => cs.EId == r.EId && cs.PaymentStatus.Contains(dataTableRequest.SearchValue)) ||
+                        db.CE_ContractStatuses.Any(cs => cs.EId == r.EId && cs.ContractStatus.Contains(dataTableRequest.SearchValue)) ||
+                        r.CommissionFollowUpDate.Contains(dataTableRequest.SearchValue) ||
+                        r.contractType.Contains(dataTableRequest.SearchValue));
                 }
 
                 int filteredRecords = await query.CountAsync();
 
                 var followUpRecords = await query
                     .OrderBy(r => r.CommissionFollowUpDate)
-                    .Skip(start)
-                    .Take(length)
                     .ToListAsync();
 
                 var contracts = new List<CalendarRowViewModel>();
@@ -133,12 +131,23 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CalendarDashboard
                     }
                 }
 
-                return Json(new
+                // Apply DataTable sorting and pagination to the processed contracts
+                var columnMappings = GetColumnMappings();
+                var columnNames = GetColumnNames(); // Get column names in correct order
+                var queryableContracts = contracts.AsQueryable();
+                var sortedContracts = queryableContracts.ApplyDataTableSorting(dataTableRequest, columnMappings, columnNames, "InputDate", true);
+                
+                var paginatedContracts = sortedContracts
+                    .Skip(dataTableRequest.Start)
+                    .Take(dataTableRequest.Length)
+                    .ToList();
+
+                return Json(new DataTableHelperService.DataTableResponse<CalendarRowViewModel>
                 {
-                    draw = Request.Form["draw"],
+                    draw = dataTableRequest.Draw,
                     recordsTotal = totalRecords,
                     recordsFiltered = filteredRecords,
-                    data = contracts
+                    data = paginatedContracts
                 });
             }
             catch (Exception ex)
@@ -146,6 +155,28 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CalendarDashboard
                 Logger.Log("GetCalendarContracts: " + ex);
                 return JsonResponse.Fail("Error fetching calendar contracts.");
             }
+        }
+
+        private Dictionary<string, Func<IQueryable<CalendarRowViewModel>, bool, IQueryable<CalendarRowViewModel>>> GetColumnMappings()
+        {
+            return new Dictionary<string, Func<IQueryable<CalendarRowViewModel>, bool, IQueryable<CalendarRowViewModel>>>
+            {
+                ["InputDate"] = (query, ascending) => ascending ? query.OrderBy(x => x.InputDate) : query.OrderByDescending(x => x.InputDate),
+                ["PaymentStatus"] = (query, ascending) => ascending ? query.OrderBy(x => x.PaymentStatus) : query.OrderByDescending(x => x.PaymentStatus),
+                ["ContractStatus"] = (query, ascending) => ascending ? query.OrderBy(x => x.ContractStatus) : query.OrderByDescending(x => x.ContractStatus),
+                ["PreSalesNotes"] = (query, ascending) => ascending ? query.OrderBy(x => x.PreSalesNotes) : query.OrderByDescending(x => x.PreSalesNotes),
+                ["SupplierCobanaInvoiceNotes"] = (query, ascending) => ascending ? query.OrderBy(x => x.SupplierCobanaInvoiceNotes) : query.OrderByDescending(x => x.SupplierCobanaInvoiceNotes)
+            };
+        }
+
+        /// <summary>
+        /// Get column names in the exact order they appear in the DataTable
+        /// </summary>
+        private string[] GetColumnNames()
+        {
+            return new[] { 
+                "InputDate", "PaymentStatus", "ContractStatus", "PreSalesNotes", "SupplierCobanaInvoiceNotes" 
+            };
         }
 
         [HttpPost]

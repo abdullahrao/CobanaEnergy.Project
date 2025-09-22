@@ -1,7 +1,9 @@
 using CobanaEnergy.Project.Controllers.Base;
+using CobanaEnergy.Project.Extensions;
 using CobanaEnergy.Project.Filters;
 using CobanaEnergy.Project.Models;
 using CobanaEnergy.Project.Models.PreSales;
+using CobanaEnergy.Project.Service;
 using Logic;
 using Logic.ResponseModel.Helper;
 using System;
@@ -36,9 +38,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
         {
             try
             {
-                int start = Convert.ToInt32(Request.Form["start"]);
-                int length = Convert.ToInt32(Request.Form["length"]);
-                string searchValue = Request.Form["search[value]"];
+                var dataTableRequest = DataTableHelperService.ParseDataTableRequest(Request.Form);
                 string selectedDate = Request.Form["SelectedDate"];
 
                 // Get Electric contracts with PreSalesFollowUpDate
@@ -60,15 +60,15 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                 }
 
                 // Apply search filters
-                if (!string.IsNullOrWhiteSpace(searchValue))
+                if (!string.IsNullOrWhiteSpace(dataTableRequest.SearchValue))
                 {
                     electricQuery = electricQuery.Where(c =>
-                        c.EId.Contains(searchValue) ||
-                        c.MPAN.Contains(searchValue) ||
-                        c.PostCode.Contains(searchValue) ||
-                        c.BusinessName.Contains(searchValue) ||
-                        c.CurrentSupplier.Contains(searchValue) ||
-                        c.ContractNotes.Contains(searchValue));
+                        c.EId.Contains(dataTableRequest.SearchValue) ||
+                        c.MPAN.Contains(dataTableRequest.SearchValue) ||
+                        c.PostCode.Contains(dataTableRequest.SearchValue) ||
+                        c.BusinessName.Contains(dataTableRequest.SearchValue) ||
+                        c.CurrentSupplier.Contains(dataTableRequest.SearchValue) ||
+                        c.ContractNotes.Contains(dataTableRequest.SearchValue));
                 }
 
                 // Get total counts
@@ -76,11 +76,9 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                 int gasTotal = await gasQuery.CountAsync();
                 int totalRecords = electricTotal + gasTotal;
 
-                // Get paginated results
+                // Get all results for proper sorting and pagination
                 var electricContracts = await electricQuery
                     .OrderBy(c => c.PreSalesFollowUpDate)
-                    .Skip(start)
-                    .Take(length)
                     .ToListAsync();
 
                 // Process electric contracts with agent determination
@@ -128,12 +126,12 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                 }).ToList();
 
                 // If we need more records and haven't reached the end of electric contracts
-                var remainingLength = length - electricContracts.Count;
+                var remainingLength = dataTableRequest.Length - electricContracts.Count;
                 if (remainingLength > 0)
                 {
                     var gasContracts = await gasQuery
                         .OrderBy(c => c.PreSalesFollowUpDate)
-                        .Skip(Math.Max(0, start - electricTotal))
+                        .Skip(Math.Max(0, dataTableRequest.Start - electricTotal))
                         .Take(remainingLength)
                         .ToListAsync();
 
@@ -184,12 +182,23 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     processedElectricContracts.AddRange(processedGasContracts);
                 }
 
-                return Json(new
+                // Apply DataTable sorting and pagination to the processed contracts
+                var columnMappings = GetColumnMappings();
+                var columnNames = GetColumnNames(); // Get column names in correct order
+                var queryableContracts = processedElectricContracts.AsQueryable();
+                var sortedContracts = queryableContracts.ApplyDataTableSorting(dataTableRequest, columnMappings, columnNames, "Agent", true);
+                
+                var paginatedContracts = sortedContracts
+                    .Skip(dataTableRequest.Start)
+                    .Take(dataTableRequest.Length)
+                    .ToList();
+
+                return Json(new DataTableHelperService.DataTableResponse<PreSalesCalendarRowViewModel>
                 {
-                    draw = Request.Form["draw"],
+                    draw = dataTableRequest.Draw,
                     recordsTotal = totalRecords,
                     recordsFiltered = totalRecords,
-                    data = processedElectricContracts
+                    data = paginatedContracts
                 });
             }
             catch (Exception ex)
@@ -197,6 +206,30 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                 Logger.Log("GetPreSalesCalendarContracts: " + ex);
                 return JsonResponse.Fail("Error fetching pre-sales calendar contracts.");
             }
+        }
+
+        private Dictionary<string, Func<IQueryable<PreSalesCalendarRowViewModel>, bool, IQueryable<PreSalesCalendarRowViewModel>>> GetColumnMappings()
+        {
+            return new Dictionary<string, Func<IQueryable<PreSalesCalendarRowViewModel>, bool, IQueryable<PreSalesCalendarRowViewModel>>>
+            {
+                // Column order: EId(0), Agent(1), MPAN(2), MPRN(3), PostCode(4), BusinessName(5), Supplier(6)
+                ["Agent"] = (query, ascending) => ascending ? query.OrderBy(x => x.Agent) : query.OrderByDescending(x => x.Agent),
+                ["MPAN"] = (query, ascending) => ascending ? query.OrderBy(x => x.MPAN) : query.OrderByDescending(x => x.MPAN),
+                ["MPRN"] = (query, ascending) => ascending ? query.OrderBy(x => x.MPRN) : query.OrderByDescending(x => x.MPRN),
+                ["PostCode"] = (query, ascending) => ascending ? query.OrderBy(x => x.PostCode) : query.OrderByDescending(x => x.PostCode),
+                ["BusinessName"] = (query, ascending) => ascending ? query.OrderBy(x => x.BusinessName) : query.OrderByDescending(x => x.BusinessName),
+                ["Supplier"] = (query, ascending) => ascending ? query.OrderBy(x => x.Supplier) : query.OrderByDescending(x => x.Supplier)
+            };
+        }
+
+        /// <summary>
+        /// Get column names in the exact order they appear in the DataTable
+        /// </summary>
+        private string[] GetColumnNames()
+        {
+            return new[] { 
+                "EId", "Agent", "MPAN", "MPRN", "PostCode", "BusinessName", "Supplier" 
+            };
         }
 
         [HttpPost]
@@ -337,3 +370,4 @@ namespace CobanaEnergy.Project.Controllers.PreSales
         }
     }
 }
+
