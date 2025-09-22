@@ -63,15 +63,27 @@
                     extend: 'excelHtml5',
                     text: '<i class="fas fa-file-excel me-2"></i> Export Excel',
                     className: 'btn btn-success btn-sm dt-btn',
-                    title: 'AccountMaster_Export'
+                    title: 'AccountMaster',
+                    exportOptions: {
+                        columns: ':visible:not(:first-child)' 
+                    }
                 },
                 {
                     extend: 'pdfHtml5',
                     text: '<i class="fas fa-file-pdf me-2"></i> Export PDF',
                     className: 'btn btn-danger btn-sm dt-btn',
-                    title: 'AccountMaster_Export',
+                    title: 'AccountMaster',
                     orientation: 'landscape',
-                    pageSize: 'A4'
+                    pageSize: 'A3',
+                    exportOptions: {
+                        columns: ':visible:not(:first-child)'
+                    },
+                    customize: function (doc) {
+                        doc.defaultStyle.fontSize = 5;
+                        doc.styles.tableHeader.fontSize = 6;
+                        doc.content[1].table.widths =
+                            Array(doc.content[1].table.body[0].length + 1).join('*').split('');
+                    }
                 }
             ],
             columns: [
