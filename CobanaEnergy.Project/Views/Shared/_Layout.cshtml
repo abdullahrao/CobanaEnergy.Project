@@ -129,9 +129,10 @@
         }
     </script>
 
-            @RenderSection("scripts", required: false)
-        <script src="~/Scripts/SignalR/signalr-notification.js"></script>
-        <script src="~/Scripts/Common/duplicateAccountChecker.js"></script>
+    <script src="~/Scripts/Common/filters.js"></script>
+    @RenderSection("scripts", required: false)
+    <script src="~/Scripts/SignalR/signalr-notification.js"></script>
+    <script src="~/Scripts/Common/duplicateAccountChecker.js"></script>
 
 </body>
 </html>

@@ -79,7 +79,7 @@
                             <li><hr class="dropdown-divider"></li>
                             <li class="dropdown-submenu">
                                 <a class="dropdown-item dropdown-toggle" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                                    <i class="fas fa-layer-group me-2"></i> Acct. Dashboards
+                                    <i class="fas fa-layer-group me-2"></i>Acct. Dashboards
                                 </a>
                                 <ul class="dropdown-menu">
                                     <li>
@@ -109,6 +109,17 @@
                                     </li>
                                 </ul>
                             </li>
+
+                            <li><hr class="dropdown-divider"></li>
+                            @if (User.IsInRole("Accounts"))
+                            {
+                                <li>
+                                    <a class="dropdown-item" href="@Url.Action("Index", "AccountMasterDashboard")">
+                                        <i class="fas fa-wallet me-2"></i>Acct. Master Dashboard
+                                    </a>
+                                </li>
+                            }
+
 
                             <li><hr class="dropdown-divider"></li>
                             @if (User.IsInRole("Controls"))
