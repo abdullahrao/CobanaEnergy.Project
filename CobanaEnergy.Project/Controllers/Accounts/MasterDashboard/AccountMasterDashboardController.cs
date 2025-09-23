@@ -275,6 +275,9 @@ namespace CobanaEnergy.Project.Controllers.Accounts.MasterDashboard
                         .Sum();
                 }
 
+                Tuple<string, string> route;
+                var hasSupplier = SupportedSuppliers.Map.TryGetValue(x.SupplierName ?? "", out route);
+
                 return new AccountMasterRowViewModel
                 {
                     ContractId = x.Id,
@@ -295,7 +298,11 @@ namespace CobanaEnergy.Project.Controllers.Accounts.MasterDashboard
                     CommissionForecast = metric?.InitialCommissionForecast,
                     CobanaDueCommission = cr?.CobanaDueCommission,
                     CobanaPaidCommission = cobanaPaidSum == 0 ? (decimal?)null : cobanaPaidSum,
-                    CobanaFinalReconciliation = cr?.CobanaFinalReconciliation
+                    CobanaFinalReconciliation = cr?.CobanaFinalReconciliation,
+
+                    // Edit Button Action and Controller ----- 
+                    Controller = hasSupplier ? route.Item1 : SupportedSuppliers.DefaultController,
+                    Action = hasSupplier ? route.Item2 : SupportedSuppliers.DefaultAction
                 };
             });
 
