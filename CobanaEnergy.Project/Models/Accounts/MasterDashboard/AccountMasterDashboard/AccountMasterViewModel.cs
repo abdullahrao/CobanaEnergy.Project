@@ -38,7 +38,7 @@ namespace CobanaEnergy.Project.Models.Accounts.MasterDashboard.AccountMasterDash
         public string CobanaDueCommission { get; set; }
         public decimal? CobanaPaidCommission { get; set; }
         public string ContractType { get; set; }
-        public string CobanaReconciliation { get; set; }
+        public string CobanaFinalReconciliation { get; set; }
         /// <summary>
         /// Action and Controller 
         /// </summary>

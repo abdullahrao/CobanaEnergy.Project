@@ -15,7 +15,8 @@
         '#leadGenFilter': 'Select Lead Generator',
         '#introducerFilter': 'Select Introducer',
         '#subIntroducerFilter': 'Select Sub Introducer',
-        '#referralFilter' : 'Select Referral'
+        '#referralFilter' : 'Select Referral',
+        '#paymentStatusAcc': 'Select Payment Status'
     };
 
     for (const [selector, placeholder] of Object.entries(selectConfigs)) {
@@ -38,6 +39,7 @@
                     return $.extend({}, d, {
                         Supplier: $('#supplierFilter').val(),
                         ContractStatus: $('#contractstatus').val(),
+                        PaymentStatus: $('#paymentStatusAcc').val(),
                         DateFrom: $('#startDateFilter').val(),
                         DateTo: $('#endDateFilter').val(),
                         Department: $('#department').val(),
@@ -148,7 +150,7 @@
                 { data: 'CommissionForecast', render: d => d ?? '-' },
                 { data: 'CobanaDueCommission', render: d => d ?? '-' },
                 { data: 'CobanaPaidCommission', render: d => d ?? '-' },
-                { data: 'CobanaReconciliation', render: d => d ?? '-' }
+                { data: 'CobanaFinalReconciliation', render: d => d ?? '-' }
             ],
             drawCallback: function () {
                 $('#accountMasterTable tbody tr td').each(function () {
@@ -183,6 +185,8 @@
     $(function () {
         populateDropdown("department", DropdownOptions.department, $('#department').data('current'));
         populateDropdown("contractstatus", AccountDropdownOptions.contractStatus, $('#contractstatus').data('current'));
+        populateDropdown("paymentStatusAcc", AccountDropdownOptions.paymentStatus, $('#paymentStatusAcc').data('current'));
+
         dataTableInit();
 
         FilterModule.init(table);

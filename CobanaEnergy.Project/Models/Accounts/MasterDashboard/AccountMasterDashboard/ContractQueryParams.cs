@@ -18,6 +18,7 @@ namespace CobanaEnergy.Project.Models.Accounts.MasterDashboard.AccountMasterDash
         public string StaffId { get; set; }
         public string SubBrokerageId { get; set; }
         public string ContractStatus { get; set; }
+        public string PaymentStatus { get; set; }
 
         public string CloserId { get; set; }
         public string LeadGeneratorId { get; set; }
