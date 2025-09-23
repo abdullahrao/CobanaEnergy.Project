@@ -181,14 +181,33 @@ class BrokerageManager {
                 break;
             case 'referral partners':
                 this.showReferralSourceFields();
-                this.loadReferralPartners();
-                this.loadSubReferralPartners(() => this.populateModelValues());
+                this.loadReferralPartners(() => {
+                    this.loadSubReferralPartners(() => {
+                        if (this.isEditMode) {
+                            this.populateModelValues();
+                        }
+                    });
+                });
                 break;
             case 'self-gen':
                 this.showSelfGenSourceFields();
+                this.loadReferralPartners(() => {
+                    this.loadSubReferralPartners(() => {
+                        if (this.isEditMode) {
+                            this.populateModelValues();
+                        }
+                    });
+                });
                 break;
             case 'cobana rnw':
                 this.showCobanaRnwSourceFields();
+                this.loadReferralPartners(() => {
+                    this.loadSubReferralPartners(() => {
+                        if (this.isEditMode) {
+                            this.populateModelValues();
+                        }
+                    });
+                });
                 break;
             case 'sub broker':
                 this.showSubBrokerSourceFields();
@@ -219,7 +238,7 @@ class BrokerageManager {
             if (currentSource && currentSource.toLowerCase() === 'data') {
                 $leadGeneratorField.show();
                 $leadGenerator.prop('disabled', false);
-                this.loadLeadGenerators(() => this.populateModelValues());
+                this.loadLeadGenerators(() => this.populateModelValues(false));
                 $referralPartnerField.hide();
                 $subReferralPartnerField.hide();
             }
@@ -230,8 +249,9 @@ class BrokerageManager {
                 $leadGenerator.val('');
                 $referralPartnerField.show();
                 $subReferralPartnerField.show();
-                this.loadReferralPartners();
-                this.loadSubReferralPartners(() => this.populateModelValues());
+                this.loadReferralPartners(() => {
+                    this.loadSubReferralPartners(() => this.populateModelValues(false));
+                });
             }
         } else {
             // Hide all additional fields when N/A is selected
@@ -251,7 +271,7 @@ class BrokerageManager {
         $('#brokersFields').hide();
         $('#introducersFields').hide();
         
-        this.loadClosers();
+        this.loadClosers(() => this.populateModelValues());
     }
 
     /**
@@ -1010,7 +1030,7 @@ class BrokerageManager {
     /**
      * Populate dynamic fields with model values (for edit mode)
      */
-    populateModelValues() {
+    populateModelValues(handleCollaboration = true) {
         if (!this.modelValues) {
             return;
         }
@@ -1027,17 +1047,20 @@ class BrokerageManager {
             leadGeneratorId: '#leadGenerator'
         };
 
-        // Handle collaboration field separately as it's a text field
-        const collaborationValue = this.modelValues.collaboration;
-        const $collaborationField = $('#collaboration');
-        if ($collaborationField.length && collaborationValue) {
-            if (collaborationValue === 'N/A') {
-                $collaborationField.val('-1');
-            } else {
-                $collaborationField.val(collaborationValue);
+        if (handleCollaboration) {
+            // Handle collaboration field separately as it's a text field
+            const collaborationValue = this.modelValues.collaboration;
+            const $collaborationField = $('#collaboration');
+            if ($collaborationField.length && collaborationValue) {
+                if (collaborationValue === 'N/A') {
+                    $collaborationField.val('-1');
+                } else {
+                    $collaborationField.val(collaborationValue);
+                    // Trigger change event to show appropriate dynamic fields
+                    $collaborationField.trigger('change');
+                }
             }
         }
-
         // Populate each field if it has a value and the field exists
         Object.entries(fieldMappings).forEach(([modelKey, fieldSelector]) => {
             const modelValue = this.modelValues[modelKey];
