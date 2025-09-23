@@ -431,15 +431,15 @@
             
             // Dynamic Department-based fields
             Source: $('#source').val(),
-            CloserId: $('#closer').val() || null,
-            ReferralPartnerId: $('#referralPartner').val() || null,
-            SubReferralPartnerId: $('#subReferralPartner').val() || null,
-            BrokerageStaffId: $('#brokerageStaff').val() || null,
-            IntroducerId: $('#introducer').val() || null,
-            SubIntroducerId: $('#subIntroducer').val() || null,
-            SubBrokerageId: $('#subBrokerage').val() || null,
-            Collaboration: $('#collaboration').val() || null,
-            LeadGeneratorId: $('#leadGenerator').val() || null
+            CloserId: $('#closer').val() === '-1' ? 0 : ($('#closer').val() || null),
+            ReferralPartnerId: $('#referralPartner').val() === '-1' ? 0 : ($('#referralPartner').val() || null),
+            SubReferralPartnerId: $('#subReferralPartner').val() === '-1' ? 0 : ($('#subReferralPartner').val() || null),
+            BrokerageStaffId: $('#brokerageStaff').val() === '-1' ? 0 : ($('#brokerageStaff').val() || null),
+            IntroducerId: $('#introducer').val() === '-1' ? 0 : ($('#introducer').val() || null),
+            SubIntroducerId: $('#subIntroducer').val() === '-1' ? 0 : ($('#subIntroducer').val() || null),
+            SubBrokerageId: $('#subBrokerage').val() === '-1' ? 0 : ($('#subBrokerage').val() || null),
+            Collaboration: $('#collaboration').val() === '-1' ? 'N/A' : ($('#collaboration').val() || null),
+            LeadGeneratorId: $('#leadGenerator').val() === '-1' ? 0 : ($('#leadGenerator').val() || null)
         };
     }
     function loadLogs(eid) {
