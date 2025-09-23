@@ -286,6 +286,7 @@
     <Content Include="Content\Accounts\InvoiceSupplierDashboard\InvoiceSupplierDashboard.css" />
     <Content Include="Content\PreSales\Dashboard.css" />
     <Content Include="Content\PreSales\PreSalesCalendar\PreSalesCalendar.css" />
+    <Content Include="Content\PreSales\PreSalesMasterDashboard\PreSalesMasterDashboard.css" />
     <Content Include="Content\Signup\ChangePassword.css" />
     <Content Include="Content\Signup\CreateUser.css" />
     <Content Include="Content\Signup\UserProfileDashboard.css" />
@@ -342,6 +343,7 @@
     <Content Include="Scripts\SignalR\jquery.signalR-2.4.3.min.js" />
     <Content Include="Scripts\PreSales\dashboard.js" />
     <Content Include="Scripts\PreSales\PreSalesCalendar\preSalesCalendar.js" />
+    <Content Include="Scripts\PreSales\PreSalesMasterDashboard\preSalesMasterDashboard.js" />
     <Content Include="Scripts\SignalR\signalr-notification.js" />
     <Content Include="Scripts\Signup\userDashboard.js" />
     <Content Include="Scripts\Signup\changePassword.js" />
@@ -390,6 +392,7 @@
     <Compile Include="Controllers\Error\ErrorController.cs" />
     <Compile Include="Controllers\PreSales\CheckDuplicateAccountController.cs" />
     <Compile Include="Controllers\PreSales\DualController.cs" />
+    <Compile Include="Controllers\PreSales\PreSalesMasterDashboardController.cs" />
     <Compile Include="Filters\AutofacConfig.cs" />
     <Compile Include="Migrations\202506260826318_InitialMapping.cs" />
     <Compile Include="Migrations\202506260826318_InitialMapping.Designer.cs">
@@ -526,6 +529,9 @@
     <Compile Include="Models\Dual\DualContractViewModel.cs" />
     <Compile Include="Models\PreSales\PreSalesCalendarRowViewModel.cs" />
     <Compile Include="Models\PreSales\EditContractNotesPopupViewModel.cs" />
+    <Compile Include="Models\PreSales\EditContractNotesOnlyViewModel.cs" />
+    <Compile Include="Models\PreSales\PreSalesMasterDashboardRowViewModel.cs" />
+    <Compile Include="Models\PreSales\PreSalesMasterDashboardViewModel.cs" />
     <Compile Include="Models\Electric\ElectricContractCreateViewModel.cs" />
     <Compile Include="Models\Electric\ElectricDBModels\CE_ElectricContractLogs.cs" />
     <Compile Include="Models\Electric\ElectricDBModels\CE_ElectricContracts.cs" />
@@ -612,6 +618,8 @@
     <Compile Include="Service\NotificationHub\NotificationHub.cs" />
     <Compile Include="Service\UserService\ConnectedUserStore.cs" />
     <Compile Include="Service\UserService\CustomUserIdProvider.cs" />
+    <Compile Include="Service\DataTableHelperService.cs" />
+    <Compile Include="Extensions\QueryableExtensions.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -628,7 +636,9 @@
     <Content Include="Views\Account\Login.cshtml" />
     <Content Include="Views\PreSales\Dashboard.cshtml" />
     <Content Include="Views\PreSales\PreSalesCalendar.cshtml" />
+    <Content Include="Views\PreSales\PreSalesMasterDashboard.cshtml" />
     <Content Include="Views\PreSales\EditContractNotesPopup.cshtml" />
+    <Content Include="Views\PreSales\EditContractNotesOnlyPopup.cshtml" />
     <Content Include="Views\Supplier\SupplierCreation.cshtml" />
     <Content Include="Views\Supplier\SupplierDashboard.cshtml" />
     <Content Include="Views\Supplier\EditSupplier.cshtml" />

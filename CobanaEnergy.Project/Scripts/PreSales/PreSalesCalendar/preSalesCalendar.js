@@ -27,6 +27,8 @@ $(document).ready(function () {
         columns: [
             {
                 data: 'EId',
+                orderable: false,
+                searchable: false,
                 render: function (data, type, row) {
                     if (type === 'display') {
                         return `<a class="btn btn-sm edit-btn edit-contract-btn" target="_blank" title="Edit" data-eid="${data}" data-type="${row.Type}" ><i class='fas fa-pencil-alt me-1'></i>Edit</a>`;
