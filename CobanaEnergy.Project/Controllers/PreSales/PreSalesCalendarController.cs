@@ -68,7 +68,14 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                         c.PostCode.Contains(dataTableRequest.SearchValue) ||
                         c.BusinessName.Contains(dataTableRequest.SearchValue) ||
                         c.CurrentSupplier.Contains(dataTableRequest.SearchValue) ||
-                        c.ContractNotes.Contains(dataTableRequest.SearchValue));
+                        c.ContractNotes.Contains(dataTableRequest.SearchValue) ||
+                        // Add agent search by joining with lookup tables
+                        (c.Department == "In House" && c.CloserId.HasValue &&
+                         db.CE_Sector.Any(s => s.SectorID == c.CloserId && s.SectorType == "closer" && s.Name.Contains(dataTableRequest.SearchValue))) ||
+                        (c.Department == "Brokers" && c.BrokerageStaffId.HasValue &&
+                         db.CE_BrokerageStaff.Any(bs => bs.BrokerageStaffID == c.BrokerageStaffId && bs.BrokerageStaffName.Contains(dataTableRequest.SearchValue))) ||
+                        (c.Department == "Introducers" && c.SubIntroducerId.HasValue &&
+                         db.CE_SubIntroducer.Any(si => si.SubIntroducerID == c.SubIntroducerId && si.SubIntroducerName.Contains(dataTableRequest.SearchValue))));
                 }
 
                 // Get total counts
