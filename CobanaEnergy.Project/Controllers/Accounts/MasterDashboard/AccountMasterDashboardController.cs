@@ -215,6 +215,53 @@ namespace CobanaEnergy.Project.Controllers.Accounts.MasterDashboard
                 })
                 .ToListAsync();
 
+            #region [Search]
+
+
+            if (!string.IsNullOrWhiteSpace(q.Search?.Value))
+            {
+                var term = q.Search.Value.ToLower();
+
+                contracts = contracts.Where(x =>
+                    (x.SupplierName ?? "").ToLower().Contains(term) ||
+                    (x.BusinessName ?? "").ToLower().Contains(term) ||
+                    (x.MPXN ?? "").ToLower().Contains(term) ||
+                    (x.InputEAC ?? "").ToLower().Contains(term) ||
+                    (x.ContractType ?? "").ToLower().Contains(term) ||
+                    (x.Department ?? "").ToLower().Contains(term) ||
+                    (x.EId ?? "").ToLower().Contains(term) ||
+                    (x.Id ?? "").ToLower().Contains(term) ||
+
+                (eacGroups.FirstOrDefault(g => g.EId == x.EId)?.Latest?.SupplierEac ?? "")
+                    .ToLower().Contains(term) ||
+
+                  // Dates (convert to string)
+                  (!string.IsNullOrEmpty(x.InputDate) && x.InputDate.ToLower().Contains(term)) ||
+                  (!string.IsNullOrEmpty(x.StartDate) && x.StartDate.ToLower().Contains(term)) ||
+                  (!string.IsNullOrEmpty(x.CED) && x.CED.ToLower().Contains(term)) ||
+                  (!string.IsNullOrEmpty(x.COTDate) && x.COTDate.ToLower().Contains(term)) ||
+
+                    // Statuses
+                  (statuses.FirstOrDefault(s => s.EId == x.EId)?.ContractStatus ?? "").ToLower().Contains(term) ||
+                  (statuses.FirstOrDefault(s => s.EId == x.EId)?.PaymentStatus ?? "").ToLower().Contains(term) ||
+
+                    // Commission Forecast
+                    (metrics.FirstOrDefault(m => m.ReconciliationId == crs.FirstOrDefault(c => c.EId == x.EId)?.Id)
+                        ?.InitialCommissionForecast.ToString() ?? "")
+                        .ToLower().Contains(term) ||
+
+                    // Cobana Paid Commission
+                    (eacGroups.FirstOrDefault(g => g.EId == x.EId)?.All
+                        .Where(i => !string.IsNullOrWhiteSpace(i.InvoiceAmount))
+                        .Select(i => decimal.TryParse(i.InvoiceAmount, out var val) ? val : 0)
+                        .Sum().ToString() ?? "")
+                        .ToLower().Contains(term)
+                ).ToList();
+            }
+
+            #endregion
+
+
             // ---- Sorting ----
             var sortColumn = q.Columns?[q.Order?[0].Column ?? 0].Data;
             var sortDir = q.Order?[0].Dir?.ToLower();

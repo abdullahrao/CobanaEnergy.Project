@@ -181,14 +181,33 @@ class BrokerageManager {
                 break;
             case 'referral partners':
                 this.showReferralSourceFields();
-                this.loadReferralPartners();
-                this.loadSubReferralPartners(() => this.populateModelValues());
+                this.loadReferralPartners(() => {
+                    this.loadSubReferralPartners(() => {
+                        if (this.isEditMode) {
+                            this.populateModelValues();
+                        }
+                    });
+                });
                 break;
             case 'self-gen':
                 this.showSelfGenSourceFields();
+                this.loadReferralPartners(() => {
+                    this.loadSubReferralPartners(() => {
+                        if (this.isEditMode) {
+                            this.populateModelValues();
+                        }
+                    });
+                });
                 break;
             case 'cobana rnw':
                 this.showCobanaRnwSourceFields();
+                this.loadReferralPartners(() => {
+                    this.loadSubReferralPartners(() => {
+                        if (this.isEditMode) {
+                            this.populateModelValues();
+                        }
+                    });
+                });
                 break;
             case 'sub broker':
                 this.showSubBrokerSourceFields();
@@ -219,7 +238,7 @@ class BrokerageManager {
             if (currentSource && currentSource.toLowerCase() === 'data') {
                 $leadGeneratorField.show();
                 $leadGenerator.prop('disabled', false);
-                this.loadLeadGenerators(() => this.populateModelValues());
+                this.loadLeadGenerators(() => this.populateModelValues(false));
                 $referralPartnerField.hide();
                 $subReferralPartnerField.hide();
             }
@@ -230,8 +249,9 @@ class BrokerageManager {
                 $leadGenerator.val('');
                 $referralPartnerField.show();
                 $subReferralPartnerField.show();
-                this.loadReferralPartners();
-                this.loadSubReferralPartners(() => this.populateModelValues());
+                this.loadReferralPartners(() => {
+                    this.loadSubReferralPartners(() => this.populateModelValues(false));
+                });
             }
         } else {
             // Hide all additional fields when N/A is selected
@@ -251,7 +271,7 @@ class BrokerageManager {
         $('#brokersFields').hide();
         $('#introducersFields').hide();
         
-        this.loadClosers();
+        this.loadClosers(() => this.populateModelValues());
     }
 
     /**
@@ -289,6 +309,9 @@ class BrokerageManager {
         $('#subReferralPartnerField').hide();
         $('#subBrokerageField').hide();
         $('#subIntroducerField').hide();
+        
+        // Populate collaboration dropdown
+        this.populateCollaborationDropdown();
     }
 
     /**
@@ -301,6 +324,9 @@ class BrokerageManager {
         $('#leadGeneratorField').hide();
         $('#subBrokerageField').hide();
         $('#subIntroducerField').hide();
+        
+        // Populate collaboration dropdown
+        this.populateCollaborationDropdown();
     }
 
     /**
@@ -313,6 +339,9 @@ class BrokerageManager {
         $('#referralPartnerField').hide();
         $('#subReferralPartnerField').hide();
         $('#subIntroducerField').hide();
+        
+        // Populate collaboration dropdown
+        this.populateCollaborationDropdown();
     }
 
     /**
@@ -325,6 +354,9 @@ class BrokerageManager {
         $('#referralPartnerField').hide();
         $('#subReferralPartnerField').hide();
         $('#subBrokerageField').hide();
+        
+        // Populate collaboration dropdown
+        this.populateCollaborationDropdown();
     }
 
     /**
@@ -337,6 +369,9 @@ class BrokerageManager {
         $('#subReferralPartnerField').hide();
         $('#subBrokerageField').hide();
         $('#subIntroducerField').hide();
+        
+        // Populate collaboration dropdown
+        this.populateCollaborationDropdown();
     }
 
     /**
@@ -349,6 +384,9 @@ class BrokerageManager {
         $('#subReferralPartnerField').hide();
         $('#subBrokerageField').hide();
         $('#subIntroducerField').hide();
+        
+        // Populate collaboration dropdown
+        this.populateCollaborationDropdown();
     }
 
     /**
@@ -392,6 +430,9 @@ class BrokerageManager {
                     const $closerSelect = $('#closer');
                     $closerSelect.find('option:not(:first)').remove();
                     
+                    // Add N/A option first
+                    $closerSelect.append('<option value="-1">N/A</option>');
+                    
                     response.Data.Sectors.forEach(closer => {
                         const $option = $('<option>', {
                             value: closer.SectorId,
@@ -422,6 +463,9 @@ class BrokerageManager {
                     const $referralSelect = $('#referralPartner');
                     $referralSelect.find('option:not(:first)').remove();
                     
+                    // Add N/A option first
+                    $referralSelect.append('<option value="-1">N/A</option>');
+                    
                     response.Data.Sectors.forEach(referral => {
                         const $option = $('<option>', {
                             value: referral.SectorId,
@@ -451,6 +495,9 @@ class BrokerageManager {
                 if (response.success && response.Data && response.Data.SubSectors) {
                     const $subReferralSelect = $('#subReferralPartner');
                     $subReferralSelect.find('option:not(:first)').remove();
+                    
+                    // Add N/A option first
+                    $subReferralSelect.append('<option value="-1">N/A</option>');
                     
                     response.Data.SubSectors.forEach(subReferral => {
                         const $option = $('<option>', {
@@ -491,6 +538,9 @@ class BrokerageManager {
                     const $brokerageStaffSelect = $('#brokerageStaff');
                     $brokerageStaffSelect.find('option:not(:first)').remove();
                     
+                    // Add N/A option first
+                    $brokerageStaffSelect.append('<option value="-1">N/A</option>');
+                    
                     response.Data.SubSectors.forEach(staff => {
                         const $option = $('<option>', {
                             value: staff.SubSectorId,
@@ -524,6 +574,9 @@ class BrokerageManager {
                     const $introducerSelect = $('#introducer');
                     $introducerSelect.find('option:not(:first)').remove();
                     
+                    // Add N/A option first
+                    $introducerSelect.append('<option value="-1">N/A</option>');
+                    
                     response.Data.Sectors.forEach(introducer => {
                         const $option = $('<option>', {
                             value: introducer.SectorId,
@@ -553,6 +606,9 @@ class BrokerageManager {
                 if (response.success && response.Data && response.Data.SubSectors) {
                     const $subBrokerageSelect = $('#subBrokerage');
                     $subBrokerageSelect.find('option:not(:first)').remove();
+                    
+                    // Add N/A option first
+                    $subBrokerageSelect.append('<option value="-1">N/A</option>');
                     
                     response.Data.SubSectors.forEach(subBrokerage => {
                         const $option = $('<option>', {
@@ -584,6 +640,9 @@ class BrokerageManager {
                     const $subIntroducerSelect = $('#subIntroducer');
                     $subIntroducerSelect.find('option:not(:first)').remove();
                     
+                    // Add N/A option first
+                    $subIntroducerSelect.append('<option value="-1">N/A</option>');
+                    
                     response.Data.SubSectors.forEach(subIntroducer => {
                         const $option = $('<option>', {
                             value: subIntroducer.SubSectorId,
@@ -613,6 +672,9 @@ class BrokerageManager {
                 if (response.success && response.Data && response.Data.Sectors) {
                     const $leadGeneratorSelect = $('#leadGenerator');
                     $leadGeneratorSelect.find('option:not(:first)').remove();
+                    
+                    // Add N/A option first
+                    $leadGeneratorSelect.append('<option value="-1">N/A</option>');
                     
                     response.Data.Sectors.forEach(leadGenerator => {
                         const $option = $('<option>', {
@@ -673,6 +735,21 @@ class BrokerageManager {
             });
             $sourceSelect.append($optionElement);
         });
+    }
+
+    /**
+     * Populate collaboration dropdown with options
+     */
+    populateCollaborationDropdown() {
+        const $collaborationSelect = $('#collaboration');
+        if (!$collaborationSelect.length) return;
+
+        // Clear existing options except the first one
+        $collaborationSelect.find('option:not(:first)').remove();
+
+        // Add Lead Generator and N/A options
+        $collaborationSelect.append('<option value="Lead Generator">Lead Generator</option>');
+        $collaborationSelect.append('<option value="-1">N/A</option>');
     }
 
     /**
@@ -953,7 +1030,7 @@ class BrokerageManager {
     /**
      * Populate dynamic fields with model values (for edit mode)
      */
-    populateModelValues() {
+    populateModelValues(handleCollaboration = true) {
         if (!this.modelValues) {
             return;
         }
@@ -967,26 +1044,45 @@ class BrokerageManager {
             introducerId: '#introducer',
             subIntroducerId: '#subIntroducer',
             subBrokerageId: '#subBrokerage',
-            collaboration: '#collaboration',
             leadGeneratorId: '#leadGenerator'
         };
 
+        if (handleCollaboration) {
+            // Handle collaboration field separately as it's a text field
+            const collaborationValue = this.modelValues.collaboration;
+            const $collaborationField = $('#collaboration');
+            if ($collaborationField.length && collaborationValue) {
+                if (collaborationValue === 'N/A') {
+                    $collaborationField.val('-1');
+                } else {
+                    $collaborationField.val(collaborationValue);
+                    // Trigger change event to show appropriate dynamic fields
+                    $collaborationField.trigger('change');
+                }
+            }
+        }
         // Populate each field if it has a value and the field exists
         Object.entries(fieldMappings).forEach(([modelKey, fieldSelector]) => {
             const modelValue = this.modelValues[modelKey];
             const $field = $(fieldSelector);
 
-            if (modelValue && modelValue !== '' && $field.length) {
+            if ($field.length) {
                 // Check if the field is a select dropdown
                 if ($field.is('select')) {
-                    // Check if the option exists before setting
-                    const $option = $field.find(`option[value="${modelValue}"]`);
-                    if ($option.length) {
-                        $field.val(modelValue);
+                    // Special handling for ID fields with 0 value (N/A)
+                    if (modelValue === 0 || modelValue === '0') {
+                        // Set to N/A option (-1)
+                        const $naOption = $field.find('option[value="-1"]');
+                        if ($naOption.length) {
+                            $field.val('-1');
+                        }
+                    } else if (modelValue && modelValue !== '' && modelValue !== '0') {
+                        // Check if the option exists before setting
+                        const $option = $field.find(`option[value="${modelValue}"]`);
+                        if ($option.length) {
+                            $field.val(modelValue);
+                        }
                     }
-                } else {
-                    // For non-select fields (like collaboration text input)
-                    $field.val(modelValue);
                 }
             }
         });

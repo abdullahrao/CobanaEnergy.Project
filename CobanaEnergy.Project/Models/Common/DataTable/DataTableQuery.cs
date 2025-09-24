@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -13,6 +14,8 @@ namespace CobanaEnergy.Project.Models.Common.DataTable
 
         public List<DataTableColumn> Columns { get; set; }
         public List<DataTableOrder> Order { get; set; }
+        [JsonProperty("search")]
+        public DataTableSearch Search { get; set; }
     }
 
 
