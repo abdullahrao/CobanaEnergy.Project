@@ -13,13 +13,13 @@
     campaignHub.client.updateUserStatus = function (userId, status) {
         const $row = $(`#userTable tbody tr[data-userid="${userId}"]`);
         if ($row.length) {
-            const $statusCell = $row.find("td").eq(4); // 5th column is OnlineStatus
+            const $statusCell = $row.find("td").eq(5); // 5th column is OnlineStatus
             const isOnline = status === "Online";
             const dotClass = isOnline ? 'bg-success' : 'bg-secondary';
             const updatedContent = `
             <span class="d-inline-flex align-items-center">
                 <span class="dot ${dotClass} rounded-circle me-1" 
-                      style="width: 10px; height: 10px; display: inline-block;"></span>
+                      style="width: 15px; height: 15px; display: inline-block;"></span>
             </span>`;
 
             $statusCell
