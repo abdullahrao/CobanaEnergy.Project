@@ -17,6 +17,10 @@
             <select id="contractstatus" class="form-select"></select>
         </div>
         <div>
+            <label class="form-label" for="paymentStatusAcc">Payment Status</label>
+            <select id="paymentStatusAcc" class="form-select"></select>
+        </div>
+        <div>
             <label for="supplierFilter" class="form-label fw-semibold">Supplier</label>
             @Html.DropDownListFor(m => m.SupplierId, Model.Suppliers, "All Suppliers", new { @class = "form-select", id = "supplierFilter" })
         </div>

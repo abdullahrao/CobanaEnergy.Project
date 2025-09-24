@@ -49,119 +49,76 @@ namespace CobanaEnergy.Project.Controllers.Accounts.MasterDashboard
             return View("~/Views/Accounts/MasterDashboard/AccountMasterDashboard.cshtml", model);
         }
 
-
         [HttpPost]
         [ValidateJsonAntiForgeryToken]
         public async Task<JsonResult> GetContracts(ContractQueryParams q)
         {
-            // ELECTRIC projection
-            var electric =
-                from ec in _db.CE_ElectricContracts
-                join sp in _db.CE_Supplier
-                  on ec.SupplierId equals sp.Id
-                select new
-                {
-                    Id = ec.Id,
-                    EId = ec.EId,
-                    MPXN = ec.MPAN,
-                    ContractType = "Electric",
-                    BusinessName = ec.BusinessName,
-                    SupplierId = ec.SupplierId,
-                    SupplierName = sp.Name,
-                    Department = ec.Department,
-                    InputDate = ec.InputDate,
-                    StartDate = ec.InitialStartDate,
-                    InputEAC = ec.InputEAC,
-                    BrokerageId = ec.BrokerageId,
-                    BrokerageStaffId = ec.BrokerageStaffId,
-                    SubBrokerageId = ec.SubBrokerageId,
-                    CloserId = ec.CloserId,
-                    LeadGeneratorId = ec.LeadGeneratorId,
-                    ReferralPartnerId = ec.ReferralPartnerId,
-                    SubReferralPartnerId = ec.SubReferralPartnerId,
-                    IntroducerId = ec.IntroducerId,
-                    SubIntroducerId = ec.SubIntroducerId
-                };
+            // ELECTRIC contracts
+            var electric = from ec in _db.CE_ElectricContracts
+                           join sp in _db.CE_Supplier on ec.SupplierId equals sp.Id
+                           select new ContractViewModel
+                           {
+                               Id = ec.Id.ToString(),
+                               EId = ec.EId,
+                               ContractType = "Electric",
+                               BusinessName = ec.BusinessName,
+                               SupplierId = ec.SupplierId,
+                               SupplierName = sp.Name,
+                               Department = ec.Department,
+                               MPXN = ec.MPAN,
+                               InputDate = ec.InputDate,
+                               StartDate = ec.InitialStartDate,
+                               InputEAC = ec.InputEAC,
+                               BrokerageId = ec.BrokerageId,
+                               BrokerageStaffId = ec.BrokerageStaffId,
+                               SubBrokerageId = ec.SubBrokerageId,
+                               CloserId = ec.CloserId,
+                               LeadGeneratorId = ec.LeadGeneratorId,
+                               ReferralPartnerId = ec.ReferralPartnerId,
+                               SubReferralPartnerId = ec.SubReferralPartnerId,
+                               IntroducerId = ec.IntroducerId,
+                               SubIntroducerId = ec.SubIntroducerId
+                           };
 
-            // GAS projection
-            var gas =
-                from gc in _db.CE_GasContracts
-                join sp in _db.CE_Supplier
-                    on gc.SupplierId equals sp.Id
-                select new
-                {
-                    Id = gc.Id,
-                    EId = gc.EId,
-                    MPXN = gc.MPRN,
-                    ContractType = "Gas",
-                    BusinessName = gc.BusinessName,
-                    SupplierId = gc.SupplierId,
-                    SupplierName = sp.Name,
-                    Department = gc.Department,
-                    InputDate = gc.InputDate,
-                    StartDate = gc.InitialStartDate,
-                    InputEAC = gc.InputEAC,
-                    BrokerageId = gc.BrokerageId,
-                    BrokerageStaffId = gc.BrokerageStaffId,
-                    SubBrokerageId = gc.SubBrokerageId,
-                    CloserId = gc.CloserId,
-                    LeadGeneratorId = gc.LeadGeneratorId,
-                    ReferralPartnerId = gc.ReferralPartnerId,
-                    SubReferralPartnerId = gc.SubReferralPartnerId,
-                    IntroducerId = gc.IntroducerId,
-                    SubIntroducerId = gc.SubIntroducerId
-                };
+            // GAS contracts
+            var gas = from gc in _db.CE_GasContracts
+                      join sp in _db.CE_Supplier on gc.SupplierId equals sp.Id
+                      select new ContractViewModel
+                      {
+                          Id = gc.Id.ToString(),
+                          EId = gc.EId,
+                          ContractType = "Gas",
+                          BusinessName = gc.BusinessName,
+                          SupplierId = gc.SupplierId,
+                          SupplierName = sp.Name,
+                          Department = gc.Department,
+                          MPXN = gc.MPRN,
+                          InputDate = gc.InputDate,
+                          StartDate = gc.InitialStartDate,
+                          InputEAC = gc.InputEAC,
+                          BrokerageId = gc.BrokerageId,
+                          BrokerageStaffId = gc.BrokerageStaffId,
+                          SubBrokerageId = gc.SubBrokerageId,
+                          CloserId = gc.CloserId,
+                          LeadGeneratorId = gc.LeadGeneratorId,
+                          ReferralPartnerId = gc.ReferralPartnerId,
+                          SubReferralPartnerId = gc.SubReferralPartnerId,
+                          IntroducerId = gc.IntroducerId,
+                          SubIntroducerId = gc.SubIntroducerId
+                      };
 
-            // COMBINE ELECTRIC + GAS
-            var combinedContracts = electric.Concat(gas);
+            // Combine
+            var combined = electric.Concat(gas);
 
-            // JOIN with reconciliation + metrics
-            var combined =
-                from c in combinedContracts
-                join cr in _db.CE_CommissionAndReconciliation
-                    on c.EId equals cr.EId into crGroup
-                from cr in crGroup.DefaultIfEmpty()
-                join m in _db.CE_CommissionMetrics
-                    on cr.Id equals m.ReconciliationId into mGroup
-                from m in mGroup.DefaultIfEmpty()
-                select new ContractViewModel
-                {
-                    Id = c.Id.ToString(),
-                    EId = c.EId,
-                    ContractType = c.ContractType,
-                    BusinessName = c.BusinessName,
-                    SupplierId = c.SupplierId,
-                    MPXN = c.MPXN,
-                    SupplierName = c.SupplierName,
-                    Department = c.Department,
-                    InputDate = c.InputDate,
-                    StartDate = c.StartDate,
-                    InputEAC = c.InputEAC,
-                    BrokerageId = c.BrokerageId,
-                    BrokerageStaffId = c.BrokerageStaffId,
-                    SubBrokerageId = c.SubBrokerageId,
-                    CloserId = c.CloserId,
-                    LeadGeneratorId = c.LeadGeneratorId,
-                    ReferralPartnerId = c.ReferralPartnerId,
-                    SubReferralPartnerId = c.SubReferralPartnerId,
-                    IntroducerId = c.IntroducerId,
-                    SubIntroducerId = c.SubIntroducerId,
+            // --- Apply filters first ---
+            if (!string.IsNullOrEmpty(q.Supplier))
+            {
+                if (int.TryParse(q.Supplier, out var sid))
+                    combined = combined.Where(x => x.SupplierId == sid);
+            }
 
-                    // Reconciliation
-                    ReconciliationId = cr.Id,
-                    CED = cr.CED,
-                    COTDate = cr.CED_COT,
-                    CobanaDueCommission = cr.CobanaDueCommission,
-                    CobanaFinalReconciliation = cr.CobanaFinalReconciliation,
-
-                    // Metrics
-                    ContractDurationDays = m.ContractDurationDays,
-                    LiveDays = m.LiveDays,
-                    PercentLiveDays = m.PercentLiveDays,
-                    TotalCommissionForecast = m.TotalCommissionForecast,
-                    InitialCommissionForecast = m.InitialCommissionForecast,
-                    TotalAverageEAC = m.TotalAverageEAC
-                };
+            if (!string.IsNullOrEmpty(q.Department))
+                combined = combined.Where(x => x.Department == q.Department);
 
             // ---- FILTERS ----
             if (!string.IsNullOrEmpty(q.Supplier))
@@ -199,66 +156,46 @@ namespace CobanaEnergy.Project.Controllers.Accounts.MasterDashboard
             if (!string.IsNullOrEmpty(q.SubIntroducerId) && int.TryParse(q.SubIntroducerId, out var subIntroId))
                 combined = combined.Where(x => x.SubIntroducerId == subIntroId);
 
-            var orderedContracts = combined.ApplyOrdering(q);
-            if (q.Order == null || !q.Order.Any())
-                orderedContracts = orderedContracts.OrderByDescending(x => x.InputDate);
-            var allContracts = await orderedContracts.ToListAsync();
 
-            // Apply Date filters
-            if (q.DateFrom.HasValue)
-                allContracts = allContracts
-                    .Where(x => DateTime.TryParse(x.InputDate, out var d) && d >= q.DateFrom.Value)
-                    .ToList();
+            // Load data (ToListAsync once)
+            var contracts = await combined.ToListAsync();
 
-            if (q.DateTo.HasValue)
-                allContracts = allContracts
-                    .Where(x => DateTime.TryParse(x.InputDate, out var d) && d <= q.DateTo.Value)
-                    .ToList();
+            var eIds = contracts.Select(x => x.EId).Distinct().ToList();
 
-            // Get all statuses for these contracts
-            var allIds = allContracts.Select(c => c.EId).Distinct().ToList();
-            var allStatuses = new List<CE_ContractStatuses>(); 
-            if (allIds.Any())
-            {
-                allStatuses = await _db.CE_ContractStatuses
-                    .Where(s => allIds.Contains(s.EId))
-                    .GroupBy(s => s.EId)
-                    .Select(g => g.OrderByDescending(x => x.ModifyDate).FirstOrDefault())
-                    .ToListAsync();
-            }
+            // Related data (loaded once)
+            var statuses = await _db.CE_ContractStatuses
+                .Where(s => eIds.Contains(s.EId))
+                .GroupBy(s => s.EId)
+                .Select(g => g.OrderByDescending(x => x.ModifyDate).FirstOrDefault())
+                .ToListAsync();
 
             // ContractStatus filter
             if (!string.IsNullOrEmpty(q.ContractStatus))
             {
-                var statusMap = allStatuses
+                var statusMap = statuses
                     .Where(s => s != null && s.ContractStatus == q.ContractStatus)
                     .Select(s => s.EId)
                     .ToHashSet();
 
-                allContracts = allContracts
+                contracts = contracts
                     .Where(x => statusMap.Contains(x.EId))
                     .ToList();
             }
 
-            // Paging
-            var total = allContracts.Count();
-            var page = allContracts.Skip(q.Start).Take(q.Length).ToList();
-            var ids = page.Select(x => x.EId).ToList();
+            if (!string.IsNullOrEmpty(q.PaymentStatus))
+            {
+                var statusMap = statuses
+                    .Where(s => s != null && s.PaymentStatus == q.PaymentStatus)
+                    .Select(s => s.EId)
+                    .ToHashSet();
 
-            var statuses = allStatuses.Where(s => ids.Contains(s.EId)).ToList();
-
-            var eacGroups = await _db.CE_EacLogs
-                .Where(l => ids.Contains(l.EId))
-                .GroupBy(l => l.EId)
-                .Select(g => new
-                {
-                    EId = g.Key,
-                    Latest = g.OrderByDescending(x => x.CreatedAt).FirstOrDefault(),
-                    All = g.ToList()
-                }).ToListAsync();
+                contracts = contracts
+                    .Where(x => statusMap.Contains(x.EId))
+                    .ToList();
+            }
 
             var crs = await _db.CE_CommissionAndReconciliation
-                .Where(c => ids.Contains(c.EId))
+                .Where(c => eIds.Contains(c.EId))
                 .ToListAsync();
 
             var reconciliationIds = crs.Select(c => c.Id).Distinct().ToList();
@@ -267,6 +204,60 @@ namespace CobanaEnergy.Project.Controllers.Accounts.MasterDashboard
                 .Where(m => reconciliationIds.Contains(m.ReconciliationId))
                 .ToListAsync();
 
+            var eacGroups = await _db.CE_EacLogs
+                .Where(l => eIds.Contains(l.EId))
+                .GroupBy(l => l.EId)
+                .Select(g => new
+                {
+                    EId = g.Key,
+                    Latest = g.OrderByDescending(x => x.CreatedAt).FirstOrDefault(),
+                    All = g.ToList()
+                })
+                .ToListAsync();
+
+            // ---- Sorting ----
+            var sortColumn = q.Columns?[q.Order?[0].Column ?? 0].Data;
+            var sortDir = q.Order?[0].Dir?.ToLower();
+
+            Func<ContractViewModel, object> keySelector = x => null;
+
+            switch (sortColumn)
+            {
+                case "SupplierName": keySelector = x => x.SupplierName; break;
+                case "BusinessName": keySelector = x => x.BusinessName; break;
+                case "MPXN": keySelector = x => x.MPXN; break;
+                case "InputEAC": keySelector = x => x.InputEAC; break;
+                case "InputDate": keySelector = x => x.InputDate; break;
+                case "StartDate": keySelector = x => x.StartDate; break;
+                case "CED": keySelector = x => crs.FirstOrDefault(c => c.EId == x.EId)?.CED; break;
+                case "COTDate": keySelector = x => crs.FirstOrDefault(c => c.EId == x.EId)?.CED_COT; break;
+                case "ContractStatus": keySelector = x => statuses.FirstOrDefault(s => s.EId == x.EId)?.ContractStatus ?? ""; break;
+                case "PaymentStatus": keySelector = x => statuses.FirstOrDefault(s => s.EId == x.EId)?.PaymentStatus ?? ""; break;
+                case "CommissionForecast": keySelector = x => metrics.FirstOrDefault(m => m.ReconciliationId == crs.FirstOrDefault(c => c.EId == x.EId)?.Id)?.InitialCommissionForecast ?? "0"; break;
+                case "CobanaPaidCommission":
+                    keySelector = x =>
+                    {
+                        var eac = eacGroups.FirstOrDefault(g => g.EId == x.EId);
+                        return eac?.All
+                            .Where(i => !string.IsNullOrWhiteSpace(i.InvoiceAmount))
+                            .Select(i => decimal.TryParse(i.InvoiceAmount, out var val) ? val : 0)
+                            .Sum() ?? 0m;
+                    };
+                    break;
+            }
+
+            if (keySelector != null)
+            {
+                contracts = (sortDir == "desc")
+                    ? contracts.OrderByDescending(keySelector).ToList()
+                    : contracts.OrderBy(keySelector).ToList();
+            }
+
+            // ---- Paging ----
+            var total = contracts.Count;
+            var page = contracts.Skip(q.Start).Take(q.Length).ToList();
+
+            // ---- Map final rows ----
             var data = page.Select(x =>
             {
                 var eacGroup = eacGroups.FirstOrDefault(e => e.EId == x.EId);
@@ -275,29 +266,13 @@ namespace CobanaEnergy.Project.Controllers.Accounts.MasterDashboard
                 var cr = crs.FirstOrDefault(c => c.EId == x.EId);
                 var metric = metrics.FirstOrDefault(m => m.ReconciliationId == cr?.Id);
 
-                string prevInvNumbers = "-";
                 decimal cobanaPaidSum = 0m;
-                if (eacGroup != null && eacGroup.All.Any())
+                if (eacGroup?.All.Any() == true)
                 {
-                    var invs = eacGroup.All
-                        .Where(i => !string.IsNullOrEmpty(i.InvoiceNo))
-                        .Select(i => i.InvoiceNo)
-                        .Distinct();
-                    prevInvNumbers = invs.Any() ? string.Join(", ", invs) : "-";
-
                     cobanaPaidSum = eacGroup.All
                         .Where(i => !string.IsNullOrWhiteSpace(i.InvoiceAmount))
                         .Select(i => decimal.TryParse(i.InvoiceAmount, out var val) ? val : 0)
                         .Sum();
-                }
-
-                string supplierEACDisplay = "-";
-                if (latestEac != null)
-                {
-                    var prefix = !string.IsNullOrEmpty(latestEac.SupplierEac) ? latestEac.SupplierEac + ":" : "";
-                    supplierEACDisplay = latestEac.EacValue != null
-                        ? $"{prefix}{latestEac.SupplierEac ?? ""}-{latestEac.EacValue}"
-                        : (latestEac.SupplierEac ?? "-");
                 }
 
                 Tuple<string, string> route;
@@ -313,25 +288,23 @@ namespace CobanaEnergy.Project.Controllers.Accounts.MasterDashboard
                     BusinessName = x.BusinessName ?? "-",
                     MPXN = x.MPXN ?? "-",
                     InputEAC = string.IsNullOrEmpty(x.InputEAC) ? "-" : x.InputEAC,
-                    SupplierEAC = supplierEACDisplay,
+                    SupplierEAC = latestEac?.SupplierEac ?? "-",
                     InputDate = x.InputDate,
                     StartDate = x.StartDate,
                     CED = cr?.CED,
                     COTDate = cr?.CED_COT,
                     ContractStatus = status?.ContractStatus ?? "-",
                     PaymentStatus = status?.PaymentStatus ?? "-",
-                    PreviousInvoiceNumbers = prevInvNumbers,
-                    AccountsNotes = cr?.SupplierCobanaInvoiceNotes ?? "-",
                     CommissionForecast = metric?.InitialCommissionForecast,
                     CobanaDueCommission = cr?.CobanaDueCommission,
                     CobanaPaidCommission = cobanaPaidSum == 0 ? (decimal?)null : cobanaPaidSum,
-                    CobanaReconciliation = cr?.CobanaFinalReconciliation,
+                    CobanaFinalReconciliation = cr?.CobanaFinalReconciliation,
+
                     // Edit Button Action and Controller ----- 
                     Controller = hasSupplier ? route.Item1 : SupportedSuppliers.DefaultController,
                     Action = hasSupplier ? route.Item2 : SupportedSuppliers.DefaultAction
                 };
-
-            }).ToList();
+            });
 
             return Json(new
             {
@@ -341,6 +314,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.MasterDashboard
                 data
             });
         }
+
 
     }
 }

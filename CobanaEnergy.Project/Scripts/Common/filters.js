@@ -41,7 +41,7 @@
             if (table) table.ajax.reload();
         });
 
-        $('#brokerageStaffFilter, #subBrokerageFilter, #supplierFilter, #contractstatus, #startDateFilter, #endDateFilter').on('change', () => {
+        $('#brokerageStaffFilter, #subBrokerageFilter, #supplierFilter, #contractstatus,#paymentStatusAcc, #startDateFilter, #endDateFilter').on('change', () => {
             if (table) table.ajax.reload();
         });
 
