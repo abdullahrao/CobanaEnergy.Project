@@ -50,7 +50,8 @@
                         LeadGeneratorId: $('#leadGenFilter').val(),
                         ReferralPartnerId: $('#referralFilter').val(),
                         IntroducerId: $('#introducerFilter').val(),
-                        SubIntroducerId: $('#subIntroducerFilter').val()
+                        SubIntroducerId: $('#subIntroducerFilter').val(),
+                        Search: d.search
                     });
                 }
             },
