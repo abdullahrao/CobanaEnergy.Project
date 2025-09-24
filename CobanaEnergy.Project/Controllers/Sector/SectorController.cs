@@ -272,9 +272,6 @@ namespace CobanaEnergy.Project.Controllers.Sector
                         return JsonResponse.Fail($"Unknown sub-sector type: {subSectorType}");
                 }
 
-                // Add N/A option for sub-sectors
-                subSectors.Insert(0, new { SubSectorId = 0, Name = "N/A" });
-
                 return JsonResponse.Ok(new { SubSectors = subSectors });
             }
             catch (Exception ex)

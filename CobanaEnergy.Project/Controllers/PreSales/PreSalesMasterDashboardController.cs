@@ -198,13 +198,20 @@ namespace CobanaEnergy.Project.Controllers.PreSales
             // Apply search filter at database level for better performance
             if (!string.IsNullOrWhiteSpace(searchValue) && IsDatabaseSearchSupported(searchValue))
             {
-                query = query.Where(e => 
+                query = query.Where(e =>
                     e.BusinessName.Contains(searchValue) ||
                     e.CustomerName.Contains(searchValue) ||
                     e.PostCode.Contains(searchValue) ||
                     e.EmailAddress.Contains(searchValue) ||
                     e.ContractNotes.Contains(searchValue) ||
-                    e.MPAN.Contains(searchValue));
+                    e.MPAN.Contains(searchValue) ||
+                    // Add agent search by joining with lookup tables
+                    (e.Department == "In House" && e.CloserId.HasValue &&
+                     db.CE_Sector.Any(s => s.SectorID == e.CloserId && s.SectorType == "closer" && s.Name.Contains(searchValue))) ||
+                    (e.Department == "Brokers" && e.BrokerageStaffId.HasValue &&
+                     db.CE_BrokerageStaff.Any(bs => bs.BrokerageStaffID == e.BrokerageStaffId && bs.BrokerageStaffName.Contains(searchValue))) ||
+                    (e.Department == "Introducers" && e.SubIntroducerId.HasValue &&
+                     db.CE_SubIntroducer.Any(si => si.SubIntroducerID == e.SubIntroducerId && si.SubIntroducerName.Contains(searchValue))));
             }
 
             return query;
@@ -241,13 +248,20 @@ namespace CobanaEnergy.Project.Controllers.PreSales
             // Apply search filter at database level for better performance
             if (!string.IsNullOrWhiteSpace(searchValue) && IsDatabaseSearchSupported(searchValue))
             {
-                query = query.Where(g => 
+                query = query.Where(g =>
                     g.BusinessName.Contains(searchValue) ||
                     g.CustomerName.Contains(searchValue) ||
                     g.PostCode.Contains(searchValue) ||
                     g.EmailAddress.Contains(searchValue) ||
                     g.ContractNotes.Contains(searchValue) ||
-                    g.MPRN.Contains(searchValue));
+                    g.MPRN.Contains(searchValue) ||
+                    // Add agent search by joining with lookup tables
+                    (g.Department == "In House" && g.CloserId.HasValue &&
+                     db.CE_Sector.Any(s => s.SectorID == g.CloserId && s.SectorType == "closer" && s.Name.Contains(searchValue))) ||
+                    (g.Department == "Brokers" && g.BrokerageStaffId.HasValue &&
+                     db.CE_BrokerageStaff.Any(bs => bs.BrokerageStaffID == g.BrokerageStaffId && bs.BrokerageStaffName.Contains(searchValue))) ||
+                    (g.Department == "Introducers" && g.SubIntroducerId.HasValue &&
+                     db.CE_SubIntroducer.Any(si => si.SubIntroducerID == g.SubIntroducerId && si.SubIntroducerName.Contains(searchValue))));
             }
 
             return query;
@@ -257,8 +271,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
         {
             // Only apply database-level search for simple text searches
             // Complex searches with special characters should be done in memory
-            return !string.IsNullOrWhiteSpace(searchValue) && 
-                   searchValue.Length > 2 && 
+            return !string.IsNullOrWhiteSpace(searchValue) &&
                    !searchValue.Contains("%") && 
                    !searchValue.Contains("_") &&
                    !searchValue.Contains("*");
