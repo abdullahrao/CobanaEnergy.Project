@@ -232,6 +232,9 @@ namespace CobanaEnergy.Project.Controllers.Accounts.MasterDashboard
                     (x.EId ?? "").ToLower().Contains(term) ||
                     (x.Id ?? "").ToLower().Contains(term) ||
 
+                (eacGroups.FirstOrDefault(g => g.EId == x.EId)?.Latest?.SupplierEac ?? "")
+                    .ToLower().Contains(term) ||
+
                   // Dates (convert to string)
                   (!string.IsNullOrEmpty(x.InputDate) && x.InputDate.ToLower().Contains(term)) ||
                   (!string.IsNullOrEmpty(x.StartDate) && x.StartDate.ToLower().Contains(term)) ||
