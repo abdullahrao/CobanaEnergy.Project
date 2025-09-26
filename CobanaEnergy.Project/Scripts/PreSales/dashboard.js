@@ -19,20 +19,26 @@ function loadContractTable() {
 
         $table.empty();
         res.Data.forEach(r => {
-            let controler;
+            let controller;
             if (r.Type == 'Electric') {
-                controler = 'Electric/ElectricEdit';
+                controller = 'Electric/ElectricEdit';
             }
             if (r.Type == 'Gas') {
-                controler = 'Gas/EditGas';
+                controller = 'Gas/EditGas';
             }
             if (r.Type == 'Dual') {
-                controler = 'Dual/EditDual';
+                controller = 'Dual/EditDual';
             }
 
             const row = `
                             <tr>
-                                <td><a href="/${controler}?eid=${r.EId}" class="btn btn-sm edit-btn" target="_blank" title="Edit"><i class="fas fa-pencil-alt me-1"></i> Edit</a></td>
+                                <td><button class="btn btn-sm edit-btn contract-edit-btn" 
+                                           data-eid="${r.EId}" 
+                                           data-type="${r.Type}" 
+                                           data-controller="${controller}" 
+                                           title="Edit">
+                                    <i class="fas fa-pencil-alt me-1"></i> Edit
+                                    </button></td>
                                 <td>${r.Agent}</td>
                                 <td>${r.MPAN || '-'}</td>
                                 <td>${r.MPRN || '-'}</td>
@@ -61,6 +67,16 @@ function loadContractTable() {
             info: true,
             responsive: true,
             autoWidth: false
+        });
+
+        // Attach click handlers to edit buttons
+        $(document).off('click', '.contract-edit-btn').on('click', '.contract-edit-btn', function(e) {
+            e.preventDefault();
+            const eid = $(this).data('eid');
+            const contractType = $(this).data('type');
+            const controller = $(this).data('controller');
+            
+            LockContract(eid, contractType, controller);
         });
 
     }).fail(function () {
@@ -113,5 +129,46 @@ function loadSupplierStats() {
     }).fail(function () {
         $panel.html('<div class="text-danger text-center w-100">Failed to load stats.</div>');
         showToastError("Error loading supplier stats.");
+    });
+}
+
+/**
+ * Generic function to lock a contract before editing
+ * @param {string} eid - Contract ID
+ * @param {string} contractType - Type of contract (Electric, Gas, Dual)
+ * @param {string} controller - Controller path for edit page
+ */
+function LockContract(eid, contractType, controller) {
+    if (!eid || !contractType || !controller) {
+        showToastError("Invalid contract information.");
+        return;
+    }
+
+    // Show loading state
+    const $btn = $(`.contract-edit-btn[data-eid="${eid}"]`);
+    const originalText = $btn.html();
+    $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Locking...');
+
+    $.ajax({
+        url: '/PreSales/LockContract',
+        type: 'POST',
+        data: { eid: eid },
+        success: function (response) {
+            if (response.success) {
+                // Lock acquired successfully, navigate to edit page
+                const editUrl = `/${controller}?eid=${eid}`;
+                window.open(editUrl, '_blank');
+            } else {
+                // Lock failed, show error message
+                showToastError(response.message || 'Failed to lock contract');
+            }
+        },
+        error: function () {
+            showToastError("Unexpected error occurred while locking contract.");
+        },
+        complete: function () {
+            // Restore button state
+            $btn.prop('disabled', false).html(originalText);
+        }
     });
 }

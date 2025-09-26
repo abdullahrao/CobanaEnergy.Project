@@ -379,4 +379,41 @@
         await validateUpliftAgainstSupplierLimitGas($('#uplift'), $('#supplierSelect'), eid);
     });
 
+    // Generic contract unlock functionality
+    setupContractUnlocking();
+
 });
+
+
+/**
+ * Sets up generic contract unlocking when user leaves the page
+ */
+function setupContractUnlocking() {
+    const eid = $('#eid').val();
+    if (!eid) return;
+
+    // Unlock on page unload (browser close/refresh)
+    $(window).on('beforeunload', function () {
+        unlockContractBeacon(eid);
+    });
+
+    window.addEventListener('beforeunload', function () {
+        unlockContractBeacon(eid);
+    });
+
+
+    // Additional cleanup on page hide (iOS Safari support)
+    window.addEventListener('pagehide', function () {
+        unlockContractBeacon(eid);
+    });
+}
+
+function unlockContractBeacon(eid) {
+    if (!eid) return;
+
+    const url = '/PreSales/UnlockContract';
+    const data = new FormData();
+    data.append('eid', eid);
+
+    const sent = navigator.sendBeacon(url, data);
+}

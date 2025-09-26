@@ -2,6 +2,7 @@
 using CobanaEnergy.Project.Models;
 using CobanaEnergy.Project.Models.Supplier.Active_Suppliers;
 using Logic;
+using Logic.LockManager;
 using Logic.ResponseModel.Helper;
 using System;
 using System.Collections.Generic;
@@ -279,6 +280,77 @@ namespace CobanaEnergy.Project.Controllers.PreSales
             {
                 Logger.Log("GetSupplierContractStats: " + ex);
                 return JsonResponse.Fail("Failed to fetch supplier stats.");
+            }
+        }
+
+        #endregion
+
+        #region LockManagement
+
+        /// <summary>
+        /// Locks a contract for editing. Returns success if lock is acquired, failure if already locked by another user.
+        /// </summary>
+        /// <param name="eid">Contract ID to lock</param>
+        /// <returns>JSON response indicating success or failure with lock holder information</returns>
+        [HttpPost]
+        [Authorize(Roles = "Pre-sales,Controls")]
+        public JsonResult LockContract(string eid)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(eid))
+                    return JsonResponse.Fail("Contract ID is required.");
+
+                string currentUser = User.Identity.Name ?? "Unknown";
+                bool lockAcquired = LockManager.Contracts.TryLock(eid, currentUser);
+
+                if (lockAcquired)
+                {
+                    return JsonResponse.Ok("Contract locked successfully.");
+                }
+                else
+                {
+                    string lockHolder = LockManager.Contracts.GetLockHolder(eid);
+                    return JsonResponse.Fail($"This Contract is currently being edited by {lockHolder}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("LockContract failed: " + ex.ToString());
+                return JsonResponse.Fail("An error occurred while locking the contract.");
+            }
+        }
+
+        /// <summary>
+        /// Unlocks a contract after editing. Returns success if lock is released, failure if not locked or held by different user.
+        /// </summary>
+        /// <param name="eid">Contract ID to unlock</param>
+        /// <returns>JSON response indicating success or failure</returns>
+        [HttpPost]
+        [Authorize(Roles = "Pre-sales,Controls")]
+        public JsonResult UnlockContract(string eid)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(eid))
+                    return JsonResponse.Fail("Contract ID is required.");
+
+                string currentUser = User.Identity.Name ?? "Unknown";
+                bool unlocked = LockManager.Contracts.Unlock(eid, currentUser);
+
+                if (unlocked)
+                {
+                    return JsonResponse.Ok("Contract unlocked successfully.");
+                }
+                else
+                {
+                    return JsonResponse.Fail("Unable to unlock contract. You may not be the lock holder.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("UnlockContract failed: " + ex.ToString());
+                return JsonResponse.Fail("An error occurred while unlocking the contract.");
             }
         }
 
