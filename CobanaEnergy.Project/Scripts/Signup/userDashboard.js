@@ -1,4 +1,14 @@
 ﻿$(document).ready(function () {
+
+
+    $('select[multiple]').select2({
+        placeholder: "Select Role(s)",
+        allowClear: true,
+        width: '100%',
+        dropdownAutoWidth: true,
+        dropdownParent: $('.form-container')
+    });
+
     var table = $('#userTable').DataTable({
         responsive: true,
         paging: true,
@@ -67,11 +77,12 @@
                         const onlineDot = `
                             <span class="d-inline-flex align-items-center">
                                 <span class="dot ${isOnline ? 'bg-success' : 'bg-secondary'} rounded-circle me-1" 
-                                      style="width: 10px; height: 10px; display: inline-block;"></span>
+                                      style="width: 15px; height: 15px; display: inline-block;"></span>
                             </span>`;
 
                         // Add row
                         const rowNode = table.row.add([
+                            `<button class="btn btn-sm edit-btn edit-user" type="button" data-userid="${contract.UserId}">Edit</button>`,
                             `<input type="checkbox" name="SelectedUser" value="${contract.UserId}" />`,
                             contract.UserName,
                             roleLabels,
@@ -138,13 +149,78 @@
 
     loadUsers();
 
+    $(document).on('click', '.edit-user', function (e) {
+        e.preventDefault();
+        const userId = $(this).data('userid');
+        openEditUserModal(userId);
+    });
 
+    function openEditUserModal(userId) {
+        $.ajax({
+            url: '/Account/GetUserDetails',
+            type: 'GET',
+            data: { userId: userId },
+            success: function (res) {
+                if (res.success) {
+                    const user = res.Data;
+                    // Fill modal fields
+                    $('#UserId').val(user.UserId);
+                    $('#UserName').val(user.UserName);
+
+                    // Populate roles dropdown
+                    let options = '';
+                    user.AllRoles.forEach(role => {
+                        const selected = user.Roles.includes(role) ? 'selected' : '';
+                        options += `<option value="${role}" ${selected}>${role}</option>`;
+                    });
+                    $('#roles').html(options);
+                    // Open modal
+                    $('#editUserModal').modal('show');
+
+                } else {
+                    showToastError(res.message || "Failed to load user details.");
+                }
+            },
+            error: function () {
+                showToastError("Error loading user details.");
+            }
+        });
+    }
 
     $('#checkAll').on('change', function () {
         const checked = this.checked;
         $('input[name="SelectedUser"]').prop('checked', checked).trigger('change');
     });
 
+
+    $('#updateUserForm').on('submit', function (e) {
+        e.preventDefault();
+
+        const userId = $('#UserId').val();
+        const selectedRoles = $('#roles').val(); // multiple select array
+
+        $.ajax({
+            url: '/Account/UpdateUserRoles',
+            type: 'POST',
+            data: {
+                userId: userId,
+                roles: selectedRoles,
+                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+            },
+            success: function (res) {
+                if (res.success) {
+                    $('#editUserModal').modal('hide');
+                    loadUsers(); // refresh datatable
+                    showToastSuccess("User roles updated successfully.");
+                } else {
+                    showToastError(res.message || "Failed to update roles.");
+                }
+            },
+            error: function () {
+                showToastError("Error updating roles.");
+            }
+        });
+    });
 
     $(document).on('change', 'input[name="SelectedUser"]', function () {
         const total = $('input[name="SelectedUser"]').length;

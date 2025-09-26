@@ -379,6 +379,69 @@ namespace CobanaEnergy.Project.Controllers
             }
         }
 
+        [HttpGet]
+        [Authorize(Roles = "Controls")]
+        [ValidateJsonAntiForgeryToken]
+        public async Task<JsonResult> GetUserDetails(string userId)
+        {
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null)
+                    return JsonResponse.Fail("User not found.");
+                var userRoles = await _userManager.GetRolesAsync(user.Id);
+                var allRoles = _roleManager.Roles.Select(r => r.Name).ToList();
+                var result = new
+                {
+                    UserId = user.Id,
+                    UserName = user.UserName,
+                    Roles = userRoles,
+                    AllRoles = allRoles
+                };
+                return JsonResponse.Ok(result);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("UpdateUsers: " + ex);
+                return JsonResponse.Fail("Error updating Users.");
+            }
+        }
+
+
+        [HttpPost]
+        [Authorize(Roles = "Controls")]
+        [ValidateJsonAntiForgeryToken]
+        public async Task<JsonResult> UpdateUserRoles(string userId, List<string> roles)
+        {
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null)
+                    return JsonResponse.Fail("User not found.");
+
+                // Get current roles
+                var currentRoles = await _userManager.GetRolesAsync(user.Id);
+
+                foreach (var role in currentRoles)
+                {
+                    var removeResult = await _userManager.RemoveFromRoleAsync(user.Id,role);
+                }
+
+                foreach (var role in roles)
+                {
+                    var addResult = await _userManager.AddToRolesAsync(user.Id, role);
+                }
+                await _userManager.UpdateAsync(user);
+
+                return JsonResponse.Ok("User roles updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("UpdateUserRoles: " + ex);
+                return JsonResponse.Fail("Error updating user roles.");
+            }
+        }
+
 
 
         #endregion
