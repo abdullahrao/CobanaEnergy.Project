@@ -4,29 +4,6 @@
     let selectedDate = "";
 
 
-    const selectConfigs = {
-        '#contractstatus': 'Select Contract Status',
-        '#supplierFilter': 'All Suppliers',
-        '#department': 'Select Department',
-        '#brokerageFilter': 'Select Brokerage',
-        '#brokerageStaffFilter': 'Select Staff',
-        '#subBrokerageFilter': 'Select Sub Brokerage',
-        '#closerFilter': 'Select Closer',
-        '#leadGenFilter': 'Select Lead Generator',
-        '#introducerFilter': 'Select Introducer',
-        '#subIntroducerFilter': 'Select Sub Introducer',
-        '#referralFilter' : 'Select Referral',
-        '#paymentStatusAcc': 'Select Payment Status'
-    };
-
-    for (const [selector, placeholder] of Object.entries(selectConfigs)) {
-        $(selector).select2({
-            placeholder: placeholder,
-            allowClear: true,
-            width: '100%'
-        });
-    }
-
 
     function dataTableInit() {
         table = $('#accountMasterTable').DataTable({
@@ -49,6 +26,7 @@
                         CloserId: $('#closerFilter').val(),
                         LeadGeneratorId: $('#leadGenFilter').val(),
                         ReferralPartnerId: $('#referralFilter').val(),
+                        SubReferralPartnerId: $('#subReferralFilter').val(),
                         IntroducerId: $('#introducerFilter').val(),
                         SubIntroducerId: $('#subIntroducerFilter').val(),
                         Search: d.search
