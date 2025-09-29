@@ -61,7 +61,27 @@ $(document).ready(function () {
     });
 
     function openEditContractNotesPopup(eId, contractType) {
-        // Load the popup content
+        // First, try to lock the contract
+        $.ajax({
+            url: '/PreSales/LockContract',
+            type: 'POST',
+            data: { eid: eId },
+            success: function(lockResponse) {
+                if (lockResponse.success) {
+                    // Lock acquired, now load the popup content
+                    loadContractNotesPopup(eId, contractType);
+                } else {
+                    // Lock failed, show error message
+                    showToastError(lockResponse.message || 'Failed to lock contract');
+                }
+            },
+            error: function() {
+                showToastError('Error occurred while locking contract.');
+            }
+        });
+    }
+
+    function loadContractNotesPopup(eId, contractType) {
         $.ajax({
             url: '/PreSalesCalendar/GetContractNotes',
             type: 'POST',
@@ -87,10 +107,14 @@ $(document).ready(function () {
                     // Show the modal
                     $('#editContractNotesModal').modal('show');
                 } else {
+                    // Failed to load data, unlock the contract
+                    unlockContract(eId);
                     showToastError(res.message || 'Failed to load contract data.');
                 }
             },
             error: function() {
+                // Failed to load data, unlock the contract
+                unlockContract(eId);
                 showToastError('Failed to load contract data.');
             }
         });
@@ -182,4 +206,29 @@ $(document).ready(function () {
         // Reload the follow-up dates and reinitialize the calendar
         loadFollowUpDatesAndInitCalendar();
     }
+
+    // Unlock contract function
+    function unlockContract(eId) {
+        if (!eId) return;
+        
+        $.ajax({
+            url: '/PreSales/UnlockContract',
+            type: 'POST',
+            data: { eid: eId },
+            success: function(response) {
+                console.log('Contract unlocked:', response.message);
+            },
+            error: function() {
+                console.log('Failed to unlock contract');
+            }
+        });
+    }
+
+    // Unlock contract when modal is closed
+    $(document).on('hidden.bs.modal', '#editContractNotesModal', function() {
+        const eId = $('#eid').val();
+        if (eId) {
+            unlockContract(eId);
+        }
+    });
 });

@@ -258,6 +258,27 @@ $(document).ready(function () {
 
     // Global function for editing contracts
     window.editContract = function (eId, contractType) {
+        // First, try to lock the contract
+        $.ajax({
+            url: '/PreSales/LockContract',
+            type: 'POST',
+            data: { eid: eId },
+            success: function(lockResponse) {
+                if (lockResponse.success) {
+                    // Lock acquired, now load the popup content
+                    loadContractNotesModal(eId, contractType);
+                } else {
+                    // Lock failed, show error message
+                    showAlert('Error: ' + (lockResponse.message || 'Failed to lock contract'), 'danger');
+                }
+            },
+            error: function() {
+                showAlert('Error occurred while locking contract.', 'danger');
+            }
+        });
+    };
+
+    function loadContractNotesModal(eId, contractType) {
         $.ajax({
             url: '/PreSalesMasterDashboard/GetContractNotesOnly',
             type: 'POST',
@@ -271,14 +292,18 @@ $(document).ready(function () {
                     populateEditModal(response.Data);
                     $('#editContractNotesOnlyModal').modal('show');
                 } else {
+                    // Failed to load data, unlock the contract
+                    unlockContract(eId);
                     showAlert('Error loading contract details: ' + response.message, 'danger');
                 }
             },
             error: function () {
+                // Failed to load data, unlock the contract
+                unlockContract(eId);
                 showAlert('Error loading contract details', 'danger');
             }
         });
-    };
+    }
 
     function populateEditModal(data) {
         $('#eid').val(data.EId);
@@ -323,8 +348,29 @@ $(document).ready(function () {
         });
     });
 
-    // Reset form when modal is hidden
+    // Unlock contract function
+    function unlockContract(eId) {
+        if (!eId) return;
+        
+        $.ajax({
+            url: '/PreSales/UnlockContract',
+            type: 'POST',
+            data: { eid: eId },
+            success: function(response) {
+                console.log('Contract unlocked:', response.message);
+            },
+            error: function() {
+                console.log('Failed to unlock contract');
+            }
+        });
+    }
+
+    // Reset form and unlock contract when modal is hidden
     $('#editContractNotesOnlyModal').on('hidden.bs.modal', function () {
+        const eId = $('#eid').val();
+        if (eId) {
+            unlockContract(eId);
+        }
         $('#editContractNotesOnlyForm')[0].reset();
         $('.dual-contract-message').addClass('d-none');
     });
