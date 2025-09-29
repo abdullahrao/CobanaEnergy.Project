@@ -71,7 +71,7 @@ namespace CobanaEnergy.Project.Controllers.Common
 
         // ✅ In-house → Lead Generators
         [HttpGet]
-        public async Task<JsonResult> LeadGenerators(int closerId)
+        public async Task<JsonResult> LeadGenerators()
         {
             // Option 1: if LeadGen is linked to Closer by SectorID
             var leads = await _db.CE_Sector
@@ -83,10 +83,20 @@ namespace CobanaEnergy.Project.Controllers.Common
 
         // ✅ In-house → Referral Partners
         [HttpGet]
-        public async Task<JsonResult> ReferralPartners(int closerId)
+        public async Task<JsonResult> ReferralPartners()
+        {
+            var refs = await _db.CE_Sector
+                .Where(r => r.SectorType == "Referral Partner" && r.Active)
+                .Select(s => new { Id = s.SectorID, Name = s.Name })
+                .ToListAsync();
+            return JsonResponse.Ok(refs);
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> SubReferralPartners(int referralId)
         {
             var refs = await _db.CE_SubReferral
-                .Where(r => r.SectorID == closerId && r.Active)
+                .Where(r => r.SectorID == referralId && r.Active)
                 .Select(r => new { Id = r.SubReferralID, Name = r.SubReferralPartnerName })
                 .ToListAsync();
             return JsonResponse.Ok(refs);
