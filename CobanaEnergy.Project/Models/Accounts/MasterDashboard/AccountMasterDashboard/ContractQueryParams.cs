@@ -23,6 +23,7 @@ namespace CobanaEnergy.Project.Models.Accounts.MasterDashboard.AccountMasterDash
         public string CloserId { get; set; }
         public string LeadGeneratorId { get; set; }
         public string ReferralPartnerId { get; set; }
+        public string SubReferralPartnerId { get; set; }
 
         public string IntroducerId { get; set; }
         public string SubIntroducerId { get; set; }
