@@ -75,7 +75,7 @@ namespace CobanaEnergy.Project.Controllers.Common
         {
             // Option 1: if LeadGen is linked to Closer by SectorID
             var leads = await _db.CE_Sector
-                .Where(s => s.SectorType == "Lead Generator" && s.Active == true)
+                .Where(s => s.SectorType == "Leads Generator" && s.Active == true)
                 .Select(s => new { Id = s.SectorID, Name = s.Name })
                 .ToListAsync();
             return JsonResponse.Ok(leads);
