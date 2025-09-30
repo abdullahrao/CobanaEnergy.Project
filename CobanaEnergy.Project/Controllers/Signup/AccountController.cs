@@ -6,7 +6,6 @@ using CobanaEnergy.Project.Models.Accounts.MainCampaign;
 using CobanaEnergy.Project.Models.Signup;
 using CobanaEnergy.Project.Service.UserService;
 using Logic;
-using Logic.LockManager;
 using Logic.ResponseModel.Helper;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
@@ -270,25 +269,6 @@ namespace CobanaEnergy.Project.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Logout()
         {
-            try
-            {
-                // Clean up all locks held by the current user
-                string currentUser = User.Identity.Name ?? "Unknown";
-                if (!string.IsNullOrWhiteSpace(currentUser))
-                {
-                    int removedLocks = LockManager.RemoveAllLocksForUser(currentUser);
-                    if (removedLocks > 0)
-                    {
-                        Logger.Log($"Logout: Removed {removedLocks} locks for user {currentUser}");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                // Log the error but don't prevent logout
-                Logger.Log($"Error cleaning up locks during logout for user {User.Identity.Name}: {ex.Message}");
-            }
-
             Request.GetOwinContext().Authentication.SignOut();
             Session.Clear();
 

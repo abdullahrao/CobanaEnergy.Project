@@ -1,5 +1,6 @@
 ﻿using CobanaEnergy.Project.Controllers.Base;
 using CobanaEnergy.Project.Filters;
+using CobanaEnergy.Project.Helpers;
 using CobanaEnergy.Project.Models;
 using CobanaEnergy.Project.Models.AccountsDBModel;
 using CobanaEnergy.Project.Models.Electric;
@@ -10,6 +11,7 @@ using CobanaEnergy.Project.Models.Supplier.SupplierSnapshots;
 using Logic;
 using Logic.LockManager;
 using Logic.ResponseModel.Helper;
+using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -496,13 +498,14 @@ namespace CobanaEnergy.Project.Controllers.PreSales
             }
 
             // Validate contract lock before saving
-            string currentUser = User.Identity.Name ?? "Unknown";
+            string currentUserId = User.Identity.GetUserId() ?? "Unknown";
             if (LockManager.Contracts.IsLocked(model.EId))
             {
-                if (!LockManager.Contracts.IsLockedByUser(model.EId, currentUser))
+                if (!LockManager.Contracts.IsLockedByUser(model.EId, currentUserId))
                 {
-                    string lockHolder = LockManager.Contracts.GetLockHolder(model.EId);
-                    return JsonResponse.Fail($"Cannot save changes. This contract is currently being edited by {lockHolder}.");
+                    string lockHolderUserId = LockManager.Contracts.GetLockHolder(model.EId);
+                    string lockHolderUsername = await UserHelper.GetUsernameFromUserId(lockHolderUserId, HttpContext);
+                    return JsonResponse.Fail($"Cannot save changes. This contract is currently being edited by {lockHolderUsername}.");
                 }
             }
             else

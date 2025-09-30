@@ -35,7 +35,11 @@ namespace CobanaEnergy.Project.Service.BackgroundServices
 
             // Skip check if time is within allowed window
             if (now >= startTime && now <= endTime)
+            {
+                // Even during allowed hours, clean up expired locks
+                await CleanupExpiredLocks();
                 return;
+            }
 
             // Get all users with time restriction from DB
             var restrictedUsers = await _db.Users
@@ -55,6 +59,29 @@ namespace CobanaEnergy.Project.Service.BackgroundServices
                             .forceLogout("⏰ Your session has expired due to time restrictions.");
                     }
                 }
+            }
+
+            // Clean up expired locks
+            await CleanupExpiredLocks();
+        }
+
+        /// <summary>
+        /// Cleans up expired contract locks.
+        /// </summary>
+        private async Task CleanupExpiredLocks()
+        {
+            try
+            {
+                int removedLocks = Logic.LockManager.LockManager.CleanupAllExpiredLocks();
+                
+                if (removedLocks > 0)
+                {
+                    Logic.Logger.Log($"Background cleanup: Removed {removedLocks} expired contract locks");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logic.Logger.Log($"Lock cleanup error: {ex.Message}");
             }
         }
     }

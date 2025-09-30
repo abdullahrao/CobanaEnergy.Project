@@ -538,11 +538,6 @@ function setupContractUnlocking() {
     const eid = $('#eid').val();
     if (!eid) return;
 
-    // Unlock on page unload (browser close/refresh)
-    $(window).on('beforeunload', function () {
-        unlockContractBeacon(eid);
-    });
-
     window.addEventListener('beforeunload', function () {
         unlockContractBeacon(eid);
     });

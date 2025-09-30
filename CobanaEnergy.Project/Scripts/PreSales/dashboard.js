@@ -132,10 +132,13 @@ function loadSupplierStats() {
     });
 }
 
+// Track active heartbeats (simplified)
+let activeHeartbeats = new Map();
+
 /**
- * Generic function to lock a contract before editing
+ * Generic function to lock a contract and navigate to edit page
  * @param {string} eid - Contract ID
- * @param {string} contractType - Type of contract (Electric, Gas, Dual)
+ * @param {string} contractType - Type of contract (Electric, Gas, Dual)  
  * @param {string} controller - Controller path for edit page
  */
 function LockContract(eid, contractType, controller) {
@@ -155,9 +158,13 @@ function LockContract(eid, contractType, controller) {
         data: { eid: eid },
         success: function (response) {
             if (response.success) {
-                // Lock acquired successfully, navigate to edit page
+                // Lock acquired successfully, open edit page
                 const editUrl = `/${controller}?eid=${eid}`;
-                window.open(editUrl, '_blank');
+                const childWindow = window.open(editUrl, '_blank');
+                
+                // Start simple heartbeat monitoring
+                startHeartbeatMonitoring(eid, childWindow);
+                
             } else {
                 // Lock failed, show error message
                 showToastError(response.message || 'Failed to lock contract');
@@ -172,3 +179,102 @@ function LockContract(eid, contractType, controller) {
         }
     });
 }
+
+/**
+ * Starts simple heartbeat monitoring for a contract
+ * @param {string} eid - Contract ID
+ * @param {Window} childWindow - Reference to the child window
+ */
+function startHeartbeatMonitoring(eid, childWindow) {
+    console.log(`Starting heartbeat for contract ${eid} (every 30 seconds)`);
+    
+    // 1. Start heartbeat - every 30 seconds
+    const heartbeatTimer = setInterval(function() {
+        sendHeartbeat(eid);
+    }, 30 * 1000); // 30 seconds
+    
+    // 2. Simple window check - every 10 seconds (less aggressive)
+    const windowTimer = setInterval(function() {
+        if (childWindow.closed) {
+            console.log(`Window closed for contract ${eid}`);
+            stopHeartbeatMonitoring(eid);
+        }
+    }, 10000); // Every 10 seconds
+    
+    // Store timers
+    activeHeartbeats.set(eid, { 
+        heartbeatTimer: heartbeatTimer,
+        windowTimer: windowTimer,
+        window: childWindow
+    });
+}
+
+/**
+ * Sends heartbeat to server to keep lock active
+ * @param {string} eid - Contract ID
+ */
+function sendHeartbeat(eid) {
+    $.ajax({
+        url: '/PreSales/HeartbeatLock',
+        type: 'POST',
+        data: { eid: eid },
+        success: function(response) {
+            if (!response.success) {
+                console.warn(`Heartbeat failed for ${eid}: ${response.message}`);
+                // Stop heartbeat if lock is lost
+                stopHeartbeatMonitoring(eid);
+            }
+        },
+        error: function() {
+            console.warn(`Heartbeat request failed for ${eid}`);
+            // Stop heartbeat on error
+            stopHeartbeatMonitoring(eid);
+        }
+    });
+}
+
+/**
+ * Stops heartbeat monitoring and unlocks contract
+ * @param {string} eid - Contract ID
+ */
+function stopHeartbeatMonitoring(eid) {
+    const timers = activeHeartbeats.get(eid);
+    if (!timers) return;
+    
+    console.log(`Stopping heartbeat for contract ${eid}`);
+    
+    // Clear timers
+    clearInterval(timers.heartbeatTimer);
+    clearInterval(timers.windowTimer);
+    
+    // Unlock contract
+    unlockContract(eid);
+    
+    // Remove from tracking
+    activeHeartbeats.delete(eid);
+}
+
+/**
+ * Unlocks a contract on the server
+ * @param {string} eid - Contract ID
+ */
+function unlockContract(eid) {
+    $.ajax({
+        url: '/PreSales/UnlockContract',
+        type: 'POST',
+        data: { eid: eid },
+        success: function(response) {
+            console.log(`Contract ${eid} unlocked`);
+        },
+        error: function() {
+            console.warn(`Failed to unlock contract ${eid}`);
+        }
+    });
+}
+
+// Cleanup when dashboard closes
+$(window).on('beforeunload', function() {
+    activeHeartbeats.forEach(function(timers, eid) {
+        stopHeartbeatMonitoring(eid);
+    });
+});

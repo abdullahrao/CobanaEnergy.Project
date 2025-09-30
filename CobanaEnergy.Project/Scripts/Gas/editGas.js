@@ -392,15 +392,9 @@ function setupContractUnlocking() {
     const eid = $('#eid').val();
     if (!eid) return;
 
-    // Unlock on page unload (browser close/refresh)
-    $(window).on('beforeunload', function () {
-        unlockContractBeacon(eid);
-    });
-
     window.addEventListener('beforeunload', function () {
         unlockContractBeacon(eid);
     });
-
 
     // Additional cleanup on page hide (iOS Safari support)
     window.addEventListener('pagehide', function () {
