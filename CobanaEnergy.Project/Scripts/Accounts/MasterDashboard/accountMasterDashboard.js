@@ -3,6 +3,18 @@
     let allFollowUpDates = [];
     let selectedDate = "";
 
+    const selectConfigs = {
+        '#contractstatus': 'Select Contract Status',
+        '#paymentStatusAcc': 'Select Payment Status',
+    };
+
+    for (const [selector, placeholder] of Object.entries(selectConfigs)) {
+        $(selector).select2({
+            placeholder: placeholder,
+            allowClear: true,
+            width: '100%'
+        });
+    }
 
 
     function dataTableInit() {
@@ -19,7 +31,7 @@
                         PaymentStatus: $('#paymentStatusAcc').val(),
                         DateFrom: $('#startDateFilter').val(),
                         DateTo: $('#endDateFilter').val(),
-                        Department: $('#department').val(),
+                        Department: $('#departmentFilter').val(),
                         BrokerageId: $('#brokerageFilter').val(),
                         StaffId: $('#brokerageStaffFilter').val(),
                         SubBrokerageId: $('#subBrokerageFilter').val(),

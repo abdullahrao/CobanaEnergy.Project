@@ -2,7 +2,6 @@
 
 
     const selectConfigs = {
-        '#contractstatus': 'Select Contract Status',
         '#supplierFilter': 'All Suppliers',
         '#department': 'Select Department',
         '#brokerageFilter': 'Select Brokerage',
@@ -13,7 +12,6 @@
         '#introducerFilter': 'Select Introducer',
         '#subIntroducerFilter': 'Select Sub Introducer',
         '#referralFilter': 'Select Referral',
-        '#paymentStatusAcc': 'Select Payment Status',
         '#subReferralFilter': 'Select Sub Refferal'
     };
 
