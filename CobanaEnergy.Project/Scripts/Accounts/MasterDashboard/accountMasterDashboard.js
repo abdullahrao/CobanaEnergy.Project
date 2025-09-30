@@ -174,7 +174,7 @@
     }
 
     $(function () {
-        populateDropdown("department", DropdownOptions.department, $('#departmentFilter').data('current'));
+        populateDropdown("departmentFilter", DropdownOptions.department, $('#departmentFilter').data('current'));
         populateDropdown("contractstatus", AccountDropdownOptions.contractStatus, $('#contractstatus').data('current'));
         populateDropdown("paymentStatusAcc", AccountDropdownOptions.paymentStatus, $('#paymentStatusAcc').data('current'));
 
