@@ -20,5 +20,17 @@ namespace Logic.LockManager
             totalRemoved += Contracts.RemoveAllLocksForUser(user);
             return totalRemoved;
         }
+
+        /// <summary>
+        /// Cleans up expired locks across all entity types.
+        /// </summary>
+        /// <returns>Total number of expired locks removed</returns>
+        public static int CleanupAllExpiredLocks()
+        {
+            int totalRemoved = 0;
+            totalRemoved += Contracts.CleanupExpiredLocks();
+            // totalRemoved += Accounts.CleanupExpiredLocks(); // Can be added later
+            return totalRemoved;
+        }
     }
 }

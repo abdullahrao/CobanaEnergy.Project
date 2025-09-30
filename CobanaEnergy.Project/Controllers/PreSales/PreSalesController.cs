@@ -1,9 +1,11 @@
 ﻿using CobanaEnergy.Project.Controllers.Base;
+using CobanaEnergy.Project.Helpers;
 using CobanaEnergy.Project.Models;
 using CobanaEnergy.Project.Models.Supplier.Active_Suppliers;
 using Logic;
 using Logic.LockManager;
 using Logic.ResponseModel.Helper;
+using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -294,15 +296,15 @@ namespace CobanaEnergy.Project.Controllers.PreSales
         /// <returns>JSON response indicating success or failure with lock holder information</returns>
         [HttpPost]
         [Authorize(Roles = "Pre-sales,Controls")]
-        public JsonResult LockContract(string eid)
+        public async Task<JsonResult> LockContract(string eid)
         {
             try
             {
                 if (string.IsNullOrWhiteSpace(eid))
                     return JsonResponse.Fail("Contract ID is required.");
 
-                string currentUser = User.Identity.Name ?? "Unknown";
-                bool lockAcquired = LockManager.Contracts.TryLock(eid, currentUser);
+                string currentUserId = User.Identity.GetUserId() ?? "Unknown";
+                bool lockAcquired = LockManager.Contracts.TryLock(eid, currentUserId);
 
                 if (lockAcquired)
                 {
@@ -310,8 +312,9 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                 }
                 else
                 {
-                    string lockHolder = LockManager.Contracts.GetLockHolder(eid);
-                    return JsonResponse.Fail($"This Contract is currently being edited by {lockHolder}");
+                    string lockHolderUserId = LockManager.Contracts.GetLockHolder(eid);
+                    string lockHolderUsername = await UserHelper.GetUsernameFromUserId(lockHolderUserId, HttpContext);
+                    return JsonResponse.Fail($"This Contract is currently being edited by {lockHolderUsername}");
                 }
             }
             catch (Exception ex)
@@ -335,8 +338,8 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                 if (string.IsNullOrWhiteSpace(eid))
                     return JsonResponse.Fail("Contract ID is required.");
 
-                string currentUser = User.Identity.Name ?? "Unknown";
-                bool unlocked = LockManager.Contracts.Unlock(eid, currentUser);
+                string currentUserId = User.Identity.GetUserId() ?? "Unknown";
+                bool unlocked = LockManager.Contracts.Unlock(eid, currentUserId);
 
                 if (unlocked)
                 {
@@ -351,6 +354,39 @@ namespace CobanaEnergy.Project.Controllers.PreSales
             {
                 Logger.Log("UnlockContract failed: " + ex.ToString());
                 return JsonResponse.Fail("An error occurred while unlocking the contract.");
+            }
+        }
+
+        /// <summary>
+        /// Updates the heartbeat for a locked contract to keep it active.
+        /// </summary>
+        /// <param name="eid">Contract ID to update heartbeat for</param>
+        /// <returns>Success if heartbeat updated, failure if lock not found or not owned by user</returns>
+        [HttpPost]
+        [Authorize(Roles = "Pre-sales,Controls")]
+        public JsonResult HeartbeatLock(string eid)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(eid))
+                    return JsonResponse.Fail("Contract ID is required.");
+
+                string currentUserId = User.Identity.GetUserId() ?? "Unknown";
+                bool updated = LockManager.Contracts.UpdateHeartbeat(eid, currentUserId);
+
+                if (updated)
+                {
+                    return JsonResponse.Ok("Heartbeat updated successfully.");
+                }
+                else
+                {
+                    return JsonResponse.Fail("Lock not found or not owned by current user.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("HeartbeatLock failed: " + ex.ToString());
+                return JsonResponse.Fail("An error occurred during heartbeat.");
             }
         }
 
