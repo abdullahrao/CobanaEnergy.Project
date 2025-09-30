@@ -275,11 +275,11 @@ $(document).ready(function () {
                     loadContractNotesModal(eId, contractType);
                 } else {
                     // Lock failed, show error message
-                    showAlert('Error: ' + (lockResponse.message || 'Failed to lock contract'), 'danger');
+                    showToastError(lockResponse.message || 'Failed to lock contract');
                 }
             },
             error: function() {
-                showAlert('Error occurred while locking contract.', 'danger');
+                showToastError('Error occurred while locking contract.', 'danger');
             }
         });
     };
