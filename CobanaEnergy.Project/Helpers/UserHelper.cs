@@ -14,7 +14,7 @@ namespace CobanaEnergy.Project.Helpers
     public static class UserHelper
     {
         /// <summary>
-        /// Gets the username from a user ID using UserManager.
+        /// Gets the username from a user ID using UserManager. 
         /// </summary>
         /// <param name="userId">The user ID to look up</param>
         /// <param name="httpContext">The HTTP context to get UserManager from</param>
