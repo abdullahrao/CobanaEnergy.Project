@@ -32,7 +32,7 @@
         // hide all initially
         $("#brokerage-area, #brokerage-staff-area, #subbrokerage-area, #inhouse-closer-area, #leadgen-area, #referral-area, #sub-referral-area, #introducer-area, #subintroducer-area").hide();
 
-        $('#department').on('change', function () {
+        $('#departmentFilter').on('change', function () {
             const val = $(this).val();
             $("#brokerage-area, #brokerage-staff-area, #subbrokerage-area, #inhouse-closer-area, #leadgen-area, #referral-area,  #sub-referral-area, #introducer-area, #subintroducer-area").hide();
 
