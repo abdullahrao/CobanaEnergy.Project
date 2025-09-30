@@ -3,7 +3,7 @@
 
     const selectConfigs = {
         '#supplierFilter': 'All Suppliers',
-        '#department': 'Select Department',
+        '#departmentFilter': 'Select Department',
         '#brokerageFilter': 'Select Brokerage',
         '#brokerageStaffFilter': 'Select Staff',
         '#subBrokerageFilter': 'Select Sub Brokerage',
