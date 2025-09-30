@@ -1,16 +1,42 @@
 ﻿window.FilterModule = (function () {
 
+
+    const selectConfigs = {
+        '#contractstatus': 'Select Contract Status',
+        '#supplierFilter': 'All Suppliers',
+        '#department': 'Select Department',
+        '#brokerageFilter': 'Select Brokerage',
+        '#brokerageStaffFilter': 'Select Staff',
+        '#subBrokerageFilter': 'Select Sub Brokerage',
+        '#closerFilter': 'Select Closer',
+        '#leadGenFilter': 'Select Lead Generator',
+        '#introducerFilter': 'Select Introducer',
+        '#subIntroducerFilter': 'Select Sub Introducer',
+        '#referralFilter': 'Select Referral',
+        '#paymentStatusAcc': 'Select Payment Status',
+        '#subReferralFilter': 'Select Sub Refferal'
+    };
+
+    for (const [selector, placeholder] of Object.entries(selectConfigs)) {
+        $(selector).select2({
+            placeholder: placeholder,
+            allowClear: true,
+            width: '100%'
+        });
+    }
+
+
     function init(tableInstance) {
         setupDepartmentCascade(tableInstance);
     }
 
     function setupDepartmentCascade(table) {
         // hide all initially
-        $("#brokerage-area, #brokerage-staff-area, #subbrokerage-area, #inhouse-closer-area, #leadgen-area, #referral-area, #introducer-area, #subintroducer-area").hide();
+        $("#brokerage-area, #brokerage-staff-area, #subbrokerage-area, #inhouse-closer-area, #leadgen-area, #referral-area, #sub-referral-area, #introducer-area, #subintroducer-area").hide();
 
         $('#department').on('change', function () {
             const val = $(this).val();
-            $("#brokerage-area, #brokerage-staff-area, #subbrokerage-area, #inhouse-closer-area, #leadgen-area, #referral-area, #introducer-area, #subintroducer-area").hide();
+            $("#brokerage-area, #brokerage-staff-area, #subbrokerage-area, #inhouse-closer-area, #leadgen-area, #referral-area,  #sub-referral-area, #introducer-area, #subintroducer-area").hide();
 
             if (val === 'Brokers') {
                 $('#brokerage-area').show();
@@ -19,6 +45,12 @@
             else if (val === 'In House') {
                 $('#inhouse-closer-area').show();
                 $.getJSON(`/Common/Closers`).done(data => fillDropdown("#closerFilter", data));
+                // Refferal and Lead Generators
+                $('#leadGenFilter, #referralFilter').empty().append('<option value="">All</option>');
+                $('#leadgen-area, #referral-area').show();
+                $.getJSON(`/Common/LeadGenerators`).done(data => fillDropdown("#leadGenFilter", data));
+                $.getJSON(`/Common/ReferralPartners`).done(data => fillDropdown("#referralFilter", data));
+
             }
             else if (val === 'Introducers') {
                 $('#introducer-area').show();
@@ -46,19 +78,17 @@
         });
 
         $('#closerFilter').on('change', function () {
-            const id = $(this).val();
-            $('#leadGenFilter, #referralFilter').empty().append('<option value="">All</option>');
-            if (id) {
-                $('#leadgen-area, #referral-area').show();
-                $.getJSON(`/Common/LeadGenerators?closerId=${id}`).done(data => fillDropdown("#leadGenFilter", data));
-                $.getJSON(`/Common/ReferralPartners?closerId=${id}`).done(data => fillDropdown("#referralFilter", data));
-            } else {
-                $('#leadgen-area, #referral-area').hide();
-            }
             if (table) table.ajax.reload();
         });
 
-        $('#leadGenFilter, #referralFilter').on('change', () => {
+        $('#leadGenFilter').on('change', () => {
+            if (table) table.ajax.reload();
+        });
+
+        $('#referralFilter').on('change', function () {
+            const id = $(this).val();
+            $('#sub-referral-area').show();
+            $.getJSON(`/Common/SubReferralPartners?referralId=${id}`).done(data => fillDropdown("#subReferralFilter", data));
             if (table) table.ajax.reload();
         });
 

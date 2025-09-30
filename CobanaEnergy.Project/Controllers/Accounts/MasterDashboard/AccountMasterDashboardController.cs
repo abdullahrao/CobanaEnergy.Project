@@ -2,21 +2,12 @@
 using CobanaEnergy.Project.Controllers.Base;
 using CobanaEnergy.Project.Filters;
 using CobanaEnergy.Project.Models;
-using CobanaEnergy.Project.Models.Accounts;
 using CobanaEnergy.Project.Models.Accounts.MasterDashboard.AccountMasterDashboard;
-using CobanaEnergy.Project.Models.Accounts.ProblematicsDashboard;
-using CobanaEnergy.Project.Service.ExtensionService;
-using Logic.ResponseModel.Helper;
-using NPOI.POIFS.Crypt.Dsig;
 using System;
-using System.Collections.Generic;
 using System.Data.Entity;
-using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Web;
 using System.Web.Mvc;
-using System.Web.Routing;
 
 namespace CobanaEnergy.Project.Controllers.Accounts.MasterDashboard
 {
@@ -150,6 +141,9 @@ namespace CobanaEnergy.Project.Controllers.Accounts.MasterDashboard
             if (!string.IsNullOrEmpty(q.ReferralPartnerId) && int.TryParse(q.ReferralPartnerId, out var rpId))
                 combined = combined.Where(x => x.ReferralPartnerId == rpId);
 
+            if (!string.IsNullOrEmpty(q.SubReferralPartnerId) && int.TryParse(q.SubReferralPartnerId, out var subRefId))
+                combined = combined.Where(x => x.SubReferralPartnerId == subRefId);
+
             if (!string.IsNullOrEmpty(q.IntroducerId) && int.TryParse(q.IntroducerId, out var introId))
                 combined = combined.Where(x => x.IntroducerId == introId);
 
@@ -159,6 +153,17 @@ namespace CobanaEnergy.Project.Controllers.Accounts.MasterDashboard
 
             // Load data (ToListAsync once)
             var contracts = await combined.ToListAsync();
+
+
+            if (q.DateFrom.HasValue)
+                contracts = contracts
+                    .Where(x => DateTime.TryParse(x.InputDate, out var d) && d >= q.DateFrom.Value)
+                    .ToList();
+
+            if (q.DateTo.HasValue)
+                contracts = contracts
+                    .Where(x => DateTime.TryParse(x.InputDate, out var d) && d <= q.DateTo.Value)
+                    .ToList();
 
             var eIds = contracts.Select(x => x.EId).Distinct().ToList();
 
@@ -363,5 +368,6 @@ namespace CobanaEnergy.Project.Controllers.Accounts.MasterDashboard
         }
 
 
+    
     }
 }
