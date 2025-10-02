@@ -242,8 +242,17 @@ class BrokerageManager {
                 $referralPartnerField.hide();
                 $subReferralPartnerField.hide();
             }
-            // For Self-Gen and Cobana RNW sources, show Referral Partner fields
+            // For Self-Gen and Cobana RNW sources, show Lead Generator field
             else if (currentSource && (currentSource.toLowerCase() === 'self-gen' || currentSource.toLowerCase() === 'cobana rnw')) {
+                $leadGeneratorField.show();
+                $leadGenerator.prop('disabled', false);
+                this.loadLeadGenerators(() => this.populateModelValues(false));
+                $referralPartnerField.hide();
+                $subReferralPartnerField.hide();
+            }
+        } else if (collaboration === 'Referral Partner') {
+            // For Self-Gen and Cobana RNW sources, show Referral Partner fields
+            if (currentSource && (currentSource.toLowerCase() === 'self-gen' || currentSource.toLowerCase() === 'cobana rnw')) {
                 $leadGeneratorField.hide();
                 $leadGenerator.prop('disabled', true);
                 $leadGenerator.val('');
@@ -747,8 +756,17 @@ class BrokerageManager {
         // Clear existing options except the first one
         $collaborationSelect.find('option:not(:first)').remove();
 
+        // Get current source to determine which options to show
+        const currentSource = $('#source').val();
+
         // Add Lead Generator and N/A options
         $collaborationSelect.append('<option value="Lead Generator">Lead Generator</option>');
+        
+        // For Self-Gen and Cobana RNW sources, also add Referral Partner option
+        if (currentSource && (currentSource.toLowerCase() === 'self-gen' || currentSource.toLowerCase() === 'cobana rnw')) {
+            $collaborationSelect.append('<option value="Referral Partner">Referral Partner</option>');
+        }
+        
         $collaborationSelect.append('<option value="-1">N/A</option>');
     }
 
