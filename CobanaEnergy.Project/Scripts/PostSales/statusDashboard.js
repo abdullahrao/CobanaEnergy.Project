@@ -76,6 +76,40 @@ $(document).ready(function () {
                     return json.data;
                 }
             },
+            dom:
+                '<"row mb-2"<"col-sm-12 text-end"B>>' +
+                '<"row mb-2"<"col-sm-6"l><"col-sm-6"f>>' +
+                'rtip',
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel me-2"></i> Export Excel',
+                    className: 'btn btn-success btn-sm dt-btn',
+                    title: 'Status Dashboard',
+                    exportOptions: {
+                        columns: ':visible:not(:lt(3))',
+                        orthogonal: 'export'
+                    }
+                },
+                {
+                    extend: 'pdfHtml5',
+                    text: '<i class="fas fa-file-pdf me-2"></i> Export PDF',
+                    className: 'btn btn-danger btn-sm dt-btn',
+                    title: 'Status Dashboard',
+                    orientation: 'landscape',
+                    pageSize: 'A3',
+                    exportOptions: {
+                        columns: ':visible:not(:lt(3))',
+                        orthogonal: 'export'
+                    },
+                    customize: function (doc) {
+                        doc.defaultStyle.fontSize = 3;
+                        doc.styles.tableHeader.fontSize = 4;
+                        doc.content[1].table.widths =
+                            Array(doc.content[1].table.body[0].length + 1).join('*').split('');
+                    }
+                }
+            ],
             columns: [
                 {
                     data: null, orderable: false, render: function (row) {
@@ -127,33 +161,49 @@ $(document).ready(function () {
                 { data: 'PostCode' },
                 // Email editable cell
                 {
-                    data: 'Email', className: 'email-column', render: function (d, t, row) {
-                        const safe = d === null ? '' : d;
+                    data: 'Email', className: 'email-column', render: function (d, type, row) {
+                        if (type === 'export') {
+                            return d || '-';
+                        }
                         return `<input type="text" class="form-control form-control-sm editable-input email" data-eid="${row.EId}" data-field="Email" value="${escapeHtml(d)}" />`;
                     }
                 },
                 // StartDate editable
                 {
-                    data: 'StartDate', render: function (d, t, row) {
+                    data: 'StartDate', render: function (d, type, row) {
+                        if (type === 'export') {
+                            return d || '-';
+                        }
                         return `<input type="date" class="form-control form-control-sm editable-input startdate" data-eid="${row.EId}" data-field="StartDate" value="${formatDateForInput(d)}" />`;
                     }
                 },
                 // CED editable
                 {
-                    data: 'CED', render: function (d, t, row) {
+                    data: 'CED', render: function (d, type, row) {
+                        if (type === 'export') {
+                            return d || '-';
+                        }
                         return `<input type="date" class="form-control form-control-sm editable-input ced" data-eid="${row.EId}" data-field="CED" value="${formatDateForInput(d)}" />`;
                     }
                 },
                 // COT editable
                 {
-                    data: 'COTDate', render: function (d, t, row) {
+                    data: 'COTDate', render: function (d, type, row) {
+                        if (type === 'export') {
+                            return d || '-';
+                        }
                         return `<input type="date" class="form-control form-control-sm editable-input cot" data-eid="${row.EId}" data-field="COTDate" value="${formatDateForInput(d)}" />`;
                     }
                 },
                 // Contract Status editable select
                 {
-                    data: 'ContractStatus', render: function (d, t, row) {
+                    data: 'ContractStatus', render: function (d, type, row) {
                         const options = AccountDropdownOptions.contractStatus;
+
+                        if (type === 'export') {
+                            return d || '-';
+                        }
+
                         let html = `<select class="form-select form-select-sm contract-status" data-eid="${row.EId}" data-field="ContractStatus">`;
                         html += `<option value="">${d ?? '-'}</option>`;
                         options.forEach(o => {
@@ -166,7 +216,10 @@ $(document).ready(function () {
                 },
                 // Objection Date editable
                 {
-                    data: 'ObjectionDate', render: function (d, t, row) {
+                    data: 'ObjectionDate', render: function (d, type, row) {
+                        if (type === 'export') {
+                            return d || '-';
+                        }
                         return `<input type="date" class="form-control form-control-sm editable-input objectiondate" data-eid="${row.EId}" data-field="ObjectionDate" value="${formatDateForInput(d)}" />`;
                     }
                 },
@@ -174,6 +227,9 @@ $(document).ready(function () {
                 // QueryType editable
                 {
                     data: 'QueryType', className: 'querytype-column', title: 'Query Type', render: function (data, type, row) {
+                        if (type === 'export') {
+                            return data || '-';
+                        }
                         if (type === 'display') {
                             return `<select class="form-select query-type-dropdown w-100" data-supplier="${row.SupplierName}"  data-selected="${data || ''}" data-id="${row.SupplierName}">
                                 <option value="${data}">${data}</option>
