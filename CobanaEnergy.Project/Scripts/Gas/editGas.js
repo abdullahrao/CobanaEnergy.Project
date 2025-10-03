@@ -46,7 +46,8 @@
         const $el = $('#' + id);
         if (!$el.length) return;
         const current = $el.data('current');
-        $el.empty().append(`<option value="">Select ${id}</option>`);
+        const displayName = id.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()).trim();
+        $el.empty().append(`<option value="">Select ${displayName}</option>`);
         values.forEach(val => {
             const selected = val === current ? 'selected' : '';
             $el.append(`<option value="${val}" ${selected}>${val}</option>`);

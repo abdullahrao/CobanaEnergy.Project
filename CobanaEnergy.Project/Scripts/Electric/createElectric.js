@@ -10,7 +10,8 @@
     $('#productSelect, #supplierCommsType').prop('disabled', true);
     function populateDropdown(id, values) {
         const $select = $('#' + id);
-        $select.empty().append(`<option value="">Select ${id}</option>`);
+        const displayName = id.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()).trim();
+        $select.empty().append(`<option value="">Select ${displayName}</option>`);
         values.forEach(v => $select.append(`<option value="${v}">${v}</option>`));
     }
 
