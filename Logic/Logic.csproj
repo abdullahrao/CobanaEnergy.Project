@@ -137,6 +137,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LockManager\EntityLockManager.cs" />
+    <Compile Include="LockManager\EntityTypes.cs" />
+    <Compile Include="LockManager\LockManager.cs" />
     <Compile Include="Logger\Logger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResponseModel\Helper\JsonResponse.cs" />

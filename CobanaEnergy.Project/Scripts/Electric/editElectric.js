@@ -1,6 +1,13 @@
 ﻿$(document).ready(async function () {
 
     if (!$('#editElectricForm').length) return;
+    
+    // Always verify/acquire lock on page load
+    const contractId = $('#eid').val();
+    if (contractId) {
+        await verifyOrAcquireLock(contractId);
+    }
+    
     //$('#productSelect, #supplierCommsType').prop('disabled', true); 
 
     const token = $('input[name="__RequestVerificationToken"]').val();
@@ -406,4 +413,78 @@
         await validateUpliftAgainstSupplierLimitElectric($('#uplift'), $('#supplierSelect'), eid);
     });
 
+    // Generic contract unlock functionality
+    setupContractUnlocking();
+
 });
+
+/**
+ * Sets up generic contract unlocking when user leaves the page
+ */
+function setupContractUnlocking() {
+    const eid = $('#eid').val();
+    if (!eid) return;
+
+    window.addEventListener('beforeunload', function () {
+        unlockContractBeacon(eid);
+    });
+
+
+    // Additional cleanup on page hide (iOS Safari support)
+    window.addEventListener('pagehide', function () {
+        unlockContractBeacon(eid);
+    });
+}
+
+function unlockContractBeacon(eid) {
+    if (!eid) return;
+
+    const url = '/PreSales/UnlockContract';
+    const data = new FormData();
+    data.append('eid', eid);
+
+    const sent = navigator.sendBeacon(url, data);
+}
+
+/**
+ * Verify if we have the lock, or acquire it if needed
+ * @param {string} contractId - The contract ID to verify/acquire lock for
+ */
+async function verifyOrAcquireLock(contractId) {
+    try {
+        // First, check if we already have the lock
+        const statusResponse = await $.ajax({
+            url: '/PreSales/CheckLockStatus',
+            type: 'POST',
+            data: { eid: contractId }
+        });
+
+        if (statusResponse.success && statusResponse.Data?.hasLock) {
+            // We already have the lock - all good!
+            console.log('Lock verification successful - we have the lock');
+            showToastSuccess('Contract lock verified successfully');
+            return;
+        }
+
+        // We don't have the lock - try to acquire it
+        console.log('No lock found - attempting to acquire lock');
+        const lockResponse = await $.ajax({
+            url: '/PreSales/LockContract',
+            type: 'POST',
+            data: { eid: contractId }
+        });
+
+        if (lockResponse.success) {
+            console.log('Lock acquired successfully');
+            showToastSuccess('Contract lock acquired successfully');
+        } else {
+            console.warn('Failed to acquire lock:', lockResponse.message);
+            showToastError('Warning: ' + lockResponse.message + ' You may not be able to save changes.');
+        }
+
+    } catch (error) {
+        console.error('Error verifying/acquiring lock:', error);
+        showToastError('Warning: Unable to verify contract lock. You may not be able to save changes.');
+    }
+}
+

@@ -1,5 +1,6 @@
 ﻿using CobanaEnergy.Project.Controllers.Base;
 using CobanaEnergy.Project.Filters;
+using CobanaEnergy.Project.Helpers;
 using CobanaEnergy.Project.Models;
 using CobanaEnergy.Project.Models.AccountsDBModel;
 using CobanaEnergy.Project.Models.Electric;
@@ -8,7 +9,9 @@ using CobanaEnergy.Project.Models.Electric.ElectricDBModels.snapshot;
 using CobanaEnergy.Project.Models.Supplier.SupplierDBModels.snapshot;
 using CobanaEnergy.Project.Models.Supplier.SupplierSnapshots;
 using Logic;
+using Logic.LockManager;
 using Logic.ResponseModel.Helper;
+using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -492,6 +495,23 @@ namespace CobanaEnergy.Project.Controllers.PreSales
             {
                 var errors = ModelState.Values.SelectMany(x => x.Errors).Select(e => e.ErrorMessage).ToList();
                 return JsonResponse.Fail(string.Join("<br>", errors));
+            }
+
+            // Validate contract lock before saving
+            string currentUserId = User.Identity.GetUserId() ?? "Unknown";
+            if (LockManager.Contracts.IsLocked(model.EId))
+            {
+                if (!LockManager.Contracts.IsLockedByUser(model.EId, currentUserId))
+                {
+                    string lockHolderUserId = LockManager.Contracts.GetLockHolder(model.EId);
+                    string lockHolderUsername = await UserHelper.GetUsernameFromUserId(lockHolderUserId, HttpContext);
+                    return JsonResponse.Fail($"Cannot save changes. This contract is currently being edited by {lockHolderUsername}.");
+                }
+            }
+            else
+            {
+                // Contract is not locked at all - this shouldn't happen in normal flow
+                return JsonResponse.Fail("Cannot save changes. Contract lock has expired. Please refresh the page and try again.");
             }
 
             using (var transaction = db.Database.BeginTransaction())

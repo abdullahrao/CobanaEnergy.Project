@@ -19,20 +19,26 @@ function loadContractTable() {
 
         $table.empty();
         res.Data.forEach(r => {
-            let controler;
+            let controller;
             if (r.Type == 'Electric') {
-                controler = 'Electric/ElectricEdit';
+                controller = 'Electric/ElectricEdit';
             }
             if (r.Type == 'Gas') {
-                controler = 'Gas/EditGas';
+                controller = 'Gas/EditGas';
             }
             if (r.Type == 'Dual') {
-                controler = 'Dual/EditDual';
+                controller = 'Dual/EditDual';
             }
 
             const row = `
                             <tr>
-                                <td><a href="/${controler}?eid=${r.EId}" class="btn btn-sm edit-btn" target="_blank" title="Edit"><i class="fas fa-pencil-alt me-1"></i> Edit</a></td>
+                                <td><button class="btn btn-sm edit-btn contract-edit-btn" 
+                                           data-eid="${r.EId}" 
+                                           data-type="${r.Type}" 
+                                           data-controller="${controller}" 
+                                           title="Edit">
+                                    <i class="fas fa-pencil-alt me-1"></i> Edit
+                                    </button></td>
                                 <td>${r.Agent}</td>
                                 <td>${r.MPAN || '-'}</td>
                                 <td>${r.MPRN || '-'}</td>
@@ -61,6 +67,16 @@ function loadContractTable() {
             info: true,
             responsive: true,
             autoWidth: false
+        });
+
+        // Attach click handlers to edit buttons
+        $(document).off('click', '.contract-edit-btn').on('click', '.contract-edit-btn', function(e) {
+            e.preventDefault();
+            const eid = $(this).data('eid');
+            const contractType = $(this).data('type');
+            const controller = $(this).data('controller');
+            
+            LockContract(eid, contractType, controller);
         });
 
     }).fail(function () {
@@ -115,3 +131,150 @@ function loadSupplierStats() {
         showToastError("Error loading supplier stats.");
     });
 }
+
+// Track active heartbeats (simplified)
+let activeHeartbeats = new Map();
+
+/**
+ * Generic function to lock a contract and navigate to edit page
+ * @param {string} eid - Contract ID
+ * @param {string} contractType - Type of contract (Electric, Gas, Dual)  
+ * @param {string} controller - Controller path for edit page
+ */
+function LockContract(eid, contractType, controller) {
+    if (!eid || !contractType || !controller) {
+        showToastError("Invalid contract information.");
+        return;
+    }
+
+    // Show loading state
+    const $btn = $(`.contract-edit-btn[data-eid="${eid}"]`);
+    const originalText = $btn.html();
+    $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Locking...');
+
+    $.ajax({
+        url: '/PreSales/LockContract',
+        type: 'POST',
+        data: { eid: eid },
+        success: function (response) {
+            if (response.success) {
+                // Lock acquired successfully, open edit page
+                const editUrl = `/${controller}?eid=${eid}`;
+                const childWindow = window.open(editUrl, '_blank');
+                
+                // Start simple heartbeat monitoring
+                startHeartbeatMonitoring(eid, childWindow);
+                
+            } else {
+                // Lock failed, show error message
+                showToastError(response.message || 'Failed to lock contract');
+            }
+        },
+        error: function () {
+            showToastError("Unexpected error occurred while locking contract.");
+        },
+        complete: function () {
+            // Restore button state
+            $btn.prop('disabled', false).html(originalText);
+        }
+    });
+}
+
+/**
+ * Starts simple heartbeat monitoring for a contract
+ * @param {string} eid - Contract ID
+ * @param {Window} childWindow - Reference to the child window
+ */
+function startHeartbeatMonitoring(eid, childWindow) {
+    console.log(`Starting heartbeat for contract ${eid} (every 30 seconds)`);
+    
+    // 1. Start heartbeat - every 30 seconds
+    const heartbeatTimer = setInterval(function() {
+        sendHeartbeat(eid);
+    }, 30 * 1000); // 30 seconds
+    
+    // 2. Simple window check - every 10 seconds (less aggressive)
+    const windowTimer = setInterval(function() {
+        if (childWindow.closed) {
+            console.log(`Window closed for contract ${eid}`);
+            stopHeartbeatMonitoring(eid);
+        }
+    }, 10000); // Every 10 seconds
+    
+    // Store timers
+    activeHeartbeats.set(eid, { 
+        heartbeatTimer: heartbeatTimer,
+        windowTimer: windowTimer,
+        window: childWindow
+    });
+}
+
+/**
+ * Sends heartbeat to server to keep lock active
+ * @param {string} eid - Contract ID
+ */
+function sendHeartbeat(eid) {
+    $.ajax({
+        url: '/PreSales/HeartbeatLock',
+        type: 'POST',
+        data: { eid: eid },
+        success: function(response) {
+            if (!response.success) {
+                console.warn(`Heartbeat failed for ${eid}: ${response.message}`);
+                // Stop heartbeat if lock is lost
+                stopHeartbeatMonitoring(eid);
+            }
+        },
+        error: function() {
+            console.warn(`Heartbeat request failed for ${eid}`);
+            // Stop heartbeat on error
+            stopHeartbeatMonitoring(eid);
+        }
+    });
+}
+
+/**
+ * Stops heartbeat monitoring and unlocks contract
+ * @param {string} eid - Contract ID
+ */
+function stopHeartbeatMonitoring(eid) {
+    const timers = activeHeartbeats.get(eid);
+    if (!timers) return;
+    
+    console.log(`Stopping heartbeat for contract ${eid}`);
+    
+    // Clear timers
+    clearInterval(timers.heartbeatTimer);
+    clearInterval(timers.windowTimer);
+    
+    // Unlock contract
+    unlockContract(eid);
+    
+    // Remove from tracking
+    activeHeartbeats.delete(eid);
+}
+
+/**
+ * Unlocks a contract on the server
+ * @param {string} eid - Contract ID
+ */
+function unlockContract(eid) {
+    $.ajax({
+        url: '/PreSales/UnlockContract',
+        type: 'POST',
+        data: { eid: eid },
+        success: function(response) {
+            console.log(`Contract ${eid} unlocked`);
+        },
+        error: function() {
+            console.warn(`Failed to unlock contract ${eid}`);
+        }
+    });
+}
+
+// Cleanup when dashboard closes
+$(window).on('beforeunload', function() {
+    activeHeartbeats.forEach(function(timers, eid) {
+        stopHeartbeatMonitoring(eid);
+    });
+});

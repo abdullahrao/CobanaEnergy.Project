@@ -3,6 +3,10 @@ $(document).ready(function () {
     let allFollowUpDates = [];
     let selectedDate = "";
     let allFollowUpDatesTyped = [];
+    
+    // Heartbeat management for popup
+    let currentLockedContract = null;
+    let heartbeatInterval = null;
 
     table = $('#preSalesCalendarTable').DataTable({
         responsive: true,
@@ -61,7 +65,29 @@ $(document).ready(function () {
     });
 
     function openEditContractNotesPopup(eId, contractType) {
-        // Load the popup content
+        // First, try to lock the contract
+        $.ajax({
+            url: '/PreSales/LockContract',
+            type: 'POST',
+            data: { eid: eId },
+            success: function(lockResponse) {
+                if (lockResponse.success) {
+                    // Lock acquired, start heartbeat and load popup content
+                    currentLockedContract = eId;
+                    startHeartbeat(eId);
+                    loadContractNotesPopup(eId, contractType);
+                } else {
+                    // Lock failed, show error message
+                    showToastError(lockResponse.message || 'Failed to lock contract');
+                }
+            },
+            error: function() {
+                showToastError('Error occurred while locking contract.');
+            }
+        });
+    }
+
+    function loadContractNotesPopup(eId, contractType) {
         $.ajax({
             url: '/PreSalesCalendar/GetContractNotes',
             type: 'POST',
@@ -87,10 +113,16 @@ $(document).ready(function () {
                     // Show the modal
                     $('#editContractNotesModal').modal('show');
                 } else {
+                    // Failed to load data, stop heartbeat and unlock the contract
+                    stopHeartbeat();
+                    unlockContract(eId);
                     showToastError(res.message || 'Failed to load contract data.');
                 }
             },
             error: function() {
+                // Failed to load data, stop heartbeat and unlock the contract
+                stopHeartbeat();
+                unlockContract(eId);
                 showToastError('Failed to load contract data.');
             }
         });
@@ -182,4 +214,87 @@ $(document).ready(function () {
         // Reload the follow-up dates and reinitialize the calendar
         loadFollowUpDatesAndInitCalendar();
     }
+
+    // Unlock contract function
+    function unlockContract(eId) {
+        if (!eId) return;
+        
+        $.ajax({
+            url: '/PreSales/UnlockContract',
+            type: 'POST',
+            data: { eid: eId },
+            success: function(response) {
+                console.log('Contract unlocked:', response.message);
+            },
+            error: function() {
+                console.log('Failed to unlock contract');
+            }
+        });
+    }
+
+    // Heartbeat functions for popup lock management
+    function startHeartbeat(eId) {
+        if (heartbeatInterval) {
+            clearInterval(heartbeatInterval);
+        }
+        
+        // Send heartbeat every 30 seconds
+        heartbeatInterval = setInterval(function() {
+            sendHeartbeat(eId);
+        }, 30000);
+        
+        console.log('Heartbeat started for contract:', eId);
+    }
+    
+    function stopHeartbeat() {
+        if (heartbeatInterval) {
+            clearInterval(heartbeatInterval);
+            heartbeatInterval = null;
+            currentLockedContract = null;
+            console.log('Heartbeat stopped');
+        }
+    }
+    
+    function sendHeartbeat(eId) {
+        if (!eId) return;
+        
+        $.ajax({
+            url: '/PreSales/HeartbeatLock',
+            type: 'POST',
+            data: { eid: eId },
+            success: function(response) {
+                if (response.success) {
+                    console.log('Heartbeat sent successfully for contract:', eId);
+                } else {
+                    console.warn('Heartbeat failed for contract:', eId, response.message);
+                    // If heartbeat fails, the lock might have been lost
+                    // Show warning to user but don't force close modal
+                    showToastError('Warning: Contract lock may have expired. Please save your changes soon.');
+                }
+            },
+            error: function() {
+                console.error('Heartbeat error for contract:', eId);
+                // Network error - show warning but don't force close
+                showToastError('Warning: Unable to maintain contract lock. Please save your changes soon.');
+            }
+        });
+    }
+
+    // Unlock contract when modal is closed
+    $(document).on('hidden.bs.modal', '#editContractNotesModal', function() {
+        const eId = $('#eid').val();
+        if (eId) {
+            stopHeartbeat();
+            unlockContract(eId);
+        }
+    });
+    
+    // Cleanup heartbeat on page unload
+    $(window).on('beforeunload pagehide', function() {
+        if (currentLockedContract) {
+            stopHeartbeat();
+            // Try to unlock the contract (may not complete due to page unload)
+            unlockContract(currentLockedContract);
+        }
+    });
 });

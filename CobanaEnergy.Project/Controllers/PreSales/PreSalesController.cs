@@ -1,8 +1,11 @@
 ﻿using CobanaEnergy.Project.Controllers.Base;
+using CobanaEnergy.Project.Helpers;
 using CobanaEnergy.Project.Models;
 using CobanaEnergy.Project.Models.Supplier.Active_Suppliers;
 using Logic;
+using Logic.LockManager;
 using Logic.ResponseModel.Helper;
+using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -279,6 +282,168 @@ namespace CobanaEnergy.Project.Controllers.PreSales
             {
                 Logger.Log("GetSupplierContractStats: " + ex);
                 return JsonResponse.Fail("Failed to fetch supplier stats.");
+            }
+        }
+
+        #endregion
+
+        #region LockManagement
+
+        /// <summary>
+        /// Locks a contract for editing. Returns success if lock is acquired, failure if already locked by another user.
+        /// </summary>
+        /// <param name="eid">Contract ID to lock</param>
+        /// <returns>JSON response indicating success or failure with lock holder information</returns>
+        [HttpPost]
+        [Authorize(Roles = "Pre-sales,Controls")]
+        public async Task<JsonResult> LockContract(string eid)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(eid))
+                    return JsonResponse.Fail("Contract ID is required.");
+
+                string currentUserId = User.Identity.GetUserId() ?? "Unknown";
+                bool lockAcquired = LockManager.Contracts.TryLock(eid, currentUserId);
+
+                if (lockAcquired)
+                {
+                    return JsonResponse.Ok("Contract locked successfully.");
+                }
+                else
+                {
+                    string lockHolderUserId = LockManager.Contracts.GetLockHolder(eid);
+                    string lockHolderUsername = await UserHelper.GetUsernameFromUserId(lockHolderUserId, HttpContext);
+                    return JsonResponse.Fail($"This Contract is currently being edited by {lockHolderUsername}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("LockContract failed: " + ex.ToString());
+                return JsonResponse.Fail("An error occurred while locking the contract.");
+            }
+        }
+
+        /// <summary>
+        /// Unlocks a contract after editing. Returns success if lock is released, failure if not locked or held by different user.
+        /// </summary>
+        /// <param name="eid">Contract ID to unlock</param>
+        /// <returns>JSON response indicating success or failure</returns>
+        [HttpPost]
+        [Authorize(Roles = "Pre-sales,Controls")]
+        public JsonResult UnlockContract(string eid)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(eid))
+                    return JsonResponse.Fail("Contract ID is required.");
+
+                string currentUserId = User.Identity.GetUserId() ?? "Unknown";
+                bool unlocked = LockManager.Contracts.Unlock(eid, currentUserId);
+
+                if (unlocked)
+                {
+                    return JsonResponse.Ok("Contract unlocked successfully.");
+                }
+                else
+                {
+                    return JsonResponse.Fail("Unable to unlock contract. You may not be the lock holder.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("UnlockContract failed: " + ex.ToString());
+                return JsonResponse.Fail("An error occurred while unlocking the contract.");
+            }
+        }
+
+        /// <summary>
+        /// Updates the heartbeat for a locked contract to keep it active.
+        /// </summary>
+        /// <param name="eid">Contract ID to update heartbeat for</param>
+        /// <returns>Success if heartbeat updated, failure if lock not found or not owned by user</returns>
+        [HttpPost]
+        [Authorize(Roles = "Pre-sales,Controls")]
+        public JsonResult HeartbeatLock(string eid)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(eid))
+                    return JsonResponse.Fail("Contract ID is required.");
+
+                string currentUserId = User.Identity.GetUserId() ?? "Unknown";
+                bool updated = LockManager.Contracts.UpdateHeartbeat(eid, currentUserId);
+
+                if (updated)
+                {
+                    return JsonResponse.Ok("Heartbeat updated successfully.");
+                }
+                else
+                {
+                    return JsonResponse.Fail("Lock not found or not owned by current user.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("HeartbeatLock failed: " + ex.ToString());
+                return JsonResponse.Fail("An error occurred during heartbeat.");
+            }
+        }
+
+        /// <summary>
+        /// Checks if the current user holds the lock for the specified contract
+        /// </summary>
+        /// <param name="eid">Contract ID to check</param>
+        /// <returns>JSON response with lock status</returns>
+        [HttpPost]
+        [Authorize(Roles = "Pre-sales,Controls")]
+        public async Task<JsonResult> CheckLockStatus(string eid)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(eid))
+                    return JsonResponse.Fail("Contract ID is required.");
+
+                string currentUserId = User.Identity.GetUserId() ?? "Unknown";
+                
+                // Clean expired locks first
+                LockManager.Contracts.CleanupExpiredLocks();
+                
+                bool isLockedByCurrentUser = LockManager.Contracts.IsLockedByUser(eid, currentUserId);
+                bool isLocked = LockManager.Contracts.IsLocked(eid);
+                
+                if (isLockedByCurrentUser)
+                {
+                    return JsonResponse.Ok(new { 
+                        hasLock = true, 
+                        lockedByCurrentUser = true 
+                    }, "Contract is locked by current user");
+                }
+                else if (isLocked)
+                {
+                    string lockHolderUserId = LockManager.Contracts.GetLockHolder(eid);
+                    string lockHolderUsername = await UserHelper.GetUsernameFromUserId(lockHolderUserId, HttpContext);
+                    
+                    // For locked by another user, we still return success=true but with hasLock=false
+                    // The client-side code checks the Data.hasLock property to determine the action
+                    return JsonResponse.Ok(new { 
+                        hasLock = false, 
+                        lockedByCurrentUser = false,
+                        lockHolder = lockHolderUsername
+                    }, $"Contract is locked by {lockHolderUsername}");
+                }
+                else
+                {
+                    return JsonResponse.Ok(new { 
+                        hasLock = false, 
+                        lockedByCurrentUser = false 
+                    }, "Contract is not locked");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("CheckLockStatus failed: " + ex.ToString());
+                return JsonResponse.Fail("An error occurred while checking lock status.");
             }
         }
 
