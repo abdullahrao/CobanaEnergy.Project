@@ -58,7 +58,7 @@
                     className: 'btn btn-success btn-sm dt-btn',
                     title: 'AccountMaster',
                     exportOptions: {
-                        columns: ':visible:not(:first-child)' 
+                        columns: ':visible:not(:lt(3))'
                     }
                 },
                 {
@@ -69,7 +69,7 @@
                     orientation: 'landscape',
                     pageSize: 'A3',
                     exportOptions: {
-                        columns: ':visible:not(:first-child)'
+                        columns: ':visible:not(:lt(3))'
                     },
                     customize: function (doc) {
                         doc.defaultStyle.fontSize = 5;
