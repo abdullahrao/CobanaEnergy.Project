@@ -54,7 +54,6 @@
                 $('#introducer-area').show();
                 $.getJSON(`/Common/Introducers`).done(data => fillDropdown("#introducerFilter", data));
             }
-
             if (table) table.ajax.reload();
         });
 

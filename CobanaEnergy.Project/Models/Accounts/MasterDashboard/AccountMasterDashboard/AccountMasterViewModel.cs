@@ -18,7 +18,7 @@ namespace CobanaEnergy.Project.Models.Accounts.MasterDashboard.AccountMasterDash
 
     public class AccountMasterRowViewModel
     {
-        public string ContractId { get; set; }
+        public long ContractId { get; set; }
         public string EId { get; set; }
         public long SupplierId { get; set; }
         public string SupplierName { get; set; }
@@ -49,13 +49,14 @@ namespace CobanaEnergy.Project.Models.Accounts.MasterDashboard.AccountMasterDash
 
     public class ContractViewModel
     {
-        public string Id { get; set; }
+        public long Id { get; set; }
         public string EId { get; set; }
         public string MPXN { get; set; }
         public string ContractType { get; set; }
         public string BusinessName { get; set; }
         public string InputDate { get; set; }
         public string StartDate { get; set; }
+        public string Duration { get; set; }
         public string InputEAC { get; set; }
         public long SupplierId { get; set; }
         public string SupplierName { get; set; }
@@ -65,6 +66,8 @@ namespace CobanaEnergy.Project.Models.Accounts.MasterDashboard.AccountMasterDash
         public int? SubBrokerageId { get; set; }
         public int? CloserId { get; set; }
         public int? LeadGeneratorId { get; set; }
+        public string EmailAddress { get; set; }
+        public string PostCode { get; set; }
         public int? ReferralPartnerId { get; set; }
         public int? SubReferralPartnerId { get; set; }
         public int? IntroducerId { get; set; }
