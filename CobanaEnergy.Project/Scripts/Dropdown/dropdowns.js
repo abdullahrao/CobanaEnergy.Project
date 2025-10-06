@@ -51,6 +51,8 @@ const AccountDropdownOptions = {
         "Waiting Supplier Response"
     ],
     paymentStatus: [
+        "Contract Pending",
+        "Awaiting Invoice",
         "Advanced Payment",
         "Awaiting 1st Reconciliation",
         "Awaiting 2nd Initial",
@@ -62,7 +64,6 @@ const AccountDropdownOptions = {
         "Awaiting 5th Initial",
         "Awaiting D19",
         "Awaiting Final Reconciliation",
-        "Awaiting Invoice",
         "Awaiting Monthly Payment",
         "Clawback - COT Reconciliation",
         "Clawback - D19 Reconciliation",
@@ -71,7 +72,6 @@ const AccountDropdownOptions = {
         "Clawback - Never Live",
         "Commission Hold - Unpaid Bill",
         "Commission Hold - Unpaid Bill Clawback",
-        "Contract Pending",
         "Discrepancies",
         "In Dispute",
         "Lost Confirmation",
