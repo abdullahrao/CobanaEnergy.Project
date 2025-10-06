@@ -2,6 +2,7 @@
 using CobanaEnergy.Project.Controllers.Base;
 using CobanaEnergy.Project.Filters;
 using CobanaEnergy.Project.Models;
+using CobanaEnergy.Project.Helpers;
 using CobanaEnergy.Project.Models.Accounts.AwaitingPaymentsDashboard;
 using CobanaEnergy.Project.Models.Accounts.ProblematicsDashboard;
 using CobanaEnergy.Project.Models.Accounts.SuppliersModels;
@@ -11,6 +12,7 @@ using NPOI.SS.Formula.Functions;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -125,12 +127,10 @@ namespace CobanaEnergy.Project.Controllers.Accounts.ProblematicsDashboard
                     MPRN = null,
                     InputEAC = x.Contract.InputEAC,
                     ContractType = "Electric",
-                    InputDate = x.Contract.InputDate,
-                    StartDate = DateTime.TryParse(x.Reconciliation?.StartDate, out var startDt)
-                                ? startDt.ToString("dd/MM/yyyy")
-                                : "N/A",
-                    CED = x.Reconciliation.CED,
-                    CEDCOT = x.Reconciliation.CED_COT,
+                    InputDate = ParserHelper.FormatDateForDisplay(x.Contract.InputDate),
+                    StartDate = ParserHelper.FormatDateForDisplay(x.Reconciliation?.StartDate),
+                    CED = ParserHelper.FormatDateForDisplay(x.Reconciliation.CED),
+                    CEDCOT = ParserHelper.FormatDateForDisplay(x.Reconciliation.CED_COT),
                     ContractStatus = x.Status.ContractStatus,
                     PaymentStatus = x.Status.PaymentStatus,
                     Invoices = string.Join(", ", db.CE_EacLogs
@@ -149,12 +149,10 @@ namespace CobanaEnergy.Project.Controllers.Accounts.ProblematicsDashboard
                     MPRN = x.Contract.MPRN,
                     InputEAC = x.Contract.InputEAC,
                     ContractType = "Gas",
-                    InputDate = x.Contract.InputDate,
-                    StartDate = DateTime.TryParse(x.Reconciliation?.StartDate, out var startDt)
-                                ? startDt.ToString("dd/MM/yyyy")
-                                : "N/A",
-                    CED = x.Reconciliation.CED,
-                    CEDCOT = x.Reconciliation.CED_COT,
+                    InputDate = ParserHelper.FormatDateForDisplay(x.Contract.InputDate),
+                    StartDate = ParserHelper.FormatDateForDisplay(x.Reconciliation?.StartDate),
+                    CED = ParserHelper.FormatDateForDisplay(x.Reconciliation.CED),
+                    CEDCOT = ParserHelper.FormatDateForDisplay(x.Reconciliation.CED_COT),
                     ContractStatus = x.Status.ContractStatus,
                     PaymentStatus = x.Status.PaymentStatus,
                     Invoices = string.Join(", ", db.CE_EacLogs
@@ -225,13 +223,13 @@ namespace CobanaEnergy.Project.Controllers.Accounts.ProblematicsDashboard
 
                     DateTime baseDate = DateTime.Now;
                     if (!string.IsNullOrWhiteSpace(reconciliation.CommissionFollowUpDate) &&
-                        DateTime.TryParse(reconciliation.CommissionFollowUpDate, out var existingDate))
+                        DateTime.TryParseExact(reconciliation.CommissionFollowUpDate, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var existingDate))
                     {
                         baseDate = existingDate;
                     }
 
                     reconciliation.CommissionFollowUpDate = AddWorkingDays(baseDate, workingDays)
-                                                            .ToString("yyyy-MM-dd");
+                                                            .ToString("dd-MM-yy");
                 }
 
                 await db.SaveChangesAsync();

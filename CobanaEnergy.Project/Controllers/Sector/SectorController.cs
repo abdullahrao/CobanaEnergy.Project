@@ -51,7 +51,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     SectorId = s.SectorID.ToString(),
                     Name = s.Name,
                     Active = s.Active,
-                    CreatedDate = s.StartDate?.ToString("yyyy-MM-dd") ?? "",
+                    CreatedDate = s.StartDate?.ToString("dd-MM-yy") ?? "",
                     Mobile = s.Mobile ?? "",
                     SectorType = s.SectorType,
                     Suppliers = s.SectorSuppliers?.Select(ss => ss.Supplier?.Name).Where(name => !string.IsNullOrEmpty(name)).ToList() ?? new List<string>()
@@ -91,7 +91,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     SectorId = s.SectorID.ToString(),
                     Name = s.Name,
                     Active = s.Active,
-                    CreatedDate = s.StartDate?.ToString("yyyy-MM-dd") ?? "",
+                    CreatedDate = s.StartDate?.ToString("dd-MM-yy") ?? "",
                     Mobile = s.Mobile ?? "",
                     SectorType = s.SectorType,
                     Suppliers = s.SectorSuppliers?.Select(ss => ss.Supplier?.Name).Where(name => !string.IsNullOrEmpty(name)).ToList() ?? new List<string>()
@@ -139,7 +139,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     SectorId = s.SectorID.ToString(),
                     Name = s.Name,
                     Active = s.Active,
-                    CreatedDate = s.StartDate?.ToString("yyyy-MM-dd") ?? "",
+                    CreatedDate = s.StartDate?.ToString("dd-MM-yy") ?? "",
                     Mobile = s.Mobile ?? "",
                     SectorType = s.SectorType,
                     Suppliers = s.SectorSuppliers?.Select(ss => ss.Supplier?.Name).Where(name => !string.IsNullOrEmpty(name)).ToList() ?? new List<string>()
@@ -334,7 +334,7 @@ namespace CobanaEnergy.Project.Controllers.Sector
                     SectorId = s.SectorID.ToString(),
                     Name = s.Name,
                     Active = s.Active,
-                    CreatedDate = s.StartDate?.ToString("yyyy-MM-dd") ?? "",
+                    CreatedDate = s.StartDate?.ToString("dd-MM-yy") ?? "",
                     Mobile = s.Mobile ?? "",
                     SectorType = s.SectorType
                 }).ToList();

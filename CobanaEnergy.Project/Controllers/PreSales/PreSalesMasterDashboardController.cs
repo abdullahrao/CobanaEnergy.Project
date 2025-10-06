@@ -1,6 +1,7 @@
 using CobanaEnergy.Project.Controllers.Base;
 using CobanaEnergy.Project.Extensions;
 using CobanaEnergy.Project.Filters;
+using CobanaEnergy.Project.Helpers;
 using CobanaEnergy.Project.Models;
 using CobanaEnergy.Project.Models.PreSales;
 using CobanaEnergy.Project.Service;
@@ -13,6 +14,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using System.Globalization;
+
 
 namespace CobanaEnergy.Project.Controllers.PreSales
 {
@@ -277,19 +280,6 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                    !searchValue.Contains("*");
         }
 
-        /// <summary>
-        /// Parse date string in dd/MM/yyyy format to DateTime for sorting
-        /// </summary>
-        private DateTime ParseDateForSorting(string dateString)
-        {
-            if (string.IsNullOrWhiteSpace(dateString) || dateString == "N/A")
-                return DateTime.MinValue;
-
-            if (DateTime.TryParseExact(dateString, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateTime result))
-                return result;
-
-            return DateTime.MinValue;
-        }
 
         private async Task<List<PreSalesMasterDashboardRowViewModel>> ProcessCombinedContractsOptimized(List<Models.Electric.ElectricDBModels.CE_ElectricContracts> electricContracts, List<Models.Gas.GasDBModels.CE_GasContracts> gasContracts)
         {
@@ -374,13 +364,13 @@ namespace CobanaEnergy.Project.Controllers.PreSales
             string electricSupplier = suppliers.TryGetValue(electricContract.SupplierId, out string electricSupplierName) ? electricSupplierName : "N/A";
             string gasSupplier = suppliers.TryGetValue(gasContract.SupplierId, out string gasSupplierName) ? gasSupplierName : "N/A";
 
-            // Format dates
-            string electricInputDate = electricContract.InputDate ?? "N/A";
-            string gasInputDate = gasContract.InputDate ?? "N/A";
+            // Format dates for display
+            string electricInputDate = ParserHelper.FormatDateForDisplay(electricContract.InputDate ?? "N/A");
+            string gasInputDate = ParserHelper.FormatDateForDisplay(gasContract.InputDate ?? "N/A");
 
             // Parse dates for sorting (dd/MM/yyyy format)
-            DateTime electricDate = ParseDateForSorting(electricInputDate);
-            DateTime gasDate = ParseDateForSorting(gasInputDate);
+            DateTime electricDate = ParserHelper.ParseDateForSorting(electricContract.InputDate ?? "N/A");
+            DateTime gasDate = ParserHelper.ParseDateForSorting(gasContract.InputDate ?? "N/A");
             DateTime sortableDate = electricDate > gasDate ? electricDate : gasDate;
 
             return new PreSalesMasterDashboardRowViewModel
@@ -414,9 +404,9 @@ namespace CobanaEnergy.Project.Controllers.PreSales
         {
             string agentName = GetAgentNameOptimized(contract.Department, contract.CloserId, contract.BrokerageStaffId, contract.SubIntroducerId, closers, brokerageStaff, introducers);
             string supplierName = suppliers.TryGetValue(contract.SupplierId, out string supplierNameValue) ? supplierNameValue : "N/A";
-            string inputDate = contract.InputDate ?? "N/A";
+            string inputDate = ParserHelper.FormatDateForDisplay(contract.InputDate ?? "N/A");
 
-            DateTime sortableDate = ParseDateForSorting(inputDate);
+            DateTime sortableDate = ParserHelper.ParseDateForSorting(contract.InputDate ?? "N/A");
 
             return new PreSalesMasterDashboardRowViewModel
             {

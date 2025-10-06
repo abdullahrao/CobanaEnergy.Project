@@ -193,18 +193,18 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CampaignDashboard
 
                     var filteredGas = gasData
                         .Where(gc =>
-                            DateTime.TryParse(gc.InputDate, out var inputDate) &&
+                            DateTime.TryParseExact(gc.InputDate, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var inputDate) &&
                             inputDate.Date >= campaign.StartDate.Date &&
                             inputDate.Date <= (campaign.EndDate.Date) &&
-                            DateTime.TryParse(gc.CreatedAt, out var createdAt) &&
+                            DateTime.TryParseExact(gc.CreatedAt, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var createdAt) &&
                             createdAt.Date >= campaign.CreatedAt.Date)
                         .Select(gc => new CampaignDashboardRowViewModel
                         {
                             Id = gc.Id,
                             BusinessName = gc.BusinessName,
                             Number = gc.MPRN,
-                            CreatedAt = DateTime.TryParse(gc.CreatedAt, out var dt)
-                                        ? dt.ToString("dd/MM/yyyy")
+                            CreatedAt = DateTime.TryParseExact(gc.CreatedAt, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var dt)
+                                        ? dt.ToString("dd-MM-yy")
                                         : "N/A",
                             Bonus = campaign.Bonus ?? "0"
                         }).ToList();
@@ -222,7 +222,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CampaignDashboard
                             BusinessName = ec.BusinessName,
                             Number = ec.MPAN,
                             CreatedAt = DateTime.TryParse(ec.CreatedAt, out var dt)
-                                        ? dt.ToString("dd/MM/yyyy")
+                                        ? dt.ToString("dd-MM-yy")
                                         : "N/A",
                             Bonus = campaign.Bonus ?? "0"
                         }).ToList();

@@ -9,6 +9,7 @@ using Logic.ResponseModel.Helper;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -299,7 +300,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     if (electricContract != null)
                     {
                         model.ContractNotes = electricContract.ContractNotes ?? "";
-                        model.PreSalesFollowUpDate = electricContract.PreSalesFollowUpDate?.ToString("yyyy-MM-dd") ?? "";
+                        model.PreSalesFollowUpDate = electricContract.PreSalesFollowUpDate?.ToString("dd-MM-yy") ?? "";
 
                         //Check if it is also a dual contract
                         var gasContract = await db.CE_GasContracts.Where(c => c.EId == eId).FirstOrDefaultAsync();
@@ -317,7 +318,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     if (gasContract != null)
                     {
                         model.ContractNotes = gasContract.ContractNotes ?? "";
-                        model.PreSalesFollowUpDate = gasContract.PreSalesFollowUpDate?.ToString("yyyy-MM-dd") ?? "";
+                        model.PreSalesFollowUpDate = gasContract.PreSalesFollowUpDate?.ToString("dd-MM-yy") ?? "";
 
                         //Check if it is also a dual contract
                         var electricalContract = await db.CE_ElectricContracts.Where(c => c.EId == eId).FirstOrDefaultAsync();

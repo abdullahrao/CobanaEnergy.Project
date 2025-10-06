@@ -127,29 +127,25 @@
                 {
                     data: 'InputDate',
                     render: function (d) {
-                        const dateObj = parseDateString(d);
-                        return dateObj ? dateObj.toLocaleDateString() : "-";
+                        return d && d !== "N/A" ? d : "-";
                     }
                 },
                 {
                     data: 'StartDate',
                     render: function (d) {
-                        const dateObj = parseDateString(d);
-                        return dateObj ? dateObj.toLocaleDateString() : "-";
+                        return d && d !== "N/A" ? d : "-";
                     }
                 },
                 {
                     data: 'CED',
                     render: function (d) {
-                        const dateObj = parseDateString(d);
-                        return dateObj ? dateObj.toLocaleDateString() : "-";
+                        return d && d !== "N/A" ? d : "-";
                     }
                 },
                 {
                     data: 'COTDate',
                     render: function (d) {
-                        const dateObj = parseDateString(d);
-                        return dateObj ? dateObj.toLocaleDateString() : "-";
+                        return d && d !== "N/A" ? d : "-";
                     }
                 },
                 { data: 'ContractStatus' },
@@ -178,27 +174,6 @@
         });
     }
 
-    function parseDateString(dateStr) {
-        if (!dateStr || dateStr.trim() === "") return null;
-
-        // yyyy-MM-dd
-        const isoMatch = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-        if (isoMatch) {
-            const [_, y, m, d] = isoMatch;
-            return new Date(y, m - 1, d);
-        }
-
-        // dd/MM/yyyy
-        const ukMatch = dateStr.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-        if (ukMatch) {
-            const [_, d, m, y] = ukMatch;
-            return new Date(y, m - 1, d);
-        }
-
-        // fallback → try browser parser
-        const fallback = new Date(dateStr);
-        return isNaN(fallback.getTime()) ? null : fallback;
-    }
 
     $(function () {
         populateDropdown("department", DropdownOptions.department, $('#department').data('current'));

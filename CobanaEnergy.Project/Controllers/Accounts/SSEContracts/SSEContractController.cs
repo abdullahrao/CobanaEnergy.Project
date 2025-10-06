@@ -123,7 +123,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.SSEContracts
                                 int.TryParse(electricContract.Duration, out int durationYears))
                             {
                                 var cedDate = parsedStartDate.AddYears(durationYears).AddDays(-1);
-                                model.CED = cedDate.ToString("yyyy-MM-dd");
+                                model.CED = cedDate.ToString("dd-MM-yy");
                             }
                         }
                     }
@@ -867,8 +867,8 @@ namespace CobanaEnergy.Project.Controllers.Accounts.SSEContracts
                     x.EacValue,
                     x.FinalEac,
                     x.InvoiceNo,
-                    InvoiceDate = DateTime.TryParse(x.InvoiceDate, out var dt) ? dt.ToString("dd-MM-yyyy") : x.InvoiceDate,
-                    PaymentDate = DateTime.TryParse(x.PaymentDate, out var dtp) ? dtp.ToString("dd-MM-yyyy") : x.PaymentDate,
+                    InvoiceDate = DateTime.TryParseExact(x.InvoiceDate, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var dt) ? dt.ToString("dd/MM/yyyy") : x.InvoiceDate,
+                    PaymentDate = DateTime.TryParseExact(x.PaymentDate, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var dtp) ? dtp.ToString("dd/MM/yyyy") : x.PaymentDate,
                     x.InvoiceAmount,
                     MPAN = mpan,
                     MPRN = mprn,

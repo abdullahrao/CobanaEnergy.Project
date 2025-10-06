@@ -1,6 +1,7 @@
 ﻿using CobanaEnergy.Project.Common;
 using CobanaEnergy.Project.Controllers.Base;
 using CobanaEnergy.Project.Filters;
+using CobanaEnergy.Project.Helpers;
 using CobanaEnergy.Project.Models;
 using CobanaEnergy.Project.Models.Accounts.MasterDashboard.AccountMasterDashboard;
 using System;
@@ -8,6 +9,7 @@ using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using System.Globalization;
 
 namespace CobanaEnergy.Project.Controllers.Accounts.MasterDashboard
 {
@@ -341,10 +343,10 @@ namespace CobanaEnergy.Project.Controllers.Accounts.MasterDashboard
                     MPXN = x.MPXN ?? "-",
                     InputEAC = string.IsNullOrEmpty(x.InputEAC) ? "-" : x.InputEAC,
                     SupplierEAC = latestEac?.SupplierEac ?? "-",
-                    InputDate = x.InputDate,
-                    StartDate = x.StartDate,
-                    CED = cr?.CED,
-                    COTDate = cr?.CED_COT,
+                    InputDate = ParserHelper.FormatDateForDisplay(x.InputDate),
+                    StartDate = ParserHelper.FormatDateForDisplay(x.StartDate),
+                    CED = ParserHelper.FormatDateForDisplay(cr?.CED),
+                    COTDate = ParserHelper.FormatDateForDisplay(cr?.CED_COT),
                     ContractStatus = status?.ContractStatus ?? "-",
                     PaymentStatus = status?.PaymentStatus ?? "-",
                     CommissionForecast = metric?.InitialCommissionForecast,
@@ -367,7 +369,8 @@ namespace CobanaEnergy.Project.Controllers.Accounts.MasterDashboard
             });
         }
 
-
     
+
+
     }
 }
