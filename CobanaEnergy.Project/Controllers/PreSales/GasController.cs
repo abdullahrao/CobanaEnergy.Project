@@ -15,6 +15,7 @@ using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -722,11 +723,11 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     .ToListAsync();
 
                 var ordered = logs
-                   .OrderByDescending(l => DateTime.TryParse(l.ActionDate, out var dt) ? dt : DateTime.MinValue)
+                   .OrderByDescending(l => ParserHelper.ParseDateForSorting(l.ActionDate))
                    .Select(l => new
                    {
                        l.Username,
-                       l.ActionDate,
+                       ActionDate = ParserHelper.FormatDateForDisplay(l.ActionDate),
                        l.PreSalesStatusType,
                        l.Message
                    }).ToList();

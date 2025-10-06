@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -1013,7 +1014,15 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     }
                 }
 
-                var sorted = finalLogs.OrderByDescending(l => DateTime.TryParse(l.ActionDate, out var dt) ? dt : DateTime.MinValue).ToList();
+                var sorted = finalLogs.OrderByDescending(l => ParserHelper.ParseDateForSorting(l.ActionDate))
+                    .Select(l => new LogEntry
+                    {
+                        EId = l.EId,
+                        Username = l.Username,
+                        ActionDate = ParserHelper.FormatDateForDisplay(l.ActionDate),
+                        PreSalesStatusType = l.PreSalesStatusType,
+                        Message = l.Message
+                    }).ToList();
                 return JsonResponse.Ok(sorted);
             }
             catch (Exception ex)

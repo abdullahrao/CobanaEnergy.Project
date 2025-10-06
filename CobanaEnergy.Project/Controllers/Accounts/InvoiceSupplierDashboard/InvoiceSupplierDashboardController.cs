@@ -665,7 +665,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                         MPRN = null,
                         InputDate = ParserHelper.FormatDateForDisplay(x.ec.InputDate),
                         BusinessName = x.ec.BusinessName,
-                        StartDate = x.ec.InitialStartDate,
+                        StartDate = ParserHelper.FormatDateForDisplay(x.ec.InitialStartDate),
                         Duration = x.ec.Duration,
                         Uplift = uplift,
                         SupplierCommsType = supplierCommsType,

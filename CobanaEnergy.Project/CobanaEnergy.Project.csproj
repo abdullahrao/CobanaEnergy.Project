@@ -394,6 +394,7 @@
     <Compile Include="Controllers\PreSales\DualController.cs" />
     <Compile Include="Controllers\PreSales\PreSalesMasterDashboardController.cs" />
     <Compile Include="Filters\AutofacConfig.cs" />
+    <Compile Include="Helpers\ParserHelper.cs" />
     <Compile Include="Migrations\202506260826318_InitialMapping.cs" />
     <Compile Include="Migrations\202506260826318_InitialMapping.Designer.cs">
       <DependentUpon>202506260826318_InitialMapping.cs</DependentUpon>
