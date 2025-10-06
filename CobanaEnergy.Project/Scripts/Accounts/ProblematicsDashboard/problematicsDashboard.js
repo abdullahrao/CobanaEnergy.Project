@@ -16,10 +16,19 @@
         buttons: [{
             extend: 'excelHtml5',
             text: 'Export',
-            title: 'Problematics',
+            title: '',
             filename: function () {
+                let filename = 'Problematics';
+                
+                const supplierName = $('#supplierFilter option:selected').text();
+                if (supplierName && supplierName !== 'All Suppliers') {
+                    filename += `_${supplierName.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                }
+                
                 const today = new Date();
-                return 'Problematics_' + today.toISOString().split('T')[0];
+                filename += `_${today.toISOString().split('T')[0]}`;
+                
+                return filename;
             },
             exportOptions: {
                 columns: ':visible:not(:first-child)'

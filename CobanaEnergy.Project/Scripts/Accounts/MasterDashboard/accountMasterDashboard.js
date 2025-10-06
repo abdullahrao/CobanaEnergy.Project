@@ -3,8 +3,6 @@
     let allFollowUpDates = [];
     let selectedDate = "";
 
-
-
     function dataTableInit() {
         table = $('#accountMasterTable').DataTable({
             serverSide: true,
@@ -44,7 +42,23 @@
                     extend: 'excelHtml5',
                     text: '<i class="fas fa-file-excel me-2"></i> Export Excel',
                     className: 'btn btn-success btn-sm dt-btn',
-                    title: 'AccountMaster',
+                    title: '',
+                    filename: function() {
+                        let filename = 'AccountMasterDashboard';
+                        
+                        const contractStatus = $('#contractstatus').val();
+                        const paymentStatus = $('#paymentStatusAcc').val();
+                        
+                        if (contractStatus) {
+                            filename += `_${contractStatus}`;
+                        }
+                        
+                        if (paymentStatus) {
+                            filename += `_${paymentStatus}`;
+                        }
+                        
+                        return filename;
+                    },
                     exportOptions: {
                         columns: ':visible:not(:first-child)' 
                     }
@@ -56,14 +70,39 @@
                     title: 'AccountMaster',
                     orientation: 'landscape',
                     pageSize: 'A3',
+                    filename: function() {
+                        let filename = 'AccountMasterDashboard';
+                        
+                        const contractStatus = $('#contractstatus').val();
+                        const paymentStatus = $('#paymentStatusAcc').val();
+                        
+                        if (contractStatus) {
+                            filename += `_${contractStatus}`;
+                        }
+                        
+                        if (paymentStatus) {
+                            filename += `_${paymentStatus}`;
+                        }
+                        
+                        return filename;
+                    },
                     exportOptions: {
                         columns: ':visible:not(:first-child)'
                     },
                     customize: function (doc) {
                         doc.defaultStyle.fontSize = 5;
                         doc.styles.tableHeader.fontSize = 6;
-                        doc.content[1].table.widths =
-                            Array(doc.content[1].table.body[0].length + 1).join('*').split('');
+                        
+                        // More robust table width setting
+                        if (doc.content && doc.content.length > 1) {
+                            for (let i = 0; i < doc.content.length; i++) {
+                                if (doc.content[i].table && doc.content[i].table.body && doc.content[i].table.body.length > 0) {
+                                    const colCount = doc.content[i].table.body[0].length;
+                                    doc.content[i].table.widths = Array(colCount).fill('*');
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
             ],
