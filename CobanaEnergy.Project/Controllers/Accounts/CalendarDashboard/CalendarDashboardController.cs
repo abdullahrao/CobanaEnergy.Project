@@ -13,6 +13,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using CobanaEnergy.Project.Helpers;
 
 namespace CobanaEnergy.Project.Controllers.Accounts.CalendarDashboard
 {
@@ -98,7 +99,8 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CalendarDashboard
                             contracts.Add(new CalendarRowViewModel
                             {
                                 EId = electricContract.EId,
-                                InputDate = electricContract.InputDate,
+                                InputDate = ParserHelper.FormatDateForDisplay(electricContract.InputDate),
+                                SortableDate = ParserHelper.ParseDateForSorting(electricContract.InputDate),
                                 PaymentStatus = status?.PaymentStatus ?? "N/A",
                                 ContractStatus = status?.ContractStatus ?? "N/A",
                                 PreSalesNotes = electricContract.ContractNotes ?? "N/A",
@@ -120,7 +122,8 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CalendarDashboard
                             contracts.Add(new CalendarRowViewModel
                             {
                                 EId = gasContract.EId,
-                                InputDate = gasContract.InputDate,
+                                InputDate = ParserHelper.FormatDateForDisplay(gasContract.InputDate),
+                                SortableDate = ParserHelper.ParseDateForSorting(gasContract.InputDate),
                                 PaymentStatus = status?.PaymentStatus ?? "N/A",
                                 ContractStatus = status?.ContractStatus ?? "N/A",
                                 PreSalesNotes = gasContract.ContractNotes ?? "N/A",
@@ -135,7 +138,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CalendarDashboard
                 var columnMappings = GetColumnMappings();
                 var columnNames = GetColumnNames(); // Get column names in correct order
                 var queryableContracts = contracts.AsQueryable();
-                var sortedContracts = queryableContracts.ApplyDataTableSorting(dataTableRequest, columnMappings, columnNames, "InputDate", true);
+                var sortedContracts = queryableContracts.ApplyDataTableSorting(dataTableRequest, columnMappings, columnNames, "SortableDate", true, false);
                 
                 var paginatedContracts = sortedContracts
                     .Skip(dataTableRequest.Start)
@@ -161,7 +164,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CalendarDashboard
         {
             return new Dictionary<string, Func<IQueryable<CalendarRowViewModel>, bool, IQueryable<CalendarRowViewModel>>>
             {
-                ["InputDate"] = (query, ascending) => ascending ? query.OrderBy(x => x.InputDate) : query.OrderByDescending(x => x.InputDate),
+                ["InputDate"] = (query, ascending) => ascending ? query.OrderBy(x => x.SortableDate) : query.OrderByDescending(x => x.SortableDate),
                 ["PaymentStatus"] = (query, ascending) => ascending ? query.OrderBy(x => x.PaymentStatus) : query.OrderByDescending(x => x.PaymentStatus),
                 ["ContractStatus"] = (query, ascending) => ascending ? query.OrderBy(x => x.ContractStatus) : query.OrderByDescending(x => x.ContractStatus),
                 ["PreSalesNotes"] = (query, ascending) => ascending ? query.OrderBy(x => x.PreSalesNotes) : query.OrderByDescending(x => x.PreSalesNotes),

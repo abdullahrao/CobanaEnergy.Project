@@ -97,7 +97,8 @@
 
     function populateDropdown(id, values, currentValue) {
         const $select = $('#' + id);
-        $select.empty().append(`<option value="">Select ${id}</option>`);
+        const displayName = id.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()).trim();
+        $select.empty().append(`<option value="">Select ${displayName}</option>`);
         values.forEach(v => {
             const selected = v === currentValue ? 'selected' : '';
             $select.append(`<option value="${v}" ${selected}>${v}</option>`);

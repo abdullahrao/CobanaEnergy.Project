@@ -1,6 +1,7 @@
 ﻿using CobanaEnergy.Project.Common;
 using CobanaEnergy.Project.Controllers.Base;
 using CobanaEnergy.Project.Filters;
+using CobanaEnergy.Project.Helpers;
 using CobanaEnergy.Project.Models;
 using CobanaEnergy.Project.Models.Accounts.AwaitingPaymentsDashboard;
 using CobanaEnergy.Project.Models.Accounts.InvoiceSupplierDashboard;
@@ -13,6 +14,7 @@ using Logic.ResponseModel.Helper;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -129,11 +131,9 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
                     MPAN = x.Contract.MPAN,
                     MPRN = null,
                     InputEAC = x.Contract.InputEAC,
-                    InputDate = x.Contract.InputDate,
+                    InputDate = ParserHelper.FormatDateForDisplay(x.Contract.InputDate),
                     ContractType = "Electric",
-                    StartDate = DateTime.TryParse(x.Reconciliation?.StartDate, out var startDt)
-                                ? startDt.ToString("dd/MM/yyyy")
-                                : "N/A",
+                    StartDate = ParserHelper.FormatDateForDisplay(x.Reconciliation?.StartDate),
                     Duration = x.Contract.Duration,
                     PaymentStatus = x.Status.PaymentStatus ?? "N/A",
                     InitialCommissionForecast = x.Reconciliation != null
@@ -152,11 +152,9 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
                     MPAN = null,
                     MPRN = x.Contract.MPRN,
                     InputEAC = x.Contract.InputEAC,
-                    InputDate = x.Contract.InputDate,
+                    InputDate = ParserHelper.FormatDateForDisplay(x.Contract.InputDate),
                     ContractType = "Gas",
-                    StartDate = DateTime.TryParse(x.Reconciliation?.StartDate, out var startDt)
-                                ? startDt.ToString("dd/MM/yyyy")
-                                : "N/A",
+                    StartDate = ParserHelper.FormatDateForDisplay(x.Reconciliation?.StartDate),
                     Duration = x.Contract.Duration,
                     PaymentStatus = x.Status.PaymentStatus ?? "N/A",
                     InitialCommissionForecast = x.Reconciliation != null
@@ -362,5 +360,6 @@ namespace CobanaEnergy.Project.Controllers.Accounts.AwaitingPaymentsDashboard
             }
             return startDate.HasValue && now >= startDate.Value.AddDays(waitDays);
         }
+
     }
 }

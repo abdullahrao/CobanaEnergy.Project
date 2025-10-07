@@ -1,5 +1,6 @@
 ﻿using CobanaEnergy.Project.Controllers.Base;
 using CobanaEnergy.Project.Filters;
+using CobanaEnergy.Project.Helpers;
 using CobanaEnergy.Project.Models;
 using CobanaEnergy.Project.Models.Accounts.ReconciliationsDashboard;
 using Logic;
@@ -7,6 +8,7 @@ using Logic.ResponseModel.Helper;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -122,14 +124,12 @@ namespace CobanaEnergy.Project.Controllers.Accounts.ReconciliationsDashboard
                     MPAN = x.Contract.MPAN,
                     MPRN = null,
                     InputEAC = x.Contract.InputEAC,
-                    InputDate = x.Contract.InputDate,
-                    StartDate = DateTime.TryParse(x.Reconciliation?.StartDate, out var startDt)
-                                ? startDt.ToString("dd/MM/yyyy")
-                                : "N/A",
+                    InputDate = ParserHelper.FormatDateForDisplay(x.Contract.InputDate),
+                    StartDate = ParserHelper.FormatDateForDisplay(x.Reconciliation?.StartDate),
                     Duration = x.Contract.Duration,
                     PaymentStatus = x.Status.PaymentStatus ?? "N/A",
-                    CED = x.Reconciliation.CED,
-                    CEDCOT = x.Reconciliation.CED_COT,
+                    CED = ParserHelper.FormatDateForDisplay(x.Reconciliation.CED),
+                    CEDCOT = ParserHelper.FormatDateForDisplay(x.Reconciliation.CED_COT),
                     CobanaFinalReconciliation = x.Reconciliation.CobanaFinalReconciliation
                 }).ToList();
 
@@ -140,14 +140,12 @@ namespace CobanaEnergy.Project.Controllers.Accounts.ReconciliationsDashboard
                     MPAN = null,
                     MPRN = x.Contract.MPRN,
                     InputEAC = x.Contract.InputEAC,
-                    InputDate = x.Contract.InputDate,
-                    StartDate = DateTime.TryParse(x.Reconciliation?.StartDate, out var startDt)
-                                ? startDt.ToString("dd/MM/yyyy")
-                                : "N/A",
+                    InputDate = ParserHelper.FormatDateForDisplay(x.Contract.InputDate),
+                    StartDate = ParserHelper.FormatDateForDisplay(x.Reconciliation?.StartDate),
                     Duration = x.Contract.Duration,
                     PaymentStatus = x.Status.PaymentStatus ?? "N/A",
-                    CED = x.Reconciliation.CED,
-                    CEDCOT = x.Reconciliation.CED_COT,
+                    CED = ParserHelper.FormatDateForDisplay(x.Reconciliation.CED),
+                    CEDCOT = ParserHelper.FormatDateForDisplay(x.Reconciliation.CED_COT),
                     CobanaFinalReconciliation = x.Reconciliation.CobanaFinalReconciliation,
                 }));
 
@@ -163,5 +161,6 @@ namespace CobanaEnergy.Project.Controllers.Accounts.ReconciliationsDashboard
                 return JsonResponse.Fail("Error fetching reconciliation contracts.");
             }
         }
+
     }
 }

@@ -45,7 +45,7 @@ function loadContractTable() {
                                 <td>${r.BusinessName}</td>
                                 <td>${r.CustomerName}</td>
                                 <td>${r.InputDate ?? '-'}</td>
-                                <td style="display:none">${r.SortableDate ?? ''}</td>
+                                <td style="display:none">${r.SortableDate ?? '1900-01-01'}</td>
                                 <td>${r.PreSalesStatus ?? '-'}</td>
                                 <td>
                                       <span class="truncate-cell">
@@ -62,7 +62,8 @@ function loadContractTable() {
             ordering: true,
             order: [[7, 'desc']],
             columnDefs: [
-                { targets: 7, visible: false } 
+                { targets: 6, orderData: [7] }, // Sort InputDate column using SortableDate data
+                { targets: 7, visible: false, orderable: true } 
             ],
             info: true,
             responsive: true,

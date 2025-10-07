@@ -1,5 +1,6 @@
 ﻿using CobanaEnergy.Project.Common;
 using CobanaEnergy.Project.Controllers.Base;
+using CobanaEnergy.Project.Helpers;
 using CobanaEnergy.Project.Models;
 using CobanaEnergy.Project.Models.Accounts.InvoiceSupplierDashboard;
 using CobanaEnergy.Project.Models.InvoiceSupplierDashboard;
@@ -662,9 +663,9 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                         EId = x.ec.EId,
                         MPAN = x.ec.MPAN,
                         MPRN = null,
-                        InputDate = Convert.ToDateTime(x.ec.InputDate).ToString("yyyy-MM-dd"),
+                        InputDate = ParserHelper.FormatDateForDisplay(x.ec.InputDate),
                         BusinessName = x.ec.BusinessName,
-                        StartDate = x.ec.InitialStartDate,
+                        StartDate = ParserHelper.FormatDateForDisplay(x.ec.InitialStartDate),
                         Duration = x.ec.Duration,
                         Uplift = uplift,
                         SupplierCommsType = supplierCommsType,
@@ -699,7 +700,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                         EId = x.gc.EId,
                         MPAN = null,
                         MPRN = x.gc.MPRN,
-                        InputDate = Convert.ToDateTime(x.gc.InputDate).ToString("yyyy-MM-dd"),
+                        InputDate = Convert.ToDateTime(x.gc.InputDate).ToString("dd-MM-yy"),
                         BusinessName = x.gc.BusinessName,
                         StartDate = x.gc.InitialStartDate,
                         Duration = x.gc.Duration,

@@ -1,5 +1,6 @@
 ﻿using CobanaEnergy.Project.Common;
 using CobanaEnergy.Project.Controllers.Base;
+using CobanaEnergy.Project.Helpers;
 using CobanaEnergy.Project.Filters;
 using CobanaEnergy.Project.Models;
 using CobanaEnergy.Project.Models.Accounts;
@@ -818,7 +819,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGLiteContracts
                         x.InvoiceAmount,
                         MPAN = mpan,
                         MPRN = mprn,
-                        Timestamp = x.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")
+                        Timestamp = x.CreatedAt.ToString("dd-MM-yy HH:mm:ss")
                     }).ToList();
 
                     transaction.Commit();
@@ -871,12 +872,12 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGLiteContracts
                     x.EacValue,
                     x.FinalEac,
                     x.InvoiceNo,
-                    InvoiceDate = DateTime.TryParse(x.InvoiceDate, out var dt) ? dt.ToString("dd-MM-yyyy") : x.InvoiceDate,
-                    PaymentDate = DateTime.TryParse(x.PaymentDate, out var dtp) ? dtp.ToString("dd-MM-yyyy") : x.PaymentDate,
+                    InvoiceDate = ParserHelper.FormatDateForDisplay(x.InvoiceDate),
+                    PaymentDate = ParserHelper.FormatDateForDisplay(x.PaymentDate),
                     x.InvoiceAmount,
                     MPAN = mpan,
                     MPRN = mprn,
-                    Timestamp = x.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")
+                    Timestamp = x.CreatedAt.ToString("dd-MM-yy HH:mm:ss")
                 }).ToList();
 
                 return JsonResponse.Ok(formattedLogs);

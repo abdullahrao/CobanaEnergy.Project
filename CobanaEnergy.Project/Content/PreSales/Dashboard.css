@@ -280,7 +280,7 @@
         font-weight: 500;
         color: #333;
         margin-bottom: 6px;
-        word-break: break-word;
+        white-space: normal;
     }
 
     /* Badge container */
@@ -297,10 +297,36 @@
         font-size: 0.75rem;
         padding: 4px 8px;
         border-radius: 6px;
-        white-space: nowrap;
+        white-space: normal;
+        word-break: break-word;
+        overflow-wrap: break-word;
+        display: inline-block;
+        max-width: 100%;
     }
 
 
 .supplier-status {
     text-align: left !important;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Make badge display on next line */
+.supplier-status .badge {
+    display: block;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    margin-top: 4px;
+    padding: 4px 8px;
+    margin-left: 0;
+    margin-right: 0;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-family: 'Roboto Mono', monospace;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    text-align: left;
 }

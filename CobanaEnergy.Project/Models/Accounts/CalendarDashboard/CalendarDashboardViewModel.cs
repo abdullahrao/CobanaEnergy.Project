@@ -14,6 +14,7 @@ namespace CobanaEnergy.Project.Models.Accounts.CalendarDashboard
     {
         public string EId { get; set; }      
         public string InputDate { get; set; }
+        public DateTime SortableDate { get; set; }  // For backend sorting
         public string PaymentStatus { get; set; }
         public string ContractStatus { get; set; }
         public string PreSalesNotes { get; set; }

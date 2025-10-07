@@ -204,7 +204,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CampaignDashboard
                             BusinessName = gc.BusinessName,
                             Number = gc.MPRN,
                             CreatedAt = DateTime.TryParse(gc.CreatedAt, out var dt)
-                                        ? dt.ToString("dd/MM/yyyy")
+                                        ? dt.ToString("dd-MM-yy")
                                         : "N/A",
                             Bonus = campaign.Bonus ?? "0"
                         }).ToList();
@@ -222,7 +222,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CampaignDashboard
                             BusinessName = ec.BusinessName,
                             Number = ec.MPAN,
                             CreatedAt = DateTime.TryParse(ec.CreatedAt, out var dt)
-                                        ? dt.ToString("dd/MM/yyyy")
+                                        ? dt.ToString("dd-MM-yy")
                                         : "N/A",
                             Bonus = campaign.Bonus ?? "0"
                         }).ToList();

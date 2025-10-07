@@ -1,5 +1,6 @@
 ﻿using CobanaEnergy.Project.Controllers.Base;
 using CobanaEnergy.Project.Filters;
+using CobanaEnergy.Project.Helpers;
 using CobanaEnergy.Project.Models;
 using CobanaEnergy.Project.Models.Accounts.ClawbacksDashboard;
 using Logic;
@@ -7,6 +8,7 @@ using Logic.ResponseModel.Helper;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -119,14 +121,12 @@ namespace CobanaEnergy.Project.Controllers.Accounts.ClawbacksDashboard
                     MPAN = x.Contract.MPAN,
                     MPRN = null,
                     InputEAC = x.Contract.InputEAC,
-                    InputDate = x.Contract.InputDate,
-                    StartDate = DateTime.TryParse(x.Reconciliation?.StartDate, out var startDt)
-                                ? startDt.ToString("dd/MM/yyyy")
-                                : "N/A",
+                    InputDate = ParserHelper.FormatDateForDisplay(x.Contract.InputDate),
+                    StartDate = ParserHelper.FormatDateForDisplay(x.Reconciliation?.StartDate),
                     Duration = x.Contract.Duration,
                     PaymentStatus = x.Status.PaymentStatus ?? "N/A",
-                    CED = x.Reconciliation?.CED ?? "N/A",
-                    CEDCOT = x.Reconciliation?.CED_COT ?? "N/A",
+                    CED = ParserHelper.FormatDateForDisplay(x.Reconciliation?.CED),
+                    CEDCOT = ParserHelper.FormatDateForDisplay(x.Reconciliation?.CED_COT),
                     CobanaFinalReconciliation = x.Reconciliation?.CobanaFinalReconciliation ?? "N/A"
                 }).ToList();
 
@@ -137,14 +137,12 @@ namespace CobanaEnergy.Project.Controllers.Accounts.ClawbacksDashboard
                     MPAN = null,
                     MPRN = x.Contract.MPRN,
                     InputEAC = x.Contract.InputEAC,
-                    InputDate = x.Contract.InputDate,
-                    StartDate = DateTime.TryParse(x.Reconciliation?.StartDate, out var startDt)
-                                ? startDt.ToString("dd/MM/yyyy")
-                                : "N/A",
+                    InputDate = ParserHelper.FormatDateForDisplay(x.Contract.InputDate),
+                    StartDate = ParserHelper.FormatDateForDisplay(x.Reconciliation?.StartDate),
                     Duration = x.Contract.Duration,
                     PaymentStatus = x.Status.PaymentStatus ?? "N/A",
-                    CED = x.Reconciliation?.CED ?? "N/A",
-                    CEDCOT = x.Reconciliation?.CED_COT ?? "N/A",
+                    CED = ParserHelper.FormatDateForDisplay(x.Reconciliation?.CED),
+                    CEDCOT = ParserHelper.FormatDateForDisplay(x.Reconciliation?.CED_COT),
                     CobanaFinalReconciliation = x.Reconciliation?.CobanaFinalReconciliation ?? "N/A"
                 }));
 
@@ -159,5 +157,6 @@ namespace CobanaEnergy.Project.Controllers.Accounts.ClawbacksDashboard
                 return JsonResponse.Fail("Error fetching clawback contracts.");
             }
         }
+
     }
 }
