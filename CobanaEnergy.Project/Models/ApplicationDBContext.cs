@@ -78,6 +78,7 @@ namespace CobanaEnergy.Project.Models
         public DbSet<CE_SectorSupplier> CE_SectorSupplier { get; set; }
         public DbSet<CE_PostSaleObjection> CE_PostSaleObjections { get; set; }
         public DbSet<CE_EmailTemplateLookup> CE_EmailTemplateLookups { get; set; }
+        public DbSet<CE_PostSalesLogs> CE_PostSalesLogs { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

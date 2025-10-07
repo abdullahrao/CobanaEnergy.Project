@@ -306,3 +306,26 @@ div.dt-buttons {
 }
 
 
+
+.status-count-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background-color: #fff;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    min-width: fit-content;
+}
+
+
+.status-count {
+    font-weight: bold;
+    font-size: 16px;
+    background-color: #e9ecef;
+    padding: 4px 8px;
+    border-radius: 4px;
+    min-width: 30px;
+    text-align: center;
+}

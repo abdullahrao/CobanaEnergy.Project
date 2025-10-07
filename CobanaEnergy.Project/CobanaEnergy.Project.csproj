@@ -473,6 +473,10 @@
     <Compile Include="Migrations\202510030932353_Email-Template-86c5md48r.Designer.cs">
       <DependentUpon>202510030932353_Email-Template-86c5md48r.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202510071340314_PostSales-Logs-86c5md48r.cs" />
+    <Compile Include="Migrations\202510071340314_PostSales-Logs-86c5md48r.Designer.cs">
+      <DependentUpon>202510071340314_PostSales-Logs-86c5md48r.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\Accounts\AwaitingPaymentsDashboard\AwaitingPaymentsDashboard.cs" />
     <Compile Include="Models\Accounts\CalendarDashboard\CalendarDashboardViewModel.cs" />
     <Compile Include="Models\Accounts\ClawbacksDashboard\ClawbacksDashboardViewModel.cs" />
@@ -541,6 +545,7 @@
     <Compile Include="Models\Dual\DualContractViewModel.cs" />
     <Compile Include="Models\EmailTemplateLookup\CE_EmailTemplateLookup.cs" />
     <Compile Include="Models\PostSales\Entities\CE_PostSaleObjection.cs" />
+    <Compile Include="Models\PostSales\Entities\CE_PostSalesLogs.cs" />
     <Compile Include="Models\PostSales\StatusDashboard\StatusQueryParams.cs" />
     <Compile Include="Models\PostSales\StatusDashboard\StatusDashboardViewModel.cs" />
     <Compile Include="Models\PreSales\PreSalesCalendarRowViewModel.cs" />
@@ -773,6 +778,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202510030932353_Email-Template-86c5md48r.resx">
       <DependentUpon>202510030932353_Email-Template-86c5md48r.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202510071340314_PostSales-Logs-86c5md48r.resx">
+      <DependentUpon>202510071340314_PostSales-Logs-86c5md48r.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

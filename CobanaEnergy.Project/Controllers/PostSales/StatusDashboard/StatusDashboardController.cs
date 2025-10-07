@@ -132,13 +132,13 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
             var crs = await _db.CE_CommissionAndReconciliation.Where(c => eIds.Contains(c.EId)).ToListAsync();
             var statuses = await _db.CE_ContractStatuses
                 .Where(s => eIds.Contains(s.EId))
-                .GroupBy(s => s.EId)
+                .GroupBy(s => new { s.EId, s.Type })
                 .Select(g => g.OrderByDescending(x => x.ModifyDate).FirstOrDefault())
                 .ToListAsync();
 
             var postSaleObj = await _db.CE_PostSaleObjections
                 .Where(s => eIds.Contains(s.EId))
-                .GroupBy(s => s.EId)
+                .GroupBy(s => new { s.EId, s.ContractType })
                 .Select(g => g.OrderByDescending(x => x.ModifyDate).FirstOrDefault())
                 .ToListAsync();
 
@@ -189,7 +189,8 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
                 draw = q.Draw,
                 recordsTotal = total,
                 recordsFiltered = total,
-                data = rows
+                data = rows,
+                contractCount = total
             });
         }
 
@@ -221,6 +222,9 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
                 // 5. Objection (insert or update + increment)
                 updated |= await UpsertObjection(dto);
 
+                // 6. Always insert StatusDashboardLogs (new log entry)
+                updated |= InsertStatusDashboardLog(dto, User.Identity?.Name ?? "System");
+
                 if (updated)
                 {
                     await _db.SaveChangesAsync();
@@ -246,7 +250,6 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
 
             return Json(new List<string>(), JsonRequestBehavior.AllowGet);
         }
-
 
 
         #region [Helper Method]
@@ -349,6 +352,9 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
 
         private async Task<bool> UpsertObjection(UpdatePostSalesFieldDto dto)
         {
+            if (dto.ObjectionDate == null && string.IsNullOrWhiteSpace(dto.QueryType))
+                return false;
+
             var objection = await _db.CE_PostSaleObjections
                 .FirstOrDefaultAsync(o => o.EId == dto.EId && o.ContractType == dto.ContractType);
 
@@ -361,9 +367,11 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
                     QueryType = dto.QueryType,
                     ObjectionDate = dto.ObjectionDate,
                     ObjectionCount = 1,
+                    CreatedBy = User.Identity?.Name ?? "System",
                     CreatedDate = DateTime.Now,
                     ModifyDate = DateTime.Now
                 };
+
                 _db.CE_PostSaleObjections.Add(objection);
                 return true;
             }
@@ -372,10 +380,34 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
             objection.QueryType = dto.QueryType;
             objection.ObjectionCount += 1;
             objection.ModifyDate = DateTime.Now;
+            objection.ModifyBy = User.Identity?.Name ?? "System";
 
             return true;
         }
 
+        private bool InsertStatusDashboardLog(UpdatePostSalesFieldDto dto, string userName)
+        {
+            if (dto == null || string.IsNullOrWhiteSpace(dto.EId))
+                return false;
+
+            var log = new CE_PostSalesLogs
+            {
+                EId = dto.EId,
+                ContractType = dto.ContractType,
+                ContractStatus = dto.ContractStatus,
+                CSD = dto.StartDate,
+                CED = dto.CED,
+                COT = dto.COTDate,
+                ReAppliedDate = dto.ReAppliedDate,
+                ReAppliedCount = 1,
+                ObjectionDate = dto.ObjectionDate,
+                CreatedBy = userName,
+                CreatedDate = DateTime.Now
+            };
+
+            _db.CE_PostSalesLogs.Add(log);
+            return true;
+        }
 
         // GET POST SALES ROW
 
@@ -537,9 +569,9 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
 
             foreach (var x in page)
             {
-                var st = statuses.FirstOrDefault(s => s.EId == x.EId);
+                var st = statuses.FirstOrDefault(s => s.EId == x.EId && s.Type == x.ContractType);
                 var cr = crs.FirstOrDefault(c => c.EId == x.EId);
-                var postSales = postSaleObj.FirstOrDefault(p => p.EId == x.EId);
+                var postSales = postSaleObj.FirstOrDefault(p => p.EId == x.EId && p.ContractType == x.ContractType);
                 var emailList = supplierContacts
                     .Where(sc => sc.SupplierId == x.SupplierId)
                     .Select(sc => sc.Email)

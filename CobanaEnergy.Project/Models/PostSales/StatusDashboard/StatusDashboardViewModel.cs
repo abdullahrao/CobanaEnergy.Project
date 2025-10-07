@@ -10,6 +10,7 @@ namespace CobanaEnergy.Project.Models.PostSales.StatusDashboard
     public class StatusDashboardViewModel
     {
         public long? SupplierId { get; set; }
+        public int ContractCount { get; set; }
         public List<SelectListItem> Suppliers { get; set; } = new List<SelectListItem>();
         public List<PostSalesRowViewModel> AccountsContracts { get; set; } = new List<PostSalesRowViewModel>();
     }
@@ -22,6 +23,8 @@ namespace CobanaEnergy.Project.Models.PostSales.StatusDashboard
         public string StartDate { get; set; }
         public string CED { get; set; }
         public string COTDate { get; set; }
+        public string ReAppliedDate { get; set; }
+        public int ReAppliedCount { get; set; }
         public string ContractStatus { get; set; }
         public string Duration { get; set; }
         public long ContractId { get; set; }

@@ -72,7 +72,8 @@ $(document).ready(function () {
                     });
                 },
                 dataSrc: function (json) {
-                    console.log("Returned rows:", json.data[0]); // check first row
+                    $('#contractCount').text(json.contractCount);
+                    console.log(json);
                     return json.data;
                 }
             },
@@ -85,7 +86,8 @@ $(document).ready(function () {
                     extend: 'excelHtml5',
                     text: '<i class="fas fa-file-excel me-2"></i> Export Excel',
                     className: 'btn btn-success btn-sm dt-btn',
-                    title: 'Status Dashboard',
+                    title: '',
+                    filename: 'Status Dashboard',
                     exportOptions: {
                         columns: ':visible:not(:lt(3))',
                         orthogonal: 'export'
@@ -443,5 +445,34 @@ $(document).ready(function () {
         window.location.href = `mailto:${to}?subject=${emailSubject}&body=${emailBody}`;
     });
 
+
+    // When Contract Status changes
+    $(document).on("change", ".contract-status", function () {
+        const $row = $(this).closest("tr");
+        const selectedStatus = $(this).val();
+        const $objectionDateInput = $row.find(".objectiondate");
+
+        // ✅ If status contains 'Objection', set current date in ObjectionDate
+        if (selectedStatus && selectedStatus.toLowerCase().includes("objection")) {
+            const today = new Date().toISOString().split("T")[0]; // yyyy-MM-dd
+            $objectionDateInput.val(today).trigger("change");
+        }
+    });
+
+    // When Objection Date changes
+    $(document).on("change", ".objectiondate", function () {
+        const $row = $(this).closest("tr");
+        const dateVal = $(this).val();
+        const $contractStatusSelect = $row.find(".contract-status");
+
+        // ✅ If user selected a date, set ContractStatus = "Objection"
+        if (dateVal) {
+            // check if dropdown has "Objection" option
+            const hasObjection = $contractStatusSelect.find("option[value='Objection']").length > 0;
+            if (hasObjection) {
+                $contractStatusSelect.val("Objection").trigger("change");
+            }
+        }
+    });
 });
 
