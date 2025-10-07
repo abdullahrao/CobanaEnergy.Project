@@ -9,6 +9,7 @@ using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -140,14 +141,22 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                         string mergedInputDate = isDual
                             ? string.Join("<br>", new[]
                             {
-                        elec != null ? $"Electric: {elec.InputDate}" : null,
-                        gas != null ? $"Gas: {gas.InputDate}" : null
+                        elec != null ? $"Electric: {ParserHelper.FormatDateForDisplay(elec.InputDate)}" : null,
+                        gas != null ? $"Gas: {ParserHelper.FormatDateForDisplay(gas.InputDate)}" : null
                             }.Where(x => !string.IsNullOrWhiteSpace(x)))
-                            : (elec?.InputDate ?? gas?.InputDate ?? "-");
+                            : ParserHelper.FormatDateForDisplay(elec?.InputDate ?? gas?.InputDate ?? "-");
 
-                        DateTime elecDate = DateTime.TryParse(elec?.InputDate, out var eDate) ? eDate : DateTime.MinValue;
-                        DateTime gasDate = DateTime.TryParse(gas?.InputDate, out var gDate) ? gDate : DateTime.MinValue;
+                        DateTime elecDate = ParserHelper.ParseDateForSorting(elec?.InputDate);
+                        DateTime gasDate = ParserHelper.ParseDateForSorting(gas?.InputDate);
+                        
+                        // Use the most recent date for consistent sorting across all contract types
                         DateTime sortable = elecDate > gasDate ? elecDate : gasDate;
+                        
+                        // Ensure we have a valid sortable date - use a very old date for invalid dates
+                        if (sortable == DateTime.MinValue)
+                        {
+                            sortable = new DateTime(1900, 1, 1); // Use a fixed old date as fallback
+                        }
 
                         // Determine Agent based on department type (use electric data if available, otherwise gas)
                         var contractData = elec ?? gas;
@@ -193,11 +202,10 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                             PreSalesStatus = mergedStatus,
                             Notes = elec?.ContractNotes ?? gas?.ContractNotes ?? "-----",
                             Type = isDual ? "Dual" : elec != null ? "Electric" : "Gas",
-                            SortableDate = sortable
+                            SortableDate = sortable.ToString("yyyy-MM-dd")
                         };
                     })
                     .Where(x => x != null)
-                    .OrderByDescending(x => x.SortableDate)
                     .ToList();
 
                 return JsonResponse.Ok(combined);

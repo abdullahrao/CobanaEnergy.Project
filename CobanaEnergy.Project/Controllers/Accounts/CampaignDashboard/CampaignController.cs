@@ -193,17 +193,17 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CampaignDashboard
 
                     var filteredGas = gasData
                         .Where(gc =>
-                            DateTime.TryParseExact(gc.InputDate, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var inputDate) &&
+                            DateTime.TryParse(gc.InputDate, out var inputDate) &&
                             inputDate.Date >= campaign.StartDate.Date &&
                             inputDate.Date <= (campaign.EndDate.Date) &&
-                            DateTime.TryParseExact(gc.CreatedAt, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var createdAt) &&
+                            DateTime.TryParse(gc.CreatedAt, out var createdAt) &&
                             createdAt.Date >= campaign.CreatedAt.Date)
                         .Select(gc => new CampaignDashboardRowViewModel
                         {
                             Id = gc.Id,
                             BusinessName = gc.BusinessName,
                             Number = gc.MPRN,
-                            CreatedAt = DateTime.TryParseExact(gc.CreatedAt, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var dt)
+                            CreatedAt = DateTime.TryParse(gc.CreatedAt, out var dt)
                                         ? dt.ToString("dd-MM-yy")
                                         : "N/A",
                             Bonus = campaign.Bonus ?? "0"

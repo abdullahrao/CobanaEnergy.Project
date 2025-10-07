@@ -124,7 +124,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.SSEContracts
                                 int.TryParse(electricContract.Duration, out int durationYears))
                             {
                                 var cedDate = parsedStartDate.AddYears(durationYears).AddDays(-1);
-                                model.CED = cedDate.ToString("dd-MM-yy");
+                                model.CED = cedDate.ToString("yyyy-MM-dd");
                             }
                         }
                     }

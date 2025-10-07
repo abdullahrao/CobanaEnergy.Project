@@ -223,13 +223,13 @@ namespace CobanaEnergy.Project.Controllers.Accounts.ProblematicsDashboard
 
                     DateTime baseDate = DateTime.Now;
                     if (!string.IsNullOrWhiteSpace(reconciliation.CommissionFollowUpDate) &&
-                        DateTime.TryParseExact(reconciliation.CommissionFollowUpDate, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var existingDate))
+                        DateTime.TryParse(reconciliation.CommissionFollowUpDate, out var existingDate))
                     {
                         baseDate = existingDate;
                     }
 
                     reconciliation.CommissionFollowUpDate = AddWorkingDays(baseDate, workingDays)
-                                                            .ToString("dd-MM-yy");
+                                                            .ToString("yyyy-MM-dd");
                 }
 
                 await db.SaveChangesAsync();
