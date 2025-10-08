@@ -83,6 +83,49 @@
                             <label class="form-label required" for="businessName">Business Name</label>
                             <input type="text" id="businessName" class="form-control" required value="@Model.BusinessName" autocomplete="off" disabled />
                         </div>
+
+                        <!-- Department-based fields integrated inline -->
+                        @if (Model.Department?.ToUpper() == "BROKERS")
+                        {
+                            <div class="col-md-6 col-lg-4">
+                                <label class="form-label" for="brokerageStaffName">Brokerage Staff</label>
+                                <input type="text" id="brokerageStaffName" class="form-control" value="@Model.BrokerageStaffName" autocomplete="off" disabled />
+                            </div>
+                            <div class="col-md-6 col-lg-4">
+                                <label class="form-label" for="subBrokerageName">Sub Brokerage Name</label>
+                                <input type="text" id="subBrokerageName" class="form-control" value="@Model.SubBrokerageName" autocomplete="off" disabled />
+                            </div>
+                        }
+                        else if (Model.Department?.ToUpper() == "IN HOUSE")
+                        {
+                            <div class="col-md-6 col-lg-4">
+                                <label class="form-label" for="closerName">Closer</label>
+                                <input type="text" id="closerName" class="form-control" value="@Model.CloserName" autocomplete="off" disabled />
+                            </div>
+                            <div class="col-md-6 col-lg-4">
+                                <label class="form-label" for="leadGeneratorName">Lead Generator</label>
+                                <input type="text" id="leadGeneratorName" class="form-control" value="@Model.LeadGeneratorName" autocomplete="off" disabled />
+                            </div>
+                            <div class="col-md-6 col-lg-4">
+                                <label class="form-label" for="referralPartnerName">Referral Partner</label>
+                                <input type="text" id="referralPartnerName" class="form-control" value="@Model.ReferralPartnerName" autocomplete="off" disabled />
+                            </div>
+                            <div class="col-md-6 col-lg-4">
+                                <label class="form-label" for="subReferralPartnerName">Sub Referral Partner</label>
+                                <input type="text" id="subReferralPartnerName" class="form-control" value="@Model.SubReferralPartnerName" autocomplete="off" disabled />
+                            </div>
+                        }
+                        else if (Model.Department?.ToUpper() == "INTRODUCERS")
+                        {
+                            <div class="col-md-6 col-lg-4">
+                                <label class="form-label" for="introducerName">Introducers</label>
+                                <input type="text" id="introducerName" class="form-control" value="@Model.IntroducerName" autocomplete="off" disabled />
+                            </div>
+                            <div class="col-md-6 col-lg-4">
+                                <label class="form-label" for="subIntroducerName">Sub Introducers</label>
+                                <input type="text" id="subIntroducerName" class="form-control" value="@Model.SubIntroducerName" autocomplete="off" disabled />
+                            </div>
+                        }
                     </div>
 
                     @if (Model.HasElectricDetails)

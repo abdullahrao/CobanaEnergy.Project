@@ -7,6 +7,9 @@ using CobanaEnergy.Project.Models.Accounts;
 using CobanaEnergy.Project.Models.Accounts.SuppliersModels;
 using CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGB;
 using CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGB.DBModel;
+using CobanaEnergy.Project.Models.Sector.SectorDBModels;
+using CobanaEnergy.Project.Models.Electric.ElectricDBModels;
+using CobanaEnergy.Project.Models.Gas.GasDBModels;
 using Logic;
 using Logic.ResponseModel.Helper;
 using System;
@@ -136,6 +139,20 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
                                         .Where(x => x.EId == id && x.contracttype == "Electric")
                                         .OrderByDescending(x => x.CreatedAt)
                                         .ToListAsync();
+
+                    // Populate department-based fields for Electric
+                    var departmentFields = new Dictionary<string, string>();
+                    await ParserHelper.PopulateDepartmentFieldsForElectric(electricContract, departmentFields, _db);
+                    
+                    // Map dictionary values to model properties
+                    model.BrokerageStaffName = departmentFields.ContainsKey("BrokerageStaffName") ? departmentFields["BrokerageStaffName"] : "N/A";
+                    model.SubBrokerageName = departmentFields.ContainsKey("SubBrokerageName") ? departmentFields["SubBrokerageName"] : "N/A";
+                    model.CloserName = departmentFields.ContainsKey("CloserName") ? departmentFields["CloserName"] : "N/A";
+                    model.LeadGeneratorName = departmentFields.ContainsKey("LeadGeneratorName") ? departmentFields["LeadGeneratorName"] : "N/A";
+                    model.ReferralPartnerName = departmentFields.ContainsKey("ReferralPartnerName") ? departmentFields["ReferralPartnerName"] : "N/A";
+                    model.SubReferralPartnerName = departmentFields.ContainsKey("SubReferralPartnerName") ? departmentFields["SubReferralPartnerName"] : "N/A";
+                    model.IntroducerName = departmentFields.ContainsKey("IntroducerName") ? departmentFields["IntroducerName"] : "N/A";
+                    model.SubIntroducerName = departmentFields.ContainsKey("SubIntroducerName") ? departmentFields["SubIntroducerName"] : "N/A";
                 }
                 else if (Regex.IsMatch(type, @"^\d{6,10}$")) // ---- Gas Section ----
                 {
@@ -206,6 +223,20 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
                                         .Where(x => x.EId == id && x.contracttype == "Gas")
                                         .OrderByDescending(x => x.CreatedAt)
                                         .ToListAsync();
+
+                    // Populate department-based fields for Gas
+                    var departmentFields = new Dictionary<string, string>();
+                    await ParserHelper.PopulateDepartmentFieldsForGas(gasContract, departmentFields, _db);
+                    
+                    // Map dictionary values to model properties
+                    model.BrokerageStaffName = departmentFields.ContainsKey("BrokerageStaffName") ? departmentFields["BrokerageStaffName"] : "N/A";
+                    model.SubBrokerageName = departmentFields.ContainsKey("SubBrokerageName") ? departmentFields["SubBrokerageName"] : "N/A";
+                    model.CloserName = departmentFields.ContainsKey("CloserName") ? departmentFields["CloserName"] : "N/A";
+                    model.LeadGeneratorName = departmentFields.ContainsKey("LeadGeneratorName") ? departmentFields["LeadGeneratorName"] : "N/A";
+                    model.ReferralPartnerName = departmentFields.ContainsKey("ReferralPartnerName") ? departmentFields["ReferralPartnerName"] : "N/A";
+                    model.SubReferralPartnerName = departmentFields.ContainsKey("SubReferralPartnerName") ? departmentFields["SubReferralPartnerName"] : "N/A";
+                    model.IntroducerName = departmentFields.ContainsKey("IntroducerName") ? departmentFields["IntroducerName"] : "N/A";
+                    model.SubIntroducerName = departmentFields.ContainsKey("SubIntroducerName") ? departmentFields["SubIntroducerName"] : "N/A";
                 }
                 else
                 {
@@ -891,6 +922,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
         #endregion
 
         #region Helper Methods
+
         private string CalculatePaymentDate(string invoiceDateStr)
         {
             if (DateTime.TryParseExact(invoiceDateStr, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime invoiceDate))
