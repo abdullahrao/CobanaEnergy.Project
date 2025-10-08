@@ -1019,7 +1019,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     {
                         EId = l.EId,
                         Username = l.Username,
-                        ActionDate = ParserHelper.FormatDateForDisplay(l.ActionDate),
+                        ActionDate = ParserHelper.FormatDateTimeForDisplay(l.ActionDate),
                         PreSalesStatusType = l.PreSalesStatusType,
                         Message = l.Message
                     }).ToList();

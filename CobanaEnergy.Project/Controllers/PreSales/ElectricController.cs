@@ -732,7 +732,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
                     .Select(l => new
                     {
                         l.Username,
-                        ActionDate = ParserHelper.FormatDateForDisplay(l.ActionDate),
+                        ActionDate = ParserHelper.FormatDateTimeForDisplay(l.ActionDate),
                         l.PreSalesStatusType,
                         l.Message
                     }).ToList();
