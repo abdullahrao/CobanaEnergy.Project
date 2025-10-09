@@ -3,6 +3,20 @@
     let allFollowUpDates = [];
     let selectedDate = "";
 
+    const selectConfigs = {
+        '#contractstatus': 'Select Contract Status',
+        '#paymentStatusAcc': 'Select Payment Status',
+    };
+
+    for (const [selector, placeholder] of Object.entries(selectConfigs)) {
+        $(selector).select2({
+            placeholder: placeholder,
+            allowClear: true,
+            width: '100%'
+        });
+    }
+
+
     function dataTableInit() {
         table = $('#accountMasterTable').DataTable({
             serverSide: true,
@@ -17,7 +31,7 @@
                         PaymentStatus: $('#paymentStatusAcc').val(),
                         DateFrom: $('#startDateFilter').val(),
                         DateTo: $('#endDateFilter').val(),
-                        Department: $('#department').val(),
+                        Department: $('#departmentFilter').val(),
                         BrokerageId: $('#brokerageFilter').val(),
                         StaffId: $('#brokerageStaffFilter').val(),
                         SubBrokerageId: $('#subBrokerageFilter').val(),
@@ -87,7 +101,7 @@
                         return filename;
                     },
                     exportOptions: {
-                        columns: ':visible:not(:first-child)'
+                        columns: ':visible:not(:first-child)' 
                     },
                     customize: function (doc) {
                         doc.defaultStyle.fontSize = 5;
@@ -174,9 +188,30 @@
         });
     }
 
+    function parseDateString(dateStr) {
+        if (!dateStr || dateStr.trim() === "") return null;
+
+        // yyyy-MM-dd
+        const isoMatch = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (isoMatch) {
+            const [_, y, m, d] = isoMatch;
+            return new Date(y, m - 1, d);
+        }
+
+        // dd/MM/yyyy
+        const ukMatch = dateStr.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+        if (ukMatch) {
+            const [_, d, m, y] = ukMatch;
+            return new Date(y, m - 1, d);
+        }
+
+        // fallback → try browser parser
+        const fallback = new Date(dateStr);
+        return isNaN(fallback.getTime()) ? null : fallback;
+    }
 
     $(function () {
-        populateDropdown("department", DropdownOptions.department, $('#department').data('current'));
+        populateDropdown("departmentFilter", DropdownOptions.department, $('#departmentFilter').data('current'));
         populateDropdown("contractstatus", AccountDropdownOptions.contractStatus, $('#contractstatus').data('current'));
         populateDropdown("paymentStatusAcc", AccountDropdownOptions.paymentStatus, $('#paymentStatusAcc').data('current'));
 

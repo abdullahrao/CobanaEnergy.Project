@@ -51,7 +51,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.MasterDashboard
                            join sp in _db.CE_Supplier on ec.SupplierId equals sp.Id
                            select new ContractViewModel
                            {
-                               Id = ec.Id.ToString(),
+                               Id = ec.Id,
                                EId = ec.EId,
                                ContractType = "Electric",
                                BusinessName = ec.BusinessName,
@@ -78,7 +78,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.MasterDashboard
                       join sp in _db.CE_Supplier on gc.SupplierId equals sp.Id
                       select new ContractViewModel
                       {
-                          Id = gc.Id.ToString(),
+                          Id = gc.Id,
                           EId = gc.EId,
                           ContractType = "Gas",
                           BusinessName = gc.BusinessName,
@@ -103,17 +103,10 @@ namespace CobanaEnergy.Project.Controllers.Accounts.MasterDashboard
             // Combine
             var combined = electric.Concat(gas);
 
-            // --- Apply filters first ---
-            if (!string.IsNullOrEmpty(q.Supplier))
-            {
-                if (int.TryParse(q.Supplier, out var sid))
-                    combined = combined.Where(x => x.SupplierId == sid);
-            }
-
+            // ---- FILTERS ----
             if (!string.IsNullOrEmpty(q.Department))
                 combined = combined.Where(x => x.Department == q.Department);
 
-            // ---- FILTERS ----
             if (!string.IsNullOrEmpty(q.Supplier))
             {
                 if (int.TryParse(q.Supplier, out var sId))
@@ -172,7 +165,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.MasterDashboard
             // Related data (loaded once)
             var statuses = await _db.CE_ContractStatuses
                 .Where(s => eIds.Contains(s.EId))
-                .GroupBy(s => s.EId)
+                .GroupBy(s => new { s.EId, s.Type })
                 .Select(g => g.OrderByDescending(x => x.ModifyDate).FirstOrDefault())
                 .ToListAsync();
 
@@ -237,7 +230,6 @@ namespace CobanaEnergy.Project.Controllers.Accounts.MasterDashboard
                     (x.ContractType ?? "").ToLower().Contains(term) ||
                     (x.Department ?? "").ToLower().Contains(term) ||
                     (x.EId ?? "").ToLower().Contains(term) ||
-                    (x.Id ?? "").ToLower().Contains(term) ||
 
                 (eacGroups.FirstOrDefault(g => g.EId == x.EId)?.Latest?.SupplierEac ?? "")
                     .ToLower().Contains(term) ||
@@ -316,7 +308,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.MasterDashboard
             {
                 var eacGroup = eacGroups.FirstOrDefault(e => e.EId == x.EId);
                 var latestEac = eacGroup?.Latest;
-                var status = statuses.FirstOrDefault(s => s.EId == x.EId);
+                var status = statuses.FirstOrDefault(s => s.EId == x.EId && s.Type == x.ContractType);
                 var cr = crs.FirstOrDefault(c => c.EId == x.EId);
                 var metric = metrics.FirstOrDefault(m => m.ReconciliationId == cr?.Id);
 
@@ -353,7 +345,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.MasterDashboard
                     CobanaDueCommission = cr?.CobanaDueCommission,
                     CobanaPaidCommission = cobanaPaidSum == 0 ? (decimal?)null : cobanaPaidSum,
                     CobanaFinalReconciliation = cr?.CobanaFinalReconciliation,
-
+                    AccountsNotes = cr?.SupplierCobanaInvoiceNotes ?? "-",
                     // Edit Button Action and Controller ----- 
                     Controller = hasSupplier ? route.Item1 : SupportedSuppliers.DefaultController,
                     Action = hasSupplier ? route.Item2 : SupportedSuppliers.DefaultAction
