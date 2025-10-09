@@ -20,6 +20,21 @@ namespace CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGB
         public string Department { get; set; }
         public string BusinessName { get; set; }
 
+        // Department-based fields
+        // For Brokers
+        public string BrokerageStaffName { get; set; }
+        public string SubBrokerageName { get; set; }
+
+        // For InHouse
+        public string CloserName { get; set; }
+        public string LeadGeneratorName { get; set; }
+        public string ReferralPartnerName { get; set; }
+        public string SubReferralPartnerName { get; set; }
+
+        // For Introducers
+        public string IntroducerName { get; set; }
+        public string SubIntroducerName { get; set; }
+
         // Electric
         public string SalesTypeElectric { get; set; }
         public string MPAN { get; set; }
