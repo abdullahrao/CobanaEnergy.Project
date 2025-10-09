@@ -163,7 +163,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.MasterDashboard
             // Related data (loaded once)
             var statuses = await _db.CE_ContractStatuses
                 .Where(s => eIds.Contains(s.EId))
-                .GroupBy(s => s.EId)
+                .GroupBy(s => new { s.EId, s.Type })
                 .Select(g => g.OrderByDescending(x => x.ModifyDate).FirstOrDefault())
                 .ToListAsync();
 
@@ -306,7 +306,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.MasterDashboard
             {
                 var eacGroup = eacGroups.FirstOrDefault(e => e.EId == x.EId);
                 var latestEac = eacGroup?.Latest;
-                var status = statuses.FirstOrDefault(s => s.EId == x.EId);
+                var status = statuses.FirstOrDefault(s => s.EId == x.EId && s.Type == x.ContractType);
                 var cr = crs.FirstOrDefault(c => c.EId == x.EId);
                 var metric = metrics.FirstOrDefault(m => m.ReconciliationId == cr?.Id);
 
@@ -343,7 +343,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.MasterDashboard
                     CobanaDueCommission = cr?.CobanaDueCommission,
                     CobanaPaidCommission = cobanaPaidSum == 0 ? (decimal?)null : cobanaPaidSum,
                     CobanaFinalReconciliation = cr?.CobanaFinalReconciliation,
-
+                    AccountsNotes = cr?.SupplierCobanaInvoiceNotes ?? "-",
                     // Edit Button Action and Controller ----- 
                     Controller = hasSupplier ? route.Item1 : SupportedSuppliers.DefaultController,
                     Action = hasSupplier ? route.Item2 : SupportedSuppliers.DefaultAction

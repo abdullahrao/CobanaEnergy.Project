@@ -19,6 +19,7 @@ using System.Web.Mvc;
 
 namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
 {
+    [Authorize(Roles = "Post-sales")]
     public class StatusDashboardController : BaseController
     {
         private readonly ApplicationDBContext _db;
@@ -439,6 +440,7 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
                                MPXN = ec.MPAN,
                                InputDate = ec.InputDate,
                                StartDate = ec.InitialStartDate,
+                               ContractNotes = ec.ContractNotes
                            };
 
             var gas = from gc in _db.CE_GasContracts
@@ -467,6 +469,7 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
                           MPXN = gc.MPRN,
                           InputDate = gc.InputDate,
                           StartDate = gc.InitialStartDate,
+                          ContractNotes = gc.ContractNotes
                       };
 
             return electric.Concat(gas);
@@ -528,7 +531,8 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
                 (x.MPXN ?? "").ToLower().Contains(searchValue) ||
                 (x.EmailAddress ?? "").ToLower().Contains(searchValue) ||
                 (x.PostCode ?? "").ToLower().Contains(searchValue) ||
-                (x.Department ?? "").ToLower().Contains(searchValue)
+                (x.Department ?? "").ToLower().Contains(searchValue) ||
+                (x.ContractNotes ?? "").ToLower().Contains(searchValue) 
             ).ToList();
         }
 
@@ -550,6 +554,7 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
                 case "CED": keySelector = x => crs.FirstOrDefault(c => c.EId == x.EId)?.CED; break;
                 case "COTDate": keySelector = x => crs.FirstOrDefault(c => c.EId == x.EId)?.CED_COT; break;
                 case "ContractStatus": keySelector = x => statuses.FirstOrDefault(s => s.EId == x.EId)?.ContractStatus ?? ""; break;
+                case "ContractNotes": keySelector = x => x.ContractNotes; break;
                 default: keySelector = x => x.BusinessName; break; // fallback
             }
 
@@ -623,7 +628,8 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
                     ContractType = x.ContractType,
                     EmailList = emailList,
                     EmailSubject = emailDetails?.Subject,
-                    EmailBody = emailDetails?.EmailBody
+                    EmailBody = emailDetails?.EmailBody,
+                    ContractNotes = x.ContractNotes
                 });
             }
 

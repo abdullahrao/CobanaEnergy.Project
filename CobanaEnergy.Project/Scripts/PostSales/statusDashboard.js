@@ -240,6 +240,15 @@ $(document).ready(function () {
                         return data;
                     }
                 },
+                {
+                    data: 'ContractNotes',
+                    render: function (data, type, row) {
+                        if (!data) return '-';
+                        return `<span class="truncate-cell">
+                           ${data.length > 50 ? data.substring(0, 50) + '…' : data}
+                         </span>`;
+                    }
+                },
                 { data: 'Duration', visible: false },
                 { data: 'ContractType', visible: false },
                 { data: 'EmailList', visible: false },

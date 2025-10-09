@@ -42,6 +42,7 @@ namespace CobanaEnergy.Project.Models.PostSales.StatusDashboard
         public string AgentEmail { get; set; }
         public string Collaboration { get; set; }
         public string CobanaSalesType { get; set; }
+        public string ContractNotes { get; set; }
         public string MPXN { get; set; }
         public string SupplierName { get; set; }
         public string BusinessName { get; set; }

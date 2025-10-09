@@ -55,6 +55,7 @@ namespace CobanaEnergy.Project.Models.Accounts.MasterDashboard.AccountMasterDash
         public string ContractType { get; set; }
         public string BusinessName { get; set; }
         public string InputDate { get; set; }
+        public string ContractNotes { get; set; }
         public string StartDate { get; set; }
         public string Duration { get; set; }
         public string InputEAC { get; set; }
