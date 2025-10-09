@@ -275,6 +275,7 @@
     <Content Include="Content\Accounts\ScottishPower\editScottishPowerContract.css" />
     <Content Include="Content\Accounts\SSEContracts\EditSSEContract.css" />
     <Content Include="Content\Accounts\TotalGasAndPower\totalGasAndPowerContract.css" />
+    <Content Include="Content\PostSales\statusDashboard.css" />
     <Content Include="Content\Signup\userDashboard.css" />
     <Content Include="Content\Dual\CreateDual.css" />
     <Content Include="Content\Dual\EditDual.css" />
@@ -337,6 +338,7 @@
     <Content Include="Scripts\jquery-3.7.1.slim.min.map" />
     <Content Include="Scripts\jquery-3.7.1.min.map" />
     <None Include="Scripts\SignalR\jquery-1.6.4-vsdoc.js" />
+    <Content Include="Scripts\PostSales\statusDashboard.js" />
     <Content Include="Scripts\SignalR\jquery-1.6.4.js" />
     <Content Include="Scripts\SignalR\jquery-1.6.4.min.js" />
     <Content Include="Scripts\SignalR\jquery.signalR-2.4.3.js" />
@@ -390,6 +392,7 @@
     <Compile Include="Controllers\Base\BaseController.cs" />
     <Compile Include="Controllers\Common\CommonController.cs" />
     <Compile Include="Controllers\Error\ErrorController.cs" />
+    <Compile Include="Controllers\PostSales\StatusDashboard\StatusDashboardController.cs" />
     <Compile Include="Controllers\PreSales\CheckDuplicateAccountController.cs" />
     <Compile Include="Controllers\PreSales\DualController.cs" />
     <Compile Include="Controllers\PreSales\PreSalesMasterDashboardController.cs" />
@@ -463,6 +466,18 @@
     <Compile Include="Migrations\202509151115000_Faryal_PresalesFollowupDateAdded.Designer.cs">
       <DependentUpon>202509151115000_Faryal_PresalesFollowupDateAdded.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202509301343070_Status-Dashboard-86c5md48r.cs" />
+    <Compile Include="Migrations\202509301343070_Status-Dashboard-86c5md48r.Designer.cs">
+      <DependentUpon>202509301343070_Status-Dashboard-86c5md48r.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202510030932353_Email-Template-86c5md48r.cs" />
+    <Compile Include="Migrations\202510030932353_Email-Template-86c5md48r.Designer.cs">
+      <DependentUpon>202510030932353_Email-Template-86c5md48r.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202510071340314_PostSales-Logs-86c5md48r.cs" />
+    <Compile Include="Migrations\202510071340314_PostSales-Logs-86c5md48r.Designer.cs">
+      <DependentUpon>202510071340314_PostSales-Logs-86c5md48r.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\Accounts\AwaitingPaymentsDashboard\AwaitingPaymentsDashboard.cs" />
     <Compile Include="Models\Accounts\CalendarDashboard\CalendarDashboardViewModel.cs" />
     <Compile Include="Models\Accounts\ClawbacksDashboard\ClawbacksDashboardViewModel.cs" />
@@ -529,6 +544,11 @@
     <Compile Include="Models\ApplicationDBContext.cs" />
     <Compile Include="Models\ApplicationUser.cs" />
     <Compile Include="Models\Dual\DualContractViewModel.cs" />
+    <Compile Include="Models\EmailTemplateLookup\CE_EmailTemplateLookup.cs" />
+    <Compile Include="Models\PostSales\Entities\CE_PostSaleObjection.cs" />
+    <Compile Include="Models\PostSales\Entities\CE_PostSalesLogs.cs" />
+    <Compile Include="Models\PostSales\StatusDashboard\StatusQueryParams.cs" />
+    <Compile Include="Models\PostSales\StatusDashboard\StatusDashboardViewModel.cs" />
     <Compile Include="Models\PreSales\PreSalesCalendarRowViewModel.cs" />
     <Compile Include="Models\PreSales\EditContractNotesPopupViewModel.cs" />
     <Compile Include="Models\PreSales\EditContractNotesOnlyViewModel.cs" />
@@ -617,6 +637,7 @@
     <Compile Include="Service\BackgroundServices\UserSessionMonitorService.cs" />
     <Compile Include="Service\ExtensionService\DataTableExtensions.cs" />
     <Compile Include="Service\ExtensionService\StringExtensions.cs" />
+    <Compile Include="Service\HelperUtilityService\HelperService.cs" />
     <Compile Include="Service\NotificationHub\NotificationHub.cs" />
     <Compile Include="Service\UserService\ConnectedUserStore.cs" />
     <Compile Include="Service\UserService\CustomUserIdProvider.cs" />
@@ -684,6 +705,7 @@
     <Content Include="Views\Accounts\ScottishPowerContract\EditScottishPowerContract.cshtml" />
     <Content Include="Views\Accounts\MasterDashboard\AccountMasterDashboard.cshtml" />
     <Content Include="Views\Shared\_FiltersPartial.cshtml" />
+    <Content Include="Views\PostSales\StatusDashboard\StatusDashboard.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -751,6 +773,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202509151115000_Faryal_PresalesFollowupDateAdded.resx">
       <DependentUpon>202509151115000_Faryal_PresalesFollowupDateAdded.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202509301343070_Status-Dashboard-86c5md48r.resx">
+      <DependentUpon>202509301343070_Status-Dashboard-86c5md48r.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202510030932353_Email-Template-86c5md48r.resx">
+      <DependentUpon>202510030932353_Email-Template-86c5md48r.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202510071340314_PostSales-Logs-86c5md48r.resx">
+      <DependentUpon>202510071340314_PostSales-Logs-86c5md48r.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
