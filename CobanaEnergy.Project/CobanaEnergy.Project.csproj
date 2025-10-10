@@ -477,6 +477,10 @@
     <Compile Include="Migrations\202510071340314_PostSales-Logs-86c5md48r.Designer.cs">
       <DependentUpon>202510071340314_PostSales-Logs-86c5md48r.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202510101201249_Alter-Tables-86c5md48r.cs" />
+    <Compile Include="Migrations\202510101201249_Alter-Tables-86c5md48r.Designer.cs">
+      <DependentUpon>202510101201249_Alter-Tables-86c5md48r.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\Accounts\AwaitingPaymentsDashboard\AwaitingPaymentsDashboard.cs" />
     <Compile Include="Models\Accounts\CalendarDashboard\CalendarDashboardViewModel.cs" />
     <Compile Include="Models\Accounts\ClawbacksDashboard\ClawbacksDashboardViewModel.cs" />
@@ -781,6 +785,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202510071340314_PostSales-Logs-86c5md48r.resx">
       <DependentUpon>202510071340314_PostSales-Logs-86c5md48r.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202510101201249_Alter-Tables-86c5md48r.resx">
+      <DependentUpon>202510101201249_Alter-Tables-86c5md48r.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
