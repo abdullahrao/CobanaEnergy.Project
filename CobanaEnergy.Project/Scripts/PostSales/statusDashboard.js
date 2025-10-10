@@ -7,8 +7,7 @@ $(document).ready(function () {
     let emailBody = "";
 
     const selectConfigs = {
-        '#contractstatus': 'Select Contract Status',
-        '#paymentStatusAcc': 'Select Payment Status'
+        '#contractstatus': 'Select Contract Status'
     };
 
     for (const [selector, placeholder] of Object.entries(selectConfigs)) {
@@ -55,7 +54,6 @@ $(document).ready(function () {
                     return $.extend({}, d, {
                         Supplier: $('#supplierFilter').val(),
                         ContractStatus: $('#contractstatus').val(),
-                        PaymentStatus: $('#paymentStatusAcc').val(),
                         DateFrom: $('#startDateFilter').val(),
                         DateTo: $('#endDateFilter').val(),
                         Department: $('#departmentFilter').val(),
