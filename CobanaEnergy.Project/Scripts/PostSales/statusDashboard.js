@@ -18,46 +18,50 @@ $(document).ready(function () {
         });
     }
 
-    // Parse both dd/MM/yyyy and yyyy-MM-dd safely
     function parseToDateObject(dateStr) {
         if (!dateStr) return null;
 
         // yyyy-MM-dd
         if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
             const [y, m, d] = dateStr.split('-');
-            return new Date(`${y}-${m}-${d}`);
+            return new Date(y, m - 1, d);
         }
 
-        // dd/MM/yyyy
-        if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) {
-            const [d, m, y] = dateStr.split('/');
-            return new Date(`${y}-${m}-${d}`);
+        // dd/MM/yyyy or dd-MM-yyyy
+        if (/^\d{2}[\/-]\d{2}[\/-]\d{4}$/.test(dateStr)) {
+            const [d, m, y] = dateStr.split(/\/|-/);
+            return new Date(y, m - 1, d);
         }
 
-        // Fallback
         const parsed = new Date(dateStr);
         return isNaN(parsed) ? null : parsed;
     }
 
-    // ✅ For <input type="date"> — must be yyyy-MM-dd
+
+    // For INPUT type="date"
     function formatDateForInput(dateStr) {
+        if (!dateStr) return '';
         const d = parseToDateObject(dateStr);
-        if (!d) return '';
+        if (!(d instanceof Date) || isNaN(d)) return '';
+
+
         const yyyy = d.getFullYear();
         const mm = String(d.getMonth() + 1).padStart(2, '0');
         const dd = String(d.getDate()).padStart(2, '0');
-        return `${yyyy}-${mm}-${dd}`; // input requires ISO format
+        return `${yyyy}-${mm}-${dd}`;
     }
 
-    // ✅ For display (labels, text, exports) — dd/MM/yyyy
-    function formatDateDisplay(dateStr) {
+    // For LABEL / EXPORT / DISPLAY
+    function formatDateForLabel(dateStr) {
         const d = parseToDateObject(dateStr);
         if (!d) return '-';
         const yyyy = d.getFullYear();
         const mm = String(d.getMonth() + 1).padStart(2, '0');
         const dd = String(d.getDate()).padStart(2, '0');
-        return `${dd}/${mm}/${yyyy}`;
+        return `${dd}-${mm}-${yyyy}`; // ✅ Human-readable display
     }
+
+
 
     function initTable() {
         table = $('#statusDashboardTable').DataTable({
@@ -177,7 +181,7 @@ $(document).ready(function () {
                 { data: 'MPXN' },
                 { data: 'SupplierName' },
                 { data: 'BusinessName', className: 'wrap-text' },
-                { data: 'InputDate', render: d => d ? formatDateDisplay(d) : '-' },
+                { data: 'InputDate', render: d => d ? formatDateForLabel(d) : '-' },
                 { data: 'PostCode' },
                 // Email editable cell
                 {

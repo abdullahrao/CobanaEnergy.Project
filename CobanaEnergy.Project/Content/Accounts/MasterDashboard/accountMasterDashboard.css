@@ -253,6 +253,20 @@
     white-space: nowrap;
 }
 
+    #accountMasterTable th:nth-child(8),
+    #accountMasterTable td:nth-child(8),
+    #accountMasterTable th:nth-child(9),
+    #accountMasterTable td:nth-child(9),
+    #accountMasterTable th:nth-child(10),
+    #accountMasterTable td:nth-child(10) {
+        width: 100px !important;
+        min-width: 100px !important;
+        max-width: 100px !important;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
 .truncate-cell {
     display: inline-block;
     max-width: 220px;
