@@ -9,16 +9,15 @@ body, h2, h4, h5, .form-label, .section-header {
 
 /* Layout */
 .edit-bgb-container {
-    display: flex;
-    gap: 30px;
     max-width: 1440px;
     margin: 0 auto;
-    flex-wrap: wrap;
+    padding: 30px 60px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
 }
 
 .form-wrapper {
-    flex: 1 1 800px;
-    min-width: 340px;
+    width: 100%;
 }
 
 .logs-wrapper {
@@ -29,12 +28,12 @@ body, h2, h4, h5, .form-label, .section-header {
 
 /* Section Box */
 .form-section {
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 12px;
+    background: #fff;
+    border: 1px solid #e2e2e2;
+    border-radius: 8px;
     padding: 24px 20px;
     margin-bottom: 2rem;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .section-header {
@@ -98,9 +97,9 @@ textarea.form-control {
 
 /* Logs Panel */
 .logs-panel {
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 12px;
+    background: #fff;
+    border: 1px solid #e2e2e2;
+    border-radius: 8px;
     padding: 20px;
     max-height: 85vh;
     overflow-y: auto;
@@ -161,28 +160,24 @@ textarea.form-control {
 
 /* Responsive */
 @media (max-width: 1200px) {
-    .edit-bgb-container {
-        flex-direction: column;
-    }
-
     .logs-wrapper {
         width: 100%;
     }
 }
 
-@media (max-width: 1440px) {
+@media (max-width: 768px) {
     .edit-bgb-container {
-        flex-direction: column;
+        padding: 20px;
     }
 
-    .logs-wrapper {
-        width: 100%;
+    .form-section {
+        padding: 16px;
     }
 }
 
 .sub-section {
     background: #fefefe;
-    border: 1px solid #dee2e6;
+    border: 1px solid #e2e2e2;
     border-radius: 8px;
     padding: 15px;
     margin-top: 20px;
@@ -219,14 +214,14 @@ textarea.form-control {
     align-items: center;
     justify-content: space-between;
     cursor: pointer;
-    background-color: #f8f9fa;
+    background-color: transparent;
     padding: 0.75rem 1.25rem;
     border-radius: 0.5rem;
     transition: background-color 0.2s ease;
 }
 
     .collapsible-header:hover {
-        background-color: #eef1f5;
+        background-color: #f8f9fa;
     }
 
 .toggle-icon {

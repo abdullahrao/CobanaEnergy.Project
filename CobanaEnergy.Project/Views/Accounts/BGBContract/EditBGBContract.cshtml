@@ -90,10 +90,6 @@
                                         <input type="text" id="mpan" class="form-control" value="@Model.MPAN" autocomplete="off" disabled />
                                     </div>
                                     <div class="col-md-6 col-lg-4">
-                                        <label class="form-label required" for="upliftElectric">Uplift</label>
-                                        <input type="text" id="upliftElectric" class="form-control" required value="@Model.UpliftElectric" autocomplete="off" />
-                                    </div>
-                                    <div class="col-md-6 col-lg-4">
                                         <label class="form-label" for="durationElectric">Duration</label>
                                         <input type="text" id="durationElectric" class="form-control" value="@Model.DurationElectric" autocomplete="off" disabled />
                                     </div>
@@ -108,14 +104,19 @@
                                         </select>
                                     </div>
                                     <div class="col-md-6 col-lg-4">
-                                        <label class="form-label required" for="supplierCommsTypeElectric">Supplier Comms Type</label>
-                                        <select id="supplierCommsTypeElectric" required class="form-select" data-current="@Model.SupplierCommsTypeElectric"></select>
-                                    </div>
-                                    <input type="hidden" id="CommissionElectric" name="CommissionElectric" value="@Model.CommissionElectric" />
-                                    <div class="col-md-6 col-lg-4">
                                         <label class="form-label" for="inputDateElectric">Input Date</label>
                                         <input type="date" id="inputDateElectric" class="form-control" value="@Model.InputDateElectric" disabled />
                                     </div>
+                                    <div class="col-md-6 col-lg-4"></div>
+                                    <div class="col-md-6 col-lg-4">
+                                        <label class="form-label required" for="upliftElectric">Uplift</label>
+                                        <input type="text" id="upliftElectric" class="form-control" required value="@Model.UpliftElectric" autocomplete="off" />
+                                    </div>
+                                    <div class="col-md-6 col-lg-4">
+                                        <label class="form-label required text-nowrap" for="supplierCommsTypeElectric">Supplier Comms Type</label>
+                                        <select id="supplierCommsTypeElectric" required class="form-select" data-current="@Model.SupplierCommsTypeElectric"></select>
+                                    </div>
+                                    <input type="hidden" id="CommissionElectric" name="CommissionElectric" value="@Model.CommissionElectric" />
                                 </div>
                             </div>
                         }
@@ -135,10 +136,6 @@
                                         <input type="text" id="mprn" class="form-control" value="@Model.MPRN" autocomplete="off" disabled />
                                     </div>
                                     <div class="col-md-6 col-lg-4">
-                                        <label class="form-label required" for="upliftGas">Uplift</label>
-                                        <input type="text" id="upliftGas" class="form-control" required value="@Model.UpliftGas" autocomplete="off" />
-                                    </div>
-                                    <div class="col-md-6 col-lg-4">
                                         <label class="form-label" for="durationGas">Duration</label>
                                         <input type="text" id="durationGas" class="form-control" value="@Model.DurationGas" autocomplete="off" disabled />
                                     </div>
@@ -153,14 +150,19 @@
                                         </select>
                                     </div>
                                     <div class="col-md-6 col-lg-4">
-                                        <label class="form-label" for="supplierCommsTypeGas">Supplier Comms Type</label>
-                                        <select id="supplierCommsTypeGas" class="form-select" data-current="@Model.SupplierCommsTypeGas"></select>
-                                    </div>
-                                    <input type="hidden" id="CommissionGas" name="CommissionGas" value="@Model.CommissionGas" />
-                                    <div class="col-md-6 col-lg-4">
                                         <label class="form-label" for="inputDateGas">Input Date</label>
                                         <input type="date" id="inputDateGas" class="form-control" value="@Model.InputDateGas" disabled />
                                     </div>
+                                    <div class="col-md-6 col-lg-4"></div>
+                                    <div class="col-md-6 col-lg-4">
+                                        <label class="form-label required" for="upliftGas">Uplift</label>
+                                        <input type="text" id="upliftGas" class="form-control" required value="@Model.UpliftGas" autocomplete="off" />
+                                    </div>
+                                    <div class="col-md-6 col-lg-4">
+                                        <label class="form-label text-nowrap" for="supplierCommsTypeGas">Supplier Comms Type</label>
+                                        <select id="supplierCommsTypeGas" class="form-select" data-current="@Model.SupplierCommsTypeGas"></select>
+                                    </div>
+                                    <input type="hidden" id="CommissionGas" name="CommissionGas" value="@Model.CommissionGas" />
                                 </div>
                             </div>
                         }
