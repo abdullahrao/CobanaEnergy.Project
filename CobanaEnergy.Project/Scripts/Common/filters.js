@@ -2,9 +2,8 @@
 
 
     const selectConfigs = {
-        '#contractstatus': 'Select Contract Status',
         '#supplierFilter': 'All Suppliers',
-        '#department': 'Select Department',
+        '#departmentFilter': 'Select Department',
         '#brokerageFilter': 'Select Brokerage',
         '#brokerageStaffFilter': 'Select Staff',
         '#subBrokerageFilter': 'Select Sub Brokerage',
@@ -13,7 +12,6 @@
         '#introducerFilter': 'Select Introducer',
         '#subIntroducerFilter': 'Select Sub Introducer',
         '#referralFilter': 'Select Referral',
-        '#paymentStatusAcc': 'Select Payment Status',
         '#subReferralFilter': 'Select Sub Refferal'
     };
 
@@ -34,7 +32,7 @@
         // hide all initially
         $("#brokerage-area, #brokerage-staff-area, #subbrokerage-area, #inhouse-closer-area, #leadgen-area, #referral-area, #sub-referral-area, #introducer-area, #subintroducer-area").hide();
 
-        $('#department').on('change', function () {
+        $('#departmentFilter').on('change', function () {
             const val = $(this).val();
             $("#brokerage-area, #brokerage-staff-area, #subbrokerage-area, #inhouse-closer-area, #leadgen-area, #referral-area,  #sub-referral-area, #introducer-area, #subintroducer-area").hide();
 
@@ -56,7 +54,6 @@
                 $('#introducer-area').show();
                 $.getJSON(`/Common/Introducers`).done(data => fillDropdown("#introducerFilter", data));
             }
-
             if (table) table.ajax.reload();
         });
 

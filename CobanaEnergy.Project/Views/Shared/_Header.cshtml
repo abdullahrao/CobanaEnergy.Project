@@ -46,6 +46,18 @@
                     </ul>
                 </li>
 
+                <!--- Post Sales & Controls-->
+                @if (User.IsInRole("Post-sales"))
+                {
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="preSalesMenu" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-briefcase me-1"></i> Post-Sales
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="preSalesMenu">
+                            <li><a class="dropdown-item" href="@Url.Action("Index", "StatusDashboard")"><i class="fas fa-chart-line me-2"></i>Status Dashboard</a></li>
+                        </ul>
+                    </li>
+                }
 
                 <!-- Pre-Sales & Controls-->
                 @if (User.IsInRole("Pre-sales") || User.IsInRole("Controls"))

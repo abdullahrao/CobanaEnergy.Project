@@ -1,4 +1,5 @@
 ﻿using CobanaEnergy.Project.Models.Accounts.MainCampaign.DBModel;
+using CobanaEnergy.Project.Models.EmailTemplateLookup;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -13,6 +14,7 @@ namespace CobanaEnergy.Project.Models.Supplier.SupplierDBModels
         public CE_Supplier()
         {
                 this.CE_Campaigns = new List<CE_Campaign>();    
+                this.CE_EmailTemplateLookups = new List<CE_EmailTemplateLookup>();
         }
         public long Id { get; set; }
         public string Name { get; set; }
@@ -22,6 +24,7 @@ namespace CobanaEnergy.Project.Models.Supplier.SupplierDBModels
         public virtual ICollection<CE_SupplierProducts> CE_SupplierProducts { get; set; }
         public virtual ICollection<CE_SupplierContacts> CE_SupplierContacts { get; set; }
         public virtual ICollection<CE_Campaign> CE_Campaigns { get; set; }
+        public virtual ICollection<CE_EmailTemplateLookup> CE_EmailTemplateLookups { get; set; }
 
     }
 }
