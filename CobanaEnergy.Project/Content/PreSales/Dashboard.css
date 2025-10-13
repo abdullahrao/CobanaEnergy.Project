@@ -325,8 +325,14 @@
     border-radius: 6px;
     font-size: 0.75rem;
     font-family: 'Roboto Mono', monospace;
-    width: 100%;
-    max-width: 100%;
     box-sizing: border-box;
     text-align: left;
+    width: fit-content;
+    max-width: 100%;
+}
+
+.supplier-status .badge.bg-warning {
+    background-color: #ffe08a !important;
+    color: #7a5a00;
+    line-height: 1.4;
 }
