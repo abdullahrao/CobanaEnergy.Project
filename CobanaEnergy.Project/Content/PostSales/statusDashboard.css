@@ -364,6 +364,27 @@ div.dt-buttons {
         outline: none;
     }
 
+/* Restore native arrow for all selects */
+select.form-select,
+.contract-status,
+.query-type-dropdown {
+    appearance: auto !important; /* ✅ For Chrome, Edge, Safari */
+    -webkit-appearance: auto !important;
+    -moz-appearance: auto !important;
+    background-image: none !important; /* clear custom icons if any */
+    background-position: right 8px center;
+    background-repeat: no-repeat;
+    background-size: 12px;
+}
+
+/* Make sure padding doesn't hide the arrow */
+.contract-status,
+.query-type-dropdown {
+    padding-right: 28px !important;
+}
+
+
+
 /* ========================
    Table Data Cells
 ========================= */
