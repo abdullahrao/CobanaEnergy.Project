@@ -329,3 +329,68 @@ div.dt-buttons {
     min-width: 30px;
     text-align: center;
 }
+
+
+/* ========================
+   Editable Inputs / Selects
+========================= */
+.editable-input,
+.contract-status,
+.query-type-dropdown {
+    border-radius: 6px !important;
+    border: 1px solid #d1d5db;
+    background: #fdfdfd;
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    width: 100%;
+    transition: all 0.25s ease-in-out;
+}
+
+    /* Hover */
+    .editable-input:hover,
+    .contract-status:hover,
+    .query-type-dropdown:hover {
+        border-color: #9ca3af;
+        background: #fafafa;
+    }
+
+    /* Focus */
+    .editable-input:focus,
+    .contract-status:focus,
+    .query-type-dropdown:focus {
+        border-color: #2563eb !important;
+        box-shadow: 0 0 6px rgba(37,99,235,0.25) !important;
+        background: #ffffff;
+        outline: none;
+    }
+
+/* ========================
+   Table Data Cells
+========================= */
+#statusDashboardTable td {
+    vertical-align: middle;
+    padding: 8px 10px !important;
+    font-size: 0.85rem;
+}
+
+/* ========================
+   Truncate with Hover Expand
+========================= */
+.truncate-cell {
+    display: inline-block;
+    max-width: 220px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    color: #374151;
+}
+
+    .truncate-cell:hover {
+        white-space: normal;
+        word-break: break-word;
+        background: #f9fafb;
+        padding: 3px 6px;
+        border-radius: 6px;
+        box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+    }
