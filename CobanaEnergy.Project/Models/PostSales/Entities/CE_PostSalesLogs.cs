@@ -17,7 +17,6 @@ namespace CobanaEnergy.Project.Models.PostSales.Entities
         public string CED { get; set; }
         public string COT { get; set; }
         public string ReAppliedDate { get; set; }
-        public int ReAppliedCount { get; set; }
         public string ObjectionDate { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedDate { get; set; }
