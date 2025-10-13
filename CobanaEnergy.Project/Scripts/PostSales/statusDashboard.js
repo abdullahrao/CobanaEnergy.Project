@@ -7,8 +7,7 @@ $(document).ready(function () {
     let emailBody = "";
 
     const selectConfigs = {
-        '#contractstatus': 'Select Contract Status',
-        '#paymentStatusAcc': 'Select Payment Status'
+        '#contractstatus': 'Select Contract Status'
     };
 
     for (const [selector, placeholder] of Object.entries(selectConfigs)) {
@@ -19,32 +18,52 @@ $(document).ready(function () {
         });
     }
 
-
-
-    function parseDateString(dateStr) {
+    // Parse both dd/MM/yyyy and yyyy-MM-dd safely
+    function parseToDateObject(dateStr) {
         if (!dateStr) return null;
-        const iso = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})/);
-        if (iso) return new Date(iso[1], iso[2] - 1, iso[3]);
-        const f = new Date(dateStr);
-        return isNaN(f.getTime()) ? null : f;
+
+        // yyyy-MM-dd
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+            const [y, m, d] = dateStr.split('-');
+            return new Date(`${y}-${m}-${d}`);
+        }
+
+        // dd/MM/yyyy
+        if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) {
+            const [d, m, y] = dateStr.split('/');
+            return new Date(`${y}-${m}-${d}`);
+        }
+
+        // Fallback
+        const parsed = new Date(dateStr);
+        return isNaN(parsed) ? null : parsed;
     }
 
+    // ✅ For <input type="date"> — must be yyyy-MM-dd
     function formatDateForInput(dateStr) {
-        if (!dateStr) return '-'; // null, undefined, empty string
-
-        const d = parseDateString(dateStr);
-        if (!(d instanceof Date) || isNaN(d)) return '-'; // invalid date
+        const d = parseToDateObject(dateStr);
+        if (!d) return '';
+        const yyyy = d.getFullYear();
         const mm = String(d.getMonth() + 1).padStart(2, '0');
         const dd = String(d.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`; // input requires ISO format
+    }
 
-        return `${d.getFullYear()}-${mm}-${dd}`;
+    // ✅ For display (labels, text, exports) — dd/MM/yyyy
+    function formatDateDisplay(dateStr) {
+        const d = parseToDateObject(dateStr);
+        if (!d) return '-';
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        return `${dd}/${mm}/${yyyy}`;
     }
 
     function initTable() {
         table = $('#statusDashboardTable').DataTable({
             serverSide: true,
             processing: true,
-            autoWidth: false, 
+            autoWidth: false,
             fixedColumns: {
                 leftColumns: 3
             },
@@ -55,7 +74,6 @@ $(document).ready(function () {
                     return $.extend({}, d, {
                         Supplier: $('#supplierFilter').val(),
                         ContractStatus: $('#contractstatus').val(),
-                        PaymentStatus: $('#paymentStatusAcc').val(),
                         DateFrom: $('#startDateFilter').val(),
                         DateTo: $('#endDateFilter').val(),
                         Department: $('#departmentFilter').val(),
@@ -159,7 +177,7 @@ $(document).ready(function () {
                 { data: 'MPXN' },
                 { data: 'SupplierName' },
                 { data: 'BusinessName', className: 'wrap-text' },
-                { data: 'InputDate', render: d => d ? formatDateForInput(d) : '-' },
+                { data: 'InputDate', render: d => d ? formatDateDisplay(d) : '-' },
                 { data: 'PostCode' },
                 // Email editable cell
                 {
@@ -259,6 +277,37 @@ $(document).ready(function () {
             drawCallback: function () {
                 // attach events for inline edits
                 GetQueryDropDownData();
+
+                // Har dropdown par change event attach karo
+                $('.query-type-dropdown').off('change').on('change', function () {
+                    const $dropdown = $(this);
+                    const val = $dropdown.val();
+                    const $row = $dropdown.closest('tr');
+
+                    // Row ke andar dono buttons
+                    const $btns = $row.find('.send-email');
+
+                    if (!val || val === "" || val === "Select Query Type") {
+                        $btns.prop('disabled', true);
+                    } else {
+                        $btns.prop('disabled', false);
+                    }
+                });
+
+                // Page load pe bhi initial check kar lo
+                $('.query-type-dropdown').each(function () {
+                    const $dropdown = $(this);
+                    const val = $dropdown.val();
+                    const $row = $dropdown.closest('tr');
+                    const $btns = $row.find('.send-email');
+
+                    if (!val || val === "-" || val === "Select Query Type") {
+                        $btns.prop('disabled', true);
+                    } else {
+                        $btns.prop('disabled', false);
+                    }
+                });
+
             }
         });
     }
@@ -284,7 +333,7 @@ $(document).ready(function () {
             COTDate: $row.find('.cot').val(),
             ContractStatus: $row.find('.contract-status').val(),
             ObjectionDate: $row.find('.objectiondate').val(),
-            ContractType : rowDataTable.ContractType,
+            ContractType: rowDataTable.ContractType,
             Duration: rowDataTable.Duration,
             QueryType: $row.find('.query-type-dropdown').val()
         };
@@ -324,35 +373,57 @@ $(document).ready(function () {
     });
 
 
-    function GetQueryDropDownData(){
-        $('.query-type-dropdown').each(function () {
-            const $dropdown = $(this);
-            const supplier = $dropdown.data('supplier');
-            let selectedVal = ($dropdown.data('selected') || "").trim();
+    function GetQueryDropDownData() {
+        const supplierDropdowns = {};
 
+        // Group dropdowns by supplier
+        $('.query-type-dropdown').each(function () {
+            const supplier = $(this).data('supplier');
+            if (!supplierDropdowns[supplier]) {
+                supplierDropdowns[supplier] = [];
+            }
+            supplierDropdowns[supplier].push($(this));
+        });
+
+        // Ab har unique supplier ke liye ek hi request
+        Object.keys(supplierDropdowns).forEach(supplier => {
             $.ajax({
                 url: '/StatusDashboard/GetQueryTypes',
                 type: 'GET',
                 data: { supplier: supplier },
                 success: function (options) {
-                    $dropdown.empty();
-                    if (!selectedVal || selectedVal === "-") {
-                        $dropdown.append(`<option value="" selected>Select Query Type</option>`);
-                    }
+                    supplierDropdowns[supplier].forEach($dropdown => {
+                        let selectedVal = ($dropdown.data('selected') || "").trim();
+                        $dropdown.empty();
 
-                    options.forEach(opt => {
-                        const optTrim = (opt || "").trim();
-                        const selected = (optTrim.toLowerCase() === selectedVal.toLowerCase()) ? "selected" : "";
-                        $dropdown.append(`<option value="${optTrim}" ${selected}>${optTrim}</option>`);
+                        if (!selectedVal || selectedVal === "-" || selectedVal === "") {
+                            $dropdown.append(`<option value="" selected>Select Query Type</option>`);
+                        }
+
+                        options.forEach(opt => {
+                            const optTrim = (opt || "").trim();
+                            const selected = (optTrim.toLowerCase() === selectedVal.toLowerCase()) ? "selected" : "";
+                            $dropdown.append(`<option value="${optTrim}" ${selected}>${optTrim}</option>`);
+                        });
+
+                        // Agar selectedVal backend ke options me nahi hai
+                        if (selectedVal && selectedVal !== "-" && !$dropdown.val()) {
+                            $dropdown.append(`<option value="${selectedVal}" selected>${selectedVal}</option>`);
+                        }
+
+                        // Page load ke time button disable/enable check
+                        const $row = $dropdown.closest('tr');
+                        const $btns = $row.find('.send-email');
+                        if (!selectedVal || selectedVal === "-" || selectedVal === "Select Query Type") {
+                            $btns.prop('disabled', true);
+                        } else {
+                            $btns.prop('disabled', false);
+                        }
                     });
-
-                    // fallback: agar selectedVal backend ke options mai nahi hai
-                    if (selectedVal && selectedVal !== "-" && !$dropdown.val()) {
-                        $dropdown.append(`<option value="${selectedVal}" selected>${selectedVal}</option>`);
-                    }
                 }
             });
         });
+
     }
 
 
@@ -370,7 +441,7 @@ $(document).ready(function () {
         populateDropdown("departmentFilter", DropdownOptions.department, $('#departmentFilter').data('current'));
         populateDropdown("contractstatus", AccountDropdownOptions.contractStatus, $('#contractstatus').data('current'));
         populateDropdown("paymentStatusAcc", AccountDropdownOptions.paymentStatus, $('#paymentStatusAcc').data('current'));
-        
+
         initTable();
         FilterModule.init(table);
 
@@ -394,8 +465,6 @@ $(document).ready(function () {
     $('#contractStatusFilter, #supplierFilter, #startDateFilter, #endDateFilter').on('change', function () {
         table.ajax.reload();
     });
-
-
 
     $(document).on("click", ".send-email", function () {
         const emails = $(this).data("emails");
@@ -450,8 +519,21 @@ $(document).ready(function () {
             showToastError("No emails to send!");
             return;
         }
+        
+        if (!emailSubject || !emailBody) {
+            showToastError(`Please save before email to ${selectedType}`);
+            return;
+        }
+
         const to = selectedEmails.join(";");
-        window.location.href = `mailto:${to}?subject=${emailSubject}&body=${emailBody}`;
+        var emailBody = "";
+        if (selectedType === "Agent") {
+            window.location.href = `mailto:${to}?subject=${emailSubject}&body=${emailBody}`;
+        } else {
+            to = "";
+            window.location.href = `mailto:${to}?subject=${emailSubject}&body=${emailBody}`;
+        }
+
     });
 
 
