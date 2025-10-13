@@ -18,25 +18,45 @@ $(document).ready(function () {
         });
     }
 
-
-
-    function parseDateString(dateStr) {
+    // Parse both dd/MM/yyyy and yyyy-MM-dd safely
+    function parseToDateObject(dateStr) {
         if (!dateStr) return null;
-        const iso = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})/);
-        if (iso) return new Date(iso[1], iso[2] - 1, iso[3]);
-        const f = new Date(dateStr);
-        return isNaN(f.getTime()) ? null : f;
+
+        // yyyy-MM-dd
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+            const [y, m, d] = dateStr.split('-');
+            return new Date(`${y}-${m}-${d}`);
+        }
+
+        // dd/MM/yyyy
+        if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) {
+            const [d, m, y] = dateStr.split('/');
+            return new Date(`${y}-${m}-${d}`);
+        }
+
+        // Fallback
+        const parsed = new Date(dateStr);
+        return isNaN(parsed) ? null : parsed;
     }
 
+    // ✅ For <input type="date"> — must be yyyy-MM-dd
     function formatDateForInput(dateStr) {
-        if (!dateStr) return '-'; // null, undefined, empty string
-
-        const d = parseDateString(dateStr);
-        if (!(d instanceof Date) || isNaN(d)) return '-'; // invalid date
+        const d = parseToDateObject(dateStr);
+        if (!d) return '';
+        const yyyy = d.getFullYear();
         const mm = String(d.getMonth() + 1).padStart(2, '0');
         const dd = String(d.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`; // input requires ISO format
+    }
 
-        return `${d.getFullYear()}-${mm}-${dd}`;
+    // ✅ For display (labels, text, exports) — dd/MM/yyyy
+    function formatDateDisplay(dateStr) {
+        const d = parseToDateObject(dateStr);
+        if (!d) return '-';
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        return `${dd}/${mm}/${yyyy}`;
     }
 
     function initTable() {
@@ -157,7 +177,7 @@ $(document).ready(function () {
                 { data: 'MPXN' },
                 { data: 'SupplierName' },
                 { data: 'BusinessName', className: 'wrap-text' },
-                { data: 'InputDate', render: d => d ? formatDateForInput(d) : '-' },
+                { data: 'InputDate', render: d => d ? formatDateDisplay(d) : '-' },
                 { data: 'PostCode' },
                 // Email editable cell
                 {
