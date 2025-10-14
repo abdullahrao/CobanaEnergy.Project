@@ -140,27 +140,19 @@
                 { data: 'SupplierEAC' },
                 {
                     data: 'InputDate',
-                    render: function (d) {
-                        return d && d !== "N/A" ? d : "-";
-                    }
+                    render: d => d ? formatDateLabel(d) : '-'
                 },
                 {
                     data: 'StartDate',
-                    render: function (d) {
-                        return d && d !== "N/A" ? d : "-";
-                    }
+                    render: d => d ? formatDateLabel(d) : '-'
                 },
                 {
                     data: 'CED',
-                    render: function (d) {
-                        return d && d !== "N/A" ? d : "-";
-                    }
+                    render: d => d ? formatDateLabel(d) : '-'
                 },
                 {
                     data: 'COTDate',
-                    render: function (d) {
-                        return d && d !== "N/A" ? d : "-";
-                    }
+                    render: d => d ? formatDateLabel(d) : '-'
                 },
                 { data: 'ContractStatus' },
                 { data: 'PaymentStatus' },
@@ -173,7 +165,6 @@
                            ${data.length > 50 ? data.substring(0, 50) + '…' : data}
                          </span>`;
                     }
-
                 },
                 { data: 'CommissionForecast', render: d => d ?? '-' },
                 { data: 'CobanaDueCommission', render: d => d ?? '-' },
@@ -188,28 +179,6 @@
         });
     }
 
-    function parseDateString(dateStr) {
-        if (!dateStr || dateStr.trim() === "") return null;
-
-        // yyyy-MM-dd
-        const isoMatch = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-        if (isoMatch) {
-            const [_, y, m, d] = isoMatch;
-            return new Date(y, m - 1, d);
-        }
-
-        // dd/MM/yyyy
-        const ukMatch = dateStr.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-        if (ukMatch) {
-            const [_, d, m, y] = ukMatch;
-            return new Date(y, m - 1, d);
-        }
-
-        // fallback → try browser parser
-        const fallback = new Date(dateStr);
-        return isNaN(fallback.getTime()) ? null : fallback;
-    }
-
     $(function () {
         populateDropdown("departmentFilter", DropdownOptions.department, $('#departmentFilter').data('current'));
         populateDropdown("contractstatus", AccountDropdownOptions.contractStatus, $('#contractstatus').data('current'));
@@ -220,6 +189,44 @@
         FilterModule.init(table);
        
     });
+
+    function formatDateLabel(dateStr) {
+        if (!dateStr || dateStr === "N/A" || dateStr === "-") return "-";
+
+        try {
+            let d;
+
+            // Handle formats like 22-09-25, 22/09/25, 22-09-2025, 2025-09-19, etc.
+            if (/^\d{2}[-/]\d{2}[-/]\d{2,4}$/.test(dateStr)) {
+                const parts = dateStr.split(/[-/]/);
+                let day = parts[0];
+                let month = parts[1];
+                let year = parts[2];
+
+                // If year is 2 digits, assume 20xx
+                if (year.length === 2) year = "20" + year;
+
+                d = new Date(`${year}-${month}-${day}`);
+            }
+            // ISO format
+            else if (/^\d{4}-\d{2}-\d{2}/.test(dateStr)) {
+                d = new Date(dateStr);
+            } else {
+                d = new Date(dateStr);
+            }
+
+            if (isNaN(d)) return "-";
+
+            const dd = String(d.getDate()).padStart(2, "0");
+            const mm = String(d.getMonth() + 1).padStart(2, "0");
+            const yyyy = d.getFullYear();
+
+            return `${dd}-${mm}-${yyyy}`;
+        } catch {
+            return "-";
+        }
+    }
+
 
     function populateDropdown(id, values, current) {
         const $el = $('#' + id);
