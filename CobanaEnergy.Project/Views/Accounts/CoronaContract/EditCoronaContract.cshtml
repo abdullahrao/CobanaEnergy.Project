@@ -22,11 +22,11 @@
                         <h4 class="section-header">Contract & Presales Details</h4>
                         <div class="row gx-3 gy-3">
                             <!-- Common Fields -->
-                            <div class="col-md-6 col-lg-4">
+                            <div class="col-md-6 col-lg-6">
                                 <label class="form-label required" for="department">Department</label>
                                 <select id="department" class="form-select" required data-current="@Model.Department" disabled></select>
                             </div>
-                            <div class="col-md-6 col-lg-4">
+                            <div class="col-md-6 col-lg-6">
                                 <label class="form-label required" for="businessName">Business Name</label>
                                 <input type="text" id="businessName" class="form-control" required value="@Model.BusinessName" autocomplete="off" disabled />
                             </div>
@@ -34,41 +34,41 @@
                             <!-- Department-based fields integrated inline -->
                             @if (Model.Department?.ToUpper() == "BROKERS")
                             {
-                                <div class="col-md-6 col-lg-4">
+                                <div class="col-md-6 col-lg-6">
                                     <label class="form-label" for="brokerageStaffName">Brokerage Staff</label>
                                     <input type="text" id="brokerageStaffName" class="form-control" value="@Model.BrokerageStaffName" autocomplete="off" disabled />
                                 </div>
-                                <div class="col-md-6 col-lg-4">
+                                <div class="col-md-6 col-lg-6">
                                     <label class="form-label" for="subBrokerageName">Sub Brokerage Name</label>
                                     <input type="text" id="subBrokerageName" class="form-control" value="@Model.SubBrokerageName" autocomplete="off" disabled />
                                 </div>
                             }
                             else if (Model.Department?.ToUpper() == "IN HOUSE")
                             {
-                                <div class="col-md-6 col-lg-4">
+                                <div class="col-md-6 col-lg-6">
                                     <label class="form-label" for="closerName">Closer</label>
                                     <input type="text" id="closerName" class="form-control" value="@Model.CloserName" autocomplete="off" disabled />
                                 </div>
-                                <div class="col-md-6 col-lg-4">
+                                <div class="col-md-6 col-lg-6">
                                     <label class="form-label" for="leadGeneratorName">Lead Generator</label>
                                     <input type="text" id="leadGeneratorName" class="form-control" value="@Model.LeadGeneratorName" autocomplete="off" disabled />
                                 </div>
-                                <div class="col-md-6 col-lg-4">
+                                <div class="col-md-6 col-lg-6">
                                     <label class="form-label" for="referralPartnerName">Referral Partner</label>
                                     <input type="text" id="referralPartnerName" class="form-control" value="@Model.ReferralPartnerName" autocomplete="off" disabled />
                                 </div>
-                                <div class="col-md-6 col-lg-4">
+                                <div class="col-md-6 col-lg-6">
                                     <label class="form-label" for="subReferralPartnerName">Sub Referral Partner</label>
                                     <input type="text" id="subReferralPartnerName" class="form-control" value="@Model.SubReferralPartnerName" autocomplete="off" disabled />
                                 </div>
                             }
                             else if (Model.Department?.ToUpper() == "INTRODUCERS")
                             {
-                                <div class="col-md-6 col-lg-4">
+                                <div class="col-md-6 col-lg-6">
                                     <label class="form-label" for="introducerName">Introducers</label>
                                     <input type="text" id="introducerName" class="form-control" value="@Model.IntroducerName" autocomplete="off" disabled />
                                 </div>
-                                <div class="col-md-6 col-lg-4">
+                                <div class="col-md-6 col-lg-6">
                                     <label class="form-label" for="subIntroducerName">Sub Introducers</label>
                                     <input type="text" id="subIntroducerName" class="form-control" value="@Model.SubIntroducerName" autocomplete="off" disabled />
                                 </div>
@@ -94,6 +94,10 @@
                                         <input type="text" id="durationElectric" class="form-control" value="@Model.DurationElectric" autocomplete="off" />
                                     </div>
                                     <div class="col-md-6 col-lg-4">
+                                        <label class="form-label" for="inputDateElectric">Input Date</label>
+                                        <input type="date" id="inputDateElectric" class="form-control" value="@Model.InputDateElectric" disabled />
+                                    </div>
+                                    <div class="col-md-6 col-lg-8">
                                         <label class="form-label" for="productElectric">Product</label>
                                         <select id="productElectric" class="form-select" disabled>
                                             <option value="">Select Product</option>
@@ -104,15 +108,10 @@
                                         </select>
                                     </div>
                                     <div class="col-md-6 col-lg-4">
-                                        <label class="form-label" for="inputDateElectric">Input Date</label>
-                                        <input type="date" id="inputDateElectric" class="form-control" value="@Model.InputDateElectric" disabled />
-                                    </div>
-                                    <div class="col-md-6 col-lg-4"></div>
-                                    <div class="col-md-6 col-lg-4">
                                         <label class="form-label required" for="upliftElectric">Uplift</label>
                                         <input type="text" id="upliftElectric" class="form-control" required value="@Model.UpliftElectric" autocomplete="off" />
                                     </div>
-                                    <div class="col-md-6 col-lg-4">
+                                    <div class="col-md-6 col-lg-8">
                                         <label class="form-label required text-nowrap" for="supplierCommsTypeElectric">Supplier Comms Type</label>
                                         <select id="supplierCommsTypeElectric" required class="form-select" data-current="@Model.SupplierCommsTypeElectric"></select>
                                     </div>
@@ -140,6 +139,10 @@
                                         <input type="text" id="durationGas" class="form-control" value="@Model.DurationGas" autocomplete="off" />
                                     </div>
                                     <div class="col-md-6 col-lg-4">
+                                        <label class="form-label" for="inputDateGas">Input Date</label>
+                                        <input type="date" id="inputDateGas" class="form-control" value="@Model.InputDateGas" disabled />
+                                    </div>
+                                    <div class="col-md-6 col-lg-8">
                                         <label class="form-label" for="productGas">Product</label>
                                         <select id="productGas" class="form-select" disabled>
                                             <option value="">Select Product</option>
@@ -150,15 +153,10 @@
                                         </select>
                                     </div>
                                     <div class="col-md-6 col-lg-4">
-                                        <label class="form-label" for="inputDateGas">Input Date</label>
-                                        <input type="date" id="inputDateGas" class="form-control" value="@Model.InputDateGas" disabled />
-                                    </div>
-                                    <div class="col-md-6 col-lg-4"></div>
-                                    <div class="col-md-6 col-lg-4">
                                         <label class="form-label required" for="upliftGas">Uplift</label>
                                         <input type="text" id="upliftGas" class="form-control" required value="@Model.UpliftGas" autocomplete="off" />
                                     </div>
-                                    <div class="col-md-6 col-lg-4">
+                                    <div class="col-md-6 col-lg-8">
                                         <label class="form-label text-nowrap" for="supplierCommsTypeGas">Supplier Comms Type</label>
                                         <select id="supplierCommsTypeGas" class="form-select" data-current="@Model.SupplierCommsTypeGas"></select>
                                     </div>
@@ -341,7 +339,7 @@
                                 <h4 class="section-header mb-0">Invoice Logs</h4>
                                 <i class="toggle-icon bi bi-chevron-down ms-auto"></i>
                             </div>
-                            <div class="collapse show" id="invoiceLogsBody">
+                            <div class="collapse" id="invoiceLogsBody">
                                 <div class="logs-panel mt-3">
                                     <div class="logs-header d-flex justify-content-between align-items-center mb-2">
                                         <h5 class="mb-0">Invoice Logs</h5>
@@ -366,32 +364,34 @@
                                 <h4 class="section-header mb-0">Payment & Notes Logs</h4>
                                 <i class="toggle-icon bi bi-chevron-down ms-auto"></i>
                             </div>
-                            <div class="collapse show" id="paymentLogsBody">
-                                <div class="row gx-3 gy-3 mt-3">
-                                    <div class="col-12">
-                                        <table class="table table-striped table-sm table-bordered payment-logs-table w-100">
-                                            <thead class="table-light">
-                                                <tr>
-                                                    <th>Payment Status</th>
-                                                    <th>Invoice Notes</th>
-                                                    <th>Username</th>
-                                                    <th>Date</th>
-                                                    <th>Time</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach (var log in Model.PaymentNoteLogs)
-                                                {
-                                                    <tr>
-                                                        <td>@log.PaymentStatus</td>
-                                                        <td>@log.CobanaInvoiceNotes</td>
-                                                        <td>@log.Username</td>
-                                                        <td>@log.CreatedAt.ToString("dd-MM-yy")</td>
-                                                        <td>@log.CreatedAt.ToString("HH:mm:ss")</td>
-                                                    </tr>
-                                                }
-                                            </tbody>
-                                        </table>
+                            <div class="collapse" id="paymentLogsBody">
+                                <div class="logs-panel mt-3">
+                                    <div id="paymentNoteLogsContainer" class="mt-2">
+                                        @if (Model.PaymentNoteLogs != null && Model.PaymentNoteLogs.Any())
+                                        {
+                                            foreach (var log in Model.PaymentNoteLogs)
+                                            {
+                                                <div class="log-entry">
+                                                    <div class="log-date">@log.CreatedAt.ToString("dd-MM-yy HH:mm:ss")</div>
+                                                    <div class="log-field">
+                                                        <span class="log-label">Payment Status:</span>
+                                                        <span class="log-value">@(string.IsNullOrWhiteSpace(log.PaymentStatus) ? "N/A" : log.PaymentStatus)</span>
+                                                    </div>
+                                                    <div class="log-field">
+                                                        <span class="log-label">Invoice Notes:</span>
+                                                        <span class="log-value">@(string.IsNullOrWhiteSpace(log.CobanaInvoiceNotes) ? "N/A" : log.CobanaInvoiceNotes)</span>
+                                                    </div>
+                                                    <div class="log-field">
+                                                        <span class="log-label">Username:</span>
+                                                        <span class="log-value">@(string.IsNullOrWhiteSpace(log.Username) ? "N/A" : log.Username)</span>
+                                                    </div>
+                                                </div>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">No payment logs yet.</span>
+                                        }
                                     </div>
                                 </div>
                             </div>
