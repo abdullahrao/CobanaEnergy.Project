@@ -397,7 +397,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.SSEContracts
                         if (model.HasGasDetails)
                         {
 
-                            if (!model.SupplierCommsTypeElectric.Equals("DURATION", StringComparison.OrdinalIgnoreCase))
+                            if (!model.SupplierCommsTypeGas.Equals("DURATION", StringComparison.OrdinalIgnoreCase))
                                 return JsonResponse.Fail("Invalid Supplier Comms Type for SSE. Only DURATION are allowed.");
 
                             gasContract.Uplift = model.UpliftGas;

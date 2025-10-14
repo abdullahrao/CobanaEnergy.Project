@@ -246,7 +246,7 @@
         return `${yyyy}-${mm}-${dd}`;
     }
 
-    $("#editTotalGasAndPowerContractForm").on("submit", async function (e) {
+    $("#editTotalGasandPowerContractForm").on("submit", async function (e) {
         e.preventDefault();
         const $btn = $(this).find('button[type="submit"]');
         $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i> Updating...');
