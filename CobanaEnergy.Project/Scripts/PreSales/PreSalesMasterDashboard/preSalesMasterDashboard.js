@@ -38,8 +38,26 @@ $(document).ready(function () {
                     orderable: false,
                     searchable: false,
                     render: function (data, type, row) {
-                        return `<button class="edit-btn" onclick="editContract('${row.EId}', '${row.Type}')">
-                                    <i class="fas fa-pencil-alt me-1"></i>Edit
+                        let iconClass, buttonClass;
+                        switch(row.Type) {
+                            case 'Electric':
+                                iconClass = 'fas fa-bolt me-2';
+                                buttonClass = 'btn btn-sm btn-primary';
+                                break;
+                            case 'Gas':
+                                iconClass = 'fas fa-fire me-2';
+                                buttonClass = 'btn btn-sm btn-danger';
+                                break;
+                            case 'Dual':
+                                iconClass = 'fas fa-plug me-2';
+                                buttonClass = 'btn btn-sm btn-secondary';
+                                break;
+                            default:
+                                iconClass = 'fas fa-pencil-alt me-1';
+                                buttonClass = 'btn btn-sm';
+                        }
+                        return `<button class="${buttonClass}" onclick="editContract('${row.EId}', '${row.Type}')">
+                                    <i class="${iconClass}"></i>Edit
                                 </button>`;
                     }
                 },
