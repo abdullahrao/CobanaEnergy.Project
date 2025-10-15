@@ -30,14 +30,33 @@ function loadContractTable() {
                 controller = 'Dual/EditDual';
             }
 
+            let iconClass, buttonClass;
+            switch(r.Type) {
+                case 'Electric':
+                    iconClass = 'fas fa-bolt me-2';
+                    buttonClass = 'btn btn-sm contract-edit-btn btn-primary';
+                    break;
+                case 'Gas':
+                    iconClass = 'fas fa-fire me-2';
+                    buttonClass = 'btn btn-sm contract-edit-btn btn-danger';
+                    break;
+                case 'Dual':
+                    iconClass = 'fas fa-plug me-2';
+                    buttonClass = 'btn btn-sm contract-edit-btn btn-secondary';
+                    break;
+                default:
+                    iconClass = 'fas fa-pencil-alt me-1';
+                    buttonClass = 'btn btn-sm contract-edit-btn';
+            }
+            
             const row = `
                             <tr>
-                                <td><button class="btn btn-sm edit-btn contract-edit-btn" 
+                                <td><button class="${buttonClass}" 
                                            data-eid="${r.EId}" 
                                            data-type="${r.Type}" 
                                            data-controller="${controller}" 
                                            title="Edit">
-                                    <i class="fas fa-pencil-alt me-1"></i> Edit
+                                    <i class="${iconClass}"></i>Edit
                                     </button></td>
                                 <td>${r.Agent}</td>
                                 <td>${r.MPAN || '-'}</td>

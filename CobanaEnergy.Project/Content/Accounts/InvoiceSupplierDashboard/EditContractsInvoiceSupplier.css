@@ -150,26 +150,36 @@
 
 .edit-btn {
     background-color: #6b737a;
-    color: #fff;
+    color: white;
     border: none;
-    padding: 4px 10px; /* Was 6px 14px, now less vertical & horizontal space */
-    font-size: 0.93rem; /* Slightly smaller font */
+    padding: 6px 14px;
+    font-size: 0.85rem;
     font-weight: 500;
-    border-radius: 0.37rem; /* Less rounded for smaller button */
-    font-family: 'Raleway', sans-serif;
-    transition: background-color 0.2s;
-    display: inline-flex; /* Perfect icon alignment */
+    display: inline-flex;
     align-items: center;
-    line-height: 1.2;
+    border-radius: 4px;
+    transition: background-color 0.2s ease-in-out;
 }
 
     .edit-btn i {
-        margin-right: 4px;
-        font-size: 1em;
-        vertical-align: middle;
+        font-size: 0.85rem;
     }
 
     .edit-btn:hover {
-        background-color: #52585c;
+        background-color: #545b61;
         color: #fff;
     }
+
+/* Ensure consistent button sizing for all Bootstrap button variants */
+.btn-primary, .btn-danger, .btn-secondary {
+    padding: 6px 14px !important;
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+    border-radius: 4px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+}
+
+.btn-primary i, .btn-danger i, .btn-secondary i {
+    font-size: 0.85rem !important;
+}

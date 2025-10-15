@@ -115,8 +115,24 @@
                     }
                     // /${controler}?eid=${r.EId}
                     res.Data.Contracts.forEach(contract => {
+                        // Determine contract type and styling
+                        let iconClass, buttonClass;
+                        switch(contract.ContractType) {
+                            case 'Electric':
+                                iconClass = 'fas fa-bolt me-2';
+                                buttonClass = 'btn btn-sm btn-primary';
+                                break;
+                            case 'Gas':
+                                iconClass = 'fas fa-fire me-2';
+                                buttonClass = 'btn btn-sm btn-danger';
+                                break;
+                            default:
+                                iconClass = 'fas fa-pencil-alt me-1';
+                                buttonClass = 'btn btn-sm';
+                        }
+                        
                         table.row.add([
-                            `<a href="javascript:void(0)" id="openEditPaymentPopup"  data-eid="${contract.EId}" data-paymentstatus="${contract.PaymentStatus}" data-contracttype="${contract.ContractType}" class="btn btn-sm edit-btn" title="Edit"><i class="fas fa-pencil-alt me-1"></i> Edit</a>`,
+                            `<a href="javascript:void(0)" id="openEditPaymentPopup" data-eid="${contract.EId}" data-paymentstatus="${contract.PaymentStatus}" data-contracttype="${contract.ContractType}" class="${buttonClass}" title="Edit"><i class="${iconClass}"></i>Edit</a>`,
                             `<input type="checkbox" name="selectedContracts" value="${contract.EId}" />`,
                             contract.BusinessName,
                             contract.MPAN ?? '',

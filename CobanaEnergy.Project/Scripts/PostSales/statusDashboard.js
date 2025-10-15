@@ -138,7 +138,26 @@ $(document).ready(function () {
                 {
                     data: null, orderable: false, render: function (row) {
                         const url = `/StatusDashboard/Edit/${encodeURIComponent(row.EId)}?type=${encodeURIComponent(row.ContractType)}`;
-                        return `<a class="btn edit-btn btn-sm btn-default" href="${url}" target="_blank">Edit</a>`;
+                        
+                        // Determine contract type and styling
+                        let iconClass, buttonClass;
+                        switch(row.ContractType) {
+                            case 'Electric':
+                                iconClass = 'fas fa-bolt me-2';
+                                buttonClass = 'btn btn-sm btn-primary';
+                                break;
+                            case 'Gas':
+                                iconClass = 'fas fa-fire me-2';
+                                buttonClass = 'btn btn-sm btn-danger';
+                                break;
+                            default:
+                                iconClass = 'fas fa-pencil-alt me-1';
+                                buttonClass = 'btn btn-sm';
+                        }
+                        
+                        return `<a class="${buttonClass}" href="${url}" target="_blank">
+                                    <i class="${iconClass}"></i>Edit
+                                </a>`;
                     }
                 },
                 {

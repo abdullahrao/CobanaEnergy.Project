@@ -35,7 +35,25 @@ $(document).ready(function () {
                 searchable: false,
                 render: function (data, type, row) {
                     if (type === 'display') {
-                        return `<a class="btn btn-sm edit-btn edit-contract-btn" target="_blank" title="Edit" data-eid="${data}" data-type="${row.Type}" ><i class='fas fa-pencil-alt me-1'></i>Edit</a>`;
+                        let iconClass, buttonClass;
+                        switch(row.Type) {
+                            case 'Electric':
+                                iconClass = 'fas fa-bolt me-2';
+                                buttonClass = 'btn btn-sm edit-contract-btn btn-primary';
+                                break;
+                            case 'Gas':
+                                iconClass = 'fas fa-fire me-2';
+                                buttonClass = 'btn btn-sm edit-contract-btn btn-danger';
+                                break;
+                            case 'Dual':
+                                iconClass = 'fas fa-plug me-2';
+                                buttonClass = 'btn btn-sm edit-contract-btn btn-secondary';
+                                break;
+                            default:
+                                iconClass = 'fas fa-pencil-alt me-1';
+                                buttonClass = 'btn btn-sm edit-contract-btn';
+                        }
+                        return `<a class="${buttonClass}" target="_blank" title="Edit" data-eid="${data}" data-type="${row.Type}" ><i class='${iconClass}'></i>Edit</a>`;
                     }
                     return data;
                 }
