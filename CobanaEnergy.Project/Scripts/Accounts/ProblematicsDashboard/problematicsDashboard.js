@@ -111,20 +111,20 @@
                         let iconClass, buttonClass;
                         switch(contract.ContractType) {
                             case 'Electric':
-                                iconClass = 'fas fa-bolt me-2';
+                                iconClass = 'fas fa-bolt';
                                 buttonClass = 'btn btn-sm btn-primary';
                                 break;
                             case 'Gas':
-                                iconClass = 'fas fa-fire me-2';
+                                iconClass = 'fas fa-fire';
                                 buttonClass = 'btn btn-sm btn-danger';
                                 break;
                             default:
-                                iconClass = 'fas fa-pencil-alt me-1';
+                                iconClass = 'fas fa-pencil-alt';
                                 buttonClass = 'btn btn-sm';
                         }
                         
                         table.row.add([
-                            `<a href="javascript:void(0)" id="openProblemticDashboardPopup" data-eid="${contract.EId}" data-paymentstatus="${contract.PaymentStatus}" data-contracttype="${contract.ContractType}" class="${buttonClass}" title="Edit"><i class="${iconClass}"></i>Edit</a>`,
+                            `<a href="javascript:void(0)" id="openProblemticDashboardPopup" data-eid="${contract.EId}" data-paymentstatus="${contract.PaymentStatus}" data-contracttype="${contract.ContractType}" class="${buttonClass}" title="Edit"><i class="${iconClass}"></i></a>`,
                             `<input type="checkbox" name="selectedContracts" value="${contract.EId}" />`,
                             contract.BusinessName,
                             contract.MPAN ?? '',

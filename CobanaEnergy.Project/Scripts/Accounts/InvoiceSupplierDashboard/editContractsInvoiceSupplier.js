@@ -1,5 +1,5 @@
 ﻿$(function () {
-    // Setup DataTable, disable sorting on the Action column (first col, index 0)
+    // Setup DataTable, disable sorting on the Edit column (first col, index 0)
     $('#editContractsTable').DataTable({
         responsive: true,
         paging: true,
@@ -8,7 +8,7 @@
         order: [],
         autoWidth: false,
         columnDefs: [
-            { orderable: false, targets: 0 } // No sort on 'Action'
+            { orderable: false, targets: 0 } // No sort on 'Edit'
         ]
     });
 });

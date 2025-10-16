@@ -122,35 +122,42 @@
             ],
             columns: [
                 {
-                    data: null, orderable: false,                     render: function (data, type, row) {
-                        const mp = encodeURIComponent(row.MPXN || '');
-                        const supplierId = row.SupplierId || '';
-                        const id = row.EId;
-                        const controller = row.Controller;
-                        const action = row.Action;
+                    data: 'EId',
+                    orderable: false,
+                    searchable: false,
+					render: function (data, type, row) {
+						if (type !== 'display') return data;
 
-                        const url = `/${controller}/${action}/${id}?supplierId=${supplierId}&type=${mp}`;
-                        
-                        // Determine contract type and styling
-                        let iconClass, buttonClass;
-                        switch(row.ContractType) {
-                            case 'Electric':
-                                iconClass = 'fas fa-bolt me-2';
-                                buttonClass = 'btn btn-sm btn-primary';
-                                break;
-                            case 'Gas':
-                                iconClass = 'fas fa-fire me-2';
-                                buttonClass = 'btn btn-sm btn-danger';
-                                break;
-                            default:
-                                iconClass = 'fas fa-pencil-alt me-1';
-                                buttonClass = 'btn btn-sm';
-                        }
-                        
-                        return `<a class="${buttonClass}" href="${url}" target="_blank">
-                                    <i class="${iconClass}"></i>Edit
-                                </a>`;
-                    }
+						const mp = encodeURIComponent(row.MPXN || '');
+						const supplierId = row.SupplierId || '';
+						const id = row.EId;
+						const controller = row.Controller;
+						const action = row.Action;
+
+						if (!controller || !action) {
+							return '<span class="text-muted">-</span>';
+						}
+
+						const url = `/${controller}/${action}/${id}?supplierId=${supplierId}&type=${mp}`;
+						
+						// Determine contract type and styling
+						let iconClass, buttonClass;
+						switch(row.ContractType) {
+							case 'Electric':
+								iconClass = 'fas fa-bolt';
+								buttonClass = 'btn btn-sm btn-primary';
+								break;
+							case 'Gas':
+								iconClass = 'fas fa-fire';
+								buttonClass = 'btn btn-sm btn-danger';
+								break;
+							default:
+								iconClass = 'fas fa-pencil-alt';
+								buttonClass = 'btn btn-sm';
+						}
+						
+						return `<a class="${buttonClass}" href="${url}" target="_blank" title="Edit"><i class="${iconClass}"></i></a>`;
+					}
                 },
                 { data: 'SupplierName' },
                 { data: 'BusinessName' },
@@ -191,8 +198,13 @@
                 { data: 'CobanaFinalReconciliation', render: d => d ?? '-' }
             ],
             drawCallback: function () {
-                $('#accountMasterTable tbody tr td').each(function () {
-                    if ($(this).text().trim() === '') $(this).text('-');
+                $('#accountMasterTable tbody tr').each(function () {
+                    $(this).find('td').each(function (idx) {
+                        // Skip the first column (Edit button) and any cell that already has child elements (like icons/buttons)
+                        if (idx === 0) return;
+                        if ($(this).children().length > 0) return;
+                        if ($(this).text().trim() === '') $(this).text('-');
+                    });
                 });
             }
         });

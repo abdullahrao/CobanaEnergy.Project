@@ -20,7 +20,7 @@
             <table id="editContractsTable" class="table table-bordered table-striped w-100">
                 <thead class="table-light">
                     <tr>
-                        <th>Action</th>
+                        <th>Edit</th>
                         <th>Business Name</th>
                         <th>MPAN</th>
                         <th>MPRN</th>
@@ -51,26 +51,26 @@
 
                                 @if (!string.IsNullOrEmpty(contract.MPAN))
                                 {
-                                    <a href="@Url.Action(action, controller, new { id = contract.EId, supplierId = contract.SupplierId, type = contract.MPAN })"
-                                       target="_blank" class="btn btn-sm btn-primary" title="Edit">
-                                        <i class="fas fa-bolt me-2"></i>Edit
-                                    </a>
+        <a href="@Url.Action(action, controller, new { id = contract.EId, supplierId = contract.SupplierId, type = contract.MPAN })"
+           target="_blank" class="btn btn-sm btn-primary" title="Edit">
+            <i class="fas fa-bolt"></i>
+        </a>
                                 }
 
                                 @if (!string.IsNullOrEmpty(contract.MPRN))
                                 {
-                                    <a href="@Url.Action(action, controller, new { id = contract.EId, supplierId = contract.SupplierId, type = contract.MPRN })"
-                                       target="_blank" class="btn btn-sm btn-danger" title="Edit">
-                                        <i class="fas fa-fire me-2"></i>Edit
-                                    </a>
+        <a href="@Url.Action(action, controller, new { id = contract.EId, supplierId = contract.SupplierId, type = contract.MPRN })"
+           target="_blank" class="btn btn-sm btn-danger" title="Edit">
+            <i class="fas fa-fire"></i>
+        </a>
                                 }
 
                                 @if (string.IsNullOrEmpty(contract.MPAN) && string.IsNullOrEmpty(contract.MPRN))
                                 {
-                                    <a href="@Url.Action(SupportedSuppliers.DefaultAction, new { id = contract.EId, supplierId = contract.SupplierId })"
-                                       target="_blank" class="btn btn-sm" title="Edit">
-                                        <i class="fas fa-pencil-alt me-1"></i>Edit
-                                    </a>
+        <a href="@Url.Action(SupportedSuppliers.DefaultAction, new { id = contract.EId, supplierId = contract.SupplierId })"
+           target="_blank" class="btn btn-sm" title="Edit">
+            <i class="fas fa-pencil-alt"></i>
+        </a>
                                 }
 
                             </td>
