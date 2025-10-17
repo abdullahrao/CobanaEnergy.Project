@@ -75,6 +75,18 @@
     white-space: nowrap;
     padding: 10px 12px;
 }
+/* Edit column (first column) - only for Sector Dashboard (not AllSector) */
+.sector-dashboard:not(.all-sector-dashboard) #sectorTable th:nth-child(1),
+.sector-dashboard:not(.all-sector-dashboard) #sectorTable td:nth-child(1) {
+    width: 48px !important;
+    min-width: 48px !important;
+    max-width: 48px !important;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
 
 /* DataTables UI spacing */
 .dataTables_filter,

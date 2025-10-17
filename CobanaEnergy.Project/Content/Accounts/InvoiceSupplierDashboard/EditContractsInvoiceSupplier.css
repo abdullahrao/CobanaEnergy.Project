@@ -33,6 +33,18 @@
     background: #fff;
     margin-bottom: 0;
 }
+/* Edit column (first column) */
+#editContractsTable th:nth-child(1),
+#editContractsTable td:nth-child(1) {
+    width: 48px !important;
+    min-width: 48px !important;
+    max-width: 48px !important;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
 
     #editContractsTable th, #editContractsTable td {
         text-align: center;

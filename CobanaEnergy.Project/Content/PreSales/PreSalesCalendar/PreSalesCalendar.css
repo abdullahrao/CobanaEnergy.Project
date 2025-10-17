@@ -221,12 +221,14 @@
 /* Edit column (first column) */
 #preSalesCalendarTable th:nth-child(1),
 #preSalesCalendarTable td:nth-child(1) {
-    width: 60px !important;
-    min-width: 60px !important;
-    max-width: 60px !important;
+    width: 48px !important;
+    min-width: 48px !important;
+    max-width: 48px !important;
     text-align: center;
     white-space: nowrap;
     vertical-align: middle;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
 }
 .has-followup {
     background-color: #ffe066 !important;
