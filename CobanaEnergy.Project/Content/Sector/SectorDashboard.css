@@ -166,17 +166,6 @@
     color: #fff;
 }
 
-/* Edit column (first column) */
-#sectorTable th:nth-child(1),
-#sectorTable td:nth-child(1) {
-    width: 60px !important;
-    min-width: 60px !important;
-    max-width: 60px !important;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: middle;
-}
-
 /* Status Badge Styling */
 .badge.bg-success {
     background-color: #28a745 !important;
