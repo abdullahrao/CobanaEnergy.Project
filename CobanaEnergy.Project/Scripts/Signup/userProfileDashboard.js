@@ -1,6 +1,6 @@
 $(document).ready(function () {
     // Initialize DataTable on the server-rendered table
-    $('#userProfileTable').DataTable({
+    $('#userTable').DataTable({
         paging: true,
         searching: true,
         ordering: true,
