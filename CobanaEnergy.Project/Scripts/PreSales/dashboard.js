@@ -33,19 +33,19 @@ function loadContractTable() {
             let iconClass, buttonClass;
             switch(r.Type) {
                 case 'Electric':
-                    iconClass = 'fas fa-bolt me-2';
+                    iconClass = 'fas fa-bolt';
                     buttonClass = 'btn btn-sm contract-edit-btn btn-primary';
                     break;
                 case 'Gas':
-                    iconClass = 'fas fa-fire me-2';
+                    iconClass = 'fas fa-fire';
                     buttonClass = 'btn btn-sm contract-edit-btn btn-danger';
                     break;
                 case 'Dual':
-                    iconClass = 'fas fa-plug me-2';
+                    iconClass = 'fas fa-plug';
                     buttonClass = 'btn btn-sm contract-edit-btn btn-secondary';
                     break;
                 default:
-                    iconClass = 'fas fa-pencil-alt me-1';
+                    iconClass = 'fas fa-pencil-alt';
                     buttonClass = 'btn btn-sm contract-edit-btn';
             }
             
@@ -56,7 +56,7 @@ function loadContractTable() {
                                            data-type="${r.Type}" 
                                            data-controller="${controller}" 
                                            title="Edit">
-                                    <i class="${iconClass}"></i>Edit
+                                    <i class="${iconClass}"></i>
                                     </button></td>
                                 <td>${r.Agent}</td>
                                 <td>${r.MPAN || '-'}</td>

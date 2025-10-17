@@ -1,7 +1,7 @@
 $(document).ready(function () {
     // Get the actual number of columns in the table
     var columnCount = $('#sectorTable thead th').length;
-    var hasActionColumn = $('#sectorTable thead th:first').text().trim() === 'Action';
+    var hasActionColumn = $('#sectorTable thead th:first').text().trim() === 'Edit';
     
     // Calculate column indices dynamically
     var sectorTypeColumnIndex = columnCount - 1; // Last column is always Sector Type

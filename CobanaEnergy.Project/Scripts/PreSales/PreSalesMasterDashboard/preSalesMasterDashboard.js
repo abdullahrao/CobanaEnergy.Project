@@ -41,24 +41,24 @@ $(document).ready(function () {
                         let iconClass, buttonClass;
                         switch(row.Type) {
                             case 'Electric':
-                                iconClass = 'fas fa-bolt me-2';
+                                iconClass = 'fas fa-bolt';
                                 buttonClass = 'btn btn-sm btn-primary';
                                 break;
                             case 'Gas':
-                                iconClass = 'fas fa-fire me-2';
+                                iconClass = 'fas fa-fire';
                                 buttonClass = 'btn btn-sm btn-danger';
                                 break;
                             case 'Dual':
-                                iconClass = 'fas fa-plug me-2';
+                                iconClass = 'fas fa-plug';
                                 buttonClass = 'btn btn-sm btn-secondary';
                                 break;
                             default:
-                                iconClass = 'fas fa-pencil-alt me-1';
+                                iconClass = 'fas fa-pencil-alt';
                                 buttonClass = 'btn btn-sm';
                         }
-                        return `<button class="${buttonClass}" onclick="editContract('${row.EId}', '${row.Type}')">
-                                    <i class="${iconClass}"></i>Edit
-                                </button>`;
+        return `<button class="${buttonClass}" onclick="editContract('${row.EId}', '${row.Type}')">
+                    <i class="${iconClass}"></i>
+                </button>`;
                     }
                 },
                 {
