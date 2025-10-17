@@ -273,10 +273,10 @@ namespace CobanaEnergy.Project.Controllers.Accounts.MasterDashboard
                 case "BusinessName": keySelector = x => x.BusinessName; break;
                 case "MPXN": keySelector = x => x.MPXN; break;
                 case "InputEAC": keySelector = x => x.InputEAC; break;
-                case "InputDate": keySelector = x => x.InputDate; break;
-                case "StartDate": keySelector = x => x.StartDate; break;
-                case "CED": keySelector = x => crs.FirstOrDefault(c => c.EId == x.EId)?.CED; break;
-                case "COTDate": keySelector = x => crs.FirstOrDefault(c => c.EId == x.EId)?.CED_COT; break;
+                case "InputDate": keySelector = x => ParserHelper.ParseDateForSorting(x.InputDate); break;
+                case "StartDate": keySelector = x => ParserHelper.ParseDateForSorting(x.StartDate); break;
+                case "CED": keySelector = x => ParserHelper.ParseDateForSorting(crs.FirstOrDefault(c => c.EId == x.EId)?.CED); break;
+                case "COTDate": keySelector = x => ParserHelper.ParseDateForSorting(crs.FirstOrDefault(c => c.EId == x.EId)?.CED_COT); break;
                 case "ContractStatus": keySelector = x => statuses.FirstOrDefault(s => s.EId == x.EId)?.ContractStatus ?? ""; break;
                 case "PaymentStatus": keySelector = x => statuses.FirstOrDefault(s => s.EId == x.EId)?.PaymentStatus ?? ""; break;
                 case "CommissionForecast": keySelector = x => metrics.FirstOrDefault(m => m.ReconciliationId == crs.FirstOrDefault(c => c.EId == x.EId)?.Id)?.InitialCommissionForecast ?? "0"; break;
