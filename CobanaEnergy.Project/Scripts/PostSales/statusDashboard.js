@@ -126,19 +126,19 @@ $(document).ready(function () {
                     return json.data;
                 }
             },
-
             dom: `
                 <"row mb-2 align-items-end justify-content-between"
-                    <"col-auto" <"date-filter-container d-flex flex-wrap align-items-end gap-3"> >
+                    <"col-auto d-flex flex-wrap align-items-end gap-3" <"date-filter-container"> >
                     <"col-auto d-flex align-items-center gap-2" B >
                 >
                 <"row mb-2"
-                    <"col-sm-12 text-end" f >
+                    <"col-sm-12 col-md-6 d-flex align-items-center" l >  
+                    <"col-sm-12 col-md-6 text-end" f >                   
                 >
                 rt
                 <"row mt-2"
-                    <"col-sm-12 col-md-5" i >
-                    <"col-sm-12 col-md-7" p >
+                    <"col-sm-12 col-md-5" i >                             
+                    <"col-sm-12 col-md-7" p >                           
                 >
             `,
             buttons: [
