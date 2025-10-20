@@ -1,4 +1,20 @@
 ﻿$(document).ready(function () {
+    // Register custom sorting type for dd-MM-yy date format
+    $.fn.dataTable.ext.type.order['date-dd-mm-yy-pre'] = function (data) {
+        if (!data || data === 'N/A' || data === '' || data === '-') {
+            return 0;
+        }
+        var parts = data.split('-');
+        if (parts.length === 3) {
+            var day = parts[0];
+            var month = parts[1];
+            var year = parts[2];
+            var fullYear = '20' + year;
+            return parseInt(fullYear + month + day);
+        }
+        return 0;
+    };
+
     var table = $('#awaitingPaymentsTable').DataTable({
         responsive: true,
         paging: true,
@@ -8,7 +24,11 @@
         autoWidth: false,
         dom: 'lfrtip',
         columnDefs: [
-            { orderable: false, targets: 0 }
+            { orderable: false, targets: 0 },
+            {
+                targets: [6, 7], // InputDate (6), StartDate (7) columns
+                type: 'date-dd-mm-yy'
+            }
         ]
     });
 
