@@ -42,17 +42,24 @@
             }
             else if (val === 'In House') {
                 $('#inhouse-closer-area').show();
-                $.getJSON(`/Common/Closers`).done(data => fillDropdown("#closerFilter", data));
+                showDropdownLoader("#closerFilter");
+
+                $.getJSON(`/Common/Closers`).done(data => fillDropdown("#closerFilter", data)).fail(() => fillSelect2Dropdown("#brokerageFilter", []));
                 // Refferal and Lead Generators
                 $('#leadGenFilter, #referralFilter').empty().append('<option value="">All</option>');
                 $('#leadgen-area, #referral-area').show();
-                $.getJSON(`/Common/LeadGenerators`).done(data => fillDropdown("#leadGenFilter", data));
-                $.getJSON(`/Common/ReferralPartners`).done(data => fillDropdown("#referralFilter", data));
+
+                showDropdownLoader("#leadGenFilter");
+                showDropdownLoader("#referralFilter");
+
+                $.getJSON(`/Common/LeadGenerators`).done(data => fillDropdown("#leadGenFilter", data)).fail(() => fillSelect2Dropdown("#leadGenFilter", []));
+                $.getJSON(`/Common/ReferralPartners`).done(data => fillDropdown("#referralFilter", data)).fail(() => fillSelect2Dropdown("#referralFilter", []));
 
             }
             else if (val === 'Introducers') {
                 $('#introducer-area').show();
-                $.getJSON(`/Common/Introducers`).done(data => fillDropdown("#introducerFilter", data));
+                showDropdownLoader("#introducerFilter");
+                $.getJSON(`/Common/Introducers`).done(data => fillDropdown("#introducerFilter", data)).fail(() => fillSelect2Dropdown("#introducerFilter", []));
             }
             if (table) table.ajax.reload();
         });
@@ -62,8 +69,11 @@
             $('#brokerageStaffFilter, #subBrokerageFilter').empty().append('<option value="">All</option>');
             if (id) {
                 $('#brokerage-staff-area, #subbrokerage-area').show();
-                $.getJSON(`/Common/BrokerageStaff?brokerageId=${id}`).done(data => fillDropdown("#brokerageStaffFilter", data));
-                $.getJSON(`/Common/SubBrokerages?brokerageId=${id}`).done(data => fillDropdown("#subBrokerageFilter", data));
+                showDropdownLoader("#brokerageStaffFilter");
+                showDropdownLoader("#subBrokerageFilter");
+
+                $.getJSON(`/Common/BrokerageStaff?brokerageId=${id}`).done(data => fillDropdown("#brokerageStaffFilter", data)).fail(() => fillSelect2Dropdown("#introducerFilter", []));
+                $.getJSON(`/Common/SubBrokerages?brokerageId=${id}`).done(data => fillDropdown("#subBrokerageFilter", data)).fail(() => fillSelect2Dropdown("#introducerFilter", []));
             } else {
                 $('#brokerage-staff-area, #subbrokerage-area').hide();
             }
@@ -85,7 +95,9 @@
         $('#referralFilter').on('change', function () {
             const id = $(this).val();
             $('#sub-referral-area').show();
-            $.getJSON(`/Common/SubReferralPartners?referralId=${id}`).done(data => fillDropdown("#subReferralFilter", data));
+            showDropdownLoader("#subReferralFilter");
+
+            $.getJSON(`/Common/SubReferralPartners?referralId=${id}`).done(data => fillDropdown("#subReferralFilter", data)).fail(() => fillSelect2Dropdown("#subReferralFilter", []));
             if (table) table.ajax.reload();
         });
 
@@ -94,7 +106,7 @@
             $('#subIntroducerFilter').empty().append('<option value="">All</option>');
             if (id) {
                 $('#subintroducer-area').show();
-                $.getJSON(`/Common/SubIntroducers?introducerId=${id}`).done(data => fillDropdown("#subIntroducerFilter", data));
+                $.getJSON(`/Common/SubIntroducers?introducerId=${id}`).done(data => fillDropdown("#subIntroducerFilter", data)).fail(() => fillSelect2Dropdown("#subIntroducerFilter", []));
             } else {
                 $('#subintroducer-area').hide();
             }
@@ -106,15 +118,34 @@
         });
     }
 
-    function fillDropdown(selector, data) {
-        var $ddl = $(selector);
-        $ddl.empty().append('<option value="">All</option>');
-        if (!data || !data.Data || !Array.isArray(data.Data)) {
-            return;
+    function fillDropdown(selector, data, defaultText = "All") {
+
+        const $ddl = $(selector);
+        const $container = $ddl.next('.select2-container');
+
+        $container.removeClass('loading');
+        $ddl.prop('disabled', false);
+
+        $ddl.empty().append(`<option value="">${defaultText}</option>`);
+        if (Array.isArray(data.Data)) {
+            data.Data.forEach(item => {
+                $ddl.append(new Option(item.Name, item.Id));
+            });
         }
-        $.each(data.Data, function (i, item) {
-            $ddl.append('<option value="' + item.Id + '">' + item.Name + '</option>');
-        });
+
+        $ddl.trigger('change.select2');
+
+    }
+
+
+    function showDropdownLoader(selector) {
+        const $ddl = $(selector);
+        const $container = $ddl.next('.select2-container');
+
+        $ddl.prop('disabled', true);
+        $container.addClass('loading');
+
+        $container.find('.select2-selection__rendered').text('Loading...');
     }
 
     return {

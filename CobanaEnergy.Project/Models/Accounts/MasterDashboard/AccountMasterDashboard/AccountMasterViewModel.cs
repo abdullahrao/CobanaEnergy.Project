@@ -88,5 +88,6 @@ namespace CobanaEnergy.Project.Models.Accounts.MasterDashboard.AccountMasterDash
         public string TotalCommissionForecast { get; set; }
         public string InitialCommissionForecast { get; set; }
         public string TotalAverageEAC { get; set; }
+        public string Link { get; set; }
     }
 }

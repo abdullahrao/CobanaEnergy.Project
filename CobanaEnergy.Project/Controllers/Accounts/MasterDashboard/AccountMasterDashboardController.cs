@@ -223,40 +223,45 @@ namespace CobanaEnergy.Project.Controllers.Accounts.MasterDashboard
                 var term = q.Search.Value.ToLower();
 
                 contracts = contracts.Where(x =>
-                    (x.SupplierName ?? "").ToLower().Contains(term) ||
-                    (x.BusinessName ?? "").ToLower().Contains(term) ||
-                    (x.MPXN ?? "").ToLower().Contains(term) ||
-                    (x.InputEAC ?? "").ToLower().Contains(term) ||
-                    (x.ContractType ?? "").ToLower().Contains(term) ||
-                    (x.Department ?? "").ToLower().Contains(term) ||
-                    (x.EId ?? "").ToLower().Contains(term) ||
+                {
+                    var matchedStatus = statuses.FirstOrDefault(s => s.EId == x.EId);
+                    var matchedRecon = crs.FirstOrDefault(c => c.EId == x.EId);
+                    var matchedMetric = matchedRecon != null
+                        ? metrics.FirstOrDefault(m => m.ReconciliationId == matchedRecon.Id)
+                        : null;
 
-                (eacGroups.FirstOrDefault(g => g.EId == x.EId)?.Latest?.SupplierEac ?? "")
-                    .ToLower().Contains(term) ||
+                    var forecastValue = matchedMetric?.InitialCommissionForecast?.ToString()?.ToLower() ?? "";
 
-                  // Dates (convert to string)
-                  (!string.IsNullOrEmpty(x.InputDate) && x.InputDate.ToLower().Contains(term)) ||
-                  (!string.IsNullOrEmpty(x.StartDate) && x.StartDate.ToLower().Contains(term)) ||
-                  (!string.IsNullOrEmpty(x.CED) && x.CED.ToLower().Contains(term)) ||
-                  (!string.IsNullOrEmpty(x.COTDate) && x.COTDate.ToLower().Contains(term)) ||
+                    return
+                        (x.SupplierName ?? "").ToLower().Contains(term) ||
+                        (x.BusinessName ?? "").ToLower().Contains(term) ||
+                        (x.MPXN ?? "").ToLower().Contains(term) ||
+                        (x.InputEAC ?? "").ToLower().Contains(term) ||
+                        (x.ContractType ?? "").ToLower().Contains(term) ||
+                        (x.Department ?? "").ToLower().Contains(term) ||
+                        (x.EId ?? "").ToLower().Contains(term) ||
 
-                    // Statuses
-                  (statuses.FirstOrDefault(s => s.EId == x.EId)?.ContractStatus ?? "").ToLower().Contains(term) ||
-                  (statuses.FirstOrDefault(s => s.EId == x.EId)?.PaymentStatus ?? "").ToLower().Contains(term) ||
+                        (eacGroups.FirstOrDefault(g => g.EId == x.EId)?.Latest?.SupplierEac ?? "")
+                            .ToLower().Contains(term) ||
 
-                    // Commission Forecast
-                    (metrics.FirstOrDefault(m => m.ReconciliationId == crs.FirstOrDefault(c => c.EId == x.EId)?.Id)
-                        ?.InitialCommissionForecast.ToString() ?? "")
-                        .ToLower().Contains(term) ||
+                        (!string.IsNullOrEmpty(x.InputDate) && x.InputDate.ToLower().Contains(term)) ||
+                        (!string.IsNullOrEmpty(x.StartDate) && x.StartDate.ToLower().Contains(term)) ||
+                        (!string.IsNullOrEmpty(x.CED) && x.CED.ToLower().Contains(term)) ||
+                        (!string.IsNullOrEmpty(x.COTDate) && x.COTDate.ToLower().Contains(term)) ||
 
-                    // Cobana Paid Commission
-                    (eacGroups.FirstOrDefault(g => g.EId == x.EId)?.All
-                        .Where(i => !string.IsNullOrWhiteSpace(i.InvoiceAmount))
-                        .Select(i => decimal.TryParse(i.InvoiceAmount, out var val) ? val : 0)
-                        .Sum().ToString() ?? "")
-                        .ToLower().Contains(term)
-                ).ToList();
+                        (matchedStatus?.ContractStatus ?? "").ToLower().Contains(term) ||
+                        (matchedStatus?.PaymentStatus ?? "").ToLower().Contains(term) ||
+
+                        forecastValue.Contains(term) ||
+
+                        (eacGroups.FirstOrDefault(g => g.EId == x.EId)?.All
+                            .Where(i => !string.IsNullOrWhiteSpace(i.InvoiceAmount))
+                            .Select(i => decimal.TryParse(i.InvoiceAmount, out var val) ? val : 0)
+                            .Sum().ToString() ?? "")
+                            .ToLower().Contains(term);
+                }).ToList();
             }
+
 
             #endregion
 
