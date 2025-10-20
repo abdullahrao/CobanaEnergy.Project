@@ -1,4 +1,5 @@
-﻿using CobanaEnergy.Project.Controllers.Base;
+﻿using CobanaEnergy.Project.Common;
+using CobanaEnergy.Project.Controllers.Base;
 using CobanaEnergy.Project.Filters;
 using CobanaEnergy.Project.Helpers;
 using CobanaEnergy.Project.Models;
@@ -182,7 +183,7 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
             // -------------------------------------------
             // 5. Sorting
             // -------------------------------------------
-            contracts = ApplySorting(contracts, q, crs, statuses);
+            contracts = ApplySorting(contracts, q, crs, statuses, postSaleObj);
 
             // -------------------------------------------
             // 6. Counter
@@ -947,7 +948,7 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
         }
 
         private List<ContractViewModel> ApplySorting(List<ContractViewModel> contracts, StatusQueryParams q,
-            List<CE_CommissionAndReconciliation> crs, List<CE_ContractStatuses> statuses)
+            List<CE_CommissionAndReconciliation> crs, List<CE_ContractStatuses> statuses, List<CE_PostSaleObjection> postSaleObj)
         {
             var sortColumn = q.Columns?[q.Order?[0].Column ?? 0].Data;
             var sortDir = q.Order?[0].Dir?.ToLower();
@@ -959,11 +960,47 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
                 case "SupplierName": keySelector = x => x.SupplierName; break;
                 case "BusinessName": keySelector = x => x.BusinessName; break;
                 case "MPXN": keySelector = x => x.MPXN; break;
-                case "InputDate": keySelector = x => x.InputDate; break;
-                case "StartDate": keySelector = x => x.StartDate; break;
-                case "CED": keySelector = x => crs.FirstOrDefault(c => c.EId == x.EId)?.CED; break;
-                case "COTDate": keySelector = x => crs.FirstOrDefault(c => c.EId == x.EId)?.CED_COT; break;
+                case "InputDate": keySelector = x => ParserHelper.ParseDateForSorting(x.InputDate); break;
+                case "StartDate":
+                    keySelector = x =>
+                    {
+                        var crDate = ParserHelper.ParseDateForSorting(
+                            crs.FirstOrDefault(c => c.EId == x.EId)?.StartDate
+                        );
+
+                        if (crDate != DateTime.MinValue)
+                            return crDate;
+                        return ParserHelper.ParseDateForSorting(x.StartDate);
+                    };
+                    break;
+                case "CED":
+                    keySelector = x =>
+                    {
+                        var cr = crs.FirstOrDefault(c => c.EId == x.EId);
+                        return HelperUtility.GetEffectiveCED(x, cr);
+                    };
+                    break;
+                case "COTDate":
+                    keySelector = x =>
+                    {
+                        var crDate = ParserHelper.ParseDateForSorting(
+                            crs.FirstOrDefault(c => c.EId == x.EId)?.CED_COT
+                        );
+
+                        if (crDate != DateTime.MinValue)
+                            return crDate;
+                        return ParserHelper.ParseDateForSorting(x.CED);
+                    };
+                    break;
                 case "ContractStatus": keySelector = x => statuses.FirstOrDefault(s => s.EId == x.EId)?.ContractStatus ?? ""; break;
+                case "ObjectionDate":
+                    keySelector = x =>
+                        ParserHelper.ParseDateForSorting(
+                            postSaleObj.FirstOrDefault(s => s.EId == x.EId)?.ObjectionDate
+                        );
+                    break;
+                case "ObjectionCount": keySelector = x => postSaleObj.FirstOrDefault(s => s.EId == x.EId)?.ObjectionCount ?? 0; break;
+                case "QueryType": keySelector = x => postSaleObj.FirstOrDefault(s => s.EId == x.EId)?.QueryType ?? ""; break;
                 case "ContractNotes": keySelector = x => x.ContractNotes; break;
                 default: keySelector = x => x.BusinessName; break; // fallback
             }
@@ -985,7 +1022,7 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
             foreach (var x in page)
             {
                 var st = statuses.FirstOrDefault(s => s.EId == x.EId && s.Type == x.ContractType);
-                var cr = crs.FirstOrDefault(c => c.EId == x.EId);
+                var cr = crs.FirstOrDefault(c => c.EId == x.EId && c.contractType == x.ContractType);
                 var postSales = postSaleObj.FirstOrDefault(p => p.EId == x.EId && p.ContractType == x.ContractType);
                 var emailList = supplierContacts
                     .Where(sc => sc.SupplierId == x.SupplierId)
@@ -1006,11 +1043,13 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
                     .FirstOrDefault(e => e.SupplierId == x.SupplierId && e.QueryType == queryType);
 
 
-                string ced = null;
-                if (!string.IsNullOrWhiteSpace(cr?.CED))
-                    ced = cr.CED;
-                else if (DateTime.TryParse(x.StartDate, out var sdt) && int.TryParse(x.Duration?.ToString(), out var durYears))
-                    ced = sdt.AddYears(durYears).AddDays(-1).ToString("yyyy-MM-dd");
+                //string ced = null;
+                //if (!string.IsNullOrWhiteSpace(cr?.CED))
+                //    ced = cr.CED;
+                //else if (DateTime.TryParse(x.StartDate, out var sdt) && int.TryParse(x.Duration?.ToString(), out var durYears))
+                //    ced = sdt.AddYears(durYears).AddDays(-1).ToString("yyyy-MM-dd");
+
+                var effectiveCed = HelperUtility.GetEffectiveCED(x, cr);
 
                 rows.Add(new PostSalesRowViewModel
                 {
@@ -1028,7 +1067,7 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
                     InputDate = x.InputDate,
                     StartDate = cr?.StartDate ?? x.StartDate,
                     PostCode = x.PostCode ?? "-",
-                    CED = ced,
+                    CED = effectiveCed.ToString("yyyy-MM-dd"),
                     COTDate = cr?.CED_COT,
                     Email = x.EmailAddress ?? "-",
                     ContractStatus = st?.ContractStatus ?? "-",
