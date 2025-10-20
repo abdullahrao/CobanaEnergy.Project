@@ -59,6 +59,14 @@ namespace CobanaEnergy.Project.Models.PostSales.StatusDashboard
         public string QueryType { get; set; }
         public string EmailSubject { get; set; }
         public string EmailBody { get; set; }
+        public string Link { get; set; }
         public List<string> EmailList { get; set; }
+    }
+
+    public class ContractStatusSummary
+    {
+        public string ContractStatus { get; set; }
+        public int Count { get; set; }
+        public string ColorCode { get; set; }
     }
 }

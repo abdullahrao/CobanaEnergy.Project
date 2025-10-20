@@ -1,4 +1,20 @@
 ﻿$(document).ready(function () {
+    // Register custom sorting type for dd-MM-yy date format
+    $.fn.dataTable.ext.type.order['date-dd-mm-yy-pre'] = function (data) {
+        if (!data || data === 'N/A' || data === '' || data === '-') {
+            return 0;
+        }
+        var parts = data.split('-');
+        if (parts.length === 3) {
+            var day = parts[0];
+            var month = parts[1];
+            var year = parts[2];
+            var fullYear = '20' + year;
+            return parseInt(fullYear + month + day);
+        }
+        return 0;
+    };
+
     var table = $('#clawbacksTable').DataTable({
         responsive: true,
         paging: true,
@@ -6,7 +22,13 @@
         searching: true,
         order: [],
         autoWidth: false,
-        dom: 'lfrtip'
+        dom: 'lfrtip',
+        columnDefs: [
+            {
+                targets: [4, 5, 6], // StartDate (4), CED (5), CEDCOT (6) columns
+                type: 'date-dd-mm-yy'
+            }
+        ]
     });
 
     var excelButton = new $.fn.dataTable.Buttons(table, {

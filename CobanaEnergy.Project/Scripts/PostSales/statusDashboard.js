@@ -68,9 +68,7 @@ $(document).ready(function () {
             serverSide: true,
             processing: true,
             autoWidth: false,
-            fixedColumns: {
-                leftColumns: 3
-            },
+            fixedColumns: { leftColumns: 3 },
             ajax: {
                 url: '/StatusDashboard/GetPostSalesContracts',
                 type: 'POST',
@@ -95,14 +93,54 @@ $(document).ready(function () {
                 },
                 dataSrc: function (json) {
                     $('#contractCount').text(json.contractCount);
-                    console.log(json);
+
+                    const $container = $('#statusSummaryContainer');
+                    $container.empty();
+
+                    if (json.statusSummary && json.statusSummary.length > 0) {
+                        json.statusSummary.forEach(s => {
+                            const badge = `
+                             <div class="status-count-box d-inline-block m-1">
+                                 <span class="badge rounded-pill"
+                                       style="
+                                           background-color:${s.ColorCode};
+                                           color:#fff;
+                                           padding:8px 14px;
+                                           font-size:0.9rem;
+                                           font-weight:600;
+                                           letter-spacing:0.3px;
+                                           text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+                                           box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+                                       ">
+                                     ${s.ContractStatus}: <strong>${s.Count}</strong>
+                                 </span>
+                             </div>`;
+                             $container.append(badge);
+                         });
+                    } else {
+                        $container.html('<small class="text-muted">No contract status summary available.</small>');
+                    }
+
+
+
                     return json.data;
                 }
             },
-            dom:
-                '<"row mb-2"<"col-sm-12 text-end"B>>' +
-                '<"row mb-2"<"col-sm-6"l><"col-sm-6"f>>' +
-                'rtip',
+            dom: `
+                <"row mb-2 align-items-end justify-content-between"
+                    <"col-auto d-flex flex-wrap align-items-end gap-3" <"date-filter-container"> >
+                    <"col-auto d-flex align-items-center gap-2" B >
+                >
+                <"row mb-2"
+                    <"col-sm-12 col-md-6 d-flex align-items-center" l >  
+                    <"col-sm-12 col-md-6 text-end" f >                   
+                >
+                rt
+                <"row mt-2"
+                    <"col-sm-12 col-md-5" i >                             
+                    <"col-sm-12 col-md-7" p >                           
+                >
+            `,
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -134,119 +172,133 @@ $(document).ready(function () {
                     }
                 }
             ],
+
+            initComplete: function () {
+                const $filterContainer = $('.date-filter-container');
+                const $html = $(`
+                <div class="d-flex flex-wrap align-items-end gap-3">
+                    <div>
+                        <label for="startDateFilter" class="form-label fw-semibold mb-0 small">Input Date From</label>
+                        <input type="date" id="startDateFilter" class="form-control form-control-sm" />
+                    </div>
+                    <div>
+                        <label for="endDateFilter" class="form-label fw-semibold mb-0 small">Input Date To</label>
+                        <input type="date" id="endDateFilter" class="form-control form-control-sm" />
+                    </div>
+                </div>
+                `);
+                $filterContainer.html($html);
+                $('#startDateFilter, #endDateFilter').off('change.dateFilters').on('change.dateFilters', function () {
+                    table.ajax.reload(null, false);
+                });
+            },
+
             columns: [
                 {
                     data: null, orderable: false, render: function (row) {
-                        const url = `/StatusDashboard/Edit/${encodeURIComponent(row.EId)}?type=${encodeURIComponent(row.ContractType)}`;
-                        
-                        // Determine contract type and styling
+                        const url =  `/StatusDashboard/Edit/${encodeURIComponent(row.EId)}?type=${encodeURIComponent(row.ContractType)}`;
                         let iconClass, buttonClass;
-                        switch(row.ContractType) {
+                        switch (row.ContractType) {
                             case 'Electric':
-                                iconClass = 'fas fa-bolt me-2';
+                                iconClass = 'fas fa-bolt';
                                 buttonClass = 'btn btn-sm btn-primary';
                                 break;
                             case 'Gas':
-                                iconClass = 'fas fa-fire me-2';
+                                iconClass = 'fas fa-fire';
                                 buttonClass = 'btn btn-sm btn-danger';
                                 break;
                             default:
-                                iconClass = 'fas fa-pencil-alt me-1';
+                                iconClass = 'fas fa-pencil-alt';
                                 buttonClass = 'btn btn-sm';
                         }
-                        
                         return `<a class="${buttonClass}" href="${url}" target="_blank">
-                                    <i class="${iconClass}"></i>Edit
-                                </a>`;
+                                <i class="${iconClass}"></i>
+                            </a>`;
                     }
                 },
                 {
                     data: null, orderable: false, render: function (row) {
                         return `
-                         <div class="text-center">
-                         <button class="btn btn-sm btn-primary save-row" data-eid="${row.EId}" disabled>
-                          <span class="btn-text">Save</span>
-                          <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-                          </button>
-                         </div>
-                     `;
+                        <div class="text-center">
+                            <button class="btn btn-sm btn-success save-row" data-eid="${row.EId}" disabled>
+                                <span class="btn-text"><i class="bi bi-save2"></i></span>
+                                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                            </button>
+                        </div>
+                    `;
                     }
-
                 },
                 {
                     data: null, orderable: false, render: function (row) {
                         return `
-                        <div class="d-flex flex-column gap-2">
-                            <button class="btn btn-sm btn-primary send-email" 
+                        <div class="email-button-group">
+                            <button class="btn send-email" 
                                 data-eid="${row.EId}" 
                                 data-emails="${row.EmailList || ''}" 
                                 data-type="Supplier" data-subject="${row.EmailSubject || ''}" data-body="${row.EmailBody || ''}">
-                                 <i class="bi bi-envelope-fill me-1"></i> Supplier
+                                <i class="bi bi-envelope-fill"></i> 
                             </button>
-                            <button class="btn btn-sm btn-secondary send-email" 
+                            <button class="btn send-email" 
                                 data-eid="${row.EId}" 
                                 data-emails="${row.AgentEmail || ''}" 
                                 data-type="Agent" data-subject="${row.EmailSubject || ''}" data-body="${row.EmailBody || ''}">
-                               <i class="bi bi-person-fill me-1"></i> Agent
+                                <i class="bi bi-person-fill"></i>
                             </button>
-                             </div>
-                          `;
+                        </div>
+                    `;
                     }
-
                 },
-                { data: 'Agent' },
-                { data: 'Collaboration' },
-                { data: 'CobanaSalesType' },
-                { data: 'MPXN' },
-                { data: 'SupplierName' },
-                { data: 'BusinessName', className: 'wrap-text' },
-                { data: 'InputDate', render: d => d ? formatDateForLabel(d) : '-' },
+                { data: 'Agent', render: (d, t, r, m) => renderWithCenterDash(d, t, r, m) },
+                { data: 'Collaboration', render: (d, t, r, m) => renderWithCenterDash(d, t, r, m) },
+                { data: 'CobanaSalesType', render: (d, t, r, m) => renderWithCenterDash(d, t, r, m) },
+                { data: 'MPXN', render: (d, t, r, m) => renderWithCenterDash(d, t, r, m) },
+                {
+                    data: 'SupplierName', render: function (d, t, r, m) {
+                        if (r.Link) {
+                            return `
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>${d || '-'}</span>
+                                <a href="${r.Link}" target="_blank" class="text-decoration-none text-primary ms-2">
+                                    <i class="bi bi-link-45deg"></i>
+                                </a>
+                            </div>
+                        `;
+                        } else {
+                            return renderWithCenterDash(d, t, r, m);
+                        }
+                    }
+                },
+                { data: 'BusinessName', className: 'wrap-text', render: (d, t, r, m) => renderWithCenterDash(d, t, r, m) },
+                { data: 'InputDate', render: d => d ? formatDateForLabel(d) : '<span class="center-dash">-</span>' },
                 { data: 'PostCode' },
-                // Email editable cell
                 {
                     data: 'Email', className: 'email-column', render: function (d, type, row) {
-                        if (type === 'export') {
-                            return d || '-';
-                        }
+                        if (type === 'export') return d || '<span class="center-dash">-</span>';
                         return `<input type="text" class="form-control form-control-sm editable-input email" data-eid="${row.EId}" data-field="Email" value="${escapeHtml(d)}" />`;
                     }
                 },
-                // StartDate editable
                 {
                     data: 'StartDate', render: function (d, type, row) {
-                        if (type === 'export') {
-                            return d || '-';
-                        }
+                        if (type === 'export') return d || '<span class="center-dash">-</span>';
                         return `<input type="date" class="form-control form-control-sm editable-input startdate" data-eid="${row.EId}" data-field="StartDate" value="${formatDateForInput(d)}" />`;
                     }
                 },
-                // CED editable
                 {
                     data: 'CED', render: function (d, type, row) {
-                        if (type === 'export') {
-                            return d || '-';
-                        }
+                        if (type === 'export') return d || '<span class="center-dash">-</span>';
                         return `<input type="date" class="form-control form-control-sm editable-input ced" data-eid="${row.EId}" data-field="CED" value="${formatDateForInput(d)}" />`;
                     }
                 },
-                // COT editable
                 {
                     data: 'COTDate', render: function (d, type, row) {
-                        if (type === 'export') {
-                            return d || '-';
-                        }
+                        if (type === 'export') return d || '<span class="center-dash">-</span>';
                         return `<input type="date" class="form-control form-control-sm editable-input cot" data-eid="${row.EId}" data-field="COTDate" value="${formatDateForInput(d)}" />`;
                     }
                 },
-                // Contract Status editable select
                 {
                     data: 'ContractStatus', render: function (d, type, row) {
-                        const options = AccountDropdownOptions.contractStatus;
-
-                        if (type === 'export') {
-                            return d || '-';
-                        }
-
+                        const options = AccountDropdownOptions.statusDashboardContractStatus;
+                        if (type === 'export') return d || '<span class="center-dash">-</span>';
                         let html = `<select class="form-select form-select-sm contract-status" data-eid="${row.EId}" data-field="ContractStatus">`;
                         html += `<option value="">${d ?? '-'}</option>`;
                         options.forEach(o => {
@@ -257,37 +309,39 @@ $(document).ready(function () {
                         return html;
                     }
                 },
-                // Objection Date editable
                 {
                     data: 'ObjectionDate', render: function (d, type, row) {
-                        if (type === 'export') {
-                            return d || '-';
-                        }
+                        if (type === 'export') return d || '<span class="center-dash">-</span>';
                         return `<input type="date" class="form-control form-control-sm editable-input objectiondate" data-eid="${row.EId}" data-field="ObjectionDate" value="${formatDateForInput(d)}" />`;
                     }
                 },
-                { data: 'ObjectionCount' },
-                // QueryType editable
                 {
-                    data: 'QueryType', className: 'querytype-column', title: 'Query Type', render: function (data, type, row) {
-                        if (type === 'export') {
-                            return data || '-';
-                        }
+                    data: 'ObjectionCount',
+                    className: 'text-center',
+                    render: function (d) {
+                        return d && d !== "-" ? d : `<span class="center-dash">-</span>`;
+                    }
+                },
+                {
+                    data: 'QueryType', className: 'querytype-column', title: 'Query Type',
+                    render: function (data, type, row) {
+                        if (type === 'export') return data || '<span class="center-dash">-</span>';
                         if (type === 'display') {
-                            return `<select class="form-select query-type-dropdown w-100" data-supplier="${row.SupplierName}"  data-selected="${data || ''}" data-id="${row.SupplierName}">
-                                <option value="${data}">${data}</option>
-                            </select>`;
+                            return `<select class="form-select query-type-dropdown w-100" data-supplier="${row.SupplierName}" data-selected="${data || ''}" data-id="${row.SupplierName}">
+                            <option value="${data}">${data}</option>
+                        </select>`;
                         }
                         return data;
                     }
                 },
                 {
                     data: 'ContractNotes',
-                    render: function (data, type, row) {
-                        if (!data) return '-';
-                        return `<span class="truncate-cell">
-                           ${data.length > 50 ? data.substring(0, 50) + '…' : data}
-                         </span>`;
+                    render: function (data, type) {
+                        if (!data) return '<span class="center-dash">-</span>';
+                        return `<span class="truncate-cell">${data.length > 50 ? data.substring(0, 50) + '…' : data}</span>`;
+                    },
+                    createdCell: function (td, cellData) {
+                        handleCenterDash(td, cellData);
                     }
                 },
                 { data: 'Duration', visible: false },
@@ -295,19 +349,16 @@ $(document).ready(function () {
                 { data: 'EmailList', visible: false },
                 { data: 'ContractId', visible: false }
             ],
+
             pageLength: 25,
             order: [[9, 'desc']],
             drawCallback: function () {
-                // attach events for inline edits
                 GetQueryDropDownData();
 
-                // Har dropdown par change event attach karo
                 $('.query-type-dropdown').off('change').on('change', function () {
                     const $dropdown = $(this);
                     const val = $dropdown.val();
                     const $row = $dropdown.closest('tr');
-
-                    // Row ke andar dono buttons
                     const $btns = $row.find('.send-email');
 
                     if (!val || val === "" || val === "Select Query Type") {
@@ -317,23 +368,52 @@ $(document).ready(function () {
                     }
                 });
 
-                // Page load pe bhi initial check kar lo
                 $('.query-type-dropdown').each(function () {
                     const $dropdown = $(this);
                     const val = $dropdown.val();
                     const $row = $dropdown.closest('tr');
                     const $btns = $row.find('.send-email');
-
                     if (!val || val === "-" || val === "Select Query Type") {
                         $btns.prop('disabled', true);
                     } else {
                         $btns.prop('disabled', false);
                     }
                 });
-
             }
         });
     }
+
+
+    function handleCenterDash(td, value) {
+        if (value === null || value === undefined || value === "" || value === "-") {
+            $(td).addClass("text-center");
+        } else {
+            $(td).removeClass("text-center");
+        }
+    }
+
+    function renderWithCenterDash(value, type, row, meta, formatter) {
+        // Skip non-display types (for export/sort)
+        if (type !== "display") return value;
+
+        // Get current <td> after render (slight delay to ensure DOM created)
+        setTimeout(() => {
+            const cell = $(`#statusDashboardTable`).DataTable().cell(meta.row, meta.col).node();
+            if (!cell) return;
+
+            if (value === "-" || value === null || value === undefined || value === "") {
+                $(cell).addClass("text-center");
+            } else {
+                $(cell).removeClass("text-center");
+            }
+        }, 0);
+
+        // Format or return dash
+        if (value === null || value === undefined || value === "") return "-";
+        const formatted = formatter ? formatter(value) : value;
+        return formatted === "-" ? "-" : formatted;
+    }
+
 
     $('#statusDashboardTable').on('change keyup', '.editable, .editable-input, .contract-status, .query-type-dropdown', function () {
         const $row = $(this).closest('tr');
@@ -389,7 +469,8 @@ $(document).ready(function () {
                 $('#statusDashboardTable .save-row').prop('disabled', true);
                 // Optional: only this row's save reset, others stay enabled if edited
                 $btn.prop('disabled', true);
-                $btn.find('.btn-text').text('Save');
+                //$btn.find('.btn-text').text('Save');
+                $btn.find('.btn-text').html('<i class="bi bi-save me-1"></i>');
                 $btn.find('.spinner-border').addClass('d-none');
             }
         });
@@ -462,7 +543,7 @@ $(document).ready(function () {
     $(function () {
 
         populateDropdown("departmentFilter", DropdownOptions.department, $('#departmentFilter').data('current'));
-        populateDropdown("contractstatus", AccountDropdownOptions.contractStatus, $('#contractstatus').data('current'));
+        populateDropdown("contractstatus", AccountDropdownOptions.statusDashboardContractStatus, $('#contractstatus').data('current'));
         populateDropdown("paymentStatusAcc", AccountDropdownOptions.paymentStatus, $('#paymentStatusAcc').data('current'));
 
         initTable();
@@ -486,8 +567,9 @@ $(document).ready(function () {
 
     // auto refresh on filters change
     $('#contractStatusFilter, #supplierFilter, #startDateFilter, #endDateFilter').on('change', function () {
-        table.ajax.reload();
+        if (table) table.ajax.reload(null, false);
     });
+
 
     $(document).on("click", ".send-email", function () {
         const emails = $(this).data("emails");
@@ -542,7 +624,7 @@ $(document).ready(function () {
             showToastError("No emails to send!");
             return;
         }
-        
+
         if (!emailSubject || !emailBody) {
             showToastError(`Please save before email to ${selectedType}`);
             return;
@@ -566,27 +648,26 @@ $(document).ready(function () {
         const selectedStatus = $(this).val();
         const $objectionDateInput = $row.find(".objectiondate");
 
-        // ✅ If status contains 'Objection', set current date in ObjectionDate
         if (selectedStatus && selectedStatus.toLowerCase().includes("objection")) {
-            const today = new Date().toISOString().split("T")[0]; // yyyy-MM-dd
-            $objectionDateInput.val(today).trigger("change");
+            const today = new Date().toISOString().split("T")[0];
+            $objectionDateInput.val(today).trigger("updateByStatus");
         }
     });
 
-    // When Objection Date changes
+    // When Objection Date changes by user
     $(document).on("change", ".objectiondate", function () {
         const $row = $(this).closest("tr");
         const dateVal = $(this).val();
         const $contractStatusSelect = $row.find(".contract-status");
 
-        // ✅ If user selected a date, set ContractStatus = "Objection"
         if (dateVal) {
-            // check if dropdown has "Objection" option
             const hasObjection = $contractStatusSelect.find("option[value='Objection']").length > 0;
             if (hasObjection) {
-                $contractStatusSelect.val("Objection").trigger("change");
+                $contractStatusSelect.val("Objection").trigger("updateByDate");
             }
         }
     });
+
+  
 });
 

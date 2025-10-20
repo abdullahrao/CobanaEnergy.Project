@@ -46,20 +46,31 @@ namespace CobanaEnergy.Project.Helpers
         /// <returns>Parsed DateTime or DateTime.MinValue if invalid</returns>
         public static DateTime ParseDateForSorting(string dateString)
         {
-            if (string.IsNullOrWhiteSpace(dateString) || dateString == "N/A")
+            if (string.IsNullOrWhiteSpace(dateString) || dateString == "N/A" || dateString == "-")
                 return DateTime.MinValue;
 
-            // Try dd/MM/yyyy format first (primary format)
-            if (DateTime.TryParseExact(dateString, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime result))
-                return result;
+            // Define all possible date formats
+            string[] formats = {
+                "dd/MM/yyyy",
+                "yyyy-MM-dd",
+                "dd-MM-yyyy",
+                "dd-MM-yy",
+                "dd/MM/yy",
+                "yyyy/MM/dd",
+                "MM/dd/yyyy",
+                "MM-dd-yyyy"
+            };
 
-            // Try yyyy-MM-dd format (ISO format)
-            if (DateTime.TryParseExact(dateString, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out result))
-                return result;
+            // Try parsing with each format
+            foreach (string format in formats)
+            {
+                if (DateTime.TryParseExact(dateString, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime result))
+                    return result;
+            }
 
-            // Try dd-MM-yyyy format
-            if (DateTime.TryParseExact(dateString, "dd-MM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out result))
-                return result;
+            // Try general parsing as fallback
+            if (DateTime.TryParse(dateString, out DateTime generalResult))
+                return generalResult;
 
             return DateTime.MinValue;
         }

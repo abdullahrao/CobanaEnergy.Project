@@ -28,5 +28,28 @@ namespace CobanaEnergy.Project.Models.Accounts.InvoiceSupplierDashboard
             string key = $"{contractStatus ?? ""}|{paymentStatus ?? ""}";
             return ExcludedKeys.Contains(key);
         }
+
+        public static readonly Dictionary<string, string> AllStatuses = new Dictionary<string, string>
+        {
+            { "Pending", "#A6A6A6" },
+            { "Processing_Present Month", "#FFFF00" },
+            { "Processing_Future Months", "#FFD966" },
+            { "Objection", "#FF0000" },
+            { "Objection Closed", "#B4A7D6" },
+            { "Reapplied", "#A2C4C9" },
+            { "New Lives", "#93C47D" },
+            { "Live", "#00FF00" },
+            { "Renewal Window", "#E69138" },
+            { "Renewal Window - Ag Lost", "#F6B26B" },
+            { "Renewed", "#6AA84F" },
+            { "Possible Loss", "#00FFFF" },
+            { "Lost", "#0B5394" },
+            { "Credit Failed", "#999999" },
+            { "Rejected", "#B7B7B7" },
+            { "To Be Resolved - Cobana", "#FFD966" },
+            { "Waiting Agent", "#00B0F0" },
+            { "Waiting Supplier", "#9FC5E8" }
+        };
+
     }
 }

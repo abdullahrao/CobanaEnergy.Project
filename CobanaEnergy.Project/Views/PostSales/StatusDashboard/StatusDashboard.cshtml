@@ -30,27 +30,20 @@
     </div>
 
     <div class="filters d-flex flex-wrap gap-4 mb-4 align-items-end">
-        <div>
-            <label for="startDateFilter" class="form-label fw-semibold">Input Date From</label>
-            <input type="date" id="startDateFilter" class="form-control" />
-        </div>
-        <div>
-            <label for="endDateFilter" class="form-label fw-semibold">Input Date To</label>
-            <input type="date" id="endDateFilter" class="form-control" />
-        </div>
+        <div id="statusSummaryContainer" class="d-flex flex-wrap gap-2 mt-2"></div>
     </div>
 
     <div class="table-container">
         <table id="statusDashboardTable" class="table display table-hover table-bordered table-striped w-100">
             <thead class="table-light">
                 <tr>
-                    <th>Action</th>
-                    <th>Update</th>
+                    <th>Edit</th>
+                    <th>Save</th>
                     <th>Send Email</th>
                     <th>Agent</th>
                     <th>Collaboration</th>
                     <th>Department</th>
-                    <th>MPXN (MPAN/MPRN)</th>
+                    <th>MPXN</th>
                     <th>Supplier</th>
                     <th>Business Name</th>
                     <th>Input Date</th>
@@ -69,13 +62,6 @@
             <tbody></tbody>
         </table>
 
-        <!-- Contract Status Counts -->
-        <div class="contract-status-summary d-flex flex-wrap gap-4 mt-3">
-            <div class="status-count-box">
-                <span class="status-label">Contract Counter:</span>
-                <span id="contractCount" class="status-count"></span>
-            </div>
-        </div>
     </div>
 </div>
 
