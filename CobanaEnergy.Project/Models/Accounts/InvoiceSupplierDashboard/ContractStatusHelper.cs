@@ -42,21 +42,13 @@ namespace CobanaEnergy.Project.Models.Accounts.InvoiceSupplierDashboard
             { "Renewal Window", "#E69138" },
             { "Renewal Window - Ag Lost", "#F6B26B" },
             { "Renewed", "#6AA84F" },
-            { "Contract Ended - Ag Lost", "#38761D" },
-            { "Contract Ended - Not Renewed", "#274E13" },
-            { "Contract Ended - Renewed", "#134F5C" },
             { "Possible Loss", "#00FFFF" },
             { "Lost", "#0B5394" },
             { "Credit Failed", "#999999" },
             { "Rejected", "#B7B7B7" },
             { "To Be Resolved - Cobana", "#FFD966" },
             { "Waiting Agent", "#00B0F0" },
-            { "Waiting Supplier", "#9FC5E8" },
-            { "Dead", "#000000" },
-            { "Dead - Credit Failed", "#000000" },
-            { "Dead - Valid Contract in Place", "#000000" },
-            { "Dead - Duplicate Submission", "#000000" },
-            { "Dead - Objection", "#000000" }
+            { "Waiting Supplier", "#9FC5E8" }
         };
 
     }

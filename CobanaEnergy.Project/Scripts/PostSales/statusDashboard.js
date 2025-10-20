@@ -297,7 +297,7 @@ $(document).ready(function () {
                 },
                 {
                     data: 'ContractStatus', render: function (d, type, row) {
-                        const options = AccountDropdownOptions.contractStatus;
+                        const options = AccountDropdownOptions.statusDashboardContractStatus;
                         if (type === 'export') return d || '<span class="center-dash">-</span>';
                         let html = `<select class="form-select form-select-sm contract-status" data-eid="${row.EId}" data-field="ContractStatus">`;
                         html += `<option value="">${d ?? '-'}</option>`;
@@ -543,7 +543,7 @@ $(document).ready(function () {
     $(function () {
 
         populateDropdown("departmentFilter", DropdownOptions.department, $('#departmentFilter').data('current'));
-        populateDropdown("contractstatus", AccountDropdownOptions.contractStatus, $('#contractstatus').data('current'));
+        populateDropdown("contractstatus", AccountDropdownOptions.statusDashboardContractStatus, $('#contractstatus').data('current'));
         populateDropdown("paymentStatusAcc", AccountDropdownOptions.paymentStatus, $('#paymentStatusAcc').data('current'));
 
         initTable();

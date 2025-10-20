@@ -50,6 +50,26 @@ const AccountDropdownOptions = {
         "Waiting Agent Response",
         "Waiting Supplier Response"
     ],
+    statusDashboardContractStatus: [
+        "Credit Failed",
+        "Live",
+        "Lost",
+        "New Lives",
+        "Objection",
+        "Objection Closed",
+        "Pending",
+        "Possible Loss",
+        "Processing_Future Months",
+        "Processing_Present Month",
+        "Reapplied - Awaiting Confirmation",
+        "Rejected",
+        "Renewal Window",
+        "Renewal Window - Ag Lost",
+        "Renewed",
+        "To Be Resolved - Internally",
+        "Waiting Agent Response",
+        "Waiting Supplier Response"
+    ],
     paymentStatus: [
         "Contract Pending",
         "Awaiting Invoice",
