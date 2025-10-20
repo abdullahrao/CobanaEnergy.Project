@@ -842,7 +842,7 @@ namespace CobanaEnergy.Project.Controllers.PreSales
         private string[] GetColumnNames()
         {
             return new[] { 
-                "Action", "Agent", "BusinessName", "CustomerName", "PostCode", 
+                "Edit", "Agent", "BusinessName", "CustomerName", "PostCode", 
                 "InputDate", "Duration", "Uplift", "InputEAC", "Email", 
                 "Supplier", "ContractNotes", "SortableDate" 
             };

@@ -410,7 +410,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                     Duration = x.Duration,
                     ContractStatus = x.ContractStatus,
                     PaymentStatus = x.PaymentStatus,
-                    CED = x.CED
+                    CED = ParserHelper.FormatDateForDisplay(x.CED)
                 }).ToList();
 
                 var gasContractsRaw = await db.CE_GasContracts
@@ -475,7 +475,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                     Duration = x.Duration,
                     ContractStatus = x.ContractStatus,
                     PaymentStatus = x.PaymentStatus,
-                    CED = x.CED
+                    CED = ParserHelper.FormatDateForDisplay(x.CED)
                 }).ToList();
 
                 var allContracts = electricContracts.Concat(gasContracts).ToList();
@@ -669,8 +669,8 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                         Duration = x.ec.Duration,
                         Uplift = uplift,
                         SupplierCommsType = supplierCommsType,
-                        CED = x.CED,
-                        CED_COT = x.CED_COT,
+                        CED = ParserHelper.FormatDateForDisplay(x.CED),
+                        CED_COT = ParserHelper.FormatDateForDisplay(x.CED_COT),
                         FuelType = "Electric",
                         SupplierName = supplierName,
                         SupplierId = snapshot?.SupplierId ?? 0
@@ -700,14 +700,14 @@ namespace CobanaEnergy.Project.Controllers.Accounts.InvoiceSupplierDashboard
                         EId = x.gc.EId,
                         MPAN = null,
                         MPRN = x.gc.MPRN,
-                        InputDate = Convert.ToDateTime(x.gc.InputDate).ToString("dd-MM-yy"),
+                        InputDate = ParserHelper.FormatDateForDisplay(x.gc.InputDate),
                         BusinessName = x.gc.BusinessName,
-                        StartDate = x.gc.InitialStartDate,
+                        StartDate = ParserHelper.FormatDateForDisplay(x.gc.InitialStartDate),
                         Duration = x.gc.Duration,
                         Uplift = uplift,
                         SupplierCommsType = supplierCommsType,
-                        CED = x.CED,
-                        CED_COT = x.CED_COT,
+                        CED = ParserHelper.FormatDateTimeForDisplay(x.CED),
+                        CED_COT = ParserHelper.FormatDateTimeForDisplay(x.CED_COT),
                         FuelType = "Gas",
                         SupplierName = supplierName,
                         SupplierId = snapshot?.SupplierId ?? 0

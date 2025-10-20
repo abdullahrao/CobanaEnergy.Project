@@ -39,6 +39,19 @@
         padding: 10px 12px;
     }
 
+        /* Edit column (first column) */
+        #contractTable th:nth-child(1),
+        #contractTable td:nth-child(1) {
+            width: 48px !important;
+            min-width: 48px !important;
+            max-width: 48px !important;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: middle;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+
         /* Wrap Notes Column only */
         #contractTable td:nth-child(9),
         #contractTable th:nth-child(9) {
@@ -124,23 +137,28 @@
     background-color: #6b737a;
     color: white;
     border: none;
-    padding: 6px 14px;
+    padding: 6px 8px;
     font-size: 0.85rem;
     font-weight: 500;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     border-radius: 4px;
     transition: background-color 0.2s ease-in-out;
+    min-width: 32px;
+    height: 32px;
 }
 
     .edit-btn i {
         font-size: 0.85rem;
+        margin: 0;
     }
 
     .edit-btn:hover {
         background-color: #545b61;
         color: #fff;
     }
+
 
 .highlight-red {
     background-color: #dc3545; /* Bootstrap red */

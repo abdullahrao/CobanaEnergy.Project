@@ -498,8 +498,14 @@
     function toggleCotLostConsumption() {
         if ($.trim($("#cedCOT").val()) !== "") {
             $("#cotLostConsumptionWrapper").show();
+            // When cotLostConsumptionWrapper is shown, supplier EAC fields should not be required
+            $("#eacYear").removeAttr('required');
+            $("#eacValue").removeAttr('required');
         } else {
             $("#cotLostConsumptionWrapper").hide();
+            // When cotLostConsumptionWrapper is hidden, supplier EAC fields should be required
+            $("#eacYear").attr('required', 'required');
+            $("#eacValue").attr('required', 'required');
         }
     }
 

@@ -82,7 +82,7 @@
 
                         // Add row
                         const rowNode = table.row.add([
-                            `<button class="btn btn-sm edit-btn edit-user" type="button" data-userid="${contract.UserId}">Edit</button>`,
+                            `<button class="btn btn-sm edit-btn edit-user" type="button" data-userid="${contract.UserId}" title="Edit"><i class="fas fa-pencil-alt"></i></button>`,
                             `<input type="checkbox" name="SelectedUser" value="${contract.UserId}" />`,
                             contract.UserName,
                             roleLabels,

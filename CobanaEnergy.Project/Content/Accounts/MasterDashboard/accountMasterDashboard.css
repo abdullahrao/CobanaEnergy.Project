@@ -245,20 +245,6 @@
         color: #fff;
     }
 
-/* Ensure consistent button sizing for all Bootstrap button variants */
-.btn-primary, .btn-danger, .btn-secondary {
-    padding: 6px 14px !important;
-    font-size: 0.85rem !important;
-    font-weight: 500 !important;
-    border-radius: 4px !important;
-    display: inline-flex !important;
-    align-items: center !important;
-}
-
-.btn-primary i, .btn-danger i, .btn-secondary i {
-    font-size: 0.85rem !important;
-}
-
 .dt-buttons .btn {
     margin-left: 5px !important;
 }
@@ -270,16 +256,26 @@
     #accountMasterTable th:nth-child(8),
     #accountMasterTable td:nth-child(8),
     #accountMasterTable th:nth-child(9),
-    #accountMasterTable td:nth-child(9),
-    /* Action column (first column) */
-    #accountMasterTable th:nth-child(1),
-    #accountMasterTable td:nth-child(1) {
+    #accountMasterTable td:nth-child(9){
         width: 120px !important;
         min-width: 120px !important;
         max-width: 120px !important;
         text-align: center;
         white-space: nowrap;
         vertical-align: middle;
+    }
+
+    /* Edit column (first column) */
+    #accountMasterTable th:nth-child(1),
+    #accountMasterTable td:nth-child(1) {
+        width: 48px !important;
+        min-width: 48px !important;
+        max-width: 48px !important;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
     }
 
     #accountMasterTable th:nth-child(10),

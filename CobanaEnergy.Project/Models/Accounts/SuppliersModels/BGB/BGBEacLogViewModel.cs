@@ -10,9 +10,7 @@ namespace CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGB
     {
         [Required]
         public string EId { get; set; }
-        [Required]
         public string EacYear { get; set; }
-        [Required]
         public string EacValue { get; set; }
         public string FinalEac { get; set; }
         [Required]
