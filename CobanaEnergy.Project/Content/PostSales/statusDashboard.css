@@ -245,19 +245,7 @@
         color: #fff;
     }
 
-/* Ensure consistent button sizing for all Bootstrap button variants */
-.btn-primary, .btn-danger, .btn-secondary {
-    padding: 6px 14px !important;
-    font-size: 0.85rem !important;
-    font-weight: 500 !important;
-    border-radius: 4px !important;
-    display: inline-flex !important;
-    align-items: center !important;
-}
 
-.btn-primary i, .btn-danger i, .btn-secondary i {
-    font-size: 0.85rem !important;
-}
 
 .dt-buttons .btn {
     margin-left: 5px !important;
@@ -408,6 +396,19 @@ select.form-select,
     font-size: 0.85rem;
 }
 
+
+    #statusDashboardTable th:nth-child(1),
+    #statusDashboardTable td:nth-child(1) {
+        width: 48px !important;
+        min-width: 48px !important;
+        max-width: 48px !important;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
 /* ========================
    Truncate with Hover Expand
 ========================= */
@@ -440,16 +441,20 @@ select.form-select,
 
     /* Common button styling */
     .email-button-group .send-email {
-        display: flex;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
+        gap: 4px; /* Equal space between icon & text */
         font-weight: 500;
         letter-spacing: 0.2px;
         border: 1px solid transparent;
-        border-radius: 0.6rem;
-        padding: 0.45rem 0.8rem;
+        border-radius: 0.5rem;
+        padding: 0.35rem 0.6rem; /* smaller, consistent padding */
         transition: all 0.25s ease;
-        font-size: 0.875rem;
+        font-size: 0.8rem; /* slightly smaller text */
+        line-height: 1;
+        min-width: 32px;
+        height: 32px; /* consistent height */
     }
 
         /* 🩵 Supplier Button — Light Sky Blue */
@@ -482,16 +487,25 @@ select.form-select,
 
         /* Icon styling */
         .email-button-group .send-email i {
-            font-size: 0.9rem;
-            margin-right: 6px;
-            opacity: 0.85;
+            font-size: 0.85rem; /* smaller icon */
+            opacity: 0.9;
             transition: transform 0.2s ease, opacity 0.2s ease;
+            margin-right: 0; /* removed right margin — icon centers naturally */
         }
 
         .email-button-group .send-email:hover i {
             transform: translateY(-1px);
             opacity: 1;
         }
+
+/* Ensure buttons sit neatly side-by-side */
+.email-button-group {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    align-items: center;
+}
+
 
 
 td.center-dash {

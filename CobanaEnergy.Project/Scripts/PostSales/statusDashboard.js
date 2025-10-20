@@ -96,18 +96,31 @@ $(document).ready(function () {
 
                     const $container = $('#statusSummaryContainer');
                     $container.empty();
+
                     if (json.statusSummary && json.statusSummary.length > 0) {
                         json.statusSummary.forEach(s => {
-                            const badge = `<div class="status-count-box" style="background-color:${s.ColorCode}; ">
-                            <span class="badge rounded-pill" 
-                                  style="color:#fff; padding:6px 10px; font-size:0.8rem;">
-                                ${s.ContractStatus}: <strong>${s.Count}</strong>
-                            </span> </div>`;
-                            $container.append(badge);
-                        });
+                            const badge = `
+                             <div class="status-count-box d-inline-block m-1">
+                                 <span class="badge rounded-pill"
+                                       style="
+                                           background-color:${s.ColorCode};
+                                           color:#fff;
+                                           padding:8px 14px;
+                                           font-size:0.9rem;
+                                           font-weight:600;
+                                           letter-spacing:0.3px;
+                                           text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+                                           box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+                                       ">
+                                     ${s.ContractStatus}: <strong>${s.Count}</strong>
+                                 </span>
+                             </div>`;
+                             $container.append(badge);
+                         });
                     } else {
                         $container.html('<small class="text-muted">No contract status summary available.</small>');
                     }
+
 
 
                     return json.data;
@@ -183,19 +196,19 @@ $(document).ready(function () {
             columns: [
                 {
                     data: null, orderable: false, render: function (row) {
-                        const url = ``;// `/StatusDashboard/Edit/${encodeURIComponent(row.EId)}?type=${encodeURIComponent(row.ContractType)}`;
+                        const url =  `/StatusDashboard/Edit/${encodeURIComponent(row.EId)}?type=${encodeURIComponent(row.ContractType)}`;
                         let iconClass, buttonClass;
                         switch (row.ContractType) {
                             case 'Electric':
-                                iconClass = 'fas fa-bolt me-2';
+                                iconClass = 'fas fa-bolt';
                                 buttonClass = 'btn btn-sm btn-primary';
                                 break;
                             case 'Gas':
-                                iconClass = 'fas fa-fire me-2';
+                                iconClass = 'fas fa-fire';
                                 buttonClass = 'btn btn-sm btn-danger';
                                 break;
                             default:
-                                iconClass = 'fas fa-pencil-alt me-1';
+                                iconClass = 'fas fa-pencil-alt';
                                 buttonClass = 'btn btn-sm';
                         }
                         return `<a class="${buttonClass}" href="${url}" target="_blank">
@@ -208,7 +221,7 @@ $(document).ready(function () {
                         return `
                         <div class="text-center">
                             <button class="btn btn-sm btn-success save-row" data-eid="${row.EId}" disabled>
-                                <span class="btn-text"><i class="bi bi-save me-1"></i></span>
+                                <span class="btn-text"><i class="bi bi-save2"></i></span>
                                 <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                             </button>
                         </div>
@@ -223,13 +236,13 @@ $(document).ready(function () {
                                 data-eid="${row.EId}" 
                                 data-emails="${row.EmailList || ''}" 
                                 data-type="Supplier" data-subject="${row.EmailSubject || ''}" data-body="${row.EmailBody || ''}">
-                                <i class="bi bi-envelope-fill me-1"></i> 
+                                <i class="bi bi-envelope-fill"></i> 
                             </button>
                             <button class="btn send-email" 
                                 data-eid="${row.EId}" 
                                 data-emails="${row.AgentEmail || ''}" 
                                 data-type="Agent" data-subject="${row.EmailSubject || ''}" data-body="${row.EmailBody || ''}">
-                                <i class="bi bi-person-fill me-1"></i>
+                                <i class="bi bi-person-fill"></i>
                             </button>
                         </div>
                     `;
