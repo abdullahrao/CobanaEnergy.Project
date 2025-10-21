@@ -7,6 +7,63 @@ table th {
     vertical-align: middle;
 }
 
+/* ============================================
+   DataTables Column Resize (Excel-like)
+   Global styles for all DataTables
+   ============================================ */
+
+/* Make table headers position relative for resize handle */
+table.dataTable thead th {
+    position: relative;
+    user-select: none;
+}
+
+/* Supplier table: restore normal sorting cursor and padding */
+#suppliersTable thead th.sorting,
+#suppliersTable thead th.sorting_asc,
+#suppliersTable thead th.sorting_desc {
+    cursor: pointer !important;
+    padding-right: 18px !important; /* Normal DataTables padding for sort icons */
+}
+
+/* Add extra padding for other tables to prevent sort icons from overlapping resize handle */
+table.dataTable:not(#suppliersTable) thead th.sorting,
+table.dataTable:not(#suppliersTable) thead th.sorting_asc,
+table.dataTable:not(#suppliersTable) thead th.sorting_desc {
+    padding-right: 30px !important; /* Extra space for both sort icons and resize handle */
+}
+
+/* Resize handle - use a wrapper approach instead of pseudo-elements */
+/* Add resize handle area without interfering with DataTables sort icons */
+table.dataTable:not(#suppliersTable) thead th:not(:last-child) {
+    /* Create space on the right for the resize zone */
+    position: relative;
+}
+
+/* Visual feedback on hover - border appears on the right edge */
+table.dataTable:not(#suppliersTable) thead th:not(:last-child):hover {
+    border-right: 3px solid rgba(100, 100, 100, 0.5);
+}
+
+/* Active resize state */
+table.dataTable.is-resizing {
+    cursor: col-resize;
+    user-select: none;
+}
+
+/* General cell overflow handling for all DataTables */
+table.dataTable td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 300px; /* Prevent excessive width */
+}
+
+/* Optional: Add title attribute for browser tooltip on hover */
+table.dataTable td {
+    cursor: default;
+}
+
 /* ========================
    popup- Invoice Supplier Dashboard
 ======================== */
