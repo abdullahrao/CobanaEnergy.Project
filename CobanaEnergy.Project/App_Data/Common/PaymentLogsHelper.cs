@@ -1,4 +1,6 @@
-﻿using CobanaEnergy.Project.Models;
+﻿using CobanaEnergy.Project.Helpers;
+using CobanaEnergy.Project.Models;
+using CobanaEnergy.Project.Models.Accounts.MasterDashboard.AccountMasterDashboard;
 using CobanaEnergy.Project.Models.Accounts.SuppliersModels;
 using CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGB.DBModel;
 using System;
@@ -88,5 +90,35 @@ namespace CobanaEnergy.Project.Common
         }
 
 
+        public static DateTime GetEffectiveCED(ContractViewModel x, CE_CommissionAndReconciliation cr)
+        {
+            // Step 1: If CED is already filled in reconciliation
+            if (!string.IsNullOrWhiteSpace(cr?.CED))
+                return ParserHelper.ParseDateForSorting(cr.CED);
+
+            // Step 2: Determine which StartDate to use
+            string startDateString = null;
+
+            if (!string.IsNullOrWhiteSpace(cr?.StartDate))
+                startDateString = cr.StartDate;
+            else
+                startDateString = x.StartDate;
+
+            // Step 3: Apply CED formula if valid start date + duration exist
+            if (DateTime.TryParse(startDateString, out var startDate) &&
+                int.TryParse(x.Duration?.ToString(), out var durYears))
+            {
+                var calculated = startDate.AddYears(durYears).AddDays(-1);
+                return calculated;
+            }
+
+            // Step 4: Fallback
+            return DateTime.MinValue;
+        }
+
+
     }
+
+
+    
 }
