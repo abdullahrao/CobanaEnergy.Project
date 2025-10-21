@@ -11,6 +11,9 @@
         ]
     });
 
+    // Enable column resizing
+    enableColumnResizing('#contractsTable');
+
     $(document).on('change', 'input[name="selectedContracts"], #checkAll', function () {
         let selected = $('input[name="selectedContracts"]:checked').length > 0;
         $('#continueBtn').prop('disabled', !selected);

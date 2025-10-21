@@ -381,6 +381,9 @@ $(document).ready(function () {
                 });
             }
         });
+
+        // Enable column resizing
+        enableColumnResizing('#statusDashboardTable');
     }
 
 

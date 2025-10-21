@@ -32,6 +32,9 @@
         ]
     });
 
+    // Enable column resizing
+    enableColumnResizing('#awaitingPaymentsTable');
+
     var excelButton = new $.fn.dataTable.Buttons(table, {
         buttons: [
             {

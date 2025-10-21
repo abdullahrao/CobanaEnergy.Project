@@ -33,6 +33,9 @@
         ]
     });
 
+    // Enable column resizing
+    enableColumnResizing('#calendarTable');
+
     loadFollowUpDatesAndInitCalendar();
 
     function loadFollowUpDatesAndInitCalendar() {

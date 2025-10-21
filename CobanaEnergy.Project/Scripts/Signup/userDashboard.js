@@ -22,6 +22,9 @@
         ]
     });
 
+    // Enable column resizing
+    enableColumnResizing('#userTable');
+
     var excelButton = new $.fn.dataTable.Buttons(table, {
         buttons: [
             {
