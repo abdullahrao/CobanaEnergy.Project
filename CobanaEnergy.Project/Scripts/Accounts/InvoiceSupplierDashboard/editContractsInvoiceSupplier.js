@@ -11,4 +11,7 @@
             { orderable: false, targets: 0 } // No sort on 'Edit'
         ]
     });
+
+    // Enable column resizing
+    enableColumnResizing('#editContractsTable');
 });

@@ -12,6 +12,9 @@
         ]
     });
 
+    // Enable column resizing
+    enableColumnResizing('#campaignTable');
+
     var excelButton = new $.fn.dataTable.Buttons(table, {
         buttons: [
             {

@@ -157,6 +157,9 @@ $(document).ready(function () {
             autoWidth: false
         });
 
+        // Enable column resizing
+        enableColumnResizing('#preSalesMasterTable');
+
         // Add event handler to refresh counts after table is drawn
         masterTable.on('draw.dt', function() {
             refreshStatusCounts();

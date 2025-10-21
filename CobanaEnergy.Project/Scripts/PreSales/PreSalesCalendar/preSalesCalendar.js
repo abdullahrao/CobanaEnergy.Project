@@ -67,6 +67,9 @@ $(document).ready(function () {
         ]
     });
 
+    // Enable column resizing
+    enableColumnResizing('#preSalesCalendarTable');
+
     loadFollowUpDatesAndInitCalendar();
 
     // Event handler for edit buttons

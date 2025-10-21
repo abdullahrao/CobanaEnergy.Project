@@ -21,6 +21,9 @@ $(document).ready(function () {
         dom: 'lfrtip'
     });
 
+    // Enable column resizing
+    enableColumnResizing('#sectorTable');
+
     // Handle sector type filter change
     $('#sectorTypeFilter').on('change', function () {
         var selectedType = $(this).val();

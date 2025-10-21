@@ -208,6 +208,9 @@
                 });
             }
         });
+
+        // Enable column resizing
+        enableColumnResizing('#accountMasterTable');
     }
 
     $(function () {

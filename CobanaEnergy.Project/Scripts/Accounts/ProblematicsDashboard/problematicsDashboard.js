@@ -32,6 +32,9 @@
         ]
     });
 
+    // Enable column resizing
+    enableColumnResizing('#problematicsTable');
+
     var excelButton = new $.fn.dataTable.Buttons(table, {
         buttons: [{
             extend: 'excelHtml5',
