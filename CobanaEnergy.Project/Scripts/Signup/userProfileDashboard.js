@@ -9,6 +9,9 @@ $(document).ready(function () {
         responsive: true,
         autoWidth: false
     });
+
+    // Enable column resizing
+    enableColumnResizing('#userTable');
 });
 
 function editUserProfile(userId) {

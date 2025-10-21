@@ -75,7 +75,7 @@ function loadContractTable() {
             $table.append(row);
         });
 
-        $('#contractTable').DataTable({
+        const table = $('#contractTable').DataTable({
             paging: true,
             searching: true,
             ordering: true,
@@ -88,6 +88,9 @@ function loadContractTable() {
             responsive: true,
             autoWidth: false
         });
+
+        // Enable column resizing
+        enableColumnResizing('#contractTable');
 
         // Attach click handlers to edit buttons
         $(document).off('click', '.contract-edit-btn').on('click', '.contract-edit-btn', function(e) {

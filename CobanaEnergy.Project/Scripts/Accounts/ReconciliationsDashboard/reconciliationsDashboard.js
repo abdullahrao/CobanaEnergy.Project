@@ -31,6 +31,9 @@
         ]
     });
 
+    // Enable column resizing
+    enableColumnResizing('#reconciliationsTable');
+
     var excelButton = new $.fn.dataTable.Buttons(table, {
         buttons: [{
             extend: 'excelHtml5',

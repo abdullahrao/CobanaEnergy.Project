@@ -51,6 +51,13 @@
             padding-left: 0 !important;
             padding-right: 0 !important;
         }
+        
+        /* Prevent edit button column from expanding on hover */
+        #contractTable td:nth-child(1):hover {
+            overflow: hidden;
+            white-space: nowrap;
+            box-shadow: none;
+        }
 
         /* Wrap Notes Column only */
         #contractTable td:nth-child(9),
