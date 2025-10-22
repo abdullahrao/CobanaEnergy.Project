@@ -382,6 +382,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CrownContracts
                                     Type = "Electric",
                                     ContractStatus = model.contractStatus,
                                     PaymentStatus = model.paymentStatus,
+                                    PostSalesCreationDate = DateTime.Now,
                                     ModifyDate = DateTime.Now
                                 });
                             }
@@ -436,6 +437,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.CrownContracts
                                     Type = "Gas",
                                     ContractStatus = model.contractStatus,
                                     PaymentStatus = model.paymentStatus,
+                                    PostSalesCreationDate = DateTime.Now,
                                     ModifyDate = DateTime.Now
                                 });
                             }

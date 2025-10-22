@@ -1,21 +1,24 @@
-﻿$(document).ready(async function () {
+﻿
+
+$(document).ready(async function () {
+
+    let selectedEmails = [];
+    let selectedType = "";
+    let emailSubject = "";
+    let emailBody = "";
+
 
     if (!$('#editGasForm').length) return;
-    
-    // Always verify/acquire lock on page load
+
+    // --- lock ---
     const contractId = $('#eid').val();
-    if (contractId) {
-        await verifyOrAcquireLock(contractId);
-    }
-    
-    //$('#productSelect, #supplierCommsType').prop('disabled', true); 
+    if (contractId) await verifyOrAcquireLock(contractId);
 
+    // --- antiforgery ---
     const token = $('input[name="__RequestVerificationToken"]').val();
-    if (token) {
-        $.ajaxSetup({ headers: { 'RequestVerificationToken': token } });
-    }
+    if (token) $.ajaxSetup({ headers: { 'RequestVerificationToken': token } });
 
-    // Initialize BrokerageManager for edit mode
+
     const brokerageManager = new BrokerageManager({
         isEditMode: true,
         currentBrokerageId: $('#brokerage').data('current'),
@@ -34,19 +37,14 @@
         }
     });
 
-    for (const id in DropdownOptions) {
-        populateDropdown(id, DropdownOptions[id]);
-    }
-
-    const $supplier = $('#supplierSelect');
-    const $product = $('#productSelect');
-    // $supplier.prop('disabled', true); 
+    // --- dropdown seeds ---
+    for (const id in DropdownOptions) populateDropdown(id, DropdownOptions[id]);
 
     function populateDropdown(id, values) {
         const $el = $('#' + id);
         if (!$el.length) return;
         const current = $el.data('current');
-        const displayName = id.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()).trim();
+        const displayName = id.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase()).trim();
         $el.empty().append(`<option value="">Select ${displayName}</option>`);
         values.forEach(val => {
             const selected = val === current ? 'selected' : '';
@@ -54,56 +52,74 @@
         });
     }
 
-    // Note: Dynamic field population is now handled automatically by BrokerageManager
-    // when modelValues are provided in edit mode
+    // --- query types (call once) ---
+    GetQueryDropDownData();
+    function GetQueryDropDownData() {
+        const supplier = $('#supplierName').val() || '';
+        if (!supplier) return;
 
-    // Function to load suppliers based on selected sector (for edit mode)
-    function loadSuppliersBySectorEdit(sectorId) {
-        if (!sectorId) {
-            return;
-        }
+        $.ajax({
+            url: '/StatusDashboard/GetQueryTypes',
+            type: 'GET',
+            data: { supplier },
+            success: function (options) {
+                const $dropdown = $('#queryType');
+                const selectedVal = (
+                    $dropdown.data('current') ||
+                    $dropdown.attr('value') ||
+                    $dropdown.val() || ''
+                ).trim();
 
-        $.get(`/Supplier/GetActiveSuppliersBySector?sectorId=${sectorId}`, function (res) {
-            if (res.success && res.Data.length > 0) {
-                // Store the suppliers for potential future use
-                window.currentSectorSuppliers = res.Data;
-                console.log('Suppliers loaded for sector:', res.Data.length);
-            } else {
-                window.currentSectorSuppliers = [];
-                console.log('No suppliers found for sector');
+                const uniqueOptions = [...new Set((options || [])
+                    .map(o => (o || '').trim())
+                    .filter(Boolean))];
+
+                $dropdown.empty().append('<option value="">Select Query Type</option>');
+                uniqueOptions.forEach(opt => {
+                    const sel = selectedVal && opt.toLowerCase() === selectedVal.toLowerCase() ? 'selected' : '';
+                    $dropdown.append(`<option value="${opt}" ${sel}>${opt}</option>`);
+                });
+
+                if (selectedVal && !$dropdown.val()) {
+                    $dropdown.append(`<option value="${selectedVal}" selected>${selectedVal}</option>`);
+                }
+
+                $dropdown.trigger('change');
             }
-        }).fail(function() {
-            window.currentSectorSuppliers = [];
-            console.log('Error loading suppliers for sector');
         });
     }
 
-    // Listen for brokerage (sector) selection changes in edit mode
-    $('#brokerage').on('change', function() {
+    // --- sector suppliers (unchanged) ---
+    function loadSuppliersBySectorEdit(sectorId) {
+        if (!sectorId) return;
+        $.get(`/Supplier/GetActiveSuppliersBySector?sectorId=${sectorId}`, function (res) {
+            if (res.success && res.Data.length > 0) {
+                window.currentSectorSuppliers = res.Data;
+            } else {
+                window.currentSectorSuppliers = [];
+            }
+        }).fail(function () {
+            window.currentSectorSuppliers = [];
+        });
+    }
+
+    $('#brokerage').on('change', function () {
         const sectorId = $(this).val();
         loadSuppliersBySectorEdit(sectorId);
-        
-        // Check if current supplier is still valid for the new sector
+
         const currentSupplierId = $('#supplierSelect').val();
         if (currentSupplierId && window.currentSectorSuppliers) {
-            const isCurrentSupplierValid = window.currentSectorSuppliers.some(s => s.Id == currentSupplierId);
-            if (!isCurrentSupplierValid) {
-                console.warn('Current supplier is not available in the selected sector');
-                // Optionally show a warning to the user
-                showToastWarning("Current supplier is not available in the selected sector. Please contact support if you need to change the supplier.");
-            }
+            const ok = window.currentSectorSuppliers.some(s => s.Id == currentSupplierId);
+            if (!ok) showToastWarning("Current supplier is not available in the selected sector. Please contact support if you need to change the supplier.");
         }
     });
 
-    // Load suppliers for the current sector on page load
     const currentSectorId = $('#brokerage').val();
-    if (currentSectorId) {
-        loadSuppliersBySectorEdit(currentSectorId);
-    }
+    if (currentSectorId) loadSuppliersBySectorEdit(currentSectorId);
 
+    // --- product -> comms type ---
     $('#productSelect').on('change', function () {
-        const selectedOption = $(this).find('option:selected');
-        const commsType = selectedOption.data('comms') ?? '';
+        const commsType = $(this).find('option:selected').data('comms') ?? '';
         const $commsSelect = $('#supplierCommsType');
 
         $commsSelect.empty().append('<option value="">Select Supplier Comms Type</option>');
@@ -114,164 +130,157 @@
 
         if (commsType) {
             $commsSelect.val(commsType).addClass('highlight-temp');
-            setTimeout(() => {
-                $commsSelect.removeClass('highlight-temp');
-            }, 1000);
+            setTimeout(() => $commsSelect.removeClass('highlight-temp'), 1000);
         }
 
         $commsSelect.prop('disabled', true);
     });
 
-    $('#editGasForm').on('submit', async function (e) {
-        e.preventDefault();
-        let hasInvalid = false;
+    // --- validation styling ---
+    $(document).on('input change', '.form-control, .form-select', function () {
+        if (this.checkValidity()) $(this).removeClass('is-invalid');
+    });
 
-        $(this).find('.form-control, .form-select').each(function () {
-            $(this).removeClass('is-invalid');
-            if (!this.checkValidity()) {
-                $(this).addClass('is-invalid');
-                hasInvalid = true;
+    // --- setup contract status dropdown ---
+    populateDropdown("contractStatus", AccountDropdownOptions.statusDashboardContractStatus, $('#contractStatus').data('current'));
+
+    // --- contract type helpers ---
+    function isGasContract() {
+        const ct = ($('#contractType').val() || '').toString().trim().toLowerCase();
+        return ct === 'gas' || ct === '1';
+    }
+
+    // --- duplicate check (MPAN/MPRN) ---
+    const $supLabel = $('#supplyNumberLabel');
+    const $supInput = $('#supplyNumber'); // if you still use #mprn/#mpan, adjust accordingly
+    const gas = isGasContract();
+
+    if (gas) {
+        $supLabel.text('MPRN');
+        $supInput.attr({ pattern: '^\\d{6,10}$', title: 'Please enter 6–10 digit MPRN or N/A', maxlength: '10' });
+    } else {
+        $supLabel.text('MPAN');
+        $supInput.attr({ pattern: '^\\d{13}(\\d{8})?$', title: 'Please enter valid MPAN' }).removeAttr('maxlength');
+    }
+
+    $supInput.on('input', function () {
+        const val = $(this).val().trim();
+        if (gas) {
+            if (/^\d{6,10}$/.test(val)) {
+                $('#supplyLoader').show();
+                $.get(`/Gas/CheckDuplicateMprn?mprn=${val}`, function (res) {
+                    $('#supplyLoader').hide();
+                    if (res.success && res.Data) {
+                        const d = res.Data;
+                        $('#duplicateMprnModalEdit tbody').html(`
+              <tr>
+                <td>${d.Agent || 'N/A'}</td>
+                <td>${d.BusinessName}</td>
+                <td>${d.CustomerName}</td>
+                <td>${d.InputDate}</td>
+                <td>${d.PreSalesStatus}</td>
+                <td>${d.Duration}</td>
+              </tr>`);
+                        $('#duplicateMprnModalEdit').modal('show');
+                    }
+                }).fail(() => $('#supplyLoader').hide());
             }
+        } else {
+            if (/^\d{13}(\d{8})?$/.test(val)) {
+                $('#supplyLoader').show();
+                $.get(`/Electric/CheckDuplicateMpan?mpan=${val}`, function (res) {
+                    $('#supplyLoader').hide();
+                    if (res.success && res.Data) {
+                        const d = res.Data;
+                        $('#duplicateMpanModalEdit tbody').html(`
+              <tr>
+                <td>${d.Agent || 'N/A'}</td>
+                <td>${d.BusinessName}</td>
+                <td>${d.CustomerName}</td>
+                <td>${d.InputDate}</td>
+                <td>${d.PreSalesStatus}</td>
+                <td>${d.Duration}</td>
+              </tr>`);
+                        $('#duplicateMpanModalEdit').modal('show');
+                    }
+                }).fail(() => $('#supplyLoader').hide());
+            }
+        }
+    });
+
+    // --- uplift validation: route once, no duplicates ---
+    async function validateUpliftAgainstSupplierLimit($uplift, $supplier, eid) {
+        if (isGasContract()) {
+            if (typeof validateUpliftAgainstSupplierLimitGas === 'function') {
+                return await validateUpliftAgainstSupplierLimitGas($uplift, $supplier, eid);
+            }
+        } else {
+            if (typeof validateUpliftAgainstSupplierLimitElectric === 'function') {
+                return await validateUpliftAgainstSupplierLimitElectric($uplift, $supplier, eid);
+            }
+        }
+        console.warn('Validator function missing for contract type');
+        return true;
+    }
+
+    (function bindUpliftValidation() {
+        const $uplift = $('#uplift');
+        const $supplier = $('#supplierSelect');
+
+        $uplift.on('blur', async function () {
+            const eid = $('#eid').val();
+            await validateUpliftAgainstSupplierLimit($uplift, $supplier, eid);
         });
 
-        if (hasInvalid) {
-            const $first = $(this).find(':invalid').first();
-            $first.focus();
-            showToastWarning("Please fill all required fields.");
-            return;
-        }
+        $supplier.on('change', async function () {
+            if ($(this).is(':disabled')) return;
+            const eid = $('#eid').val();
+            await validateUpliftAgainstSupplierLimit($uplift, $supplier, eid);
+        });
+    })();
 
-        const model = {
+    // --- submit (use generic validator; choose the right POST url if needed) ---
+    $('#editGasForm').on('submit', function (e) {
+        e.preventDefault();
+
+        const dto = {
             EId: $('#eid').val(),
-            Department: $('#department').val(),
+            ContractType: $('#contractType').val(),
             Source: $('#source').val(),
-            SalesType: $('#salesType').val(),
-            SalesTypeStatus: $('#salesTypeStatus').val(),
             BusinessName: $('#businessName').val(),
             CustomerName: $('#customerName').val(),
-            BusinessDoorNumber: $('#businessDoorNumber').val(),
-            BusinessHouseName: $('#businessHouseName').val(),
-            BusinessStreet: $('#businessStreet').val(),
-            BusinessTown: $('#businessTown').val(),
-            BusinessCounty: $('#businessCounty').val(),
             PostCode: $('#postCode').val(),
             PhoneNumber1: $('#phoneNumber1').val(),
-            PhoneNumber2: $('#phoneNumber2').val(),
             EmailAddress: $('#emailAddress').val(),
-            InitialStartDate: $('#initialStartDate').val(),
-            Duration: $('#duration').val(),
+            SalesType: $('#salesType').val(),
+            SalesTypeStatus: $('#salesTypeStatus').val(),
             Uplift: $('#uplift').val(),
             InputEAC: $('#inputEAC').val(),
-            UnitRate: $('#unitRate').val(),
-            OtherRate: $('#otherRate').val(),
-            StandingCharge: $('#standingCharge').val(),
-            SortCode: $('#sortCode').val(),
-            AccountNumber: $('#accountNumber').val(),
-            MPRN: $('#mprn').val(),
-            CurrentSupplier: $('#currentSupplier').val(),
-            SupplierId: $('#supplierSelect').val(),
-            ProductId: $('#productSelect').val(),
-            SupplierCommsType: $('#supplierCommsType').val(),
-            PreSalesStatus: $('#preSalesStatus').val(),
-            PreSalesFollowUpDate: $('#preSalesFollowUpDate').val() || null,
-            EMProcessor: $('#emProcessor').val(),
-            ContractChecked: $('#contractChecked').is(':checked'),
-            ContractAudited: $('#contractAudited').is(':checked'),
-            Terminated: $('#terminated').is(':checked'),
+            InitialStartDate: $('#initialStartDate').val(),
+            CED: $('#ced').val(),
+            CEDCOT: $('#cedCot').val(),
+            ContractStatus: $('#contractStatus').val(),
+            QueryType: $('#queryType').val(),
+            FollowUpDate: $('#followUpDate').val(),
+            ProspectedSaleDate: $('#prospectedSaleCED').val(),
+            ProspectedSaleNotes: $('#prospectedSaleNotes').val(),
             ContractNotes: $('#contractNotes').val(),
-            
-            // Brokerage Details
-            BrokerageId: $('#brokerage').val() || null,
-            OfgemId: $('#ofgemId').val() || null,
-            
-            // Dynamic Department-based fields
-            CloserId: $('#closer').val() === '-1' ? 0 : ($('#closer').val() || null),
-            ReferralPartnerId: $('#referralPartner').val() === '-1' ? 0 : ($('#referralPartner').val() || null),
-            SubReferralPartnerId: $('#subReferralPartner').val() === '-1' ? 0 : ($('#subReferralPartner').val() || null),
-            BrokerageStaffId: $('#brokerageStaff').val() === '-1' ? 0 : ($('#brokerageStaff').val() || null),
-            IntroducerId: $('#introducer').val() === '-1' ? 0 : ($('#introducer').val() || null),
-            SubIntroducerId: $('#subIntroducer').val() === '-1' ? 0 : ($('#subIntroducer').val() || null),
-            SubBrokerageId: $('#subBrokerage').val() === '-1' ? 0 : ($('#subBrokerage').val() || null),
-            Collaboration: $('#collaboration').val() === '-1' ? 'N/A' : ($('#collaboration').val() || null),
-            LeadGeneratorId: $('#leadGenerator').val() === '-1' ? 0 : ($('#leadGenerator').val() || null)
+            ObjectionDate: $('#objectionDate').val(),
+            ReappliedDate: $('#reappliedDate').val()
         };
 
         const $btn = $(this).find('button[type="submit"]');
         $btn.prop('disabled', true).text('Updating...');
 
-        const $uplift = $('#uplift');
-        const $supplier = $('#supplierSelect');
-        const eid = $('#eid').val();
-        const isValid = await validateUpliftAgainstSupplierLimitGas($uplift, $supplier, eid);
-        if (!isValid) {
-            $uplift.focus();
-            $btn.prop('disabled', false).text('Update Contract');
-            return;
-        }
-
         $.ajax({
-            url: '/Gas/EditGas',
+            url: '/StatusDashboard/UpdatePostSalesContract',
             method: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify(model),
+            data: JSON.stringify(dto),
             success: function (res) {
                 if (res.success) {
-                    showToastSuccess("Gas contract updated successfully!");
-                    const d = res.Data;
-
-                    $('#department').val(d.Department);
-                    $('#source').val(d.Source);
-                    $('#salesType').val(d.SalesType);
-                    $('#salesTypeStatus').val(d.SalesTypeStatus);
-                    $('#businessName').val(d.BusinessName);
-                    $('#customerName').val(d.CustomerName);
-                    $('#businessDoorNumber').val(d.BusinessDoorNumber);
-                    $('#businessHouseName').val(d.BusinessHouseName);
-                    $('#businessStreet').val(d.BusinessStreet);
-                    $('#businessTown').val(d.BusinessTown);
-                    $('#businessCounty').val(d.BusinessCounty);
-                    $('#postCode').val(d.PostCode);
-                    $('#phoneNumber1').val(d.PhoneNumber1);
-                    $('#phoneNumber2').val(d.PhoneNumber2);
-                    $('#emailAddress').val(d.EmailAddress);
-                    $('#inputDate').val(d.InputDate);
-                    $('#initialStartDate').val(d.InitialStartDate);
-                    $('#duration').val(d.Duration);
-                    $('#uplift').val(d.Uplift);
-                    $('#inputEAC').val(d.InputEAC);
-                    $('#unitRate').val(d.UnitRate);
-                    $('#otherRate').val(d.OtherRate);
-                    $('#standingCharge').val(d.StandingCharge);
-                    $('#sortCode').val(d.SortCode);
-                    $('#accountNumber').val(d.AccountNumber);
-                    $('#mprn').val(d.MPRN);
-                    $('#currentSupplier').val(d.CurrentSupplier);
-                    $('#supplierSelect').val(d.SupplierId);
-                    $('#productSelect').val(d.ProductId);
-                    $('#supplierCommsType').val(d.SupplierCommsType);
-                    $('#preSalesStatus').val(d.PreSalesStatus);
-                    $('#preSalesFollowUpDate').val(d.PreSalesFollowUpDate);
-                    $('#contractNotes').val(d.ContractNotes);
-                    $('#emProcessor').val(d.EMProcessor);
-                    
-                    // Set new fields
-                    $('#brokerage').val(d.BrokerageId);
-                    $('#ofgemId').val(d.OfgemId);
-                    $('#closer').val(d.CloserId);
-                    $('#referralPartner').val(d.ReferralPartnerId);
-                    $('#subReferralPartner').val(d.SubReferralPartnerId);
-                    $('#brokerageStaff').val(d.BrokerageStaffId);
-                    $('#introducer').val(d.IntroducerId);
-                    $('#subIntroducer').val(d.SubIntroducerId);
-                    $('#subBrokerage').val(d.SubBrokerageId);
-                    $('#collaboration').val(d.Collaboration);
-                    $('#leadGenerator').val(d.LeadGeneratorId);
-
-                    $('#contractChecked').prop('checked', d.ContractChecked);
-                    $('#contractAudited').prop('checked', d.ContractAudited);
-                    $('#terminated').prop('checked', d.Terminated);
-
-                    loadLogs();
+                    showToastSuccess(res.message);
+                    loadLogs(); // refresh logs section
                 } else {
                     showToastError(res.message);
                 }
@@ -285,27 +294,28 @@
         });
     });
 
-    $(document).on('input change', '.form-control, .form-select', function () {
-        if (this.checkValidity()) {
-            $(this).removeClass('is-invalid');
-        }
-    });
-
+    // --- logs (route by type) ---
     function loadLogs() {
         const eid = $('#eid').val();
-        const $logContainer = $('#gasLogsContainer');
+        const type = $('#contractType').val();
+        const $logContainer = $('#postSalesContractLogs'); // consider renaming generic
         $logContainer.html('<div class="text-muted">Loading logs...</div>');
+        const url = `/StatusDashboard/GetLogsPostSalesContract?id=${eid}&type=${type}`;
 
-        $.get(`/Gas/GetLogsForGasContract?eid=${eid}`, function (res) {
+        $.get(url, function (res) {
             if (res.success && res.Data.length > 0) {
                 const html = res.Data.map(log => `
-                    <div class="log-entry">
-                        <div class="log-date">${log.ActionDate}</div>
-                        <p class="log-field"><span class="log-label">User:</span> <span class="log-value">${log.Username}</span></p>
-                        <p class="log-field"><span class="log-label">Status:</span> <span class="log-value">${log.PreSalesStatusType}</span></p>
-                        <p class="log-field"><span class="log-label">Message:</span> <span class="log-value"><strong>${log.Message}</strong></span></p>
-                    </div>
-                `).join('');
+                  <div class="log-entry">
+                    <div class="log-date">${log.ActionDate}</div>
+                    <p class="log-field"><span class="log-label">User:</span> <span class="log-value">${log.Username}</span></p>
+                    <p class="log-field"><span class="log-label">Status:</span> <span class="log-value">${log.ContractStatus}</span></p>
+                    <p class="log-field"><span class="log-label">CED:</span> <span class="log-value"><strong>${log.CED}</strong></span></p>
+                    <p class="log-field"><span class="log-label">CED COT:</span> <span class="log-value"><strong>${log.COT}</strong></span></p>
+                    <p class="log-field"><span class="log-label">Objection Date:</span> <span class="log-value"><strong>${log.ObjectionDate}</strong></span></p>
+                    <p class="log-field"><span class="log-label">Query Type:</span> <span class="log-value"><strong>${log.QueryType}</strong></span></p>
+                    <p class="log-field"><span class="log-label">Contract Notes:</span> <span class="log-value"><strong>${log.ContractNotes}</strong></span></p>
+                  </div>
+        `).join('');
                 $logContainer.html(html);
             } else {
                 $logContainer.html('<div class="text-muted">No logs available.</div>');
@@ -315,82 +325,118 @@
         });
     }
 
+    // When Contract Status changes
+    $(document).on("change", ".contractStatus", function () {
+        const $row = $(this).closest("tr");
+        const selectedStatus = $(this).val();
+        const $objectionDateInput = $row.find(".objectionDate");
+
+        if (selectedStatus && selectedStatus.toLowerCase().includes("objection")) {
+            const today = new Date().toISOString().split("T")[0];
+            $objectionDateInput.val(today).trigger("updateByStatus");
+        }
+    });
+
+    // When Objection Date changes by user
+    $(document).on("change", ".objectionDate", function () {
+        const $row = $(this).closest("tr");
+        const dateVal = $(this).val();
+        const $contractStatusSelect = $row.find(".contractStatus");
+
+        if (dateVal) {
+            const hasObjection = $contractStatusSelect.find("option[value='Objection']").length > 0;
+            if (hasObjection) {
+                $contractStatusSelect.val("Objection").trigger("updateByDate");
+            }
+        }
+    });
+
+
+    $(document).on("click", ".send-email", function () {
+        selectedType = ($(this).data("type") || "").toLowerCase();
+        var emails = '';
+        if (selectedType === "agent") {
+            emails = $(this).data("emails");
+        } else {
+            const emailListValue = $('#emailList').val();
+            emails = emailListValue ? emailListValue.split(',').map(e => e.trim()) : [];
+        }
+        emailSubject = ($(this).data("subject") || "").toLowerCase();
+        emailBody = ($(this).data("body") || "").toLowerCase();
+
+        selectedEmails = (emails && emails !== '-')
+            ? (Array.isArray(emails) ? emails : emails.split(","))
+            : [];
+        const $container = $("#emailListContainer");
+        $container.empty();
+
+        if (selectedEmails.length === 0) {
+            $container.append(`<tr><td colspan="2" class="text-muted text-center">No emails found</td></tr>`);
+        } else {
+            selectedEmails.forEach((e, i) => {
+                $container.append(`
+                <tr>
+                    <td>${e.trim()}</td>
+                    <td class="text-center">
+                        <button class="btn btn-sm btn-outline-primary copy-single" data-email="${e.trim()}">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
+                    </td>
+                </tr>
+            `);
+            });
+        }
+
+        $("#emailModal").modal("show");
+    });
+
+    // Copy All
+    $(document).on("click", "#copyAllBtn", function () {
+        if (selectedEmails.length) {
+            navigator.clipboard.writeText(selectedEmails.join(";"));
+            showToastSuccess("All emails copied!");
+        }
+    });
+
+    // Copy single
+    $(document).on("click", ".copy-single", function () {
+        const email = $(this).data("email");
+        navigator.clipboard.writeText(email);
+        showToastSuccess(`Copied: ${email}`);
+    });
+
+    // Send via Outlook
+    $(document).on("click", "#sendEmailBtn", function () {
+        if (!selectedEmails.length) {
+            showToastError("No emails to send!");
+            return;
+        }
+
+        if (!emailSubject || !emailBody) {
+            showToastError(`Please save before email to ${selectedType}`);
+            return;
+        }
+
+        const to = selectedEmails.join(";");
+        var emailBody = "";
+        if (selectedType === "Agent") {
+            window.location.href = `mailto:${to}?subject=${emailSubject}&body=${emailBody}`;
+        } else {
+            to = "";
+            window.location.href = `mailto:${to}?subject=${emailSubject}&body=${emailBody}`;
+        }
+
+    });
+
+
     loadLogs();
 
-    $('#mprn').on('input', function () {
-        const mprn = $(this).val().trim();
-        if (/^\d{6,10}$/.test(mprn)) {
-            $('#mprnLoader').show();
-            $.get(`/Gas/CheckDuplicateMprn?mprn=${mprn}`, function (res) {
-                $('#mprnLoader').hide();
-                if (res.success && res.Data) {
-                    const d = res.Data;
-                    $('#duplicateMprnModalEdit tbody').html(`
-                        <tr>
-                            <td>${d.Agent || 'N/A'}</td>
-                            <td>${d.BusinessName}</td>
-                            <td>${d.CustomerName}</td>
-                            <td>${d.InputDate}</td>
-                            <td>${d.PreSalesStatus}</td>
-                            <td>${d.Duration}</td>
-                        </tr>
-                    `);
-                    $('#duplicateMprnModalEdit').modal('show');
-                }
-            }).fail(function () {
-                $('#mprnLoader').hide();
-                showToastError("Error checking MPRN.");
-            });
-        }
-    });
-
-    $('#accountNumber').on('input', function () {
-        const acc = $(this).val().trim();
-        if (/^\d{8}$/.test(acc)) {
-            $('#accountLoader').show();
-            $.get(`/CheckDuplicateAccount/CheckDuplicateAccountUnified?account=${acc}`, function (res) {
-                $('#accountLoader').hide();
-                if (res.success && res.Data?.length > 0) {
-                    const tbody = $('#duplicateAccountModalGasEdit tbody');
-                    tbody.empty();
-                    res.Data.forEach(r => {
-                        tbody.append(`
-                            <tr>
-                                <td>${r.Agent || 'N/A'}</td>
-                                <td>${r.BusinessName}</td>
-                                <td>${r.CustomerName}</td>
-                                <td>${r.InputDate}</td>
-                                <td>${r.PreSalesStatus}</td>
-                                <td>${r.Duration}</td>
-                                <td>${r.SortCode}</td>
-                                <td>${r.AccountNumber}</td>
-                            </tr>
-                        `);
-                    });
-                    $('#duplicateAccountModalGasEdit').modal('show');
-                }
-            }).fail(function () {
-                $('#accountLoader').hide();
-                showToastError("Error checking account number.");
-            });
-        }
-    });
-
-    $('#uplift').on('blur', async function () {
-        const eid = $('#eid').val();
-        await validateUpliftAgainstSupplierLimitGas($('#uplift'), $('#supplierSelect'), eid);
-    });
-
-    $('#supplierSelect').on('change', async function () {
-        if ($(this).is(':disabled')) return;
-        const eid = $('#eid').val();
-        await validateUpliftAgainstSupplierLimitGas($('#uplift'), $('#supplierSelect'), eid);
-    });
-
-    // Generic contract unlock functionality
+    // --- unlock on leave ---
     setupContractUnlocking();
 
+
 });
+
 
 
 /**

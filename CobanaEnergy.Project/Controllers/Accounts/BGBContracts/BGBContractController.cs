@@ -387,7 +387,8 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
                                     Type = "Electric",
                                     ContractStatus = model.contractStatus,
                                     PaymentStatus = model.paymentStatus,
-                                    ModifyDate = DateTime.Now
+                                    ModifyDate = DateTime.Now,
+                                    PostSalesCreationDate = DateTime.Now
                                 });
                             }
                             await SaveOrUpdateCommissionData(model, "Electric");
@@ -441,7 +442,8 @@ namespace CobanaEnergy.Project.Controllers.Accounts.BGBContracts
                                     Type = "Gas",
                                     ContractStatus = model.contractStatus,
                                     PaymentStatus = model.paymentStatus,
-                                    ModifyDate = DateTime.Now
+                                    ModifyDate = DateTime.Now,
+                                    PostSalesCreationDate = DateTime.Now
                                 });
                             }
                             await SaveOrUpdateCommissionData(model, "Gas");

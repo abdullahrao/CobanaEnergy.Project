@@ -384,6 +384,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.ScottishPowerContracts
                                     Type = "Electric",
                                     ContractStatus = model.contractStatus,
                                     PaymentStatus = model.paymentStatus,
+                                    PostSalesCreationDate = DateTime.Now,
                                     ModifyDate = DateTime.Now
                                 });
                             }
@@ -437,6 +438,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.ScottishPowerContracts
                                     Type = "Gas",
                                     ContractStatus = model.contractStatus,
                                     PaymentStatus = model.paymentStatus,
+                                    PostSalesCreationDate = DateTime.Now,
                                     ModifyDate = DateTime.Now
                                 });
                             }

@@ -485,6 +485,22 @@
     <Compile Include="Migrations\202510101201249_Alter-Tables-86c5md48r.Designer.cs">
       <DependentUpon>202510101201249_Alter-Tables-86c5md48r.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202510211216280_edit-statusdashboard-86c5md48r.cs" />
+    <Compile Include="Migrations\202510211216280_edit-statusdashboard-86c5md48r.Designer.cs">
+      <DependentUpon>202510211216280_edit-statusdashboard-86c5md48r.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202510220910279_alter-postsalesObj-86c5md48r.cs" />
+    <Compile Include="Migrations\202510220910279_alter-postsalesObj-86c5md48r.Designer.cs">
+      <DependentUpon>202510220910279_alter-postsalesObj-86c5md48r.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202510221731315_alter-postsalesLogs-86c5md48r.cs" />
+    <Compile Include="Migrations\202510221731315_alter-postsalesLogs-86c5md48r.Designer.cs">
+      <DependentUpon>202510221731315_alter-postsalesLogs-86c5md48r.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202510221947590_alter-contractstatus-86c5md48r.cs" />
+    <Compile Include="Migrations\202510221947590_alter-contractstatus-86c5md48r.Designer.cs">
+      <DependentUpon>202510221947590_alter-contractstatus-86c5md48r.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\Accounts\AwaitingPaymentsDashboard\AwaitingPaymentsDashboard.cs" />
     <Compile Include="Models\Accounts\CalendarDashboard\CalendarDashboardViewModel.cs" />
     <Compile Include="Models\Accounts\ClawbacksDashboard\ClawbacksDashboardViewModel.cs" />
@@ -794,6 +810,18 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202510101201249_Alter-Tables-86c5md48r.resx">
       <DependentUpon>202510101201249_Alter-Tables-86c5md48r.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202510211216280_edit-statusdashboard-86c5md48r.resx">
+      <DependentUpon>202510211216280_edit-statusdashboard-86c5md48r.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202510220910279_alter-postsalesObj-86c5md48r.resx">
+      <DependentUpon>202510220910279_alter-postsalesObj-86c5md48r.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202510221731315_alter-postsalesLogs-86c5md48r.resx">
+      <DependentUpon>202510221731315_alter-postsalesLogs-86c5md48r.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202510221947590_alter-contractstatus-86c5md48r.resx">
+      <DependentUpon>202510221947590_alter-contractstatus-86c5md48r.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

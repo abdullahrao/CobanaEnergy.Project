@@ -7,19 +7,26 @@ using CobanaEnergy.Project.Models.Accounts;
 using CobanaEnergy.Project.Models.Accounts.InvoiceSupplierDashboard;
 using CobanaEnergy.Project.Models.Accounts.MasterDashboard.AccountMasterDashboard;
 using CobanaEnergy.Project.Models.Accounts.SuppliersModels.BGB.DBModel;
+using CobanaEnergy.Project.Models.AccountsDBModel;
+using CobanaEnergy.Project.Models.Electric.ElectricDBModels.snapshot;
+using CobanaEnergy.Project.Models.EmailTemplateLookup;
 using CobanaEnergy.Project.Models.Gas.EditGas;
 using CobanaEnergy.Project.Models.Gas.GasDBModels;
 using CobanaEnergy.Project.Models.PostSales.Entities;
 using CobanaEnergy.Project.Models.PostSales.PostSalesContract;
 using CobanaEnergy.Project.Models.PostSales.StatusDashboard;
 using CobanaEnergy.Project.Models.Supplier.SupplierDBModels;
+using CobanaEnergy.Project.Models.Supplier.SupplierDBModels.snapshot;
+using CobanaEnergy.Project.Models.Supplier.SupplierDBModels.snapshot_Gas;
 using CobanaEnergy.Project.Models.Supplier.SupplierSnapshots_Gas;
 using CobanaEnergy.Project.Service.HelperUtilityService;
 using Logic;
 using Logic.LockManager;
 using Logic.ResponseModel.Helper;
 using Microsoft.AspNet.Identity;
+using Org.BouncyCastle.Bcpg.OpenPgp;
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Odbc;
@@ -100,7 +107,8 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
                         Type = s.Type,
                         ContractStatus = "Pending",
                         PaymentStatus = existingStatus?.PaymentStatus,
-                        ModifyDate = DateTime.Now
+                        ModifyDate = DateTime.Now,
+                        PostSalesCreationDate = DateTime.Now
                     };
 
                     _db.CE_ContractStatuses.Add(newStatus);
@@ -280,120 +288,97 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
                 return HttpNotFound();
             try
             {
-                var contract = await _db.CE_GasContracts.FirstOrDefaultAsync(c => c.EId == id);
-                var account = await _db.CE_Accounts.FirstOrDefaultAsync(a => a.EId == id && a.Type == "Gas");
 
-                if (contract == null)
-                    return HttpNotFound();
+                if (string.IsNullOrWhiteSpace(id)) return HttpNotFound();
 
-                var snapshot = await _db.CE_GasSupplierSnapshots
-                                .Include(s => s.CE_GasSupplierProductSnapshots)
-                                .Include(s => s.CE_GasSupplierContactSnapshots)
-                                .Include(s => s.CE_GasSupplierUpliftSnapshots)
-                                .FirstOrDefaultAsync(s => s.EId == contract.EId);
-
-                if (snapshot == null)
-                    return HttpNotFound();
-
-                var savedProductSnapshot = snapshot.CE_GasSupplierProductSnapshots
-                                           .FirstOrDefault(p => p.ProductId == contract.ProductId);
-
-                var model = new PostSalesEditViewModel
+                try
                 {
-                    EId = contract.EId,
-                    MPRN = contract.MPRN,
-                    BusinessName = contract.BusinessName,
-                    CustomerName = contract.CustomerName,
-                    BusinessDoorNumber = contract.BusinessDoorNumber,
-                    BusinessHouseName = contract.BusinessHouseName,
-                    BusinessStreet = contract.BusinessStreet,
-                    BusinessTown = contract.BusinessTown,
-                    BusinessCounty = contract.BusinessCounty,
-                    PostCode = contract.PostCode,
-                    PhoneNumber1 = contract.PhoneNumber1,
-                    PhoneNumber2 = contract.PhoneNumber2,
-                    EmailAddress = contract.EmailAddress,
-                    InitialStartDate = contract.InitialStartDate,
-                    InputDate = contract.InputDate,
-                    Uplift = Convert.ToDecimal(contract.Uplift),
-                    Duration = contract.Duration,
-                    InputEAC = Convert.ToDecimal(contract.InputEAC),
-                    UnitRate = Convert.ToDecimal(contract.UnitRate),
-                    OtherRate = Convert.ToDecimal(contract.OtherRate),
-                    StandingCharge = Convert.ToDecimal(contract.StandingCharge),
-                    SortCode = account?.SortCode ?? "",
-                    AccountNumber = account?.AccountNumber ?? "",
-                    CurrentSupplier = contract.CurrentSupplier,
+                    var postSalesObj = await _db.CE_PostSaleObjections
+                        .FirstOrDefaultAsync(x => x.EId == id && x.ContractType == type);
+                    var contractStatus = await _db.CE_ContractStatuses
+                        .FirstOrDefaultAsync(x => x.EId == id && x.Type == type);
+                    var account = await _db.CE_Accounts
+                        .FirstOrDefaultAsync(a => a.EId == id && a.Type == type);
+                    var crs = await _db.CE_CommissionAndReconciliation
+                        .FirstOrDefaultAsync(c => c.EId == id && c.contractType == type);
 
-                    SupplierId = snapshot.SupplierId,
-                    ProductId = savedProductSnapshot?.Id ?? 0,
-                    SupplierCommsType = savedProductSnapshot?.SupplierCommsType ?? contract.SupplierCommsType,
+                    var model = new PostSalesEditViewModel();
 
-                    EMProcessor = contract.EMProcessor,
-                    ContractChecked = contract.ContractChecked,
-                    ContractAudited = contract.ContractAudited,
-                    Terminated = contract.Terminated,
-                    ContractNotes = contract.ContractNotes,
-                    Department = contract.Department,
-                    Source = contract.Source,
-                    SalesType = contract.SalesType,
-                    SalesTypeStatus = contract.SalesTypeStatus,
-                    PreSalesStatus = contract.PreSalesStatus,
-                    PreSalesFollowUpDate = contract.PreSalesFollowUpDate?.ToString("yyyy-MM-dd"),
-
-                    // Brokerage Details
-                    BrokerageId = contract.BrokerageId,
-                    OfgemId = contract.OfgemId,
-
-                    // Dynamic Department-based fields
-                    CloserId = contract.CloserId,
-                    ReferralPartnerId = contract.ReferralPartnerId,
-                    SubReferralPartnerId = contract.SubReferralPartnerId,
-                    BrokerageStaffId = contract.BrokerageStaffId,
-                    IntroducerId = contract.IntroducerId,
-                    SubIntroducerId = contract.SubIntroducerId,
-                    SubBrokerageId = contract.SubBrokerageId,
-                    Collaboration = contract.Collaboration,
-                    LeadGeneratorId = contract.LeadGeneratorId,
-
-                    SupplierSnapshot = new SupplierSnapshotViewModel
+                    if (string.Equals(type, "Electric", StringComparison.OrdinalIgnoreCase))
                     {
-                        Id = snapshot.Id,
-                        SupplierId = snapshot.SupplierId,
-                        EId = snapshot.EId,
-                        SupplierName = snapshot.SupplierName,
-                        Link = snapshot.SupplierLink,
-                        Products = snapshot.CE_GasSupplierProductSnapshots.Select(p => new SupplierProductSnapshotViewModel
-                        {
-                            Id = p.Id,
-                            ProductId = p.ProductId,
-                            ProductName = p.ProductName,
-                            SupplierCommsType = p.SupplierCommsType,
-                            StartDate = p.StartDate.ToString("dd/MM/yyyy"),
-                            EndDate = p.EndDate.ToString("dd/MM/yyyy"),
-                            Commission = p.Commission
-                        }).ToList(),
-                        Uplifts = snapshot.CE_GasSupplierUpliftSnapshots.Select(u => new SupplierUpliftSnapshotViewModel
-                        {
-                            Id = u.Id,
-                            Uplift = u.Uplift,
-                            FuelType = u.FuelType,
-                            StartDate = u.StartDate,
-                            EndDate = u.EndDate
-                        }).ToList(),
-                        Contacts = snapshot.CE_GasSupplierContactSnapshots.Select(c => new SupplierContactSnapshotViewModel
-                        {
-                            Id = c.Id,
-                            ContactName = c.ContactName,
-                            Role = c.Role,
-                            PhoneNumber = c.PhoneNumber,
-                            Email = c.Email,
-                            Notes = c.Notes
-                        }).ToList()
-                    }
-                };
+                        // ELECTRIC
+                        var contract = await GetContractDetailsAsync(id, type, account);
+                        if (contract == null) return HttpNotFound();
 
-                return View("~/Views/PostSales/PostSalesContract/EditContractPostSales.cshtml", model);
+                        var snapshot = await _db.CE_ElectricSupplierSnapshots
+                            .Include(s => s.CE_ElectricSupplierProductSnapshots)
+                            .Include(s => s.CE_ElectricSupplierContactSnapshots)
+                            .Include(s => s.CE_ElectricSupplierUpliftSnapshots)
+                            .FirstOrDefaultAsync(s => s.EId == contract.EId);
+                        if (snapshot == null) return HttpNotFound();
+
+                        var savedProductSnapshot = snapshot.CE_ElectricSupplierProductSnapshots
+                            .FirstOrDefault(p => p.ProductId == contract.ProductId);
+
+                        // Map common
+                        model = MapCommon(contract, account, contractStatus, postSalesObj, crs);
+
+                        // Set Electric specifics (MPAN, patterns etc.)
+                        model.ContractType = FuelType.Electric;
+                        model.SupplyNumberLabel = "MPAN";
+                        // Simple MPAN sanity check: 13 or 21 digits (you can tighten to official structure if needed)
+                        model.SupplyNumberPattern = @"^\d{13}(\d{8})?$";
+                        model.SupplyNumberTitle = "Please enter valid MPAN";
+                        model.SupplyNumber = contract.MPXN;
+
+                        // Supplier/Product
+                        model.SupplierId = snapshot.SupplierId;
+                        model.ProductId = savedProductSnapshot?.Id ?? 0;
+                        model.SupplierCommsType = savedProductSnapshot?.SupplierCommsType ?? contract.SupplierCommsType;
+
+                        // Snapshot map
+                        model.SupplierSnapshot = MapSnapshot(snapshot);
+                    }
+                    else
+                    {
+                        // GAS
+                        var contract = await GetContractDetailsAsync(id, type, account);
+                        if (contract == null) return HttpNotFound();
+
+                        var snapshot = await _db.CE_GasSupplierSnapshots
+                            .Include(s => s.CE_GasSupplierProductSnapshots)
+                            .Include(s => s.CE_GasSupplierContactSnapshots)
+                            .Include(s => s.CE_GasSupplierUpliftSnapshots)
+                            .FirstOrDefaultAsync(s => s.EId == contract.EId);
+                        if (snapshot == null) return HttpNotFound();
+
+
+
+                        var savedProductSnapshot = snapshot.CE_GasSupplierProductSnapshots
+                            .FirstOrDefault(p => p.ProductId == contract.ProductId);
+
+                        model = MapCommon(contract, account, contractStatus, postSalesObj, crs);
+
+                        model.ContractType = FuelType.Gas;
+                        model.SupplyNumberLabel = "MPRN";
+                        model.SupplyNumberPattern = @"^\d{6,10}$";
+                        model.SupplyNumberTitle = "Please enter 6–10 digit MPRN or N/A";
+                        model.SupplyNumber = contract.MPXN;
+
+                        model.SupplierId = snapshot.SupplierId;
+                        model.ProductId = savedProductSnapshot?.Id ?? 0;
+                        model.SupplierCommsType = savedProductSnapshot?.SupplierCommsType ?? contract.SupplierCommsType;
+
+                        model.SupplierSnapshot = MapSnapshot(snapshot);
+                    }
+
+                    return View("~/Views/PostSales/PostSalesContract/EditContractPostSales.cshtml", model);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log("Failed to Load Contract : " + ex.Message);
+                    return JsonResponse.Fail("Failed to Load Contract");
+                }
             }
             catch (Exception ex)
             {
@@ -402,225 +387,174 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
             }
         }
 
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<JsonResult> EditContractPostSales(PostSalesEditViewModel model)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        var errors = ModelState.Where(x => x.Value.Errors.Count > 0)
-        //            .SelectMany(kvp => kvp.Value.Errors)
-        //            .Select(e => e.ErrorMessage)
-        //            .ToList();
-        //        return JsonResponse.Fail(string.Join("<br>", errors));
-        //    }
+        [HttpPost]
+        [ValidateJsonAntiForgeryToken]
+        public async Task<JsonResult> UpdatePostSalesContract(PostSalesEditViewModel model)
+        {
+            if (model == null || string.IsNullOrWhiteSpace(model.EId))
+                return JsonResponse.Fail("Invalid payload");
 
-        //    using (var transaction = _db.Database.BeginTransaction())
-        //    {
-        //        try
-        //        {
-        //            var contract = await _db.CE_GasContracts.FirstOrDefaultAsync(c => c.EId == model.EId);
-        //            if (contract == null) return JsonResponse.Fail("Contract not found.");
+            var userName = User.Identity?.Name ?? "System";
 
-        //            var reconciliation = await _db.CE_CommissionAndReconciliation.FirstOrDefaultAsync(r => r.EId == model.EId);
-        //            var postSaleObjection = await _db.CE_PostSaleObjections.FirstOrDefaultAsync(o => o.EId == model.EId && o.ContractType == "Gas");
-        //            var contractStatus = await _db.CE_ContractStatuses.FirstOrDefaultAsync(cs => cs.EId == model.EId && cs.Type == "Gas");
+            try
+            {
+                // ---------- 1️⃣ Update Core Contract ----------
+                if (model.ContractType == FuelType.Electric)
+                {
+                    var contract = await _db.CE_ElectricContracts.FirstOrDefaultAsync(x => x.EId == model.EId);
+                    if (contract != null)
+                    {
+                        // Only editable fields per requirements
+                        contract.Source = model.Source;
+                        contract.BusinessName = model.BusinessName;
+                        contract.CustomerName = model.CustomerName;
+                        contract.PostCode = model.PostCode;
+                        contract.PhoneNumber1 = model.PhoneNumber1;
+                        contract.EmailAddress = model.EmailAddress;
+                        contract.SalesType = model.SalesType;
+                        contract.SalesTypeStatus = model.SalesTypeStatus;
+                        contract.Uplift = model.Uplift;
+                        contract.InputEAC = model.InputEAC;
 
-        //            // Keep previous values for logging comparison
-        //            var prevContractStatus = contractStatus?.ContractStatus;
-        //            var prevQueryType = postSaleObjection?.QueryType;
-        //            var prevCSD = contract.InitialStartDate;
-        //            var prevCED = reconciliation?.CED;
-        //            var prevCEDCOT = reconciliation?.CED_COT;
-        //            var prevObjectionDate = postSaleObjection?.ObjectionDate;
-        //            var prevReAppliedDate = postSaleObjection?.ReAppliedDate;
+                    }
+                }
+                else
+                {
+                    var contract = await _db.CE_GasContracts.FirstOrDefaultAsync(x => x.EId == model.EId);
+                    if (contract != null)
+                    {
+                        contract.Source = model.Source;
+                        contract.BusinessName = model.BusinessName;
+                        contract.CustomerName = model.CustomerName;
+                        contract.PostCode = model.PostCode;
+                        contract.PhoneNumber1 = model.PhoneNumber1;
+                        contract.EmailAddress = model.EmailAddress;
+                        contract.SalesType = model.SalesType;
+                        contract.SalesTypeStatus = model.SalesTypeStatus;
+                        contract.Uplift = model.Uplift;
+                        contract.InputEAC = model.InputEAC;
 
-        //            // Update contract editable fields
-        //            contract.Source = model.Source;
-        //            contract.SalesType = model.SalesType;
-        //            contract.SalesTypeStatus = model.SalesTypeStatus;
+                    }
+                }
 
-        //            contract.BusinessName = model.BusinessName;
-        //            contract.CustomerName = model.CustomerName;
-        //            contract.PostCode = model.PostCode;
+                // ---------- 2️⃣ Reconciliation ----------
+                var rec = await _db.CE_CommissionAndReconciliation
+                    .FirstOrDefaultAsync(x => x.EId == model.EId && x.contractType == model.ContractType.ToString());
 
-        //            contract.PhoneNumber1 = model.PhoneNumber1;
-        //            contract.PhoneNumber2 = model.PhoneNumber2;
-        //            contract.EmailAddress = model.EmailAddress;
+                if (rec == null)
+                {
+                    rec = new CE_CommissionAndReconciliation
+                    {
+                        EId = model.EId,
+                        contractType = model.ContractType.ToString(),
+                        StartDate = model.InitialStartDate,
+                        CED = model.CED,
+                        CED_COT = model.CEDCOT
+                    };
+                    _db.CE_CommissionAndReconciliation.Add(rec);
+                }
+                else
+                {
+                    rec.StartDate = model.InitialStartDate;
+                    rec.CED = model.CED;
+                    rec.CED_COT = model.CEDCOT;
+                }
 
-        //            // CSD (StartDate) update on contract (if rules require account checks, implement those checks)
-        //            contract.InitialStartDate = model.StartDate;
+                // ---------- 3️⃣ Metrics ----------
+                var metrics = await _db.CE_CommissionMetrics
+                    .FirstOrDefaultAsync(m => m.ReconciliationId == rec.Id && m.contractType == rec.contractType);
+                if (metrics == null)
+                {
+                    _db.CE_CommissionMetrics.Add(new CE_CommissionMetrics
+                    {
+                        ReconciliationId = rec.Id,
+                        contractType = rec.contractType
+                    });
+                }
 
-        //            // Update commission/reconciliation fields
-        //            if (reconciliation == null)
-        //            {
-        //                reconciliation = new CE_CommissionAndReconciliation
-        //                {
-        //                    EId = model.EId,
-        //                    StartDate = model.StartDate,
-        //                    CED = model.CED,
-        //                    CED_COT = model.CED_COT,
-        //                    ModifyDate = DateTime.Now
-        //                };
-        //                _db.CE_CommissionAndReconciliation.Add(reconciliation);
-        //            }
-        //            else
-        //            {
-        //                reconciliation.StartDate = model.StartDate;
-        //                reconciliation.CED = model.CED;
-        //                reconciliation.CED_COT = model.CED_COT;
-        //                reconciliation.ModifyDate = DateTime.Now;
-        //            }
+                // ---------- 4️⃣ Contract Status ----------
+                var status = await _db.CE_ContractStatuses
+                    .FirstOrDefaultAsync(s => s.EId == model.EId && s.Type == model.ContractType.ToString());
+                if (status != null)
+                {
+                    status.ContractStatus = model.ContractStatus;
+                    status.ModifyDate = DateTime.Now;
+                }
 
-        //            // Update rates / numeric fields
-        //            contract.Uplift = model.Uplift?.ToString() ?? contract.Uplift;
-        //            contract.InputEAC = model.InputEAC?.ToString() ?? contract.InputEAC;
+                // ---------- 5️⃣ Objection ----------
+                var objection = await _db.CE_PostSaleObjections
+                    .FirstOrDefaultAsync(o => o.EId == model.EId && o.ContractType == model.ContractType.ToString());
+                if (objection == null)
+                {
+                    _db.CE_PostSaleObjections.Add(new CE_PostSaleObjection
+                    {
+                        EId = model.EId,
+                        ContractType = model.ContractType.ToString(),
+                        QueryType = model.QueryType,
+                        ObjectionDate = model.ObjectionDate,
+                        ReAppliedDate = model.ReappliedDate,
+                        FollowUpDate = model.FollowUpDate,
+                        ProspectedSaleDate = model.ProspectedSaleDate,
+                        ProspectedSaleNotes = model.ProspectedSaleNotes,
+                        CreatedBy = userName,
+                        CreatedDate = DateTime.Now,
+                        ModifyDate = DateTime.Now
+                    });
+                }
+                else
+                {
+                    if (model.ObjectionDate != null)
+                        objection.ObjectionCount += 1;
+                    if (model.ReappliedDate != null)
+                        objection.ReAppliedCount += 1;
 
-        //            // Update PostSale Objection table
-        //            if (postSaleObjection == null)
-        //            {
-        //                postSaleObjection = new CE_PostSaleObjection
-        //                {
-        //                    EId = model.EId,
-        //                    ContractType = "Gas",
-        //                    ObjectionDate = model.ObjectionDate,
-        //                    QueryType = model.QueryType,
-        //                    ObjectionCount = model.ObjectionCount,
-        //                    ReAppliedDate = model.ReAppliedDate,
-        //                    ReAppliedCount = model.ReAppliedCount,
-        //                    CreatedBy = User.Identity?.Name ?? "Post-Sales",
-        //                    CreatedDate = DateTime.Now
-        //                };
-        //                _db.CE_PostSaleObjections.Add(postSaleObjection);
-        //            }
-        //            else
-        //            {
-        //                // Manual overwrite with incoming values allowed
-        //                postSaleObjection.ObjectionDate = model.ObjectionDate;
-        //                postSaleObjection.QueryType = model.QueryType;
-        //                postSaleObjection.ObjectionCount = model.ObjectionCount;
-        //                postSaleObjection.ReAppliedDate = model.ReAppliedDate;
-        //                postSaleObjection.ReAppliedCount = model.ReAppliedCount;
-        //                postSaleObjection.ModifyBy = User.Identity?.Name ?? "Post-Sales";
-        //                postSaleObjection.ModifyDate = DateTime.Now;
-        //            }
+                    objection.QueryType = model.QueryType;
+                    objection.ObjectionDate = model.ObjectionDate;
+                    objection.ReAppliedDate = model.ReappliedDate;
+                    objection.FollowUpDate = model.FollowUpDate;
+                    objection.ProspectedSaleDate = model.ProspectedSaleDate;
+                    objection.ProspectedSaleNotes = model.ProspectedSaleNotes;
+                    objection.ModifyBy = userName;
+                    objection.ModifyDate = DateTime.Now;
+                }
 
-        //            // Handle contract status table
-        //            if (contractStatus == null)
-        //            {
-        //                contractStatus = new CE_ContractStatuses
-        //                {
-        //                    EId = model.EId,
-        //                    Type = "Gas",
-        //                    ContractStatus = model.ContractStatus,
-        //                    PaymentStatus = null,
-        //                    ModifyDate = DateTime.Now
-        //                };
-        //                _db.CE_ContractStatuses.Add(contractStatus);
-        //            }
-        //            else
-        //            {
-        //                // Insert a new row if status changed (we keep history if you prefer)
-        //                if (!string.Equals(contractStatus.ContractStatus, model.ContractStatus, StringComparison.OrdinalIgnoreCase))
-        //                {
-        //                    var newStatusRow = new CE_ContractStatuses
-        //                    {
-        //                        EId = model.EId,
-        //                        Type = "Gas",
-        //                        ContractStatus = model.ContractStatus,
-        //                        PaymentStatus = contractStatus.PaymentStatus,
-        //                        ModifyDate = DateTime.Now
-        //                    };
-        //                    _db.CE_ContractStatuses.Add(newStatusRow);
-        //                }
-        //                else
-        //                {
-        //                    // Update existing record ModifyDate only (or keep as-is)
-        //                    contractStatus.ModifyDate = DateTime.Now;
-        //                }
-        //            }
+                // ---------- 6️⃣ Logs ----------
+                var log = new CE_PostSalesLogs
+                {
+                    EId = model.EId,
+                    ContractType = model.ContractType.ToString(),
+                    ContractStatus = model.ContractStatus,
+                    QueryType = model.QueryType,
+                    CSD = model.InitialStartDate,
+                    CED = model.CED,
+                    COT = model.CEDCOT,
+                    ReAppliedDate = model.ReappliedDate,
+                    ObjectionDate = model.ObjectionDate,
+                    CreatedBy = userName,
+                    CreatedDate = DateTime.Now,
+                    ContractNotes = model.ContractNotes
+                };
+                _db.CE_PostSalesLogs.Add(log);
 
-        //            // Special ReApplied logic: if status chosen is "Reapplied - Awaiting Confirmation", set ReAppliedDate to today
-        //            if (!string.IsNullOrWhiteSpace(model.ContractStatus) &&
-        //                model.ContractStatus.Equals("Reapplied - Awaiting Confirmation", StringComparison.OrdinalIgnoreCase))
-        //            {
-        //                var todayStr = DateTime.Now.ToString("yyyy-MM-dd");
-        //                postSaleObjection.ReAppliedDate = todayStr;
-        //            }
+                // ---------- 7️⃣ Save ----------
+                await _db.SaveChangesAsync();
+                return JsonResponse.Ok("Post Sales contract updated successfully.");
 
-        //            // Create post-sales log if relevant fields changed
-        //            var changedFields = new System.Text.StringBuilder();
-        //            if (!string.Equals(prevContractStatus ?? "", model.ContractStatus ?? "", StringComparison.OrdinalIgnoreCase))
-        //                changedFields.Append("ContractStatus, ");
-        //            if (!string.Equals(prevQueryType ?? "", model.QueryType ?? "", StringComparison.OrdinalIgnoreCase))
-        //                changedFields.Append("QueryType, ");
-        //            if (!string.Equals(prevCSD ?? "", model.StartDate ?? "", StringComparison.OrdinalIgnoreCase))
-        //                changedFields.Append("StartDate(CSD), ");
-        //            if (!string.Equals(prevCED ?? "", reconciliation?.CED ?? "", StringComparison.OrdinalIgnoreCase))
-        //                changedFields.Append("CED, ");
-        //            if (!string.Equals(prevCEDCOT ?? "", reconciliation?.CED_COT ?? "", StringComparison.OrdinalIgnoreCase))
-        //                changedFields.Append("CED(COT), ");
-        //            if (!string.Equals(prevObjectionDate ?? "", postSaleObjection?.ObjectionDate ?? "", StringComparison.OrdinalIgnoreCase))
-        //                changedFields.Append("ObjectionDate, ");
-        //            if (!string.Equals(prevReAppliedDate ?? "", postSaleObjection?.ReAppliedDate ?? "", StringComparison.OrdinalIgnoreCase))
-        //                changedFields.Append("ReAppliedDate, ");
+            }
+            catch (Exception ex)
+            {
+                return JsonResponse.Fail($"Error: {ex.Message}");
+            }
+        }
 
-        //            if (changedFields.Length > 0)
-        //            {
-        //                var summary = changedFields.ToString().Trim().TrimEnd(',');
-        //                // Add log entry
-        //                _db.CE_PostSalesLogs.Add(new CE_PostSalesLogs
-        //                {
-        //                    ContractType = "Gas",
-        //                    EId = model.EId,
-        //                    ContractStatus = model.ContractStatus,
-        //                    CSD = model.StartDate,
-        //                    CED = reconciliation?.CED,
-        //                    COT = reconciliation?.CED_COT,
-        //                    ReAppliedDate = postSaleObjection?.ReAppliedDate,
-        //                    ObjectionDate = postSaleObjection?.ObjectionDate,
-        //                    CreatedBy = User.Identity?.Name ?? "Post-Sales",
-        //                    CreatedDate = DateTime.Now
-        //                });
-        //            }
-
-        //            // Update contract notes and EMProcessor/followup fields
-        //            contract.ContractNotes = model.ContractNotes;
-        //            contract.EMProcessor = model.EMProcessor ?? contract.EMProcessor;
-        //            // FollowUpDate (store in reconciliation.CommissionFollowUpDate as per your earlier mapping)
-        //            if (reconciliation != null)
-        //            {
-        //                reconciliation.CommissionFollowUpDate = model.FollowUpDate;
-        //            }
-
-        //            // updated timestamp
-        //            contract.UpdatedAt = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
-
-        //            await _db.SaveChangesAsync();
-        //            transaction.Commit();
-
-        //            return JsonResponse.Ok(new
-        //            {
-        //                Message = "Post-sales gas contract updated successfully."
-        //            }, "Gas Post-Sales updated successfully.");
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            transaction.Rollback();
-        //            Logger.Log("EditGasPostSales failed: " + ex.Message);
-        //            return JsonResponse.Fail("Error occurred while updating the gas post-sales contract.");
-        //        }
-        //    }
-        //}
 
         [HttpGet]
-        [Authorize(Roles = "Pre-sales,Controls,Post-Sales,Accounts")]
-        public async Task<JsonResult> GetLogsForPostSales(string eid)
+        public async Task<JsonResult> GetLogsPostSalesContract(string id, string type)
         {
             try
             {
                 var logs = await _db.CE_PostSalesLogs
-                    .Where(l => l.EId == eid && l.ContractType == "Gas")
+                    .Where(l => l.EId == id && l.ContractType == type)
                     .Select(l => new
                     {
                         l.CreatedBy,
@@ -630,7 +564,9 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
                         l.CED,
                         l.COT,
                         l.ObjectionDate,
-                        l.ReAppliedDate
+                        l.ReAppliedDate,
+                        l.ContractNotes,
+                        l.QueryType
                     })
                     .OrderByDescending(l => l.CreatedDate)
                     .ToListAsync();
@@ -640,6 +576,8 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
                     Username = l.CreatedBy,
                     ActionDate = l.CreatedDate.ToString("dd/MM/yyyy HH:mm:ss"),
                     ContractStatus = l.ContractStatus,
+                    ContractNotes = l.ContractNotes,
+                    QueryType = l.QueryType,
                     CSD = l.CSD,
                     CED = l.CED,
                     COT = l.COT,
@@ -659,6 +597,236 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
         #endregion
 
         #region [Helper Method]
+
+        private PostSalesEditViewModel MapCommon(ContractViewModel contract, CE_Accounts account,
+                    CE_ContractStatuses status, CE_PostSaleObjection ps, CE_CommissionAndReconciliation cr)
+        {
+
+            var effectiveCed = HelperUtility.GetEffectiveCED(contract, cr);
+
+            string queryType = ps?.QueryType;
+            var emailDetails = _db.CE_EmailTemplateLookups
+                .FirstOrDefault(e => e.SupplierId == contract.SupplierId && e.QueryType == queryType);
+
+            var emailList = _db.CE_SupplierContacts
+                         .Where(sc => sc.SupplierId == contract.SupplierId
+                                   && sc.Email != null
+                                   && sc.Email != ""
+                                   && sc.Email != " ")
+                         .Select(sc => sc.Email.Trim())
+                         .Distinct()
+                         .ToList();
+
+            var (agentName, agentEmail) = ResolveAgent(contract);
+
+            var collaboration = ResolveCollaboration(contract);
+
+
+            var vm = new PostSalesEditViewModel
+            {
+                EId = contract.EId,
+                Id = contract.Id,
+                AgentName = agentName,
+                AgentEmail = agentEmail,
+                CustomerName = contract.CustomerName,
+                BusinessName = contract.BusinessName,
+                BusinessDoorNumber = contract.BusinessDoorNumber,
+                BusinessHouseName = contract.BusinessHouseName,
+                BusinessStreet = contract.BusinessStreet,
+                BusinessTown = contract.BusinessTown,
+                BusinessCounty = contract.BusinessCounty,
+                PostCode = contract.PostCode,
+                PhoneNumber1 = contract.PhoneNumber1,
+                PhoneNumber2 = contract.PhoneNumber2,
+                EmailAddress = contract.EmailAddress,
+
+                CED = effectiveCed.ToString("yyyy-MM-dd"),
+                CEDCOT = cr.CED_COT,
+                InitialStartDate = cr?.StartDate ?? contract.StartDate,
+
+                InputDate = contract.InputDate,
+                Duration = contract.Duration,
+                Uplift = contract.Uplift,
+                InputEAC = contract.InputEAC,
+                UnitRate = contract.UnitRate,
+                OtherRate = contract.OtherRate,
+                StandingCharge = contract.StandingCharge,
+
+                SortCode = account?.SortCode ?? "",
+                AccountNumber = account?.AccountNumber ?? "",
+                CurrentSupplier = contract.CurrentSupplier,
+
+                EMProcessor = contract.EMProcessor,
+                ContractChecked = contract.ContractChecked,
+                ContractAudited = contract.ContractAudited,
+                Terminated = contract.Terminated,
+                ContractNotes = contract.ContractNotes,
+                Department = contract.Department,
+                Source = contract.Source,
+                SalesType = contract.SalesType,
+                SalesTypeStatus = contract.SalesTypeStatus,
+                PreSalesStatus = contract.PreSalesStatus,
+                PreSalesFollowUpDate = contract.PreSalesFollowUpDate,
+
+                // Brokerage
+                BrokerageId = contract.BrokerageId,
+                OfgemId = contract.OfgemId,
+
+                // Dynamic
+                CloserId = contract.CloserId,
+                ReferralPartnerId = contract.ReferralPartnerId,
+                SubReferralPartnerId = contract.SubReferralPartnerId,
+                BrokerageStaffId = contract.BrokerageStaffId,
+                IntroducerId = contract.IntroducerId,
+                SubIntroducerId = contract.SubIntroducerId,
+                SubBrokerageId = contract.SubBrokerageId,
+                Collaboration = collaboration,
+                LeadGeneratorId = contract.LeadGeneratorId,
+
+                // Post sales
+                ContractStatus = status?.ContractStatus,
+                QueryType = ps?.QueryType,
+                ObjectionCount = ps?.ObjectionCount,
+                ObjectionDate = ps?.ObjectionDate,
+                ReappliedCount = ps?.ReAppliedCount,
+                ReappliedDate = ps?.ReAppliedDate,
+                ProspectedSaleDate = ps?.ProspectedSaleDate,
+                ProspectedSaleNotes = ps?.ProspectedSaleNotes,
+                FollowUpDate = ps?.FollowUpDate,
+                EmailList = emailList,
+                EmailSubject = emailDetails?.Subject,
+                EmailBody = emailDetails?.EmailBody,
+            };
+
+            return vm;
+        }
+
+        //private SupplierSnapshotViewModel MapSnapshot(dynamic snapshot)
+        //{
+        //    return new SupplierSnapshotViewModel
+        //    {
+        //        Id = snapshot.Id,
+        //        SupplierId = snapshot.SupplierId,
+        //        EId = snapshot.EId,
+        //        SupplierName = snapshot.SupplierName,
+        //        Link = snapshot.SupplierLink,
+        //        //Products = (snapshot.CE_GasSupplierProductSnapshots ?? snapshot.CE_ElectricSupplierProductSnapshots)
+        //        //    .Select(p => new SupplierProductSnapshotViewModel
+        //        //    {
+        //        //        Id = p.Id,
+        //        //        ProductId = p.ProductId,
+        //        //        ProductName = p.ProductName,
+        //        //        SupplierCommsType = p.SupplierCommsType,
+        //        //        StartDate = p.StartDate.ToString("dd/MM/yyyy"),
+        //        //        EndDate = p.EndDate.ToString("dd/MM/yyyy"),
+        //        //        Commission = p.Commission
+        //        //    }).ToList(),
+        //        //Uplifts = (snapshot.CE_GasSupplierUpliftSnapshots ?? snapshot.CE_ElectricSupplierUpliftSnapshots)
+        //        //    .Select(u => new SupplierUpliftSnapshotViewModel
+        //        //    {
+        //        //        Id = u.Id,
+        //        //        Uplift = u.Uplift,
+        //        //        FuelType = u.FuelType,
+        //        //        StartDate = u.StartDate,
+        //        //        EndDate = u.EndDate
+        //        //    }).ToList(),
+        //        //Contacts = (snapshot.CE_GasSupplierContactSnapshots ?? snapshot.CE_ElectricSupplierContactSnapshots)
+        //        //    .Select(c => new SupplierContactSnapshotViewModel
+        //        //    {
+        //        //        Id = c.Id,
+        //        //        ContactName = c.ContactName,
+        //        //        Role = c.Role,
+        //        //        PhoneNumber = c.PhoneNumber,
+        //        //        Email = c.Email,
+        //        //        Notes = c.Notes
+        //        //    }).ToList()
+        //    };
+        //}
+
+        private SupplierSnapshotViewModel MapSnapshot(CE_GasSupplierSnapshots snapshot)
+        {
+            return new SupplierSnapshotViewModel
+            {
+                Id = snapshot.Id,
+                SupplierId = snapshot.SupplierId,
+                EId = snapshot.EId,
+                SupplierName = snapshot.SupplierName,
+                Link = snapshot.SupplierLink,
+                Products = (snapshot.CE_GasSupplierProductSnapshots ?? Enumerable.Empty<CE_GasSupplierProductSnapshots>())
+                    .Select(p => new SupplierProductSnapshotViewModel
+                    {
+                        Id = p.Id,
+                        ProductId = p.ProductId,
+                        ProductName = p.ProductName,
+                        SupplierCommsType = p.SupplierCommsType,
+                        StartDate = p.StartDate.ToString("dd/MM/yyyy"),
+                        EndDate = p.EndDate.ToString("dd/MM/yyyy"),
+                        Commission = p.Commission
+                    }).ToList(),
+                Uplifts = (snapshot.CE_GasSupplierUpliftSnapshots ?? Enumerable.Empty<CE_GasSupplierUpliftSnapshots>())
+                    .Select(u => new SupplierUpliftSnapshotViewModel
+                    {
+                        Id = u.Id,
+                        Uplift = u.Uplift,
+                        FuelType = u.FuelType,
+                        StartDate = u.StartDate,
+                        EndDate = u.EndDate
+                    }).ToList(),
+                Contacts = (snapshot.CE_GasSupplierContactSnapshots ?? Enumerable.Empty<CE_GasSupplierContactSnapshots>())
+                    .Select(c => new SupplierContactSnapshotViewModel
+                    {
+                        Id = c.Id,
+                        ContactName = c.ContactName,
+                        Role = c.Role,
+                        PhoneNumber = c.PhoneNumber,
+                        Email = c.Email,
+                        Notes = c.Notes
+                    }).ToList()
+            };
+        }
+
+        private SupplierSnapshotViewModel MapSnapshot(CE_ElectricSupplierSnapshots snapshot)
+        {
+            return new SupplierSnapshotViewModel
+            {
+                Id = snapshot.Id,
+                SupplierId = snapshot.SupplierId,
+                EId = snapshot.EId,
+                SupplierName = snapshot.SupplierName,
+                Link = snapshot.SupplierLink,
+                Products = (snapshot.CE_ElectricSupplierProductSnapshots ?? Enumerable.Empty<CE_ElectricSupplierProductSnapshots>())
+                    .Select(p => new SupplierProductSnapshotViewModel
+                    {
+                        Id = p.Id,
+                        ProductId = p.ProductId,
+                        ProductName = p.ProductName,
+                        SupplierCommsType = p.SupplierCommsType,
+                        StartDate = p.StartDate.ToString("dd/MM/yyyy"),
+                        EndDate = p.EndDate.ToString("dd/MM/yyyy"),
+                        Commission = p.Commission
+                    }).ToList(),
+                Uplifts = (snapshot.CE_ElectricSupplierUpliftSnapshots ?? Enumerable.Empty<CE_ElectricSupplierUpliftSnapshots>())
+                    .Select(u => new SupplierUpliftSnapshotViewModel
+                    {
+                        Id = u.Id,
+                        Uplift = u.Uplift,
+                        FuelType = u.FuelType,
+                        StartDate = u.StartDate,
+                        EndDate = u.EndDate
+                    }).ToList(),
+                Contacts = (snapshot.CE_ElectricSupplierContactSnapshots ?? Enumerable.Empty<CE_ElectricSupplierContactSnapshots>())
+                    .Select(c => new SupplierContactSnapshotViewModel
+                    {
+                        Id = c.Id,
+                        ContactName = c.ContactName,
+                        Role = c.Role,
+                        PhoneNumber = c.PhoneNumber,
+                        Email = c.Email,
+                        Notes = c.Notes
+                    }).ToList()
+            };
+        }
+
 
         private async Task<bool> UpdateContractEmail(UpdatePostSalesFieldDto dto)
         {
@@ -886,6 +1054,148 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
             return electric.Concat(gas);
         }
 
+        private async Task<ContractViewModel> GetContractDetailsAsync(string eId, string type, CE_Accounts account)
+        {
+            var contract = new ContractViewModel();
+            if (string.Equals(type, "Electric", StringComparison.OrdinalIgnoreCase))
+            {
+                contract = await (from ec in _db.CE_ElectricContracts
+                                  join sp in _db.CE_Supplier on ec.SupplierId equals sp.Id
+                                  where ec.EId == eId
+                                  select new ContractViewModel
+                                  {
+                                      Id = ec.Id,
+                                      EId = ec.EId,
+                                      ContractType = "Electric",
+                                      BusinessName = ec.BusinessName,
+                                      SupplierId = ec.SupplierId,
+                                      SupplierName = sp.Name,
+                                      Department = ec.Department,
+                                      CloserId = ec.CloserId,
+                                      BrokerageId = ec.BrokerageId,
+                                      BrokerageStaffId = ec.BrokerageStaffId,
+                                      IntroducerId = ec.IntroducerId,
+                                      SubBrokerageId = ec.SubBrokerageId,
+                                      SubIntroducerId = ec.SubIntroducerId,
+                                      SubReferralPartnerId = ec.SubReferralPartnerId,
+                                      ReferralPartnerId = ec.ReferralPartnerId,
+                                      LeadGeneratorId = ec.LeadGeneratorId,
+                                      EmailAddress = ec.EmailAddress,
+                                      PostCode = ec.PostCode,
+                                      MPXN = ec.MPAN,
+                                      InputDate = ec.InputDate,
+                                      StartDate = ec.InitialStartDate,
+                                      ContractNotes = ec.ContractNotes,
+                                      Link = sp.Link,
+                                      SupplierCommsType = ec.SupplierCommsType,
+                                      ProductId = ec.ProductId,
+                                      CustomerName = ec.CustomerName,
+                                      BusinessDoorNumber = ec.BusinessDoorNumber,
+                                      BusinessHouseName = ec.BusinessHouseName,
+                                      BusinessStreet = ec.BusinessStreet,
+                                      BusinessTown = ec.BusinessTown,
+                                      BusinessCounty = ec.BusinessCounty,
+                                      PhoneNumber1 = ec.PhoneNumber1,
+                                      PhoneNumber2 = ec.PhoneNumber2,
+                                      Uplift = ec.Uplift,
+                                      Duration = ec.Duration,
+                                      InputEAC = ec.InputEAC,
+                                      //UnitRate = ec.UnitRate,
+                                      OtherRate = ec.OtherRate,
+                                      StandingCharge = ec.StandingCharge,
+                                      SortCode = account.SortCode ?? "",
+                                      AccountNumber = account.AccountNumber ?? "",
+                                      CurrentSupplier = ec.CurrentSupplier,
+
+                                      EMProcessor = ec.EMProcessor,
+                                      ContractChecked = ec.ContractChecked,
+                                      ContractAudited = ec.ContractAudited,
+                                      Terminated = ec.Terminated,
+                                      Source = ec.Source,
+                                      SalesType = ec.SalesType,
+                                      SalesTypeStatus = ec.SalesTypeStatus,
+                                      PreSalesStatus = ec.PreSalesStatus,
+                                      TopLine = ec.TopLine,
+                                      // Brokerage Details
+                                      OfgemId = ec.OfgemId,
+
+                                      // Dynamic Department-based fields
+                                      Collaboration = ec.Collaboration,
+
+
+                                  }).FirstOrDefaultAsync();
+
+            }
+            else
+            {
+                contract = await (from gc in _db.CE_GasContracts
+                                  join sp in _db.CE_Supplier on gc.SupplierId equals sp.Id
+                                  where gc.EId == eId
+                                  select new ContractViewModel
+                                  {
+                                      Id = gc.Id,
+                                      EId = gc.EId,
+                                      ContractType = "Gas",
+                                      BusinessName = gc.BusinessName,
+                                      SupplierId = gc.SupplierId,
+                                      SupplierName = sp.Name,
+                                      Department = gc.Department,
+                                      CloserId = gc.CloserId,
+                                      BrokerageId = gc.BrokerageId,
+                                      BrokerageStaffId = gc.BrokerageStaffId,
+                                      IntroducerId = gc.IntroducerId,
+                                      SubBrokerageId = gc.SubBrokerageId,
+                                      SubIntroducerId = gc.SubIntroducerId,
+                                      SubReferralPartnerId = gc.SubReferralPartnerId,
+                                      ReferralPartnerId = gc.ReferralPartnerId,
+                                      LeadGeneratorId = gc.LeadGeneratorId,
+                                      EmailAddress = gc.EmailAddress,
+                                      PostCode = gc.PostCode,
+                                      MPXN = gc.MPRN,
+                                      InputDate = gc.InputDate,
+                                      StartDate = gc.InitialStartDate,
+                                      ContractNotes = gc.ContractNotes,
+                                      Link = sp.Link,
+                                      SupplierCommsType = gc.SupplierCommsType,
+                                      ProductId = gc.ProductId,
+                                      CustomerName = gc.CustomerName,
+                                      BusinessDoorNumber = gc.BusinessDoorNumber,
+                                      BusinessHouseName = gc.BusinessHouseName,
+                                      BusinessStreet = gc.BusinessStreet,
+                                      BusinessTown = gc.BusinessTown,
+                                      BusinessCounty = gc.BusinessCounty,
+                                      PhoneNumber1 = gc.PhoneNumber1,
+                                      PhoneNumber2 = gc.PhoneNumber2,
+                                      Uplift = gc.Uplift,
+                                      Duration = gc.Duration,
+                                      InputEAC = gc.InputEAC,
+                                      UnitRate = gc.UnitRate,
+                                      OtherRate = gc.OtherRate,
+                                      StandingCharge = gc.StandingCharge,
+                                      //SortCode = account.SortCode ?? "",
+                                      //AccountNumber = account.AccountNumber ?? "",
+                                      CurrentSupplier = gc.CurrentSupplier,
+
+                                      EMProcessor = gc.EMProcessor,
+                                      ContractChecked = gc.ContractChecked,
+                                      ContractAudited = gc.ContractAudited,
+                                      Terminated = gc.Terminated,
+                                      Source = gc.Source,
+                                      SalesType = gc.SalesType,
+                                      SalesTypeStatus = gc.SalesTypeStatus,
+                                      PreSalesStatus = gc.PreSalesStatus,
+
+                                      // Brokerage Details
+                                      OfgemId = gc.OfgemId,
+
+                                      // Dynamic Department-based fields
+                                      Collaboration = gc.Collaboration,
+                                  }).FirstOrDefaultAsync();
+
+            }
+            return contract;
+        }
+
         private IQueryable<ContractViewModel> ApplyFilters(IQueryable<ContractViewModel> combined, StatusQueryParams q)
         {
             if (!string.IsNullOrEmpty(q.Department))
@@ -1041,13 +1351,6 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
                 string queryType = postSales?.QueryType;
                 var emailDetails = _db.CE_EmailTemplateLookups
                     .FirstOrDefault(e => e.SupplierId == x.SupplierId && e.QueryType == queryType);
-
-
-                //string ced = null;
-                //if (!string.IsNullOrWhiteSpace(cr?.CED))
-                //    ced = cr.CED;
-                //else if (DateTime.TryParse(x.StartDate, out var sdt) && int.TryParse(x.Duration?.ToString(), out var durYears))
-                //    ced = sdt.AddYears(durYears).AddDays(-1).ToString("yyyy-MM-dd");
 
                 var effectiveCed = HelperUtility.GetEffectiveCED(x, cr);
 
