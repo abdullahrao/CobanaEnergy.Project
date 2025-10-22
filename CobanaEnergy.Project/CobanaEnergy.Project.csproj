@@ -276,7 +276,7 @@
     <Content Include="Content\Accounts\SSEContracts\EditSSEContract.css" />
     <Content Include="Content\Accounts\TotalGasAndPower\totalGasAndPowerContract.css" />
     <Content Include="Content\Common\filter.css" />
-    <Content Include="Content\PostSales\editGasContract.css" />
+    <Content Include="Content\PostSales\postSalesContract.css" />
     <Content Include="Content\PostSales\statusDashboard.css" />
     <Content Include="Content\Signup\userDashboard.css" />
     <Content Include="Content\Dual\CreateDual.css" />
@@ -340,7 +340,7 @@
     <Content Include="Scripts\jquery-3.7.1.slim.min.map" />
     <Content Include="Scripts\jquery-3.7.1.min.map" />
     <None Include="Scripts\SignalR\jquery-1.6.4-vsdoc.js" />
-    <Content Include="Scripts\PostSales\editGasContract.js" />
+    <Content Include="Scripts\PostSales\postSalesContract.js" />
     <Content Include="Scripts\PostSales\statusDashboard.js" />
     <Content Include="Scripts\SignalR\jquery-1.6.4.js" />
     <Content Include="Scripts\SignalR\jquery-1.6.4.min.js" />
