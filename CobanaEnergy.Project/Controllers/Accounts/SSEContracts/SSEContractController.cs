@@ -381,6 +381,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.SSEContracts
                                     Type = "Electric",
                                     ContractStatus = model.contractStatus,
                                     PaymentStatus = model.paymentStatus,
+                                    PostSalesCreationDate = DateTime.Now,
                                     ModifyDate = DateTime.Now
                                 });
                             }
@@ -435,6 +436,7 @@ namespace CobanaEnergy.Project.Controllers.Accounts.SSEContracts
                                     Type = "Gas",
                                     ContractStatus = model.contractStatus,
                                     PaymentStatus = model.paymentStatus,
+                                    PostSalesCreationDate = DateTime.Now,
                                     ModifyDate = DateTime.Now
                                 });
                             }

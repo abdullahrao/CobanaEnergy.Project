@@ -149,7 +149,6 @@
                             <div class="col-md-4"><label for="currentSupplier" class="form-label required">Current Supplier</label><input type="text" id="currentSupplier" class="form-control" required title="Please Insert Current Supplier" autocomplete="off" value="@Model.CurrentSupplier" /></div>
                             <div class="col-md-4">
                                 <label for="supplierSelect" class="form-label required">Supplier</label>
-                                @*<select id="supplierSelect" class="form-select dropdown-arrow" required title="Please Select the Supplier" data-current="@Model.SupplierId"></select>*@
                                 <select id="supplierSelect" class="form-select dropdown-arrow" required title="Please Select the Supplier" disabled>
                                     <option value="@Model.SupplierSnapshot.SupplierId" selected>@Model.SupplierSnapshot.SupplierName</option>
                                 </select>
@@ -157,7 +156,6 @@
                             </div>
                             <div class="col-md-4">
                                 <label for="productSelect" class="form-label required">Product</label>
-                                @*<select id="productSelect" class="form-select dropdown-arrow" required title="Please Select the Product" data-current="@Model.ProductId"></select>*@
                                 <select id="productSelect" class="form-select dropdown-arrow" required title="Please Select the Product">
                                     <option value="">Select Product</option>
                                     @foreach (var product in Model.SupplierSnapshot.Products)

@@ -196,7 +196,7 @@ $(document).ready(function () {
             columns: [
                 {
                     data: null, orderable: false, render: function (row) {
-                        const url =  `/StatusDashboard/Edit/${encodeURIComponent(row.EId)}?type=${encodeURIComponent(row.ContractType)}`;
+                        const url =  `/StatusDashboard/EditContractPostSales/${encodeURIComponent(row.EId)}?type=${encodeURIComponent(row.ContractType)}`;
                         let iconClass, buttonClass;
                         switch (row.ContractType) {
                             case 'Electric':
