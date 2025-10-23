@@ -7,6 +7,119 @@ using System.Web;
 
 namespace CobanaEnergy.Project.Models.PostSales.PostSalesContract
 {
+
+    public enum FuelType { Gas = 1, Electric = 2 }
+
+    public class PostSalesEditViewModel
+    {
+        // Common
+        public long Id { get; set; }
+        public string EId { get; set; }
+        public FuelType ContractType { get; set; } // Gas/Electric
+
+        // Generic "Supply Number" surface (MPAN/MPRN)
+        public string SupplyNumberLabel { get; set; }      // "MPRN" or "MPAN"
+        public string SupplyNumberPattern { get; set; }    // e.g. @"^\d{6,10}$" for MPRN, MPAN pattern for electric
+        public string SupplyNumber { get; set; }           // actual value (MPRN/MPAN)
+        public string SupplyNumberTitle { get; set; }      // title/tooltip
+
+        // Business & contact
+        public string AgentName { get; set; }
+        public string AgentEmail { get; set; }
+        public string CollaborationName { get; set; }
+        public string BusinessName { get; set; }
+        public string CustomerName { get; set; }
+        public string BusinessDoorNumber { get; set; }
+        public string BusinessHouseName { get; set; }
+        public string BusinessStreet { get; set; }
+        public string BusinessTown { get; set; }
+        public string BusinessCounty { get; set; }
+        public string PostCode { get; set; }
+        public string PhoneNumber1 { get; set; }
+        public string PhoneNumber2 { get; set; }
+        public string EmailAddress { get; set; }
+
+        // Pricing/contract
+        public string InitialStartDate { get; set; }
+        public string InputDate { get; set; }
+        public string CED { get; set; }
+        public string CEDCOT { get; set; }
+        public string Uplift { get; set; }
+        public string Duration { get; set; }
+        public string InputEAC { get; set; }
+        public string UnitRate { get; set; }
+        public string OtherRate { get; set; }
+        public string StandingCharge { get; set; }
+
+        // Bank
+        public string SortCode { get; set; }
+        public string AccountNumber { get; set; }
+        public string CurrentSupplier { get; set; }
+
+        // Supplier/Product
+        public long SupplierId { get; set; }
+        public long ProductId { get; set; }
+        public string SupplierCommsType { get; set; }
+
+        // Workflow
+        public string EMProcessor { get; set; }
+        public bool ContractChecked { get; set; }
+        public bool ContractAudited { get; set; }
+        public bool Terminated { get; set; }
+        public string ContractNotes { get; set; }
+        public string Department { get; set; }
+        public string Source { get; set; }
+        public string SalesType { get; set; }
+        public string SalesTypeStatus { get; set; }
+        public string TopLine { get; set; }
+        public string PreSalesStatus { get; set; }
+        public string PreSalesFollowUpDate { get; set; }
+
+        // Brokerage
+        public int? BrokerageId { get; set; }
+        public string OfgemId { get; set; }
+
+        // Dynamic
+        public int? CloserId { get; set; }
+        public int? ReferralPartnerId { get; set; }
+        public int? SubReferralPartnerId { get; set; }
+        public int? BrokerageStaffId { get; set; }
+        public int? IntroducerId { get; set; }
+        public int? SubIntroducerId { get; set; }
+        public int? SubBrokerageId { get; set; }
+        public string Collaboration { get; set; }
+        public int? LeadGeneratorId { get; set; }
+
+        // Post-sales
+        public string ContractStatus { get; set; }
+        public string QueryType { get; set; }
+        public int? ObjectionCount { get; set; }
+        public string ObjectionDate { get; set; }
+        public int? ReappliedCount { get; set; }
+        public string ReappliedDate { get; set; }
+        public string ProspectedSaleDate { get; set; }
+        public string ProspectedSaleNotes { get; set; }
+        public string FollowUpDate { get; set; }
+        public List<string> EmailList { get; set; }
+        public string EmailSubject { get; set; }
+        public string EmailBody { get; set; }
+
+        // Snapshot (generic)
+        public SupplierSnapshotViewModel SupplierSnapshot { get; set; }
+    }
+
+    public class SupplierSnapshotViewModel
+    {
+        public long Id { get; set; }
+        public long SupplierId { get; set; }
+        public string EId { get; set; }
+        public string SupplierName { get; set; }
+        public string Link { get; set; }
+        public List<SupplierProductSnapshotViewModel> Products { get; set; }
+        public List<SupplierUpliftSnapshotViewModel> Uplifts { get; set; }
+        public List<SupplierContactSnapshotViewModel> Contacts { get; set; }
+    }
+
     public class SupplierProductSnapshotViewModel
     {
         public long Id { get; set; }
@@ -18,166 +131,23 @@ namespace CobanaEnergy.Project.Models.PostSales.PostSalesContract
         public string Commission { get; set; }
     }
 
-
-    public class SupplierSnapshotViewModel
+    public class SupplierUpliftSnapshotViewModel
     {
         public long Id { get; set; }
-        public long SupplierId { get; set; }
-        public string EId { get; set; }
-        public string SupplierName { get; set; }
-        public string Link { get; set; }
-        public List<SupplierProductSnapshotViewModel> Products { get; set; } = new List<SupplierProductSnapshotViewModel>();
-        public List<SupplierContactSnapshotViewModel> Contacts { get; set; }
-        public List<SupplierUpliftSnapshotViewModel> Uplifts { get; set; }
+        public string Uplift { get; set; }
+        public string FuelType { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
     }
-
 
     public class SupplierContactSnapshotViewModel
     {
         public long Id { get; set; }
-        public long SupplierId { get; set; }
         public string ContactName { get; set; }
         public string Role { get; set; }
         public string PhoneNumber { get; set; }
         public string Email { get; set; }
         public string Notes { get; set; }
-    }
-
-
-    public class SupplierUpliftSnapshotViewModel
-    {
-        public long Id { get; set; }
-        public long SupplierId { get; set; }
-        public string FuelType { get; set; }
-        public string Uplift { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
-    }
-
-    public class PostSalesEditViewModel
-    {
-        [Required]
-        public string EId { get; set; }
-        // Removed: Agent, Introducer, SubIntroducer fields as per requirements
-
-        [Required(ErrorMessage = "MPRN is required.")]
-        [RegularExpression(@"^\d{6,10}$|^N/A$", ErrorMessage = "MPRN must be between 6-10 digits or 'N/A'.")]
-        public string MPRN { get; set; }
-
-        [Required]
-        public string BusinessName { get; set; }
-        [Required]
-        public string CustomerName { get; set; }
-        [Required]
-        public string BusinessDoorNumber { get; set; }
-
-        public string BusinessHouseName { get; set; }
-        [Required]
-        public string BusinessStreet { get; set; }
-        [Required]
-        public string BusinessTown { get; set; }
-
-        public string BusinessCounty { get; set; }
-        [Required]
-        public string PostCode { get; set; }
-
-        [Required(ErrorMessage = "Phone number is required.")]
-        [StringLength(11, MinimumLength = 11)]
-        [RegularExpression(@"^\d{11}$", ErrorMessage = "Phone number must contain only digits.")]
-        public string PhoneNumber1 { get; set; }
-
-        public string PhoneNumber2 { get; set; }
-
-        [Required]
-        [EmailAddress]
-        public string EmailAddress { get; set; }
-
-        public string InputDate { get; set; }
-
-        [Required]
-        public string InitialStartDate { get; set; }
-
-        [Required(ErrorMessage = "Uplift is required")]
-        [Range(0.00, 100.00, ErrorMessage = "Uplift must be a valid decimal between 0.00 and 100")]
-        public decimal Uplift { get; set; }
-
-        [Required(ErrorMessage = "Duration is required.")]
-        [Range(1, 10, ErrorMessage = "Duration must be between 1 and 10 years.")]
-        public string Duration { get; set; }
-
-        [Required(ErrorMessage = "InputEAC is required")]
-        // [Range(0.00, 100.00, ErrorMessage = "InputEAC must be a valid decimal between 0.00 and 100")]
-        public decimal InputEAC { get; set; }
-
-        [Required(ErrorMessage = "UnitRate is required")]
-        [Range(0.00, 100.00, ErrorMessage = "UnitRate must be a valid decimal between 0.00 and 100")]
-        public decimal UnitRate { get; set; }
-
-        [Required(ErrorMessage = "OtherRate is required")]
-        [Range(0.00, 100.00, ErrorMessage = "OtherRate must be a valid decimal between 0.00 and 100")]
-        public decimal OtherRate { get; set; }
-
-        [Required(ErrorMessage = "StandingCharge is required")]
-        //[Range(0.00, 100.00, ErrorMessage = "StandingCharge must be a valid decimal between 0.00 and 100")]
-        public decimal StandingCharge { get; set; }
-
-        [Required]
-        [RegularExpression(@"^\d{6}$", ErrorMessage = "Sort Code must be exactly 6 digits.")]
-        public string SortCode { get; set; }
-
-        [Required]
-        [RegularExpression(@"^\d{8}$", ErrorMessage = "Account Number must be exactly 8 digits.")]
-        public string AccountNumber { get; set; }
-
-        [Required]
-        public string CurrentSupplier { get; set; }
-        [Required]
-        public long SupplierId { get; set; }
-        [Required]
-        public long ProductId { get; set; }
-
-        public string EMProcessor { get; set; }
-
-        public bool ContractChecked { get; set; }
-        public bool ContractAudited { get; set; }
-        public bool Terminated { get; set; }
-
-        public string ContractNotes { get; set; }
-
-        [Required]
-        public string Department { get; set; }
-
-        // New dynamic fields based on Department
-        public int? CloserId { get; set; }
-        public int? ReferralPartnerId { get; set; }
-        public int? SubReferralPartnerId { get; set; }
-        public int? BrokerageStaffId { get; set; }
-        public int? IntroducerId { get; set; }
-        public int? SubIntroducerId { get; set; }
-        public int? SubBrokerageId { get; set; }
-        public string Collaboration { get; set; }
-        public int? LeadGeneratorId { get; set; }
-
-        [Required]
-        public string Source { get; set; }
-        [Required]
-        public string SalesType { get; set; }
-        [Required]
-        public string SalesTypeStatus { get; set; }
-        [Required]
-        public string SupplierCommsType { get; set; }
-        [Required]
-        public string PreSalesStatus { get; set; }
-
-        public string PreSalesFollowUpDate { get; set; }
-
-        public SupplierSnapshotViewModel SupplierSnapshot { get; set; }
-
-        // Brokerage Details
-        [Required(ErrorMessage = "Brokerage is required")]
-        public int BrokerageId { get; set; }
-
-        public string OfgemId { get; set; }
     }
 
 }

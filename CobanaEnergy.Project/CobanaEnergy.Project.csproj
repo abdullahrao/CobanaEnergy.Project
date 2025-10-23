@@ -276,7 +276,7 @@
     <Content Include="Content\Accounts\SSEContracts\EditSSEContract.css" />
     <Content Include="Content\Accounts\TotalGasAndPower\totalGasAndPowerContract.css" />
     <Content Include="Content\Common\filter.css" />
-    <Content Include="Content\PostSales\editGasContract.css" />
+    <Content Include="Content\PostSales\postSalesContract.css" />
     <Content Include="Content\PostSales\statusDashboard.css" />
     <Content Include="Content\Signup\userDashboard.css" />
     <Content Include="Content\Dual\CreateDual.css" />
@@ -340,7 +340,7 @@
     <Content Include="Scripts\scriptsJquery\jquery-3.7.1.slim.min.map" />
     <Content Include="Scripts\scriptsJquery\jquery-3.7.1.min.map" />
     <None Include="Scripts\SignalR\jquery-1.6.4-vsdoc.js" />
-    <Content Include="Scripts\PostSales\editGasContract.js" />
+    <Content Include="Scripts\PostSales\postSalesContract.js" />
     <Content Include="Scripts\PostSales\statusDashboard.js" />
     <Content Include="Scripts\SignalR\jquery-1.6.4.js" />
     <Content Include="Scripts\SignalR\jquery-1.6.4.min.js" />
@@ -484,6 +484,22 @@
     <Compile Include="Migrations\202510101201249_Alter-Tables-86c5md48r.cs" />
     <Compile Include="Migrations\202510101201249_Alter-Tables-86c5md48r.Designer.cs">
       <DependentUpon>202510101201249_Alter-Tables-86c5md48r.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202510211216280_edit-statusdashboard-86c5md48r.cs" />
+    <Compile Include="Migrations\202510211216280_edit-statusdashboard-86c5md48r.Designer.cs">
+      <DependentUpon>202510211216280_edit-statusdashboard-86c5md48r.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202510220910279_alter-postsalesObj-86c5md48r.cs" />
+    <Compile Include="Migrations\202510220910279_alter-postsalesObj-86c5md48r.Designer.cs">
+      <DependentUpon>202510220910279_alter-postsalesObj-86c5md48r.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202510221731315_alter-postsalesLogs-86c5md48r.cs" />
+    <Compile Include="Migrations\202510221731315_alter-postsalesLogs-86c5md48r.Designer.cs">
+      <DependentUpon>202510221731315_alter-postsalesLogs-86c5md48r.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202510221947590_alter-contractstatus-86c5md48r.cs" />
+    <Compile Include="Migrations\202510221947590_alter-contractstatus-86c5md48r.Designer.cs">
+      <DependentUpon>202510221947590_alter-contractstatus-86c5md48r.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\Accounts\AwaitingPaymentsDashboard\AwaitingPaymentsDashboard.cs" />
     <Compile Include="Models\Accounts\CalendarDashboard\CalendarDashboardViewModel.cs" />
@@ -792,6 +808,18 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202510101201249_Alter-Tables-86c5md48r.resx">
       <DependentUpon>202510101201249_Alter-Tables-86c5md48r.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202510211216280_edit-statusdashboard-86c5md48r.resx">
+      <DependentUpon>202510211216280_edit-statusdashboard-86c5md48r.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202510220910279_alter-postsalesObj-86c5md48r.resx">
+      <DependentUpon>202510220910279_alter-postsalesObj-86c5md48r.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202510221731315_alter-postsalesLogs-86c5md48r.resx">
+      <DependentUpon>202510221731315_alter-postsalesLogs-86c5md48r.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202510221947590_alter-contractstatus-86c5md48r.resx">
+      <DependentUpon>202510221947590_alter-contractstatus-86c5md48r.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

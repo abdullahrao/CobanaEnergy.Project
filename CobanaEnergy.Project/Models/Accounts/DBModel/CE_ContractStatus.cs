@@ -16,5 +16,6 @@ namespace CobanaEnergy.Project.Models.Accounts
         public string ContractStatus { get; set; }
         public string PaymentStatus { get; set; }
         public DateTime ModifyDate { get; set; }
+        public DateTime? PostSalesCreationDate { get; set; }
     }
 }

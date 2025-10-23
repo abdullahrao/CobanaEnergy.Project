@@ -16,6 +16,9 @@ namespace CobanaEnergy.Project.Models.PostSales.Entities
         public string ContractType { get; set; }
         public int ObjectionCount { get; set; }
         public string ReAppliedDate { get; set; }
+        public string FollowUpDate { get; set; }
+        public string ProspectedSaleDate { get; set; }
+        public string ProspectedSaleNotes { get; set; }
         public int ReAppliedCount { get; set; }
         public string ModifyBy { get; set; }
         public string CreatedBy { get; set; }
