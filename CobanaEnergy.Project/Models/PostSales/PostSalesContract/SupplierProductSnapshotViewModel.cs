@@ -26,6 +26,7 @@ namespace CobanaEnergy.Project.Models.PostSales.PostSalesContract
         // Business & contact
         public string AgentName { get; set; }
         public string AgentEmail { get; set; }
+        public string Link { get; set; }
         public string CollaborationName { get; set; }
         public string BusinessName { get; set; }
         public string CustomerName { get; set; }
@@ -73,6 +74,7 @@ namespace CobanaEnergy.Project.Models.PostSales.PostSalesContract
         public string SalesTypeStatus { get; set; }
         public string TopLine { get; set; }
         public string PreSalesStatus { get; set; }
+        public string CampaignName { get; set; }
         public string PreSalesFollowUpDate { get; set; }
 
         // Brokerage

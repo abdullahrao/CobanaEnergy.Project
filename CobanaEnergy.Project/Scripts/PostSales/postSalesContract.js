@@ -41,6 +41,7 @@ $(document).ready(async function () {
     for (const id in DropdownOptions) populateDropdown(id, DropdownOptions[id]);
 
     function populateDropdown(id, values) {
+
         const $el = $('#' + id);
         if (!$el.length) return;
         const current = $el.data('current');
@@ -51,6 +52,8 @@ $(document).ready(async function () {
             $el.append(`<option value="${val}" ${selected}>${val}</option>`);
         });
     }
+
+
 
     // --- query types (call once) ---
     GetQueryDropDownData();
@@ -325,32 +328,57 @@ $(document).ready(async function () {
         });
     }
 
-    // When Contract Status changes
-    $(document).on("change", ".contractStatus", function () {
-        const $row = $(this).closest("tr");
-        const selectedStatus = $(this).val();
-        const $objectionDateInput = $row.find(".objectionDate");
+    $('#contractStatus').on('change', function () {
+        const selectedStatus = $(this).val()?.toLowerCase() || '';
+        const today = new Date().toISOString().split('T')[0];
 
-        if (selectedStatus && selectedStatus.toLowerCase().includes("objection")) {
-            const today = new Date().toISOString().split("T")[0];
-            $objectionDateInput.val(today).trigger("updateByStatus");
+        if (selectedStatus.includes('objection')) {
+            $('#objectionDate').val(today);
+        }
+
+        if (selectedStatus.includes('reapplied') && selectedStatus.includes('awaiting')) {
+            $('#reappliedDate').val(today);
         }
     });
 
-    // When Objection Date changes by user
-    $(document).on("change", ".objectionDate", function () {
-        const $row = $(this).closest("tr");
+    // When Objection Date changes manually
+    $('#objectionDate').on('change', function () {
         const dateVal = $(this).val();
-        const $contractStatusSelect = $row.find(".contractStatus");
-
         if (dateVal) {
-            const hasObjection = $contractStatusSelect.find("option[value='Objection']").length > 0;
-            if (hasObjection) {
-                $contractStatusSelect.val("Objection").trigger("updateByDate");
+            const $status = $('#contractStatus');
+            const hasObjectionOption = $status.find('option').filter(function () {
+                const text = $(this).text().toLowerCase();
+                const val = $(this).val().toLowerCase();
+                return text.includes('objection') || val.includes('objection');
+            }).first();
+
+            if (hasObjectionOption.length) {
+                $status.val(hasObjectionOption.val());
             }
         }
     });
 
+
+    $('#reappliedDate').on('change', function () {
+        const dateVal = $(this).val();
+        if (!dateVal) return;
+
+        const $status = $('#contractStatus');
+        const selectedText = ($status.find('option:selected').text() || '').toLowerCase();
+
+        // agar already "reapplied - awaiting confirmation" nahi hai
+        if (!(selectedText.includes('reapplied') && selectedText.includes('awaiting'))) {
+            const $opt = $status.find('option').filter(function () {
+                const val = ($(this).val() || '').toLowerCase();
+                const txt = ($(this).text() || '').toLowerCase();
+                return val.includes('reapplied') && txt.includes('awaiting');
+            }).first();
+
+            if ($opt.length) {
+                $status.val($opt.val()).trigger('change');
+            }
+        }
+    });
 
     $(document).on("click", ".send-email", function () {
         selectedType = ($(this).data("type") || "").toLowerCase();
@@ -428,12 +456,10 @@ $(document).ready(async function () {
 
     });
 
-
     loadLogs();
 
     // --- unlock on leave ---
     setupContractUnlocking();
-
 
 });
 

@@ -433,3 +433,31 @@ label.form-label {
         text-align: center;
     }
 }
+
+
+.btn-supplier-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border: 1px solid #d0d7de;
+    border-radius: 4px;
+    background-color: #cfe5f5;
+    color: #0d6efd;
+    border-color: #bbdefb;
+    font-size: 0.9rem;
+    line-height: 1;
+    transition: all 0.2s ease-in-out;
+}
+
+    .btn-supplier-link:hover {
+        background-color: #e9f2ff;
+        border-color: #b6d4fe;
+        color: #084298;
+        transform: translateY(-1px);
+    }
+
+    .btn-supplier-link i {
+        font-size: 1rem;
+    }

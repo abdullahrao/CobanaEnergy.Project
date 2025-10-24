@@ -59,6 +59,7 @@ namespace CobanaEnergy.Project.Models.Accounts.MasterDashboard.AccountMasterDash
         public string BusinessDoorNumber { get; set; }
         public string BusinessHouseName { get; set; }
         public string BusinessStreet { get; set; }
+        public string CampaignName { get; set; }
         public string BusinessTown { get; set; }
         public string BusinessCounty { get; set; }
         public string PhoneNumber1 { get; set; }

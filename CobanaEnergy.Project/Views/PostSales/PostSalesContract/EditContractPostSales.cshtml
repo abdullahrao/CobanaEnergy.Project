@@ -42,18 +42,86 @@
                         <label for="ofgemId" class="form-label">Ofgem ID</label>
                         <input type="text" class="form-control" id="ofgemId" name="ofgemId" value="@Model.OfgemId" readonly />
                     </div>
+
                     <div class="col-md-4">
-                        <label for="source" class="form-label required">Agent</label>
-                        <input type="text" class="form-control" id="ofgemId" name="ofgemId" value="@Model.AgentName" disabled />
+                        <label for="department" class="form-label required">Department</label>
+                        <select id="department" class="form-select dropdown-arrow" required title="Please Select Department!" data-current="@Model.Department" readonly></select>
                     </div>
+
+                    <!-- In House Department Fields -->
+                    <div class="col-md-4" id="inHouseFields" style="display: none;">
+                        <label for="closer" class="form-label">Agent</label>
+                        <select id="closer" class="form-select dropdown-arrow" title="Please Select Closer!" data-current="@Model.CloserId" disabled>
+                            <option value="">Select Closer</option>
+                        </select>
+                    </div>
+
+                    <!-- Brokers Department Fields -->
+                    <div class="col-md-4" id="brokersFields" style="display: none;">
+                        <label for="brokerageStaff" class="form-label">Brokerage Staff</label>
+                        <select id="brokerageStaff" class="form-select dropdown-arrow" title="Please Select Brokerage Staff!" data-current="@Model.BrokerageStaffId" disabled>
+                            <option value="">Select Brokerage Staff</option>
+                        </select>
+                    </div>
+
+                    <!-- Introducers Department Fields -->
+                    <div class="col-md-4" id="introducersFields" style="display: none;">
+                        <label for="introducer" class="form-label">Introducer</label>
+                        <select id="introducer" class="form-select dropdown-arrow" title="Please Select Introducer!" data-current="@Model.IntroducerId" disabled>
+                            <option value="">Select Introducer</option>
+                        </select>
+                    </div>
+
                     <div class="col-md-4">
                         <label for="source" class="form-label required">Source</label>
-                        <select id="source" name="source" class="form-select" data-current="@Model.Source" required></select>
-                        <div class="invalid-feedback">Please choose a source.</div>
+                        <select id="source" class="form-select dropdown-arrow" required title="Please Select Source!" data-current="@Model.Source" disabled></select>
                     </div>
-                    <div class="col-md-4">
-                        <label for="source" class="form-label required">Collaboration</label>
-                        <input type="text" class="form-control" id="collaborationName" name="collaborationName" value="@Model.CollaborationName" disabled />
+
+                    <!-- Data Source Fields -->
+                    <div class="col-md-4" id="dataSourceFields" style="display: none;">
+                        <label for="collaboration" class="form-label">Collaboration</label>
+                        <select id="collaboration" class="form-select dropdown-arrow" title="Please Select Collaboration!" data-current="@Model.Collaboration" disabled>
+                            <option value="">Select Collaboration</option>
+                            <option value="Lead Generator">Lead Generator</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4" id="leadGeneratorField" style="display: none;">
+                        <label for="leadGenerator" class="form-label">Lead Generator</label>
+                        <select id="leadGenerator" class="form-select dropdown-arrow" title="Please Select Lead Generator!" data-current="@Model.LeadGeneratorId" disabled>
+                            <option value="">Select Lead Generator</option>
+                        </select>
+                    </div>
+
+                    <!-- Referral Partners Source Fields -->
+                    <div class="col-md-4" id="referralPartnerField" style="display: none;">
+                        <label for="referralPartner" class="form-label">Referral Partner</label>
+                        <select id="referralPartner" class="form-select dropdown-arrow" title="Please Select Referral Partner!" data-current="@Model.ReferralPartnerId" disabled>
+                            <option value="">Select Referral Partner</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4" id="subReferralPartnerField" style="display: none;">
+                        <label for="subReferralPartner" class="form-label">Sub Referral Partner</label>
+                        <select id="subReferralPartner" class="form-select dropdown-arrow" title="Please Select Sub Referral Partner!" data-current="@Model.SubReferralPartnerId" disabled>
+                            <option value="">Select Sub Referral Partner</option>
+                        </select>
+                    </div>
+
+                    <!-- Sub Broker Source Fields -->
+                    <div class="col-md-4" id="subBrokerageField" style="display: none;">
+                        <label for="subBrokerage" class="form-label">Sub Brokerage</label>
+                        <select id="subBrokerage" class="form-select dropdown-arrow" title="Please Select Sub Brokerage!" data-current="@Model.SubBrokerageId" disabled>
+                            <option value="">Select Sub Brokerage</option>
+                        </select>
+                    </div>
+
+                    <!-- Sub Introducer Source Fields -->
+                    <div class="col-md-4" id="subIntroducerField" style="display: none;">
+                        <label for="subIntroducer" class="form-label">Sub Introducer</label>
+                        <select id="subIntroducer" class="form-select dropdown-arrow" title="Please Select Sub Introducer!" data-current="@Model.SubIntroducerId" disabled>
+                            <option value="">Select Sub Introducer</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -176,10 +244,15 @@
                     </div>
 
                     <div class="col-md-3">
-                        <label for="supplierSelect" class="form-label required">Supplier</label>
-                        <select id="supplierSelect" name="supplierSelect" class="form-select" disabled>
-                            <option value="@Model.SupplierSnapshot.SupplierId" selected>@Model.SupplierSnapshot.SupplierName</option>
-                        </select>
+                        <div class="w-100 position-relative">
+                            <label for="supplierSelect" class="form-label required">Supplier</label>
+                            <a href="@Model.Link" target="_blank" class="btn-supplier-link ms-2">
+                                <i class="bi bi-link-45deg"></i>
+                            </a>
+                            <select id="supplierSelect" name="supplierSelect" class="form-select" disabled>
+                                <option value="@Model.SupplierSnapshot.SupplierId" selected>@Model.SupplierSnapshot.SupplierName</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="col-md-3">
@@ -202,6 +275,15 @@
                         <select id="supplierCommsType" name="supplierCommsType" class="form-select dropdown-arrow" required title="Please Select the Supplier Type" data-current="@Model.SupplierCommsType" disabled></select>
                         <div class="invalid-feedback">Supplier comms type is required.</div>
                     </div>
+
+                    @if (!string.IsNullOrEmpty(Model.CampaignName))
+                    {
+                        <div class="col-md-3">
+                            <label for="topLine" class="form-label">Campaign</label>
+                            <input type="text" id="campaignName" name="campaignName" class="form-control" value="@Model.CampaignName" disabled />
+                        </div>
+                    }
+
                 </div>
             </div>
         </div>
@@ -455,7 +537,7 @@
     </div>
 </div>
 
-
+<!-- Duplicate Email Modal -->
 <div class="modal fade" id="emailModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content rounded-3 shadow">

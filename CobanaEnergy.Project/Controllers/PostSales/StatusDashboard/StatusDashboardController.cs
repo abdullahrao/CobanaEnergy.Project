@@ -320,6 +320,33 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
                         var savedProductSnapshot = snapshot.CE_ElectricSupplierProductSnapshots
                             .FirstOrDefault(p => p.ProductId == contract.ProductId);
 
+                        #region [Campain]
+
+                        DateTime? contractInputDate = null;
+
+                        if (DateTime.TryParse(contract.InputDate, out var parsedInputDate))
+                            contractInputDate = parsedInputDate;
+                        string campaignName = null;
+                        if (contractInputDate.HasValue)
+                        {
+                            var campaign = await _db.CE_Campaigns
+                                .FirstOrDefaultAsync(x =>
+                                    x.SupplierId == contract.SupplierId &&
+                                    x.ProductId == contract.ProductId &&
+                                    x.StartDate <= contractInputDate.Value &&
+                                    x.EndDate >= contractInputDate.Value);
+
+                            if (campaign != null)
+                            {
+                                campaignName = campaign.CampaignName;
+                            }
+                        }
+
+                        contract.CampaignName = campaignName ?? "N/A";
+
+                        #endregion
+
+
                         // Map common
                         model = MapCommon(contract, account, contractStatus, postSalesObj, crs);
 
@@ -352,6 +379,32 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
                             .FirstOrDefaultAsync(s => s.EId == contract.EId);
                         if (snapshot == null) return HttpNotFound();
 
+
+                        #region [Campain]
+
+                        DateTime? contractInputDate = null;
+
+                        if (DateTime.TryParse(contract.InputDate, out var parsedInputDate))
+                            contractInputDate = parsedInputDate;
+                        string campaignName = null;
+                        if (contractInputDate.HasValue)
+                        {
+                            var campaign = await _db.CE_Campaigns
+                                .FirstOrDefaultAsync(x =>
+                                    x.SupplierId == contract.SupplierId &&
+                                    x.ProductId == contract.ProductId &&
+                                    x.StartDate <= contractInputDate.Value &&
+                                    x.EndDate >= contractInputDate.Value);
+
+                            if (campaign != null)
+                            {
+                                campaignName = campaign.CampaignName;
+                            }
+                        }
+
+                        contract.CampaignName = campaignName ?? "N/A";
+
+                        #endregion
 
 
                         var savedProductSnapshot = snapshot.CE_GasSupplierProductSnapshots
@@ -575,14 +628,14 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
                 {
                     Username = l.CreatedBy,
                     ActionDate = l.CreatedDate.ToString("dd/MM/yyyy HH:mm:ss"),
-                    ContractStatus = l.ContractStatus,
-                    ContractNotes = l.ContractNotes,
-                    QueryType = l.QueryType,
-                    CSD = l.CSD,
-                    CED = l.CED,
-                    COT = l.COT,
-                    ObjectionDate = l.ObjectionDate,
-                    ReAppliedDate = l.ReAppliedDate
+                    ContractStatus = l.ContractStatus ?? "-",
+                    ContractNotes = l.ContractNotes ?? "-",
+                    QueryType = l.QueryType ?? "-",
+                    CSD = l.CSD ?? "-",
+                    CED = l.CED ?? "-",
+                    COT = l.COT ?? "-",
+                    ObjectionDate = l.ObjectionDate ?? "-",
+                    ReAppliedDate = l.ReAppliedDate ?? "-"
                 });
 
                 return JsonResponse.Ok(formatted);
@@ -632,6 +685,7 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
                 BusinessName = contract.BusinessName,
                 BusinessDoorNumber = contract.BusinessDoorNumber,
                 BusinessHouseName = contract.BusinessHouseName,
+                Link = contract.Link,
                 BusinessStreet = contract.BusinessStreet,
                 BusinessTown = contract.BusinessTown,
                 BusinessCounty = contract.BusinessCounty,
@@ -639,12 +693,13 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
                 PhoneNumber1 = contract.PhoneNumber1,
                 PhoneNumber2 = contract.PhoneNumber2,
                 EmailAddress = contract.EmailAddress,
+                CampaignName = contract.CampaignName,
 
                 CED = effectiveCed.ToString("yyyy-MM-dd"),
-                CEDCOT = cr.CED_COT,
+                CEDCOT = cr?.CED_COT,
                 InitialStartDate = cr?.StartDate ?? contract.StartDate,
 
-                InputDate = contract.InputDate,
+                InputDate = ParserHelper.FormatDateForDisplay(contract.InputDate),
                 Duration = contract.Duration,
                 Uplift = contract.Uplift,
                 InputEAC = contract.InputEAC,
@@ -696,52 +751,11 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
                 EmailList = emailList,
                 EmailSubject = emailDetails?.Subject,
                 EmailBody = emailDetails?.EmailBody,
+                TopLine = contract.TopLine
             };
 
             return vm;
         }
-
-        //private SupplierSnapshotViewModel MapSnapshot(dynamic snapshot)
-        //{
-        //    return new SupplierSnapshotViewModel
-        //    {
-        //        Id = snapshot.Id,
-        //        SupplierId = snapshot.SupplierId,
-        //        EId = snapshot.EId,
-        //        SupplierName = snapshot.SupplierName,
-        //        Link = snapshot.SupplierLink,
-        //        //Products = (snapshot.CE_GasSupplierProductSnapshots ?? snapshot.CE_ElectricSupplierProductSnapshots)
-        //        //    .Select(p => new SupplierProductSnapshotViewModel
-        //        //    {
-        //        //        Id = p.Id,
-        //        //        ProductId = p.ProductId,
-        //        //        ProductName = p.ProductName,
-        //        //        SupplierCommsType = p.SupplierCommsType,
-        //        //        StartDate = p.StartDate.ToString("dd/MM/yyyy"),
-        //        //        EndDate = p.EndDate.ToString("dd/MM/yyyy"),
-        //        //        Commission = p.Commission
-        //        //    }).ToList(),
-        //        //Uplifts = (snapshot.CE_GasSupplierUpliftSnapshots ?? snapshot.CE_ElectricSupplierUpliftSnapshots)
-        //        //    .Select(u => new SupplierUpliftSnapshotViewModel
-        //        //    {
-        //        //        Id = u.Id,
-        //        //        Uplift = u.Uplift,
-        //        //        FuelType = u.FuelType,
-        //        //        StartDate = u.StartDate,
-        //        //        EndDate = u.EndDate
-        //        //    }).ToList(),
-        //        //Contacts = (snapshot.CE_GasSupplierContactSnapshots ?? snapshot.CE_ElectricSupplierContactSnapshots)
-        //        //    .Select(c => new SupplierContactSnapshotViewModel
-        //        //    {
-        //        //        Id = c.Id,
-        //        //        ContactName = c.ContactName,
-        //        //        Role = c.Role,
-        //        //        PhoneNumber = c.PhoneNumber,
-        //        //        Email = c.Email,
-        //        //        Notes = c.Notes
-        //        //    }).ToList()
-        //    };
-        //}
 
         private SupplierSnapshotViewModel MapSnapshot(CE_GasSupplierSnapshots snapshot)
         {
@@ -1056,10 +1070,12 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
 
         private async Task<ContractViewModel> GetContractDetailsAsync(string eId, string type, CE_Accounts account)
         {
-            var contract = new ContractViewModel();
+            var sortCodeConst = account?.SortCode ?? "";
+            var accountNoConst = account?.AccountNumber ?? "";
+
             if (string.Equals(type, "Electric", StringComparison.OrdinalIgnoreCase))
             {
-                contract = await (from ec in _db.CE_ElectricContracts
+                return await (from ec in _db.CE_ElectricContracts
                                   join sp in _db.CE_Supplier on ec.SupplierId equals sp.Id
                                   where ec.EId == eId
                                   select new ContractViewModel
@@ -1103,10 +1119,9 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
                                       //UnitRate = ec.UnitRate,
                                       OtherRate = ec.OtherRate,
                                       StandingCharge = ec.StandingCharge,
-                                      SortCode = account.SortCode ?? "",
-                                      AccountNumber = account.AccountNumber ?? "",
+                                      SortCode = sortCodeConst,
+                                      AccountNumber = accountNoConst,
                                       CurrentSupplier = ec.CurrentSupplier,
-
                                       EMProcessor = ec.EMProcessor,
                                       ContractChecked = ec.ContractChecked,
                                       ContractAudited = ec.ContractAudited,
@@ -1118,7 +1133,6 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
                                       TopLine = ec.TopLine,
                                       // Brokerage Details
                                       OfgemId = ec.OfgemId,
-
                                       // Dynamic Department-based fields
                                       Collaboration = ec.Collaboration,
 
@@ -1128,7 +1142,7 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
             }
             else
             {
-                contract = await (from gc in _db.CE_GasContracts
+                return await (from gc in _db.CE_GasContracts
                                   join sp in _db.CE_Supplier on gc.SupplierId equals sp.Id
                                   where gc.EId == eId
                                   select new ContractViewModel
@@ -1172,10 +1186,9 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
                                       UnitRate = gc.UnitRate,
                                       OtherRate = gc.OtherRate,
                                       StandingCharge = gc.StandingCharge,
-                                      //SortCode = account.SortCode ?? "",
-                                      //AccountNumber = account.AccountNumber ?? "",
+                                      SortCode = sortCodeConst,
+                                      AccountNumber = accountNoConst,
                                       CurrentSupplier = gc.CurrentSupplier,
-
                                       EMProcessor = gc.EMProcessor,
                                       ContractChecked = gc.ContractChecked,
                                       ContractAudited = gc.ContractAudited,
@@ -1184,16 +1197,13 @@ namespace CobanaEnergy.Project.Controllers.PostSales.StatusDashboard
                                       SalesType = gc.SalesType,
                                       SalesTypeStatus = gc.SalesTypeStatus,
                                       PreSalesStatus = gc.PreSalesStatus,
-
                                       // Brokerage Details
                                       OfgemId = gc.OfgemId,
-
                                       // Dynamic Department-based fields
                                       Collaboration = gc.Collaboration,
-                                  }).FirstOrDefaultAsync();
 
+                                  }).FirstOrDefaultAsync();
             }
-            return contract;
         }
 
         private IQueryable<ContractViewModel> ApplyFilters(IQueryable<ContractViewModel> combined, StatusQueryParams q)
